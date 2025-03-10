@@ -144,7 +144,7 @@ public class TSModelGenerate : GenerateBase
             DirName = path ?? "",
             FullName = path ?? "",
             Content = tsContent,
-            ModelName = schemaKey
+            ModelName = schemaKey,
         };
 
         return file;

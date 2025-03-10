@@ -1,5 +1,5 @@
 import { Variable } from '../../models/variable.model';
-import { TypeMeta } from '../../models/type-meta.model';
+import { ModelInfo } from '../../models/model-info.model';
 /**
  * 操作执行模型
  */
@@ -23,6 +23,6 @@ export interface GenActionRunDto {
   /**
    * 模型信息
    */
-  modelInfo?: TypeMeta | null;
+  modelInfo?: ModelInfo | null;
 
 }

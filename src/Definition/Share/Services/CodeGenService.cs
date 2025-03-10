@@ -3,7 +3,6 @@ using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
-using EntityFramework.DBProvider;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Readers;
 
@@ -38,23 +37,23 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             ModuleName = entityInfo.ModuleName
         };
 
-        var addDtoFile = await GenerateDtoAsync(entityInfo, DtoType.Add);
+        var addDtoFile = GenerateDto(entityInfo, DtoType.Add);
         addDtoFile.IsCover = isCover;
         addDtoFile.FullName = Path.Combine(outputPath, addDtoFile.FullName);
 
-        var updateDtoFile = await GenerateDtoAsync(entityInfo, DtoType.Update);
+        var updateDtoFile = GenerateDto(entityInfo, DtoType.Update);
         updateDtoFile.IsCover = isCover;
         updateDtoFile.FullName = Path.Combine(outputPath, updateDtoFile.FullName);
 
-        var filterDtoFile = await GenerateDtoAsync(entityInfo, DtoType.Filter);
+        var filterDtoFile = GenerateDto(entityInfo, DtoType.Filter);
         filterDtoFile.IsCover = isCover;
         filterDtoFile.FullName = Path.Combine(outputPath, filterDtoFile.FullName);
 
-        var itemDtoFile = await GenerateDtoAsync(entityInfo, DtoType.Item);
+        var itemDtoFile = GenerateDto(entityInfo, DtoType.Item);
         itemDtoFile.IsCover = isCover;
         itemDtoFile.FullName = Path.Combine(outputPath, itemDtoFile.FullName);
 
-        var detailDtoFile = await GenerateDtoAsync(entityInfo, DtoType.Detail);
+        var detailDtoFile = GenerateDto(entityInfo, DtoType.Detail);
         detailDtoFile.IsCover = isCover;
         detailDtoFile.FullName = Path.Combine(outputPath, detailDtoFile.FullName);
 
@@ -230,7 +229,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
 
             bool isNgModule = false;
-            using (StreamReader reader = new StreamReader(enumTextPath))
+            using (StreamReader reader = new(enumTextPath))
             {
                 string? firstLine = reader.ReadLine();
                 if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
@@ -267,7 +266,6 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             dir = Path.Combine(outputPath, "services", docName, s.FullName);
             s.FullName = Path.Combine(dir, s.Name);
-            s.IsCover = true;
         });
         files.AddRange(services);
         return files;
@@ -318,7 +316,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         }
     }
 
-    public async Task<GenFileInfo> GenerateDtoAsync(EntityInfo entityInfo, DtoType dtoType)
+    public GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
     {
         // 生成Dto
         var dtoGen = new DtoCodeGenerate(entityInfo);
