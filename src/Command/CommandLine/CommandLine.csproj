@@ -18,7 +18,7 @@
     <RepositoryUrl>https://github.com/AterDev/cli.git</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-9.0重构了代码目录结构，为未来的功能开发提供支撑。将之前以`命令行`为主的命令行工具，变成以`Web UI`为主的工具。
+9.0重构了代码目录结构，为未来的功能开发提供支撑。将之前以命令行为主的工具，变成以`Web UI`为主的工具。
 该版本主要一些变化:
 - 使用Sqlite替换了LiteDb，好处是更方便后续的开发，坏处是增加了打包体积
 - 支持slnx格式的项目
