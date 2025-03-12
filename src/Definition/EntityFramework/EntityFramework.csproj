@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="Ater.Web.Abstraction" Version="0.2.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />

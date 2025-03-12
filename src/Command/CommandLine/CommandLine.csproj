@@ -27,6 +27,7 @@
 - 前端框架升级到了Angular 19，全面使用standalone，并应用最新的Material主题
 - 完善了Csharp客户端请求的代码生成
 - 项目模板默认集成了.NET Aspire
+- 项目模板进一步简化了抽象，并修改了接口默认返回
 - 依赖更新
         </PackageReleaseNotes>
     <PackageIcon>logo.jpg</PackageIcon>
