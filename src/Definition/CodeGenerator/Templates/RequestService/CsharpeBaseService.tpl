@@ -65,9 +65,9 @@ public class BaseService
     /// <param name="route"></param>
     /// <param name="dic"></param>
     /// <returns></returns>
-    protected async Task<TResult?> DeleteJsonAsync<TResult>(string route, object? data = null)
+    protected async Task<TResult?> DeleteJsonAsync<TResult>(string route, Dictionary<string, string?>? dic = null)
     {
-        return await SendJsonAsync<TResult>(HttpMethod.Delete, route, data);
+        return await SendJsonAsync<TResult>(HttpMethod.Delete, route, dic);
     }
 
     // upload file
