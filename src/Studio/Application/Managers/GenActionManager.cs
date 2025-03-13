@@ -284,7 +284,7 @@ public class GenActionManager(
                                     {
                                         Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
                                     }
-                                    File.WriteAllText(outputPath, outputContent, Encoding.UTF8);
+                                    File.WriteAllText(outputPath, outputContent, new UTF8Encoding(false));
                                 }
                                 res.IsSuccess = true;
                             }

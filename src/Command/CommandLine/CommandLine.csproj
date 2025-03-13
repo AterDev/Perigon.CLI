@@ -18,11 +18,17 @@
     <RepositoryUrl>https://github.com/AterDev/cli.git</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-            - 处理安装时提示权限问题
-            - 兼容OpenAPI的Server路径
-            - 前端生成路径修改，可支持多版本或分组。(不兼容之前8.2之前路径)
-            - 页面改进
-            - 其他内容完善
+9.0重构了代码目录结构，为未来的功能开发提供支撑。将之前以命令行为主的工具，变成以`Web UI`为主的工具。
+该版本主要一些变化:
+- 使用Sqlite替换了LiteDb，好处是更方便后续的开发，坏处是增加了打包体积
+- 支持slnx格式的项目
+- 重构了代码生成方式，引入了`razor`引擎模型
+- 添加了生成任务模块功能，可自定义生成的内容(通过编写razor模板)
+- 前端框架升级到了Angular 19，全面使用standalone，并应用最新的Material主题
+- 完善了Csharp客户端请求的代码生成
+- 项目模板默认集成了.NET Aspire
+- 项目模板进一步简化了抽象，并修改了接口默认返回
+- 依赖更新
         </PackageReleaseNotes>
     <PackageIcon>logo.jpg</PackageIcon>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -310,12 +310,19 @@ public class CodeGenService(ILogger<CodeGenService> logger)
                 {
                     Directory.CreateDirectory(dir!);
                 }
-                File.WriteAllText(file.FullName, file.Content, Encoding.UTF8);
+                File.WriteAllText(file.FullName, file.Content, new UTF8Encoding(false));
                 _logger.LogInformation("🆕📄 :{path}", file.FullName);
             }
         }
     }
 
+    /// <summary>
+    /// 生成单个Dto
+    /// </summary>
+    /// <param name="entityInfo"></param>
+    /// <param name="dtoType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
     {
         // 生成Dto
@@ -368,6 +375,80 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
             ModuleName = entityInfo.ModuleName
         };
+    }
+
+    /// <summary>
+    /// 生成Csharp请求客户端类库
+    /// </summary>
+    /// <param name="docUrl"></param>
+    /// <param name="outputPath"></param>
+    /// <returns></returns>
+    public async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(string docUrl, string outputPath)
+    {
+        var files = new List<GenFileInfo>();
+        var docName = docUrl.Split('/').Reverse().Skip(1).First();
+        var projectName = docName.ToPascalCase() + "API";
+        outputPath = Path.Combine(outputPath, projectName);
+
+        string openApiContent = "";
+        if (docUrl.StartsWith("http://") || docUrl.StartsWith("https://"))
+        {
+            using HttpClient http = new();
+            openApiContent = await http.GetStringAsync(docUrl);
+        }
+        else
+        {
+            openApiContent = File.ReadAllText(docUrl);
+        }
+        openApiContent = openApiContent
+            .Replace("«", "")
+            .Replace("»", "");
+
+        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
+        var gen = new CSHttpClientGenerate(apiDocument!);
+
+        string nspName = new DirectoryInfo(outputPath).Name;
+        string baseContent = CSHttpClientGenerate.GetBaseService(nspName);
+        string globalUsingContent = CSHttpClientGenerate.GetGlobalUsing(projectName);
+
+        files.Add(new GenFileInfo("BaseService", baseContent)
+        {
+            FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
+            IsCover = true
+        });
+
+        files.Add(new GenFileInfo("GlobalUsings", globalUsingContent)
+        {
+            FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
+            IsCover = false
+        });
+
+        // services
+        List<GenFileInfo> services = gen.GetServices(nspName);
+        services.ForEach(s =>
+        {
+            s.FullName = Path.Combine(outputPath, "Services", s.Name);
+            s.IsCover = true;
+        });
+        // models
+        List<GenFileInfo> models = gen.GetModelFiles(nspName);
+        models.ForEach(s =>
+        {
+            s.FullName = Path.Combine(outputPath, "Models", s.Name);
+            s.IsCover = true;
+        });
+        // csproj
+        var csprojContent = CSHttpClientGenerate.GetCsprojContent();
+        files.Add(new GenFileInfo(projectName, csprojContent)
+        {
+            FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
+            IsCover = true
+        });
+
+        files.AddRange(services);
+        files.AddRange(models);
+
+        return files;
     }
 }
 

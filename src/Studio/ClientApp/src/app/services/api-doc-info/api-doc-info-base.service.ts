@@ -79,4 +79,15 @@ export class ApiDocInfoBaseService extends BaseService {
     return this.request<boolean>('get', _url);
   }
 
+  /**
+   * 生成Csharp请求
+   * @param id 
+   * @param webPath 
+   * @param swaggerPath 
+   */
+  generateCsharpRequest(id: string, webPath: string | null, swaggerPath: string | null): Observable<boolean> {
+    const _url = `/api/admin/ApiDocInfo/generateCsharpRequest/${id}?webPath=${webPath ?? ''}&swaggerPath=${swaggerPath ?? ''}`;
+    return this.request<boolean>('get', _url);
+  }
+
 }

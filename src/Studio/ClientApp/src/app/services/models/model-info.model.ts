@@ -1,30 +1,24 @@
 import { EntityKeyType } from '../enum/models/entity-key-type.model';
-import { PropertyInfo } from '../models/property-info.model';
-/**
- * 模型信息
- */
+import { Project } from '../project/models/project.model';
+import { ModelProperty } from '../models/model-property.model';
 export interface ModelInfo {
-  /**
-   * 类名
-   */
+  id: string;
+  createdTime: Date;
+  updatedTime: Date;
+  isDeleted: boolean;
+  md5Hash: string;
+  moduleName?: string | null;
+  filePath: string;
   name: string;
-  /**
-   * 类注释
-   */
+  namespaceName: string;
+  assemblyName?: string | null;
   comment?: string | null;
-  /**
-   * 类注释
-   */
   summary?: string | null;
   keyType?: EntityKeyType | null;
-  /**
-   * 是否为枚举类
-   */
   isEnum?: boolean | null;
   isList: boolean;
-  /**
-   * 属性
-   */
-  propertyInfos?: PropertyInfo[];
+  project?: Project | null;
+  projectId: string;
+  propertyInfos?: ModelProperty[];
 
 }

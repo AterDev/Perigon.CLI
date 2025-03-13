@@ -17,7 +17,7 @@
         <Folder Include="Models\ToolsDtos\" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="9.0.1" />
+      <PackageReference Include="System.Text.Json" Version="9.0.3" />
     </ItemGroup>
 
     <ItemGroup>

@@ -134,7 +134,14 @@ public class IOHelper
         if (Directory.Exists(path))
         {
             Console.WriteLine($"✂️ Delete {path}");
-            Directory.Delete(path, true);
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ {path} delete failed:{ex.Message}");
+            }
         }
     }
 }

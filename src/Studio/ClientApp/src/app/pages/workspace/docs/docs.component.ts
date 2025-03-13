@@ -163,7 +163,7 @@ export class DocsComponent implements OnInit {
 
     this.clientRequestForm = new FormGroup({
       swagger: new FormControl<string | null>('./swagger.json', []),
-      type: new FormControl(null, []),
+      type: new FormControl(0, []),
       path: new FormControl<string | null>(this.project.path + "\\src\\SDK\\", [Validators.required])
     });
   }
@@ -335,6 +335,20 @@ export class DocsComponent implements OnInit {
     const swagger = this.clientRequestForm.get('swagger')?.value as string;
     const type = this.clientRequestForm.get('type')?.value as number;
     const path = this.clientRequestForm.get('path')?.value as string;
+    this.service.generateCsharpRequest(this.currentDoc?.id!, path, swagger)
+      .subscribe({
+        next: res => {
+          if (res) {
+            this.snb.open('生成成功');
+            this.dialogRef.close();
+          }
+          this.isSync = false;
+        },
+        error: () => {
+          this.isSync = false;
+        }
+      })
+
   }
 
 

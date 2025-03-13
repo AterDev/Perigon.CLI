@@ -1,9 +1,4 @@
-import { EntityInfo } from '../models/entity-info.model';
 export interface PropertyInfo {
-  id: string;
-  createdTime: Date;
-  updatedTime: Date;
-  isDeleted: boolean;
   type: string;
   name: string;
   displayName?: string | null;
@@ -26,7 +21,5 @@ export interface PropertyInfo {
   isDecimal: boolean;
   suffixContent?: string | null;
   defaultValue: string;
-  entityInfo?: EntityInfo | null;
-  entityInfoId: string;
 
 }
