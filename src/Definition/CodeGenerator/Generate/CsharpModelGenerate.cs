@@ -4,7 +4,7 @@ using Microsoft.OpenApi.Models;
 
 namespace CodeGenerator.Generate;
 /// <summary>
-/// generate typescript model file
+/// generate csharp model file
 /// </summary>
 public class CsharpModelGenerate : GenerateBase
 {
@@ -117,8 +117,9 @@ public class CsharpModelGenerate : GenerateBase
 
         return dic;
     }
+
     /// <summary>
-    /// 生成ts interface
+    /// 生成模型类文件
     /// </summary>
     /// <returns></returns>
     public GenFileInfo GenerateModelFile(string schemaKey, OpenApiSchema schema, string nspName)
@@ -205,9 +206,10 @@ public class CsharpModelGenerate : GenerateBase
                 """ + Environment.NewLine;
         }
         List<CSProperty> props = GetCSProperties(schema);
+        bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
         props.ForEach(p =>
         {
-            propertyString += p.ToProperty();
+            propertyString += p.ToProperty(preferenceNull);
         });
         // 去重
         var importsProps = props.Where(p => !string.IsNullOrEmpty(p.Reference))
@@ -265,15 +267,16 @@ public class CsharpModelGenerate : GenerateBase
                 int enumValue = ((OpenApiInteger)obj["value"]).Value;
                 string enumDesc = ((OpenApiString)obj["description"]).Value ?? "";
                 propertyString += $"""  
-                      // {enumDesc}
-                      {enumName} = {enumValue},
+                        [Description("{enumDesc}")]
+                        {enumName} = {enumValue},
 
                     """;
             }
         }
 
         string namespaceString = $"namespace {nspName}.Models;" + Environment.NewLine;
-        res = @$"{namespaceString}{comment}public enum {name} {{
+        res = @$"using System.ComponentModel;
+{namespaceString}{comment}public enum {name} {{
 {propertyString}
 }}
 ";
@@ -371,11 +374,14 @@ public class CSProperty
     public bool IsList { get; set; }
     public string? Comments { get; set; }
 
-    public string ToProperty()
+    public string ToProperty(bool preferenceNull = false)
     {
         // 引用的类型可空
+        if (preferenceNull && !string.IsNullOrWhiteSpace(Reference))
+        {
+            IsNullable = true;
+        }
         string type = Type + (IsNullable ? "?" : "");
-
         string defaultValue = string.Empty;
         if (!IsNullable && !IsEnum && !IsList)
         {
@@ -387,5 +393,5 @@ public class CSProperty
         }
 
         return $"{Comments}    public {type} {Name?.ToPascalCase()} {{ get; set; }}{defaultValue}" + Environment.NewLine;
-        }
     }
+}

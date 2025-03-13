@@ -228,4 +228,18 @@ public class ApiDocInfoManager(
         var files = await _codeGenService.GenerateWebRequestAsync(swaggerPath, webPath, type);
         _codeGenService.GenerateFiles(files);
     }
+
+
+    /// <summary>
+    /// 生成csharp请求服务
+    /// </summary>
+    /// <param name="webPath"></param>
+    /// <param name="swaggerPath"></param>
+    /// <returns></returns>
+    public async Task GenerateCsharpRequestAsync(string webPath, string? swaggerPath = null)
+    {
+        swaggerPath ??= Path.Combine(_project.ApiPath!, "swagger.json");
+        var files = await _codeGenService.GenerateCsharpApiClientAsync(swaggerPath, webPath);
+        _codeGenService.GenerateFiles(files);
+    }
 }

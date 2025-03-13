@@ -124,4 +124,29 @@ public class ApiDocInfoController(
         return true;
     }
 
+
+    /// <summary>
+    /// 生成Csharp请求
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="webPath"></param>
+    /// <param name="swaggerPath"></param>
+    /// <returns></returns>
+    [HttpGet("generateCsharpRequest/{id}")]
+    public async Task<ActionResult<bool>> GenerateCsharpRequest([FromRoute] Guid id, string webPath, string? swaggerPath = null)
+    {
+        if (_project.Project == null)
+        {
+            return NotFound("项目不存在");
+        }
+
+        var entity = await _manager.GetCurrentAsync(id);
+        if (entity == null)
+        {
+            return NotFound("未找到文档配置");
+        }
+
+        await _manager.GenerateCsharpRequestAsync(webPath, swaggerPath);
+        return true;
+    }
 }

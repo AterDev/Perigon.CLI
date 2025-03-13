@@ -248,7 +248,7 @@ public partial class EntityInfoManager(
         {
             if (filePath != null)
             {
-                await File.WriteAllTextAsync(filePath, Content, Encoding.UTF8);
+                await File.WriteAllTextAsync(filePath, Content, new UTF8Encoding(false));
                 return true;
             }
         }
