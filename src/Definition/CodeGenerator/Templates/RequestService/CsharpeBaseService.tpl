@@ -7,7 +7,7 @@ public class BaseService
 
     public BaseService(IHttpClientFactory httpClient)
     {
-        Http = httpClient.CreateClient("ClientAPI");
+        Http = httpClient.CreateClient("#@Namespace#");
         JsonSerializerOptions = new JsonSerializerOptions()
         {
             ReferenceHandler = ReferenceHandler.IgnoreCycles,
@@ -78,9 +78,9 @@ public class BaseService
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected async Task<TResult?> DeleteJsonAsync<TResult>(string route, object? data = null, CancellationToken cancellationToken = default)
+    protected async Task<TResult?> DeleteJsonAsync<TResult>(string route, Dictionary<string, string?>? dic = null, CancellationToken cancellationToken = default)
     {
-        return await SendJsonAsync<TResult>(HttpMethod.Delete, route, data, cancellationToken);
+        return await SendJsonAsync<TResult>(HttpMethod.Delete, route, dic, cancellationToken);
     }
 
     /// <summary>
