@@ -188,7 +188,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         // 处理参数
         string paramsString = "";
         string paramsComments = "";
-        string dataString = "";
+        string dataString = ", null";
 
         if (function.Params?.Count > 0)
         {
@@ -219,6 +219,16 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
             dataString = ", data";
             paramsComments += $"    /// <param name=\"data\">{requestType}</param>\n";
         }
+
+        if (string.IsNullOrWhiteSpace(paramsString))
+        {
+            paramsString = $"CancellationToken cancellationToken = default";
+        }
+        else
+        {
+            paramsString += ", CancellationToken cancellationToken = default";
+        }
+
         // 注释生成
         string comments = $"""
              /// <summary>
@@ -254,10 +264,10 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         string returnType = function.ResponseType == "IFile" ? "Stream" : function.ResponseType;
 
         string method = function.ResponseType == "IFile"
-            ? $"DownloadFileAsync(url{dataString})"
-            : $"{function.Method}JsonAsync<{function.ResponseType}?>(url{dataString})";
+            ? $"DownloadFileAsync(url, cancellationToken)"
+            : $"{function.Method}JsonAsync<{function.ResponseType}?>(url{dataString}, cancellationToken)";
 
-        method = function.RequestType == "IFile" ? $"UploadFileAsync<{function.ResponseType}?>(url, new StreamContent(data))" : method;
+        method = function.RequestType == "IFile" ? $"UploadFileAsync<{function.ResponseType}?>(url, new StreamContent(data), cancellationToken)" : method;
         string res = $$"""
         {{comments}}
             public async Task<{{returnType}}?> {{function.Name.ToPascalCase()}}Async({{paramsString}}) {
