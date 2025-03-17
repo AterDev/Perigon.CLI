@@ -26,16 +26,18 @@ public class ImageHelper
         var textPaint = new SKPaint
         {
             Color = SKColors.Black,
-            TextSize = fontSize,
-            TextAlign = SKTextAlign.Center,
             IsAntialias = true,
+        };
+        var textFont = new SKFont
+        {
+            Size = fontSize,
             Typeface = SKTypeface.Default
         };
         // 计算文本位置
         var textX = width / 2;
         var textY = height * 3 / 4;
         // 绘制文本
-        canvas.DrawText(captchaText, textX, textY, textPaint);
+        canvas.DrawText(captchaText, textX, textY, SKTextAlign.Center, textFont, textPaint);
 
         // 添加干扰线条
         var random = new Random();
