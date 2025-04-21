@@ -9,7 +9,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// 系统菜单
 /// </summary>
 /// <see cref="SystemMenuManager"/>
-[Authorize(AterConst.SuperAdmin)]
+[Authorize(WebConst.SuperAdmin)]
 public class SystemMenuController(
     IUserContext user,
     ILogger<SystemMenuController> logger,

@@ -54,11 +54,11 @@ public class SystemConfigManager(
     public async Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync()
     {
         // 程序启动时更新缓存
-        Dictionary<string, List<EnumDictionary>>? res = _cache.GetValue<Dictionary<string, List<EnumDictionary>>>(AterConst.EnumCacheName);
+        Dictionary<string, List<EnumDictionary>>? res = _cache.GetValue<Dictionary<string, List<EnumDictionary>>>(WebConst.EnumCacheName);
         if (res == null || res.Count == 0)
         {
             Dictionary<string, List<EnumDictionary>> data = EnumHelper.GetAllEnumInfo();
-            await _cache.SetValueAsync(AterConst.EnumCacheName, data, null);
+            await _cache.SetValueAsync(WebConst.EnumCacheName, data, null);
             return data;
         }
         return res;
@@ -85,14 +85,14 @@ public class SystemConfigManager(
     {
         // 优先级：缓存>配置文件
         var policy = new LoginSecurityPolicy();
-        var configString = _cache.GetValue<string>(AterConst.LoginSecurityPolicy);
+        var configString = _cache.GetValue<string>(WebConst.LoginSecurityPolicy);
         if (configString != null)
         {
             policy = JsonSerializer.Deserialize<LoginSecurityPolicy>(configString);
         }
         else
         {
-            var config = _configuration.GetSection(AterConst.LoginSecurityPolicy);
+            var config = _configuration.GetSection(WebConst.LoginSecurityPolicy);
             if (config.Exists())
             {
                 policy = config.Get<LoginSecurityPolicy>();

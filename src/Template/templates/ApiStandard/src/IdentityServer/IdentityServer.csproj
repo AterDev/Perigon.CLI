@@ -7,17 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="OpenIddict.AspNetCore" Version="6.1.1" />
-    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="6.1.1" />
+    <PackageReference Include="OpenIddict.AspNetCore" Version="6.2.0" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Infrastructure\Ater.Web.Core\Ater.Web.Core.csproj" />
+    <ProjectReference Include="..\Convention\Ater.Web.Core\Ater.Web.Core.csproj" />
     <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
   </ItemGroup>
 

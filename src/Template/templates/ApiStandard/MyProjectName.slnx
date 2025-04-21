@@ -22,10 +22,10 @@
     <Project Path="src/Definition/EntityFramework/EntityFramework.csproj" />
     <Project Path="src/Definition/Share/Share.csproj" />
   </Folder>
-  <Folder Name="/src/Infrastructure/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
-    <Project Path="src/Infrastructure/Ater.Web.Abstraction/Ater.Web.Abstraction.csproj" />
-    <Project Path="src/Infrastructure/Ater.Web.Core/Ater.Web.Core.csproj" />
-    <Project Path="src/Infrastructure/Ater.Web.Extension/Ater.Web.Extension.csproj" />
+  <Folder Name="/src/Convention/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
+    <Project Path="src/Convention/Ater.Web.Convention/Ater.Web.Convention.csproj" />
+    <Project Path="src/Convention/Ater.Common/Ater.Common.csproj" />
+    <Project Path="src/Convention/Ater.Web.Extension/Ater.Web.Extension.csproj" />
     <Project Path="src/ServiceDefaults/ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">

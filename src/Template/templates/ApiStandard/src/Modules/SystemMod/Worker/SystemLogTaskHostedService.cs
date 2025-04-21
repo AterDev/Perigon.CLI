@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Ater.Web.Abstraction.Interface;
-using Ater.Web.Core.Attributes;
+using Ater.Common.Attributes;
 using EntityFramework.DBProvider;
 using Microsoft.Extensions.Hosting;
 

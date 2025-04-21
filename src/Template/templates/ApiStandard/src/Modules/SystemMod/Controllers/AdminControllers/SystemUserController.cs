@@ -40,7 +40,7 @@ public class SystemUserController(
             return NotFound("不存在的邮箱账号");
         }
         var captcha = _manager.GetCaptcha();
-        var key = AterConst.VerifyCodeCachePrefix + email;
+        var key = WebConst.VerifyCodeCachePrefix + email;
         if (_cache.GetValue<string>(key) != null)
         {
             return Conflict("验证码已发送!");
@@ -102,13 +102,13 @@ public class SystemUserController(
             }
 
             // 缓存登录状态
-            string client = Request.Headers[AterConst.ClientHeader].FirstOrDefault() ?? AterConst.Web;
+            string client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
             if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
             {
-                client = AterConst.AllPlatform;
+                client = WebConst.AllPlatform;
             }
 
-            var key = user.GetUniqueKey(AterConst.LoginCachePrefix, client);
+            var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
             // 若会话过期时间为0，则使用jwt过期时间
             await _cache.SetValueAsync(key, result.Token,
                 sliding: loginPolicy.SessionExpiredSeconds == 0
@@ -138,7 +138,7 @@ public class SystemUserController(
         if (await _manager.ExistAsync(id))
         {
             // 清除缓存状态
-            await _cache.RemoveAsync(AterConst.LoginCachePrefix + id.ToString());
+            await _cache.RemoveAsync(WebConst.LoginCachePrefix + id.ToString());
             return Ok();
         }
         return NotFound();
@@ -150,7 +150,7 @@ public class SystemUserController(
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
-    [Authorize(AterConst.SuperAdmin)]
+    [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<PageList<SystemUserItemDto>>> FilterAsync(SystemUserFilterDto filter)
     {
         return await _manager.ToPageAsync(filter);
@@ -162,7 +162,7 @@ public class SystemUserController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize(AterConst.SuperAdmin)]
+    [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
@@ -176,7 +176,7 @@ public class SystemUserController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    [Authorize(AterConst.SuperAdmin)]
+    [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
     {
         SystemUser? current = await _manager.GetCurrentAsync(id);
@@ -208,7 +208,7 @@ public class SystemUserController(
     [HttpGet("{id}")]
     public async Task<ActionResult<SystemUserDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
-        var res = _user.IsRole(AterConst.SuperAdmin)
+        var res = _user.IsRole(WebConst.SuperAdmin)
             ? await _manager.FindAsync<SystemUserDetailDto>(u => u.Id == id)
             : await _manager.FindAsync<SystemUserDetailDto>(u => u.Id == _user.UserId);
         return res == null ? NotFound() : res;
@@ -220,7 +220,7 @@ public class SystemUserController(
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    [Authorize(AterConst.SuperAdmin)]
+    [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限

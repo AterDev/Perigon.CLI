@@ -6,7 +6,7 @@ var devDb = builder.AddSqlServer(name: "db", password: sqlPassword, port: 1433)
     .WithDataVolume()
     .AddDatabase("MyProjectName");
 
-var cache = builder.AddGarnet("cache", port: 6379)
+var cache = builder.AddRedis("cache", port: 6379)
     .WithDataVolume()
     .WithPersistence(interval: TimeSpan.FromMinutes(5));
 

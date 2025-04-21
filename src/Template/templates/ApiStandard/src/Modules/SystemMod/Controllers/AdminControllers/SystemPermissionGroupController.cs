@@ -3,7 +3,7 @@ using SystemMod.Models.SystemPermissionGroupDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
 /// <see cref="SystemPermissionGroupManager"/>
-[Authorize(AterConst.SuperAdmin)]
+[Authorize(WebConst.SuperAdmin)]
 public class SystemPermissionGroupController(
     IUserContext user,
     ILogger<SystemPermissionGroupController> logger,

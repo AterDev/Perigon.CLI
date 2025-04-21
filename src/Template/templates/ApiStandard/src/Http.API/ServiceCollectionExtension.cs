@@ -2,7 +2,8 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Ater.Web.Core.Converters;
+using Ater.Common.Converters;
+using Ater.Web.Convention.Interfaces;
 using Ater.Web.Extension.Middleware;
 using Http.API;
 
@@ -58,13 +59,13 @@ public static class ServiceCollectionExtension
         app.UseExceptionHandler(ExceptionHandler.Handler());
         if (app.Environment.IsProduction())
         {
-            app.UseCors(AterConst.Default);
+            app.UseCors(WebConst.Default);
             // app.UseHsts();
             // app.UseHttpsRedirection();
         }
         else
         {
-            app.UseCors(AterConst.Default);
+            app.UseCors(WebConst.Default);
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -290,7 +291,7 @@ public static class ServiceCollectionExtension
     {
         services.AddCors(options =>
         {
-            options.AddPolicy(AterConst.Default, builder =>
+            options.AddPolicy(WebConst.Default, builder =>
             {
                 builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
             });
@@ -301,9 +302,9 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddAuthorize(this IServiceCollection services)
     {
         services.AddAuthorizationBuilder()
-            .AddPolicy(AterConst.User, policy => policy.RequireRole(AterConst.User))
-            .AddPolicy(AterConst.AdminUser, policy => policy.RequireRole(AterConst.SuperAdmin, AterConst.AdminUser))
-            .AddPolicy(AterConst.SuperAdmin, policy => policy.RequireRole(AterConst.SuperAdmin));
+            .AddPolicy(WebConst.User, policy => policy.RequireRole(WebConst.User))
+            .AddPolicy(WebConst.AdminUser, policy => policy.RequireRole(WebConst.SuperAdmin, WebConst.AdminUser))
+            .AddPolicy(WebConst.SuperAdmin, policy => policy.RequireRole(WebConst.SuperAdmin));
         return services;
     }
 }

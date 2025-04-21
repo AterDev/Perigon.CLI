@@ -18,8 +18,8 @@ public class InitModule
         IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
         CacheService cache = provider.GetRequiredService<CacheService>();
 
-        var isInitString = context.SystemConfigs.Where(c => c.Key.Equals(AterConst.IsInit))
-            .Where(c => c.GroupName.Equals(AterConst.SystemGroup))
+        var isInitString = context.SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
+            .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
             .Select(c => c.Value)
             .FirstOrDefault();
         try
@@ -42,7 +42,7 @@ public class InitModule
 
     private static async Task InitRoleAndUserAsync(CommandDbContext context, ILogger<InitModule> logger, IConfiguration configuration)
     {
-        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r => r.NameValue == AterConst.AdminUser);
+        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r => r.NameValue == WebConst.AdminUser);
         // 初始化管理员账号和角色
         if (role == null)
         {
@@ -53,13 +53,13 @@ public class InitModule
             }
             SystemRole superRole = new()
             {
-                Name = AterConst.SuperAdmin,
-                NameValue = AterConst.SuperAdmin,
+                Name = WebConst.SuperAdmin,
+                NameValue = WebConst.SuperAdmin,
             };
             SystemRole adminRole = new()
             {
-                Name = AterConst.AdminUser,
-                NameValue = AterConst.AdminUser,
+                Name = WebConst.AdminUser,
+                NameValue = WebConst.AdminUser,
             };
             var salt = HashCrypto.BuildSalt();
             SystemUser adminUser = new()
@@ -95,12 +95,12 @@ public class InitModule
     private static async Task InitConfigAsync(CommandDbContext context, IConfiguration configuration, ILogger logger)
     {
         // 初始化配置信息
-        var initConfig = SystemConfig.NewSystemConfig(AterConst.SystemGroup, AterConst.IsInit, "true");
+        var initConfig = SystemConfig.NewSystemConfig(WebConst.SystemGroup, WebConst.IsInit, "true");
 
-        var loginSecurityPolicy = configuration.GetSection(AterConst.LoginSecurityPolicy)
+        var loginSecurityPolicy = configuration.GetSection(WebConst.LoginSecurityPolicy)
             .Get<LoginSecurityPolicy>() ?? new LoginSecurityPolicy();
 
-        var loginSecurityPolicyConfig = SystemConfig.NewSystemConfig(AterConst.SystemGroup, AterConst.LoginSecurityPolicy, JsonSerializer.Serialize(loginSecurityPolicy));
+        var loginSecurityPolicyConfig = SystemConfig.NewSystemConfig(WebConst.SystemGroup, WebConst.LoginSecurityPolicy, JsonSerializer.Serialize(loginSecurityPolicy));
 
         context.SystemConfigs.Add(loginSecurityPolicyConfig);
         context.SystemConfigs.Add(initConfig);
@@ -121,14 +121,14 @@ public class InitModule
     {
         logger.LogInformation("加载配置缓存");
         var securityPolicy = context.SystemConfigs
-            .Where(c => c.Key.Equals(AterConst.LoginSecurityPolicy))
-            .Where(c => c.GroupName.Equals(AterConst.SystemGroup))
+            .Where(c => c.Key.Equals(WebConst.LoginSecurityPolicy))
+            .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
             .Select(c => c.Value)
             .FirstOrDefault();
 
         if (securityPolicy != null)
         {
-            await cache.SetValueAsync(AterConst.LoginSecurityPolicy, securityPolicy, null);
+            await cache.SetValueAsync(WebConst.LoginSecurityPolicy, securityPolicy, null);
         }
     }
 }

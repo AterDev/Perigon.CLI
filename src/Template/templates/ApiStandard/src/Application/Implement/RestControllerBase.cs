@@ -9,7 +9,7 @@ namespace Application.Implement;
 /// 管理后台权限控制器
 /// </summary>
 [Route("api/admin/[controller]")]
-[Authorize(AterConst.AdminUser)]
+[Authorize(WebConst.AdminUser)]
 [ApiExplorerSettings(GroupName = "admin")]
 public class RestControllerBase<TManager>(TManager manager, IUserContextBase user, ILogger logger) : RestControllerBase
     where TManager : class
@@ -23,7 +23,7 @@ public class RestControllerBase<TManager>(TManager manager, IUserContextBase use
 /// 用户端权限控制器
 /// </summary>
 /// <typeparam name="TManager"></typeparam>
-[Authorize(AterConst.User)]
+[Authorize(WebConst.User)]
 [ApiExplorerSettings(GroupName = "client")]
 public class ClientControllerBase<TManager>(
     TManager manager,

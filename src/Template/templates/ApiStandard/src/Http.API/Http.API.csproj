@@ -18,7 +18,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Application\Application.csproj" />
-        <ProjectReference Include="..\Infrastructure\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+        <ProjectReference Include="..\Convention\Ater.Web.Extension\Ater.Web.Extension.csproj" />
         <ProjectReference Include="..\Modules\SystemMod\SystemMod.csproj" />
         <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>

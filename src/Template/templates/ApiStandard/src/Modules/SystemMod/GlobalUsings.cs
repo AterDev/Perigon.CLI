@@ -5,9 +5,9 @@ global using Application.Const;
 global using Application.Implement;
 global using Application.Services;
 
-global using Ater.Web.Abstraction;
-global using Ater.Web.Core.Models;
-global using Ater.Web.Core.Utils;
+global using Ater.Web.Convention;
+global using Ater.Common.Models;
+global using Ater.Common.Utils;
 global using Ater.Web.Extension.Services;
 global using Entity.SystemMod;
 

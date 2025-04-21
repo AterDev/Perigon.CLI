@@ -3,8 +3,8 @@ global using System.ComponentModel.DataAnnotations;
 
 global using Application.Implement;
 
-global using Ater.Web.Core.Models;
-global using Ater.Web.Core.Utils;
+global using Ater.Common.Models;
+global using Ater.Common.Utils;
 
 global using Entity.CMSMod;
 

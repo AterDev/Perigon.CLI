@@ -14,10 +14,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Infrastructure\Ater.Web.Core\Ater.Web.Core.csproj" />
+        <ProjectReference Include="..\..\Convention\Ater.Common\Ater.Common.csproj" />
     </ItemGroup>
 </Project>

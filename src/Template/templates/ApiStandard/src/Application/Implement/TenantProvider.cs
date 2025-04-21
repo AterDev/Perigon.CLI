@@ -10,7 +10,7 @@ public class TenantProvider : ITenantProvider
     public TenantProvider(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
-        if (Guid.TryParse(FindClaim(AterConst.TenantId)?.Value, out Guid userId) && userId != Guid.Empty)
+        if (Guid.TryParse(FindClaim(WebConst.TenantId)?.Value, out Guid userId) && userId != Guid.Empty)
         {
             TenantId = userId;
         }

@@ -1,4 +1,4 @@
-﻿using Ater.Web.Core.Models;
+﻿using Ater.Common.Models;
 
 namespace IdentityServer.Definition.Entity;
 
