@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Localization;
+﻿using Framework.Web.Convention;
+using Microsoft.Extensions.Localization;
 
 namespace Application;
 /// <summary>

@@ -1,3 +1,4 @@
+using Framework.Common.Models;
 using SystemMod.Managers;
 using SystemMod.Models.SystemPermissionDtos;
 namespace SystemMod.Controllers.AdminControllers;

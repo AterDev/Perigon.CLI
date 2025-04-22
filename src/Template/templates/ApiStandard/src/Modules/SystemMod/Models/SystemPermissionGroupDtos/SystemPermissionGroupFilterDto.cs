@@ -1,3 +1,5 @@
+using Framework.Common.Models;
+
 namespace SystemMod.Models.SystemPermissionGroupDtos;
 
 /// <see cref="Entity.SystemMod.SystemPermissionGroup"/>

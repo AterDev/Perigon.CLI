@@ -9,6 +9,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Application\Application.csproj" />
-		<ProjectReference Include="..\..\Convention\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+		<ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
 	</ItemGroup>
 </Project>

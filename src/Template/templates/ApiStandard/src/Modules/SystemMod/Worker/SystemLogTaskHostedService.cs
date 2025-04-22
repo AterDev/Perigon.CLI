@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
-using Ater.Web.Abstraction.Interface;
-using Ater.Common.Attributes;
 using EntityFramework.DBProvider;
 using Microsoft.Extensions.Hosting;
+using Framework.Common.Attributes;
 
 namespace SystemMod.Worker;
 /// <summary>

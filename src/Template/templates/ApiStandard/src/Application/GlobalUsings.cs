@@ -4,10 +4,10 @@ global using System.Security.Claims;
 global using Application.Implement;
 global using Application.Managers;
 
-global using Ater.Web.Convention;
-global using Ater.Web.Convention.Interfaces;
-global using Ater.Common.Models;
-global using Ater.Common.Utils;
+global using Framework.Web.Convention;
+global using Framework.Web.Convention.Abstraction;
+global using Framework.Common.Models;
+global using Framework.Common.Utils;
 
 global using Entity;
 global using EntityFramework;

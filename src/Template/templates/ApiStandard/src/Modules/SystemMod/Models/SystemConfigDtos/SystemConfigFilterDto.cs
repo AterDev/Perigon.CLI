@@ -1,3 +1,5 @@
+using Framework.Common.Models;
+
 namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置查询筛选

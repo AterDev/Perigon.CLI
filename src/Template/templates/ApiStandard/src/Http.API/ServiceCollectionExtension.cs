@@ -2,9 +2,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Ater.Common.Converters;
-using Ater.Web.Convention.Interfaces;
-using Ater.Web.Extension.Middleware;
 using Http.API;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;

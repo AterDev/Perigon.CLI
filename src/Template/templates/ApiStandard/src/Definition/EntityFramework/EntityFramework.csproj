@@ -11,7 +11,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />
-        <ProjectReference Include="..\..\Convention\Ater.Web.Convention\Ater.Web.Convention.csproj" />
+        <ProjectReference Include="..\..\Framework\Framework.Web.Convention\Framework.Web.Convention.csproj" />
     </ItemGroup>
 
     <ItemGroup>

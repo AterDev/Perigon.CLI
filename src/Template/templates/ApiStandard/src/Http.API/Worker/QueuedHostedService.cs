@@ -1,15 +1,13 @@
-﻿using Ater.Web.Extension;
-
-namespace Http.API.Worker;
+﻿namespace Http.API.Worker;
 /// <summary>
 /// 后台队列任务服务示例
 /// </summary>
-public class QueuedHostedService(IBackgroundTaskQueue taskQueue,
+public class QueuedHostedService(IBackgroundTask taskQueue,
     ILogger<QueuedHostedService> logger) : BackgroundService
 {
     private readonly ILogger<QueuedHostedService> _logger = logger;
 
-    public IBackgroundTaskQueue TaskQueue { get; } = taskQueue;
+    public IBackgroundTask TaskQueue { get; } = taskQueue;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

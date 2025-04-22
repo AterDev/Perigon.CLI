@@ -1,4 +1,5 @@
 using Entity.SystemMod;
+using Framework.Common.Models;
 
 namespace SystemMod.Models.SystemLogsDtos;
 /// <summary>

@@ -1,3 +1,5 @@
+using Framework.Common.Models;
+
 namespace SystemMod.Models.SystemRoleDtos;
 /// <summary>
 /// 角色查询筛选

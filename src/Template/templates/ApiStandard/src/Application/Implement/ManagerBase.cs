@@ -1,4 +1,7 @@
 using EntityFramework.DBProvider;
+using Framework.Common.Models;
+using Framework.Common.Utils;
+using Framework.Web.Convention;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Application.Implement;

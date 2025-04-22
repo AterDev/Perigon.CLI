@@ -1,6 +1,5 @@
-﻿using Ater.Common.Utils;
-
-using Entity.CustomerMod;
+﻿using Entity.CustomerMod;
+using Framework.Common.Utils;
 
 namespace Entity.OrderMod;
 /// <summary>

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Framework.Common.Models;
+using Framework.Web.Convention.Abstraction;
+using Microsoft.AspNetCore.Http;
 
 namespace Application;
 public interface IUserContext : IUserContextBase

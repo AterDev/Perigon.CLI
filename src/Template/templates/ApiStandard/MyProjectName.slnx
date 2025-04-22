@@ -21,12 +21,12 @@
     <Project Path="src/Definition/Entity/Entity.csproj" />
     <Project Path="src/Definition/EntityFramework/EntityFramework.csproj" />
     <Project Path="src/Definition/Share/Share.csproj" />
-  </Folder>
-  <Folder Name="/src/Convention/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
-    <Project Path="src/Convention/Ater.Web.Convention/Ater.Web.Convention.csproj" />
-    <Project Path="src/Convention/Ater.Common/Ater.Common.csproj" />
-    <Project Path="src/Convention/Ater.Web.Extension/Ater.Web.Extension.csproj" />
     <Project Path="src/ServiceDefaults/ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/Framework/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
+    <Project Path="src/Framework/Framework.Common/Framework.Common.csproj" Id="6dc54fab-dd8b-9dc2-0bda-1d394ca66e08" />
+    <Project Path="src/Framework/Framework.Web.Convention/Framework.Web.Convention.csproj" />
+    <Project Path="src/Framework/Framework.Web.Extension/Framework.Web.Extension.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">
     <Project Path="src/Modules/CMSMod/CMSMod.csproj" />

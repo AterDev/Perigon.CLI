@@ -1,4 +1,5 @@
 using Entity.OrderMod;
+using Framework.Common.Models;
 
 namespace OrderMod.Models.ProductDtos;
 /// <summary>

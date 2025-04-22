@@ -1,4 +1,4 @@
-﻿using Ater.Common.Utils;
+﻿using Framework.Common.Utils;
 
 namespace Entity.OrderMod;
 /// <summary>

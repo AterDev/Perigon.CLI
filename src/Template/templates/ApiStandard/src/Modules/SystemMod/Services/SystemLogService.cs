@@ -1,6 +1,4 @@
 ﻿// 系统日志服务示例
-using Ater.Web.Abstraction.Interface;
-
 namespace SystemMod.Services;
 /// <summary>
 /// 业务日志服务

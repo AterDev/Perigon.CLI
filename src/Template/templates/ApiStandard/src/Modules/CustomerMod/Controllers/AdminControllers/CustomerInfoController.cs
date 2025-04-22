@@ -1,5 +1,6 @@
 using CustomerMod.Managers;
 using CustomerMod.Models.CustomerInfoDtos;
+using Framework.Common.Models;
 namespace CustomerMod.Controllers.AdminControllers;
 
 /// <summary>

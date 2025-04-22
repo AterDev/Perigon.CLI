@@ -1,3 +1,5 @@
+using Framework.Common.Models;
+
 namespace SystemMod.Models.SystemMenuDtos;
 /// <summary>
 /// 系统菜单查询筛选，参数为空时，返回所有菜单树型结构

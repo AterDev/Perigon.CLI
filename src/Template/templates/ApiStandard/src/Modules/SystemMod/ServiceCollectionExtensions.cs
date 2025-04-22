@@ -1,7 +1,4 @@
 // 本文件由 ater.dry工具自动生成.
-using Ater.Web.Abstraction.Interface;
-
-using SystemMod.Managers;
 using SystemMod.Services;
 using SystemMod.Worker;
 

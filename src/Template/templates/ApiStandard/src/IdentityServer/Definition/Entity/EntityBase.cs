@@ -1,5 +1,4 @@
-﻿using Ater.Common.Models;
-
+﻿
 namespace IdentityServer.Definition.Entity;
 
 /// <summary>

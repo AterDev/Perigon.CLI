@@ -1,6 +1,6 @@
-﻿using Ater.Web.Abstraction.EntityFramework;
-
-using EntityFramework.DBProvider;
+﻿using EntityFramework.DBProvider;
+using Framework.Common.Models;
+using Framework.Web.Convention.EntityFramework;
 
 namespace EntityFramework;
 /// <summary>

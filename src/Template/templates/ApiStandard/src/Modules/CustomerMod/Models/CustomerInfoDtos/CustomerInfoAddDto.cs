@@ -1,3 +1,5 @@
+using Framework.Common.Models;
+
 namespace CustomerMod.Models.CustomerInfoDtos;
 /// <summary>
 /// 客户信息添加时请求结构

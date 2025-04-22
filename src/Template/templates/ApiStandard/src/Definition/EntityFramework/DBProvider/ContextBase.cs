@@ -1,4 +1,5 @@
 ﻿using Entity.SystemMod;
+using Framework.Common.Models;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 

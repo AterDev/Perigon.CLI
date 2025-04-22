@@ -1,3 +1,5 @@
+using Framework.Common.Models;
+
 namespace Share.Models.UserDtos;
 /// <summary>
 /// 用户账户查询筛选

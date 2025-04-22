@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Framework.Web.Convention;
+using Framework.Web.Convention.Abstraction;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Implement;
 public class TenantProvider : ITenantProvider

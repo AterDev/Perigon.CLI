@@ -1,5 +1,6 @@
 ﻿using Application.Const;
 using EntityFramework.DBProvider;
+using Framework.Common.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -27,8 +28,8 @@ public static partial class AppServiceExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder)
     {
-        builder.AddSqlServerDbContext<QueryDbContext>(AterConst.QueryDb);
-        builder.AddSqlServerDbContext<CommandDbContext>(AterConst.CommandDb);
+        builder.AddSqlServerDbContext<QueryDbContext>(WebConst.QueryDb);
+        builder.AddSqlServerDbContext<CommandDbContext>(WebConst.CommandDb);
         return builder;
     }
 
@@ -41,12 +42,12 @@ public static partial class AppServiceExtensions
         // redis 客户端
         builder.AddRedisClient(connectionName: "cache");
         // 分布式缓存
-        var cache = builder.Configuration.GetConnectionString(AterConst.Cache);
+        var cache = builder.Configuration.GetConnectionString(WebConst.Cache);
         if (cache.NotEmpty() && cache != "Memory")
         {
             builder.Services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = builder.Configuration.GetConnectionString(AterConst.Cache);
+                options.Configuration = builder.Configuration.GetConnectionString(WebConst.Cache);
                 options.InstanceName = Constant.ProjectName;
             });
         }
