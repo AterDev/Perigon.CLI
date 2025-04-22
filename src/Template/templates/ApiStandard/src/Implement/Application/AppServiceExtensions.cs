@@ -17,8 +17,9 @@ public static partial class AppServiceExtensions
     /// <returns></returns>
     public static IServiceCollection AddDbFactory(this IServiceCollection services)
     {
-        services.AddSingleton<IDbContextFactory<QueryDbContext>, QueryDbContextFactory>();
-        services.AddSingleton<IDbContextFactory<CommandDbContext>, CommandDbContextFactory>();
+        services.AddScoped<IDbContextFactory<QueryDbContext>, QueryDbContextFactory>();
+        services.AddScoped<IDbContextFactory<CommandDbContext>, CommandDbContextFactory>();
+        services.AddScoped(typeof(DbContextFactory<>));
         return services;
     }
 

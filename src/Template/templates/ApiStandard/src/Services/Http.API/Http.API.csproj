@@ -17,9 +17,9 @@
 
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Application\Application.csproj" />
-        <ProjectReference Include="..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
-        <ProjectReference Include="..\Modules\SystemMod\SystemMod.csproj" />
-        <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
+        <ProjectReference Include="..\..\Implement\Application\SharedModule.csproj" />
+        <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
+        <ProjectReference Include="..\..\Implement\SystemMod\SystemMod.csproj" />
+        <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>
 </Project>

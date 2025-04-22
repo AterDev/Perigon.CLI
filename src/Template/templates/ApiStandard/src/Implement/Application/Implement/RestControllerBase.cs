@@ -39,10 +39,6 @@ public class ClientControllerBase<TManager>(
     protected readonly IUserContextBase _user = user;
 }
 
-
-
-
-
 /// <summary>
 /// RestApi base
 /// </summary>

@@ -2,13 +2,13 @@
 	<PropertyGroup>
         <TargetFrameworks>net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Nullable>enable</Nullable>
-		<NoWarn>1701;1702;1591</NoWarn>
+        <NoWarn>1701;1702;1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Application\Application.csproj" />
+	    <ProjectReference Include="..\Application\SharedModule.csproj" />
 		<ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
 	</ItemGroup>
 </Project>

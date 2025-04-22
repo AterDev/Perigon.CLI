@@ -18,8 +18,8 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\Framework\Framework.Common\Framework.Common.csproj" />
-        <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
+        <ProjectReference Include="..\..\Framework\Framework.Common\Framework.Common.csproj" />
+        <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>
 
     <ItemGroup>

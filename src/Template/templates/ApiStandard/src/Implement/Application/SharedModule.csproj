@@ -12,10 +12,9 @@
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Definition\EntityFramework\EntityFramework.csproj" />
-        <ProjectReference Include="..\Definition\Share\Share.csproj" />
+        <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
+        <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
     </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.2.0" />
         <PackageReference Include="Aspire.StackExchange.Redis" Version="9.2.0" />

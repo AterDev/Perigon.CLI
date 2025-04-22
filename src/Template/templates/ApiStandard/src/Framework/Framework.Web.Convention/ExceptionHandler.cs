@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
@@ -23,6 +24,10 @@ public static class ExceptionHandler
                     Status = 500,
                     TraceId = context.TraceIdentifier
                 };
+
+                Activity? at = Activity.Current;
+                _ = (at?.SetTag("responseBody", result.Detail));
+
                 await context.Response.WriteAsJsonAsync(result);
             });
         };

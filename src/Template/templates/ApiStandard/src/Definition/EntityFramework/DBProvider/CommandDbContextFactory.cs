@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 
 namespace EntityFramework.DBProvider;
+
 public class CommandDbContextFactory(ITenantProvider tenantProvider, IDistributedCache cache) : IDbContextFactory<CommandDbContext>
 {
     private readonly ITenantProvider _tenantProvider = tenantProvider;
