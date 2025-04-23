@@ -45,7 +45,7 @@ public class JwtMiddleware(RequestDelegate next, CacheService redis, ILogger<Jwt
                 await _next(context);
                 return;
             }
-            var securityPolicy = JsonSerializer.Deserialize<LoginSecurityPolicy>(securityPolicyStr!);
+            var securityPolicy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(securityPolicyStr!);
 
             if (securityPolicy == null || !securityPolicy.IsEnable)
             {

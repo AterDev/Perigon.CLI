@@ -9,7 +9,7 @@ namespace EntityFramework.DBProvider;
 /// <param name="configuration"></param>
 public class DbContextFactory<TContext>(IConfiguration configuration) where TContext : DbContext
 {
-    public TContext CreateDbContext(DbProvider dbProvider = DbProvider.SqlServer)
+    public TContext CreateDbContext(DatabaseType dbProvider = DatabaseType.SqlServer)
     {
         var contextName = typeof(TContext).Name;
 
@@ -24,10 +24,10 @@ public class DbContextFactory<TContext>(IConfiguration configuration) where TCon
 
         switch (dbProvider)
         {
-            case DbProvider.SqlServer:
+            case DatabaseType.SqlServer:
                 builder.UseSqlServer(connectionStrings);
                 break;
-            case DbProvider.PostgreSql:
+            case DatabaseType.PostgreSql:
                 builder.UseNpgsql(connectionStrings);
                 break;
             default:
@@ -46,11 +46,5 @@ public class DbContextFactory<TContext>(IConfiguration configuration) where TCon
         {
             throw new InvalidOperationException($"An error occurred while creating an instance of {contextName}.", ex);
         }
-    }
-
-    public enum DbProvider
-    {
-        SqlServer,
-        PostgreSql,
     }
 }

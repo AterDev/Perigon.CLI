@@ -48,7 +48,7 @@ public class SystemUserManager(
     /// <param name="user"></param>
     /// <param name="loginPolicy"></param>
     /// <returns></returns>
-    public async Task<bool> ValidateLoginAsync(SystemLoginDto dto, SystemUser user, LoginSecurityPolicy loginPolicy)
+    public async Task<bool> ValidateLoginAsync(SystemLoginDto dto, SystemUser user, LoginSecurityPolicyOption loginPolicy)
     {
         if (loginPolicy == null)
         {

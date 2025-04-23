@@ -83,23 +83,23 @@ public class SystemConfigManager(
     /// 获取登录安全策略
     /// </summary>
     /// <returns></returns>
-    public LoginSecurityPolicy GetLoginSecurityPolicy()
+    public LoginSecurityPolicyOption GetLoginSecurityPolicy()
     {
         // 优先级：缓存>配置文件
-        var policy = new LoginSecurityPolicy();
-        var configString = _cache.GetValue<string>(WebConst.LoginSecurityPolicy);
+        var policy = new LoginSecurityPolicyOption();
+        var configString = _cache.GetValue<string>(LoginSecurityPolicyOption.ConfigPath);
         if (configString != null)
         {
-            policy = JsonSerializer.Deserialize<LoginSecurityPolicy>(configString);
+            policy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString);
         }
         else
         {
-            var config = _configuration.GetSection(WebConst.LoginSecurityPolicy);
+            var config = _configuration.GetSection(LoginSecurityPolicyOption.ConfigPath);
             if (config.Exists())
             {
-                policy = config.Get<LoginSecurityPolicy>();
+                policy = config.Get<LoginSecurityPolicyOption>();
             }
         }
-        return policy ?? new LoginSecurityPolicy();
+        return policy ?? new LoginSecurityPolicyOption();
     }
 }

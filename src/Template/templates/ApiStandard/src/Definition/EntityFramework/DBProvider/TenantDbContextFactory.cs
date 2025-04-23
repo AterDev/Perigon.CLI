@@ -1,23 +1,36 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 
 namespace EntityFramework.DBProvider;
 
 public class TenantDbContextFactory(
-    ITenantProvider tenantProvider, 
-    IDistributedCache cache) : IDbContextFactory<CommandDbContext>
+    ITenantProvider tenantProvider,
+    IDistributedCache cache,
+    IConfiguration configuration
+    )
 {
-    private readonly ITenantProvider _tenantProvider = tenantProvider;
-    private readonly IDistributedCache _cache = cache;
-
-    public CommandDbContext CreateDbContext()
+    public CommandDbContext CreateCommandDbContext()
     {
         var builder = new DbContextOptionsBuilder<CommandDbContext>();
-        Guid tenantId = _tenantProvider.TenantId;
+        Guid tenantId = tenantProvider.TenantId;
 
         // 从缓存或配置中查询连接字符串
-        var connectionStrings = _cache.GetString($"{tenantId}_CommandConnectionString");
+        var connectionStrings = cache.GetString($"{tenantId}_CommandConnectionString");
 
         builder.UseSqlServer(connectionStrings);
         return new CommandDbContext(builder.Options);
+    }
+
+
+    public QueryDbContext CreateQueryDbContext()
+    {
+        var builder = new DbContextOptionsBuilder<QueryDbContext>();
+        Guid tenantId = tenantProvider.TenantId;
+
+        // 从缓存或配置中查询连接字符串
+        var connectionStrings = cache.GetString($"{tenantId}_CommandConnectionString");
+
+        builder.UseSqlServer(connectionStrings);
+        return new QueryDbContext(builder.Options);
     }
 }

@@ -91,7 +91,7 @@ public class SystemUserController(
         {
             user.LastLoginTime = DateTimeOffset.UtcNow;
             // 获取Jwt配置
-            JwtOption jwtOption = _config.GetSection("Authentication:Jwt").Get<JwtOption>()
+            JwtOption jwtOption = _config.GetSection(JwtOption.ConfigPath).Get<JwtOption>()
                 ?? throw new ArgumentNullException("未找到Jwt选项!");
 
             var result = _manager.GenerateJwtToken(user, jwtOption);

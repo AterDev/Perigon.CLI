@@ -2,8 +2,10 @@
 /// <summary>
 /// 登录安全策略
 /// </summary>
-public class LoginSecurityPolicy
+public class LoginSecurityPolicyOption
 {
+    public const string ConfigPath = "LoginSecurityPolicy";
+
     /// <summary>
     /// 密码强度
     /// </summary>
@@ -45,17 +47,17 @@ public enum SessionLevel
     /// <summary>
     /// 无限制
     /// </summary>
-    [Description("无限制")]
+    [Description("None")]
     None,
     /// <summary>
     /// 每个客户端，只允许存在一个有效账号状态
     /// </summary>
-    [Description("每个客户端，只允许存在一个有效账号状态")]
+    [Description("OnlyClient")]
     OnlyClient,
     /// <summary>
     /// 指在任何客户端，只允许账号在一处生效
     /// </summary>
-    [Description("指在任何客户端，只允许账号在一处生效")]
+    [Description("OnlyOne")]
     OnlyOne
 }
 
@@ -67,16 +69,16 @@ public enum PasswordLevel
     /// <summary>
     /// 最低6位
     /// </summary>
-    [Description("最低6位")]
+    [Description("Simple")]
     Simple,
     /// <summary>
     /// 最低8位，要求大小写+数字
     /// </summary>
-    [Description("最低8位，要求大小写+数字")]
+    [Description("Normal")]
     Normal,
     /// <summary>
     /// 最低8位，大小写+特殊字符+数字
     /// </summary>
-    [Description("最低8位，大小写+特殊字符+数字")]
+    [Description("Strict")]
     Strict
 }

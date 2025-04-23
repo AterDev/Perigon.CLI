@@ -139,7 +139,7 @@ public class UserController(
         if (HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
             // 获取Jwt配置
-            JwtOption jwtOption = _config.GetSection("Authentication:Jwt").Get<JwtOption>()
+            JwtOption jwtOption = _config.GetSection(JwtOption.ConfigPath).Get<JwtOption>()
                 ?? throw new ArgumentNullException("未找到Jwt选项!");
             var sign = jwtOption.Sign;
             var issuer = jwtOption.ValidIssuer;

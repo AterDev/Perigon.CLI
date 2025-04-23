@@ -101,7 +101,7 @@ public class InitModule
         var initConfig = SystemConfig.NewSystemConfig(WebConst.SystemGroup, WebConst.IsInit, "true");
 
         var loginSecurityPolicy = configuration.GetSection(WebConst.LoginSecurityPolicy)
-            .Get<LoginSecurityPolicy>() ?? new LoginSecurityPolicy();
+            .Get<LoginSecurityPolicyOption>() ?? new LoginSecurityPolicyOption();
 
         var loginSecurityPolicyConfig = SystemConfig.NewSystemConfig(WebConst.SystemGroup, WebConst.LoginSecurityPolicy, JsonSerializer.Serialize(loginSecurityPolicy));
 
