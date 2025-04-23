@@ -19,5 +19,4 @@ public interface IEntityBase
     /// 软删除
     /// </summary>
     public bool IsDeleted { get; set; }
-
 }

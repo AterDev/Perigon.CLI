@@ -2,7 +2,9 @@
 
 namespace EntityFramework.DBProvider;
 
-public class CommandDbContextFactory(ITenantProvider tenantProvider, IDistributedCache cache) : IDbContextFactory<CommandDbContext>
+public class TenantDbContextFactory(
+    ITenantProvider tenantProvider, 
+    IDistributedCache cache) : IDbContextFactory<CommandDbContext>
 {
     private readonly ITenantProvider _tenantProvider = tenantProvider;
     private readonly IDistributedCache _cache = cache;

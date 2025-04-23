@@ -18,7 +18,7 @@ public static partial class AppServiceExtensions
     public static IServiceCollection AddDbFactory(this IServiceCollection services)
     {
         services.AddScoped<IDbContextFactory<QueryDbContext>, QueryDbContextFactory>();
-        services.AddScoped<IDbContextFactory<CommandDbContext>, CommandDbContextFactory>();
+        services.AddScoped<IDbContextFactory<CommandDbContext>, TenantDbContextFactory>();
         services.AddScoped(typeof(DbContextFactory<>));
         return services;
     }
@@ -29,6 +29,9 @@ public static partial class AppServiceExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddScoped(typeof(DataAccessContext<>));
+        builder.Services.AddScoped(typeof(DataAccessContext));
+
         builder.AddSqlServerDbContext<QueryDbContext>(WebConst.QueryDb);
         builder.AddSqlServerDbContext<CommandDbContext>(WebConst.CommandDb);
         return builder;

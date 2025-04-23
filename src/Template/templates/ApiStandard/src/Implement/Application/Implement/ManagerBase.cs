@@ -453,3 +453,15 @@ public class ManagerBase(DataAccessContext dataAccessContext, ILogger logger)
     protected CommandDbContext CommandContext { get; init; } = dataAccessContext.CommandContext;
     protected QueryDbContext QueryContext { get; init; } = dataAccessContext.QueryContext;
 }
+
+
+public class ManagerBase<TContext,TEntity>(ILogger logger)
+    where TContext : DbContext
+   where TEntity : class, IEntityBase
+{ 
+    protected readonly ILogger _logger = logger;
+    protected TContext CommandContext { get; init; } = dataAccessContext.CommandContext;
+    protected TContext QueryContext { get; init; } = dataAccessContext.QueryContext;
+
+
+}

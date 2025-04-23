@@ -1,6 +1,6 @@
 ﻿using EntityFramework.DBProvider;
-using Framework.Common.Models;
 using Framework.Web.Convention.EntityFramework;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace EntityFramework;
 /// <summary>
