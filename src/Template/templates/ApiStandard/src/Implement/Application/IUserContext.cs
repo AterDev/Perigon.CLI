@@ -2,7 +2,7 @@
 using Framework.Web.Convention.Abstraction;
 using Microsoft.AspNetCore.Http;
 
-namespace Application;
+namespace SharedModule;
 public interface IUserContext : IUserContextBase
 {
     /// <summary>

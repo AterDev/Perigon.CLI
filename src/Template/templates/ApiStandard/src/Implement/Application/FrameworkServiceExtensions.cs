@@ -1,14 +1,14 @@
-﻿using Application.Const;
-using EntityFramework.DBProvider;
+﻿using EntityFramework.DBProvider;
 using Framework.Common.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using SharedModule.Const;
 
-namespace Application;
+namespace SharedModule;
 /// <summary>
 /// 应用扩展服务
 /// </summary>
-public static partial class AppServiceExtensions
+public static partial class FrameworkServiceExtensions
 {
     /// <summary>
     /// 添加数据工厂
@@ -17,8 +17,6 @@ public static partial class AppServiceExtensions
     /// <returns></returns>
     public static IServiceCollection AddDbFactory(this IServiceCollection services)
     {
-        services.AddScoped<IDbContextFactory<QueryDbContext>, QueryDbContextFactory>();
-        services.AddScoped<IDbContextFactory<CommandDbContext>, TenantDbContextFactory>();
         services.AddScoped(typeof(DbContextFactory<>));
         return services;
     }

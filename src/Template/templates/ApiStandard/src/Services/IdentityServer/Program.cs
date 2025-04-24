@@ -1,5 +1,6 @@
 using IdentityServer.Definition.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 

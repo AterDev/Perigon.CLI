@@ -1,7 +1,7 @@
 global using System.ComponentModel.DataAnnotations;
-global using Application;
-global using Application.Const;
-global using Application.Implement;
+global using SharedModule;
+global using SharedModule.Const;
+global using SharedModule.Implement;
 global using CustomerMod.Managers;
 global using Entity.CustomerMod;
 global using EntityFramework;

@@ -1,5 +1,6 @@
 using Framework.Common.Models;
 using Framework.Common.Utils;
+using SharedModule.Implement;
 using SystemMod.Models.SystemRoleDtos;
 
 namespace SystemMod.Managers;

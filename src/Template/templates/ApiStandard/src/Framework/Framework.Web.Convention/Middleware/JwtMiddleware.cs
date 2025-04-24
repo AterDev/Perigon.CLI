@@ -4,7 +4,7 @@ using Framework.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace Framework.Web.Extension.Middleware;
+namespace Framework.Web.Convention.Middleware;
 
 /// <summary>
 /// 在进入验证前，对token进行额外验证

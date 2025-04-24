@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
-namespace Application.Implement;
+namespace SharedModule.Implement;
 
 /// <summary>
 /// 管理后台权限控制器

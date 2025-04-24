@@ -1,7 +1,7 @@
 ﻿using Framework.Web.Convention;
 using Microsoft.Extensions.Localization;
 
-namespace Application;
+namespace SharedModule;
 /// <summary>
 /// 本地化资源
 /// </summary>

@@ -1,7 +1,12 @@
 ﻿using Framework.Common.Models;
 using Framework.Common.Utils;
 using Framework.Web.Convention;
+using Framework.Web.Convention.Services;
 using Microsoft.AspNetCore.RateLimiting;
+using SharedModule;
+using SharedModule.Const;
+using SharedModule.Implement;
+using SharedModule.Services;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 using SystemMod.Services;
@@ -115,7 +120,7 @@ public class SystemUserController(
             // 若会话过期时间为0，则使用jwt过期时间
             await _cache.SetValueAsync(key, result.Token,
                 sliding: loginPolicy.SessionExpiredSeconds == 0
-                ? jwtOption.Expired * 60 * 60
+                ? jwtOption.ExpiredSecond
                 : loginPolicy.SessionExpiredSeconds);
 
             result.Menus = menus;

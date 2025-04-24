@@ -1,8 +1,10 @@
 using Framework.Common.Models;
 using Framework.Common.Utils;
 using Share.Models.UserDtos;
+using SharedModule;
+using SharedModule.Implement;
 
-namespace Application.Managers;
+namespace SharedModule.Managers;
 /// <summary>
 /// 用户账户
 /// </summary>

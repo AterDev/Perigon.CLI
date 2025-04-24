@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Application.Implement;
+namespace SharedModule.Implement;
 
 /// <summary>
 /// 配置上下文

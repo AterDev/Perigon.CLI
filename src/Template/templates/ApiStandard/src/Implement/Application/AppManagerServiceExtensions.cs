@@ -1,5 +1,6 @@
 // 本文件由 ater.dry工具自动生成.
-namespace Application;
+
+namespace SharedModule;
 public static partial class AppManagerServiceExtensions
 {
     public static void AddManagers(this IServiceCollection services)

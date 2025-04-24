@@ -1,7 +1,7 @@
 global using System.ComponentModel.DataAnnotations;
 
-global using Application.Const;
-global using Application.Implement;
+global using SharedModule.Const;
+global using SharedModule.Implement;
 
 global using Framework.Web.Convention;
 global using Framework.Common.Models;

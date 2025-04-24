@@ -1,18 +1,25 @@
 ﻿using System.Net;
+using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Http.API;
-
+using Framework.Common.Converters;
+using Framework.Common.Models;
+using Framework.Web.Convention;
+using Framework.Web.Convention.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 
-namespace Http.API;
-
-public static class ServiceCollectionExtension
+namespace ServiceDefaults;
+public static class ServiceExtensions
 {
+
     /// <summary>
     /// 注册和配置Web服务依赖
     /// </summary>
@@ -22,17 +29,6 @@ public static class ServiceCollectionExtension
     {
         builder.Services.ConfigureWebMiddleware(builder.Configuration);
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IUserContext, UserContext>();
-        builder.Services.AddScoped<ITenantProvider, TenantProvider>();
-
-        builder.Services.AddManagers();
-        builder.Services.AddSingleton<IEntityTaskQueue<UserLog>, EntityTaskQueue<UserLog>>();
-
-        // 添加后台系统模块服务
-        //builder.Services.AddSystemModServices();
-
-        // TODO:其他模块Manager
-        builder.Services.AddSingleton(typeof(CacheService));
         builder.Services.AddControllers()
             .ConfigureApiBehaviorOptions(o =>
             {
@@ -49,6 +45,23 @@ public static class ServiceCollectionExtension
         return builder.Services;
     }
 
+    /// <summary>
+    /// 添加web服务组件，如身份认证/授权/swagger/cors
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOpenAPI();
+        services.AddJwtAuthentication(configuration);
+        services.AddAuthorize();
+        services.AddCORS();
+        services.AddRateLimiter();
+        return services;
+    }
+
+
     public static WebApplication UseDefaultWebServices(this WebApplication app)
     {
         app.UseWebAppContext();
@@ -57,18 +70,12 @@ public static class ServiceCollectionExtension
         if (app.Environment.IsProduction())
         {
             app.UseCors(WebConst.Default);
-            // app.UseHsts();
-            // app.UseHttpsRedirection();
+            app.UseHsts();
+            app.UseHttpsRedirection();
         }
         else
         {
             app.UseCors(WebConst.Default);
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/client/swagger.json", name: "client");
-                c.SwaggerEndpoint("/swagger/admin/swagger.json", "admin");
-            });
         }
 
         app.UseRateLimiter();
@@ -84,21 +91,7 @@ public static class ServiceCollectionExtension
         return app;
     }
 
-    /// <summary>
-    /// 添加web服务组件，如身份认证/授权/swagger/cors
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
-    public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddSwagger();
-        services.AddJwtAuthentication(configuration);
-        services.AddAuthorize();
-        services.AddCors();
-        services.AddRateLimiter();
-        return services;
-    }
+
 
     /// <summary>
     /// 添加速率限制
@@ -193,7 +186,8 @@ public static class ServiceCollectionExtension
         .AddJwtBearer(cfg =>
         {
             cfg.SaveToken = true;
-            var sign = configuration.GetSection("Authentication")["Jwt:Sign"];
+            var jwtOption = configuration.GetSection(JwtOption.ConfigPath).Get<JwtOption>();
+            var sign = jwtOption?.Sign;
             if (string.IsNullOrEmpty(sign))
             {
                 throw new Exception("未找到有效的Jwt配置");
@@ -201,8 +195,8 @@ public static class ServiceCollectionExtension
             cfg.TokenValidationParameters = new TokenValidationParameters()
             {
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sign)),
-                ValidIssuer = configuration.GetSection("Authentication")["Jwt:ValidIssuer"],
-                ValidAudience = configuration.GetSection("Authentication")["Jwt:ValidAudiences"],
+                ValidIssuer = jwtOption?.ValidIssuer,
+                ValidAudience = jwtOption?.ValidAudiences,
                 ValidateIssuer = true,
                 ValidateLifetime = true,
                 RequireExpirationTime = true,
@@ -217,74 +211,14 @@ public static class ServiceCollectionExtension
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    public static IServiceCollection AddOpenAPI(this IServiceCollection services)
     {
-
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
-        {
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Description = "Please enter a valid token",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = "Bearer"
-            });
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type=ReferenceType.SecurityScheme,
-                            Id="Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
-            c.SwaggerDoc("admin", new OpenApiInfo
-            {
-                Title = "MyProjectName",
-                Description = "Admin API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
-                Version = "v1"
-            });
-            c.SwaggerDoc("client", new OpenApiInfo
-            {
-                Title = "MyProjectName client",
-                Description = "Client API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
-                Version = "v1"
-            });
-            var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly);
-            foreach (var item in xmlFiles)
-            {
-                try
-                {
-                    c.IncludeXmlComments(item, includeControllerXmlComments: true);
-                }
-                catch (Exception) { }
-            }
-            c.SupportNonNullableReferenceTypes();
-            c.DescribeAllParametersInCamelCase();
-            c.CustomOperationIds((z) =>
-            {
-                var descriptor = (ControllerActionDescriptor)z.ActionDescriptor;
-                return $"{descriptor.ControllerName}_{descriptor.ActionName}";
-            });
-            c.SchemaFilter<EnumSchemaFilter>();
-            c.MapType<DateOnly>(() => new OpenApiSchema
-            {
-                Type = "string",
-                Format = "date"
-            });
-        });
+
         return services;
     }
 
-    public static IServiceCollection AddCors(this IServiceCollection services)
+    public static IServiceCollection AddCORS(this IServiceCollection services)
     {
         services.AddCors(options =>
         {

@@ -1,5 +1,8 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Framework.Web.Convention.Services;
+using SharedModule;
+using SharedModule.Implement;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 
@@ -102,7 +105,7 @@ public class SystemUserManager(
         }
 
         // 密码过期时间
-        if ((DateTimeOffset.UtcNow - user.LastPwdEditTime).TotalDays > loginPolicy.PasswordExpired * 30)
+        if ((DateTimeOffset.UtcNow - user.LastPwdEditTime).TotalDays > loginPolicy.PasswordExpired)
         {
             ErrorStatus = 500004;
             user.RetryCount++;
@@ -134,7 +137,7 @@ public class SystemUserManager(
             List<string> roles = user.SystemRoles?.Select(r => r.NameValue)?.ToList()
                 ?? [WebConst.AdminUser];
             // 过期时间:秒
-            var expiredSeconds = jwtOption.Expired * 60 * 60;
+            var expiredSeconds = jwtOption.ExpiredSecond;
 
             JwtService jwt = new(jwtOption.Sign, jwtOption.ValidAudiences, jwtOption.ValidIssuer)
             {

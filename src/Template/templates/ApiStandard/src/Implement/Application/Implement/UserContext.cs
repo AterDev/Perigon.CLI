@@ -3,8 +3,9 @@ using Framework.Common.Models;
 using Framework.Web.Convention;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using SharedModule;
 
-namespace Application.Implement;
+namespace SharedModule.Implement;
 
 public class UserContext : IUserContext
 {

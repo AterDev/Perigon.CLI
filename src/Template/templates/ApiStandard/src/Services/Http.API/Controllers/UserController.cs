@@ -1,15 +1,20 @@
-using Application.Managers;
 using Framework.Common.Models;
 using Framework.Common.Utils;
 using Framework.Web.Convention;
+using Framework.Web.Convention.Services;
 using Share.Models.UserDtos;
+using SharedModule;
+using SharedModule.Const;
+using SharedModule.Implement;
+using SharedModule.Managers;
+using SharedModule.Services;
 
 namespace Http.API.Controllers;
 
 /// <summary>
 /// 用户账户
 /// </summary>
-/// <see cref="Application.Managers.UserManager"/>
+/// <see cref="SharedModule.Managers.UserManager"/>
 public class UserController(
     IUserContext user,
     ILogger<UserController> logger,

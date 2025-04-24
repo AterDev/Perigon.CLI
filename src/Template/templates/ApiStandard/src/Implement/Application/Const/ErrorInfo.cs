@@ -1,4 +1,4 @@
-﻿namespace Application.Const;
+﻿namespace SharedModule.Const;
 /// <summary>
 /// 错误信息
 /// </summary>

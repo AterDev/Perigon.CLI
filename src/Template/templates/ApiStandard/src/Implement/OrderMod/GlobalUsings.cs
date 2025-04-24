@@ -1,6 +1,6 @@
 global using System.ComponentModel.DataAnnotations;
-global using Application.Const;
-global using Application.Implement;
+global using SharedModule.Const;
+global using SharedModule.Implement;
 global using Entity;
 global using Entity.OrderMod;
 global using EntityFramework;

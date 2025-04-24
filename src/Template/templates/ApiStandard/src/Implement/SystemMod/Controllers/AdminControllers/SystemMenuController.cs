@@ -2,7 +2,9 @@ using Framework.Common.Models;
 using Framework.Web.Convention;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-
+using SharedModule;
+using SharedModule.Const;
+using SharedModule.Implement;
 using SystemMod.Managers;
 using SystemMod.Models.SystemMenuDtos;
 namespace SystemMod.Controllers.AdminControllers;

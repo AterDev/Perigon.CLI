@@ -1,12 +1,16 @@
 using Framework.Common.Models;
 using Framework.Web.Convention;
 using Share.Models.UserDtos;
+using SharedModule;
+using SharedModule.Const;
+using SharedModule.Implement;
+using SharedModule.Managers;
 namespace Http.API.Controllers.AdminControllers;
 
 /// <summary>
 /// 用户账户
 /// </summary>
-/// <see cref="Application.Managers.UserManager"/>
+/// <see cref="SharedModule.Managers.UserManager"/>
 [Authorize(WebConst.AdminUser)]
 public class UserController(
     IUserContext user,

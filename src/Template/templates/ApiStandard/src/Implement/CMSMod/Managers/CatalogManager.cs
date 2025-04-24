@@ -1,10 +1,10 @@
-using Application;
-
 using CMSMod.Models.CatalogDtos;
 
 using EntityFramework;
 using Framework.Common.Models;
 using Framework.Common.Utils;
+using SharedModule;
+using SharedModule.Implement;
 
 namespace CMSMod.Managers;
 

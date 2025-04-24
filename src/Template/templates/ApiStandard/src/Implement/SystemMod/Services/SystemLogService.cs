@@ -1,4 +1,6 @@
 ﻿// 系统日志服务示例
+using SharedModule;
+
 namespace SystemMod.Services;
 /// <summary>
 /// 业务日志服务

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Framework.Common.Models;
 
 /// <summary>
-/// 组件类型
+/// 组件配置
 /// </summary>
 public class ComponentOption
 {
@@ -18,15 +18,25 @@ public class ComponentOption
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public DatabaseType Database { get; set; } = DatabaseType.PostgreSql;
+
+    public bool UseCORS { get; set; } = true;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public AuthType AuthType { get; set; } = AuthType.Jwt;
 }
 
 
+public enum AuthType
+{
+    Jwt,
+    Cookie,
+    OAuth
+}
 public enum DatabaseType
 {
     SqlServer,
     PostgreSql,
 }
-
 public enum CacheType
 {
     Memory,

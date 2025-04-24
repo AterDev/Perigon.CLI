@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
-namespace Framework.Web.Extension.Services;
+namespace Framework.Web.Convention.Services;
 
 /// <summary>
 /// 简单封装对象的存储和获取

@@ -8,7 +8,7 @@ using MimeKit.Text;
 
 using Share.Options;
 
-namespace Application.Services;
+namespace SharedModule.Services;
 
 public interface IEmailService
 {

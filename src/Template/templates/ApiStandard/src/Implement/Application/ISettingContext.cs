@@ -1,6 +1,6 @@
 ﻿using Framework.Web.Convention.Abstraction;
 
-namespace Application;
+namespace SharedModule;
 public interface ISettingContext : ISettingContextBase
 {
 }

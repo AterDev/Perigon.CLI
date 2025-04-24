@@ -1,8 +1,8 @@
 global using System.Linq.Expressions;
 global using System.Security.Claims;
 
-global using Application.Implement;
-global using Application.Managers;
+global using SharedModule.Implement;
+global using SharedModule.Managers;
 
 global using Framework.Web.Convention;
 global using Framework.Web.Convention.Abstraction;

@@ -1,5 +1,8 @@
 ﻿using Http.API;
 using Http.API.Worker;
+using ServiceDefaults;
+using SharedModule;
+using SharedModule.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,8 @@ builder.AddCache();
 
 // 2 注册和配置Web服务依赖
 builder.AddDefaultWebServices();
+
+
 // 3 其他自定义选项及服务
 builder.Services.AddSingleton<IEmailService, EmailService>();
 

@@ -2,7 +2,7 @@
 using Framework.Web.Convention.Abstraction;
 using Microsoft.AspNetCore.Http;
 
-namespace Application.Implement;
+namespace SharedModule.Implement;
 public class TenantProvider : ITenantProvider
 {
     public Guid TenantId { get; set; } = Guid.Empty;
