@@ -1,4 +1,4 @@
-﻿namespace Framework.Common.Models;
+﻿namespace Framework.Common.Options;
 /// <summary>
 /// 登录安全策略
 /// </summary>

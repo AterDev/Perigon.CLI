@@ -8,4 +8,5 @@ public abstract class EntityBase : IEntityBase
     public DateTimeOffset CreatedTime { get; set; }
     public DateTimeOffset UpdatedTime { get; set; }
     public bool IsDeleted { get; set; }
+    public Guid? TenantId { get; set; }
 }

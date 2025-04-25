@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Framework.Common.Converters;
-using Framework.Common.Models;
+using Framework.Common.Options;
 using Framework.Web.Convention;
 using Framework.Web.Convention.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

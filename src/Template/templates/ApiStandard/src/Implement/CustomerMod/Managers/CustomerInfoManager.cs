@@ -11,10 +11,8 @@ namespace CustomerMod.Managers;
 public class CustomerInfoManager(
     DataAccessContext<CustomerInfo> dataContext,
     ILogger<CustomerInfoManager> logger,
-    CommandDbContext command,
     IUserContext userContext) : ManagerBase<CustomerInfo>(dataContext, logger)
 {
-    private readonly CommandDbContext _command = command;
     private readonly IUserContext _userContext = userContext;
 
     /// <summary>

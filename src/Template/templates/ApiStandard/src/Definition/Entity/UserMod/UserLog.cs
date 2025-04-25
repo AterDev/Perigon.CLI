@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Entity;
+namespace Entity.UserMod;
 /// <summary>
 /// 用户日志
 /// </summary>

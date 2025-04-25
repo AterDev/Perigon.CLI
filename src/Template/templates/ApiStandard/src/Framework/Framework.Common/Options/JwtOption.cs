@@ -1,4 +1,4 @@
-﻿namespace Framework.Common.Models;
+﻿namespace Framework.Common.Options;
 public  class JwtOption
 {
     public const string ConfigPath = "Authentication:Jwt";

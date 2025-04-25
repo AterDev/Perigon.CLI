@@ -1,4 +1,5 @@
 ﻿using Entity.CustomerMod;
+using Entity.UserMod;
 using Framework.Common.Utils;
 
 namespace Entity.OrderMod;

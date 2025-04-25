@@ -1,17 +1,64 @@
 using EntityFramework.DBProvider;
-using Framework.Common.Models;
-using Framework.Common.Utils;
-using Framework.Web.Convention;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SharedModule;
 
 namespace SharedModule.Implement;
+
+
+/// <summary>
+/// manager Base
+/// </summary>
+/// <param name="logger"></param>
+public class ManagerBase(ILogger logger)
+{
+    protected ILogger _logger = logger;
+}
 
 /// <summary>
 /// Manager base class
 /// </summary>
 /// <typeparam name="TEntity">实体类型</typeparam>
-public partial class ManagerBase<TEntity>
+public class ManagerBase<TEntity> : ManagerBase<QueryDbContext, CommandDbContext, TEntity>
+    where TEntity : class, IEntityBase
+{
+    public ManagerBase(DataAccessContext<TEntity> dataAccess, ILogger logger) : base(dataAccess.QueryContext, dataAccess.CommandContext, logger)
+    {
+    }
+
+    public ManagerBase(
+        QueryDbContext queryContext,
+        CommandDbContext commandContext,
+        ILogger logger) : base(queryContext, commandContext, logger)
+    {
+    }
+
+    public ManagerBase(TenantDbContextFactory factory, ILogger logger) : base(factory.CreateQueryDbContext(), factory.CreateCommandDbContext(), logger)
+    {
+    }
+}
+
+/// <summary>
+/// specific DbContext
+/// </summary>
+/// <typeparam name="TContext"></typeparam>
+/// <typeparam name="TEntity"></typeparam>
+/// <param name="context"></param>
+/// <param name="logger"></param>
+public class ManagerBase<TContext, TEntity>(TContext context, ILogger logger) : ManagerBase<TContext, TContext, TEntity>(context, context, logger)
+    where TContext : DbContext
+    where TEntity : class, IEntityBase
+{
+
+}
+
+/// <summary>
+/// 实现类
+/// </summary>
+/// <typeparam name="TQueryContext"></typeparam>
+/// <typeparam name="TCommandContext"></typeparam>
+/// <typeparam name="TEntity"></typeparam>
+public class ManagerBase<TQueryContext, TCommandContext, TEntity>
+    where TQueryContext : DbContext
+    where TCommandContext : DbContext
     where TEntity : class, IEntityBase
 {
     #region Properties and Fields
@@ -49,20 +96,18 @@ public partial class ManagerBase<TEntity>
     /// 实体的只读仓储实现
     /// </summary>
     protected DbSet<TEntity> Query { get; init; }
-    /// <summary>
-    /// 实体的可写仓储实现
-    /// </summary>
     protected DbSet<TEntity> Command { get; init; }
     protected IQueryable<TEntity> Queryable { get; set; }
-    protected readonly ILogger _logger;
-    protected CommandDbContext CommandContext { get; init; }
-    protected QueryDbContext QueryContext { get; init; }
 
-    public ManagerBase(DataAccessContext<TEntity> dataAccessContext, ILogger logger)
+    protected readonly ILogger _logger;
+    protected TCommandContext CommandContext { get; init; }
+    protected TQueryContext QueryContext { get; init; }
+
+    public ManagerBase(TQueryContext queryContext, TCommandContext commandContext, ILogger logger)
     {
         _logger = logger;
-        CommandContext = dataAccessContext.CommandContext;
-        QueryContext = dataAccessContext.QueryContext;
+        CommandContext = commandContext;
+        QueryContext = queryContext;
         Database = CommandContext.Database;
         Query = QueryContext.Set<TEntity>();
         Command = CommandContext.Set<TEntity>();
@@ -443,15 +488,4 @@ public partial class ManagerBase<TEntity>
     }
 }
 
-/// <summary>
-/// Manager base without entity
-/// </summary>
-/// <param name="logger"></param>
-/// <param name="dataAccessContext">数据访问上下文</param>
-public class ManagerBase(DataAccessContext dataAccessContext, ILogger logger)
-{
-    protected readonly ILogger _logger = logger;
-    protected CommandDbContext CommandContext { get; init; } = dataAccessContext.CommandContext;
-    protected QueryDbContext QueryContext { get; init; } = dataAccessContext.QueryContext;
-}
 

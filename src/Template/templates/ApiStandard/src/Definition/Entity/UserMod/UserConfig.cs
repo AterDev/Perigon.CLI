@@ -1,4 +1,4 @@
-﻿namespace Entity;
+﻿namespace Entity.UserMod;
 /// <summary>
 /// 用户配置
 /// </summary>

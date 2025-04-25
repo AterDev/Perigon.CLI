@@ -1,4 +1,6 @@
-﻿namespace Entity.CMSMod;
+﻿using Entity.UserMod;
+
+namespace Entity.CMSMod;
 /// <summary>
 /// 博客
 /// </summary>

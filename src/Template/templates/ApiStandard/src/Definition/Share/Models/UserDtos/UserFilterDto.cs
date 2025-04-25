@@ -1,10 +1,11 @@
+using Entity.UserMod;
 using Framework.Common.Models;
 
 namespace Share.Models.UserDtos;
 /// <summary>
 /// 用户账户查询筛选
 /// </summary>
-/// <inheritdoc cref="Entity.User"/>
+/// <inheritdoc cref="Entity.UserMod.User"/>
 public class UserFilterDto : FilterBase
 {
     /// <summary>

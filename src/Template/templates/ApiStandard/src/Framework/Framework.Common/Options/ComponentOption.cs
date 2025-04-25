@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Framework.Common.Models;
+﻿namespace Framework.Common.Options;
 
 /// <summary>
 /// 组件配置
@@ -19,12 +13,17 @@ public class ComponentOption
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public DatabaseType Database { get; set; } = DatabaseType.PostgreSql;
 
-    public bool UseCORS { get; set; } = true;
-
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public AuthType AuthType { get; set; } = AuthType.Jwt;
-}
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public MQType MQType { get; set; } = MQType.None;
+    public bool UseCORS { get; set; } = true;
+    public bool UseSMS { get; set; }
+    public bool UseSmtp { get; set; }
+    public bool UseAWSS3 { get; set; }
+    public bool UseOpenAPI { get; set; } = true;
+}
 
 public enum AuthType
 {
@@ -42,4 +41,11 @@ public enum CacheType
     Memory,
     Redis,
     Hybrid
+}
+
+public enum MQType
+{
+    None,
+    RabbitMQ,
+    Kafka
 }

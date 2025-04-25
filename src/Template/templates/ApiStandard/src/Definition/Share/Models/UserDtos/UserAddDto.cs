@@ -1,8 +1,10 @@
+using Entity.UserMod;
+
 namespace Share.Models.UserDtos;
 /// <summary>
 /// 用户账户添加时请求结构
 /// </summary>
-/// <inheritdoc cref="Entity.User"/>
+/// <inheritdoc cref="Entity.UserMod.User"/>
 public class UserAddDto
 {
     /// <summary>

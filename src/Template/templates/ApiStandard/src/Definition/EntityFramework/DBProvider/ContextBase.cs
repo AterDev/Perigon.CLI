@@ -1,16 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Entity.SystemMod;
-using Framework.Common.Models;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EntityFramework.DBProvider;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 public partial class ContextBase(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<User> Users { get; set; }
+    public DbSet<Tenant> Tenants { get; set; }
 
     public DbSet<SystemUser> SystemUsers { get; set; }
     public DbSet<SystemRole> SystemRoles { get; set; }
@@ -37,7 +34,6 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         // 创建和更新时间处理
-
         var entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added).ToList();
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {

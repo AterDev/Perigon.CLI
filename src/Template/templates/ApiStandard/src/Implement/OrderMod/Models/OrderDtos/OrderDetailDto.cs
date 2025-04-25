@@ -1,4 +1,5 @@
 using Entity.OrderMod;
+using Entity.UserMod;
 
 namespace OrderMod.Models.OrderDtos;
 /// <summary>

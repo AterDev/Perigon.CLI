@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Framework.Common.Models;
+using Framework.Common.Options;
 using Framework.Common.Utils;
 using Framework.Web.Convention;
 using Framework.Web.Convention.Services;

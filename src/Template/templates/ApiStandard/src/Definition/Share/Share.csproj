@@ -19,4 +19,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Options\" />
+    </ItemGroup>
 </Project>
