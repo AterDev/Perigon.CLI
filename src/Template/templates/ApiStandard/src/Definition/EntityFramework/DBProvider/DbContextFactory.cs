@@ -1,28 +1,23 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace EntityFramework.DBProvider;
-
 /// <summary>
 /// create DbContext from factory
 /// </summary>
-/// <typeparam name="TContext"></typeparam>
 /// <param name="configuration"></param>
-public class DbContextFactory<TContext>(IConfiguration configuration) where TContext : DbContext
+public class DbContextFactory(IConfiguration configuration)
 {
-    public TContext CreateDbContext(DatabaseType dbProvider = DatabaseType.SqlServer)
+    public TContext CreateDbContext<TContext>(DatabaseType databaseType = DatabaseType.SqlServer) where TContext : DbContext
     {
         var contextName = typeof(TContext).Name;
-
-        // TODO:自定义实现获取连接字符串逻辑
         var connectionStrings = configuration.GetConnectionString(contextName);
-
         if (string.IsNullOrEmpty(connectionStrings))
         {
             throw new Exception($"Connection string for {contextName} not found.");
         }
         var builder = new DbContextOptionsBuilder<TContext>();
 
-        switch (dbProvider)
+        switch (databaseType)
         {
             case DatabaseType.SqlServer:
                 builder.UseSqlServer(connectionStrings);
@@ -31,7 +26,7 @@ public class DbContextFactory<TContext>(IConfiguration configuration) where TCon
                 builder.UseNpgsql(connectionStrings);
                 break;
             default:
-                throw new NotSupportedException($"Database provider {dbProvider} is not supported.");
+                throw new NotSupportedException($"Database provider {databaseType} is not supported.");
         }
         try
         {
@@ -47,4 +42,5 @@ public class DbContextFactory<TContext>(IConfiguration configuration) where TCon
             throw new InvalidOperationException($"An error occurred while creating an instance of {contextName}.", ex);
         }
     }
+
 }

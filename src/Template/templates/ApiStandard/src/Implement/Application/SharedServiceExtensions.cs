@@ -64,7 +64,7 @@ public static class SharedServiceExtensions
     /// <returns></returns>
     public static IServiceCollection AddDbFactory(this IServiceCollection services)
     {
-        services.AddScoped(typeof(DbContextFactory<>));
+        services.AddScoped(typeof(DbContextFactory));
         services.AddScoped(typeof(TenantDbContextFactory));
         return services;
     }
