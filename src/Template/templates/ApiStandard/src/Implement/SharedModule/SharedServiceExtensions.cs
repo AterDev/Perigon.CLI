@@ -11,16 +11,21 @@ namespace SharedModule;
 /// </summary>
 public static class SharedServiceExtensions
 {
-
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<IUserContext, UserContext>();
+        builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+
         var components = builder.Configuration.GetSection(ComponentOption.ConfigPath)
-            .Get<ComponentOption>() ?? throw new Exception($"can't get {ComponentOption.ConfigPath} config");
+            .Get<ComponentOption>()
+            ?? throw new Exception($"can't get {ComponentOption.ConfigPath} config");
 
         builder.AddOptions(components);
         builder.AddCache(components);
         builder.Services.AddDbFactory();
         builder.AddDbContext(components);
+
         return builder;
     }
 
@@ -104,20 +109,26 @@ public static class SharedServiceExtensions
             });
         }
         // 混合缓存
-        if (components.Cache == CacheType.Hybrid)
+        var cacheOption = builder.Configuration.GetSection(CacheOption.ConfigPath).Get<CacheOption>();
+        builder.Services.AddHybridCache(options =>
         {
-            var cacheOption = builder.Configuration.GetSection(CacheOption.ConfigPath).Get<CacheOption>();
-            builder.Services.AddHybridCache(options =>
+            HybridCacheEntryFlags flags = components.Cache switch
             {
-                options.MaximumPayloadBytes = cacheOption?.MaxPayloadBytes ?? 1024 * 1024;
-                options.MaximumKeyLength = cacheOption?.MaxKeyLength ?? 1024;
-                options.DefaultEntryOptions = new HybridCacheEntryOptions
-                {
-                    Expiration = TimeSpan.FromMinutes(cacheOption?.Expiration ?? 20),
-                    LocalCacheExpiration = TimeSpan.FromMinutes(cacheOption?.LocalCacheExpiration ?? 10)
-                };
-            });
-        }
+                CacheType.Memory => HybridCacheEntryFlags.DisableDistributedCache,
+                CacheType.Redis => HybridCacheEntryFlags.DisableLocalCache,
+                _ => HybridCacheEntryFlags.None
+            };
+
+            options.MaximumPayloadBytes = cacheOption?.MaxPayloadBytes ?? 1024 * 1024;
+            options.MaximumKeyLength = cacheOption?.MaxKeyLength ?? 1024;
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                Flags = flags,
+                Expiration = TimeSpan.FromMinutes(cacheOption?.Expiration ?? 20),
+                LocalCacheExpiration = TimeSpan.FromMinutes(cacheOption?.LocalCacheExpiration ?? 10)
+            };
+        });
+
         return builder;
     }
 }

@@ -7,7 +7,7 @@
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Application\SharedModule.csproj" />
+        <ProjectReference Include="..\SharedModule\SharedModule.csproj" />
         <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
     </ItemGroup>
 </Project>

@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
+    <PropertyGroup>
         <TargetFrameworks>net9.0</TargetFrameworks>
-		<ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Nullable>enable</Nullable>
+        <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
-	</PropertyGroup>
+    </PropertyGroup>
 
-	<ItemGroup>
-	    <ProjectReference Include="..\Application\SharedModule.csproj" />
-		<ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SharedModule\SharedModule.csproj" />
+        <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
+    </ItemGroup>
 </Project>

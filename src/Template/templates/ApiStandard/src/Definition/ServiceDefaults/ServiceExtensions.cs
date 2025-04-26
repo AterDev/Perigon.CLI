@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
@@ -25,10 +25,9 @@ public static class ServiceExtensions
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static IServiceCollection AddDefaultWebServices(this WebApplicationBuilder builder)
+    public static IServiceCollection AddMiddlewareServices(this WebApplicationBuilder builder)
     {
         builder.Services.ConfigureWebMiddleware(builder.Configuration);
-        builder.Services.AddHttpContextAccessor();
         builder.Services.AddControllers()
             .ConfigureApiBehaviorOptions(o =>
             {

@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Application\SharedModule.csproj" />
+        <ProjectReference Include="..\SharedModule\SharedModule.csproj" />
         <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
     </ItemGroup>
 

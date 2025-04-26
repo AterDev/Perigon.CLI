@@ -1,13 +1,16 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Options;
 namespace Framework.Web.Convention.Services;
 
 /// <summary>
 /// 简单封装对象的存储和获取
 /// </summary>
-public class CacheService(IDistributedCache cache)
+public class CacheService(
+    HybridCache cache,
+    IOptions<CacheOption> options,
+    IOptions<ComponentOption> component)
 {
-    private readonly IDistributedCache _cache = cache;
-    public IDistributedCache Cache { get; init; } = cache;
+    //public HybridCache Cache { get; init; } = cache;
 
     /// <summary>
     /// 缓存存储
@@ -16,15 +19,10 @@ public class CacheService(IDistributedCache cache)
     /// <param name="data"></param>
     /// <param name="expiration">seconds</param>
     /// <returns></returns>
-    public async Task SetValueAsync(string key, object data, int? expiration = null)
+    public async Task SetValueAsync(string key, object data)
     {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(data);
-        var option = new DistributedCacheEntryOptions();
-        if (expiration != null)
-        {
-            option.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(expiration.Value);
-        }
-        await _cache.SetAsync(key, bytes, option);
+        await cache.SetAsync(key, data);
+
     }
 
     /// <summary>
@@ -32,22 +30,27 @@ public class CacheService(IDistributedCache cache)
     /// </summary>
     /// <param name="data">值</param>
     /// <param name="key">键</param>
-    /// <param name="sliding">相对过期时间</param>
     /// <param name="expiration">绝对过期时间</param>
     /// <returns></returns>
-    public async Task SetValueAsync(string key, object data, int? sliding = null, int? expiration = null)
+    public async Task SetValueAsync(
+        string key,
+        object data,
+        int? expiration = null,
+        int? localExpiration = null,
+        HybridCacheEntryFlags? flags = null)
     {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(data);
-        var option = new DistributedCacheEntryOptions();
-        if (sliding.HasValue)
+        var cacheOption = options.Value;
+        var entryOption = new HybridCacheEntryOptions()
         {
-            option.SlidingExpiration = TimeSpan.FromSeconds(sliding.Value);
-        }
-        if (expiration.HasValue)
-        {
-            option.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(expiration.Value);
-        }
-        await _cache.SetAsync(key, bytes, option);
+            Expiration = expiration.HasValue ?
+                TimeSpan.FromSeconds(expiration.Value) :
+                TimeSpan.FromMinutes(cacheOption.Expiration),
+            Flags = GetGlobalCacheFlags(cacheOption),
+            LocalCacheExpiration = localExpiration.HasValue ?
+                TimeSpan.FromMinutes(localExpiration.Value) :
+                TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration)
+        };
+        await cache.SetAsync(key, data, entryOption);
     }
 
     /// <summary>
@@ -57,7 +60,7 @@ public class CacheService(IDistributedCache cache)
     /// <returns></returns>
     public async Task RemoveAsync(string key)
     {
-        await _cache.RemoveAsync(key);
+        await cache.RemoveAsync(key);
     }
 
     /// <summary>
@@ -66,14 +69,27 @@ public class CacheService(IDistributedCache cache)
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
     /// <returns></returns>
-    public T? GetValue<T>(string key)
+    public async Task<T?> GetValueAsync<T>(string key, CancellationToken cancellation = default)
     {
-        var bytes = _cache.Get(key);
-        if (bytes == null || bytes.Length < 1)
+        var cachedValue = await cache.GetOrCreateAsync<T?>(key, cancel => default, cancellationToken: cancellation);
+        return cachedValue;
+    }
+
+    public async Task<T> GetOrCreateAsync<T>(string key, Func<CancellationToken, ValueTask<T>> factory, CancellationToken cancellation = default)
+    {
+        var cachedValue = await cache.GetOrCreateAsync<T>(key, factory, cancellationToken: cancellation);
+        return cachedValue;
+    }
+
+    private HybridCacheEntryFlags GetGlobalCacheFlags(CacheOption cacheOption)
+    {
+        var components = component.Value;
+        return components.Cache switch
         {
-            return default;
-        }
-        ReadOnlySpan<byte> readOnlySpan = new(bytes);
-        return JsonSerializer.Deserialize<T?>(bytes);
+            CacheType.Memory => HybridCacheEntryFlags.DisableDistributedCache,
+            CacheType.Redis => HybridCacheEntryFlags.DisableLocalCache,
+            _ => HybridCacheEntryFlags.None
+        };
+
     }
 }

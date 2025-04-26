@@ -14,7 +14,7 @@
   <Folder Name="/src/">
     <Project Path="src/AspireHost/AspireHost.csproj" />
   </Folder>
-  <Folder Name="/src/Definition/" Id="6c4d18c5-5566-cc07-9a5e-d0047fa19ca3">
+  <Folder Name="/src/Definition/">
     <Project Path="src/Definition/Entity/Entity.csproj" />
     <Project Path="src/Definition/EntityFramework/EntityFramework.csproj" />
     <Project Path="src/Definition/ServiceDefaults/ServiceDefaults.csproj" />
@@ -22,11 +22,12 @@
   </Folder>
   <Folder Name="/src/Framework/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
     <Project Path="src/Framework/Framework.Common/Framework.Common.csproj" Id="6dc54fab-dd8b-9dc2-0bda-1d394ca66e08" />
+    <Project Path="src/Framework/Framework.Web.Analyzers/Framework.Web.Analyzers.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
     <Project Path="src/Framework/Framework.Web.Convention/Framework.Web.Convention.csproj" />
     <Project Path="src/Framework/Framework.Web.Extension/Framework.Web.Extension.csproj" />
   </Folder>
   <Folder Name="/src/Implement/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">
-    <Project Path="src/Implement/Application/SharedModule.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
+    <Project Path="src/Implement/SharedModule/SharedModule.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
     <Project Path="src/Implement/CMSMod/CMSMod.csproj" />
     <Project Path="src/Implement/CustomerMod/CustomerMod.csproj" />
     <Project Path="src/Implement/FileManagerMod/FileManagerMod.csproj" />
