@@ -1,16 +1,11 @@
-﻿using Http.API;
 using Http.API.Worker;
 using ServiceDefaults;
-using SharedModule;
-using SharedModule.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-// 1 添加默认组件
-builder.AddDbContext();
-builder.AddCache();
+builder.AddFrameworkServices();
 
 // 2 注册和配置Web服务依赖
 builder.AddDefaultWebServices();

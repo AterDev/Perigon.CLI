@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace EntityFramework.DBProvider;
@@ -18,7 +16,6 @@ public class TenantDbContextFactory(
     IOptions<ComponentOption> options
     )
 {
-
     public CommandDbContext CreateCommandDbContext()
     {
         var builder = new DbContextOptionsBuilder<CommandDbContext>();

@@ -5,7 +5,7 @@ namespace SharedModule.Implement;
 
 
 /// <summary>
-/// manager Base
+/// without any implement
 /// </summary>
 /// <param name="logger"></param>
 public class ManagerBase(ILogger logger)
@@ -14,23 +14,26 @@ public class ManagerBase(ILogger logger)
 }
 
 /// <summary>
-/// Manager base class
+/// ManagerBase for QueryDbContext and CommandDbContext
 /// </summary>
 /// <typeparam name="TEntity">实体类型</typeparam>
 public class ManagerBase<TEntity> : ManagerBase<QueryDbContext, CommandDbContext, TEntity>
     where TEntity : class, IEntityBase
 {
+    /// <summary>
+    /// use DataAccessContext
+    /// </summary>
+    /// <param name="dataAccess"></param>
+    /// <param name="logger"></param>
     public ManagerBase(DataAccessContext<TEntity> dataAccess, ILogger logger) : base(dataAccess.QueryContext, dataAccess.CommandContext, logger)
     {
     }
 
-    public ManagerBase(
-        QueryDbContext queryContext,
-        CommandDbContext commandContext,
-        ILogger logger) : base(queryContext, commandContext, logger)
-    {
-    }
-
+    /// <summary>
+    /// use DbContextFactory
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <param name="logger"></param>
     public ManagerBase(TenantDbContextFactory factory, ILogger logger) : base(factory.CreateQueryDbContext(), factory.CreateCommandDbContext(), logger)
     {
     }

@@ -1,11 +1,9 @@
-﻿using EntityFramework.DBProvider;
+using EntityFramework.DBProvider;
 using Framework.Common.Options;
-using Framework.Common.Utils;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SharedModule.Const;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace SharedModule;
 /// <summary>
@@ -20,9 +18,7 @@ public static class SharedServiceExtensions
             .Get<ComponentOption>() ?? throw new Exception($"can't get {ComponentOption.ConfigPath} config");
 
         builder.AddOptions(components);
-
         builder.AddCache(components);
-
         builder.Services.AddDbFactory();
         builder.AddDbContext(components);
         return builder;
