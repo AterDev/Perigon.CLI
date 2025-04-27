@@ -1,4 +1,5 @@
-﻿using Entity.CustomerMod;
+﻿using System.Runtime.CompilerServices;
+using Entity.CustomerMod;
 using Entity.UserMod;
 using Framework.Common.Utils;
 
@@ -52,10 +53,12 @@ public class Order : EntityBase
     /// <summary>
     /// 原价格
     /// </summary>
+    [Column(TypeName = "decimal(10,2)")]
     public decimal OriginPrice { get; set; }
     /// <summary>
     /// 支付价格
     /// </summary>
+    [Column(TypeName = "decimal(10,2)")]
     public decimal TotalPrice { get; set; }
 
     /// <summary>
@@ -63,7 +66,6 @@ public class Order : EntityBase
     /// </summary>
     [MaxLength(10)]
     public string? DiscountCode { get; set; }
-
     /// <summary>
     /// 订单当前状态。
     /// </summary>

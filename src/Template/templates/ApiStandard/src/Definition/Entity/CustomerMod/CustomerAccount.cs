@@ -9,7 +9,7 @@ namespace Entity.CustomerMod;
 /// <summary>
 /// 客户账号
 /// </summary>
-public class CustomerAccount
+public class CustomerAccount : EntityBase
 {
     public Guid CustomerInfoId { get; set; } = default!;
     public CustomerInfo CustomerInfo { get; set; } = null!;

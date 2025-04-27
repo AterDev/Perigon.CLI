@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-MigrationService-a6847709-48df-4a73-8a2f-60d08c2f943f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.2.1" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
+    <ProjectReference Include="..\..\Framework\Framework.Web.Convention\Framework.Web.Convention.csproj" />
+  </ItemGroup>
+</Project>

@@ -33,6 +33,7 @@ public class Product : EntityBase
     /// <summary>
     /// 价格
     /// </summary>
+    [Column(TypeName = "decimal(10,2)")]
     public decimal Price { get; set; }
 
     /// <summary>
@@ -60,6 +61,7 @@ public class Product : EntityBase
     /// <summary>
     /// 原价
     /// </summary>
+    [Column(TypeName = "decimal(10,2)")]
     public decimal OriginPrice { get; set; }
     public ICollection<Order> Orders { get; set; } = [];
 }

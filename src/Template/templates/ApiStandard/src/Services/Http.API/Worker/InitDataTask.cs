@@ -30,8 +30,7 @@ public class InitDataTask
             }
             else
             {
-                await SystemMod.InitModule.InitializeAsync(provider);
-                // [InitModule]
+                // 初始化逻辑
             }
         }
         catch (Exception ex)

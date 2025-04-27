@@ -5,6 +5,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
+      <Compile Remove="ModuleConfiguration\**" />
+      <EmbeddedResource Remove="ModuleConfiguration\**" />
+      <None Remove="ModuleConfiguration\**" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
@@ -12,10 +17,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />
         <ProjectReference Include="..\..\Framework\Framework.Web.Convention\Framework.Web.Convention.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="ModuleConfiguration\" />
     </ItemGroup>
 
 </Project>

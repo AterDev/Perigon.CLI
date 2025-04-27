@@ -1,5 +1,6 @@
 using EntityFramework.DBProvider;
 using Framework.Common.Options;
+using Framework.Web.Convention.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -129,6 +130,7 @@ public static class SharedServiceExtensions
             };
         });
 
+        builder.Services.AddSingleton<CacheService>();
         return builder;
     }
 }
