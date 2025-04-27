@@ -8,10 +8,10 @@ namespace Framework.Web.Convention.Middleware;
 /// <summary>
 /// 在进入验证前，对token进行额外验证
 /// </summary>
-public class JwtMiddleware(RequestDelegate next, CacheService redis, ILogger<JwtMiddleware> logger)
+public class JwtMiddleware(RequestDelegate next, CacheService cache, ILogger<JwtMiddleware> logger)
 {
     private readonly RequestDelegate _next = next;
-    private readonly CacheService _cache = redis;
+    private readonly CacheService _cache = cache;
     private readonly ILogger<JwtMiddleware> _logger = logger;
 
     public async Task Invoke(HttpContext context)
@@ -38,7 +38,7 @@ public class JwtMiddleware(RequestDelegate next, CacheService redis, ILogger<Jwt
         // 策略判断
         if (id.NotEmpty())
         {
-            var securityPolicyStr = _cache.GetValue<string>(WebConst.LoginSecurityPolicy);
+            var securityPolicyStr = await _cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
             if (securityPolicyStr == null)
             {
                 await _next(context);
@@ -56,7 +56,7 @@ public class JwtMiddleware(RequestDelegate next, CacheService redis, ILogger<Jwt
                 client = WebConst.AllPlatform;
             }
             var key = WebConst.LoginCachePrefix + client + id;
-            var cacheToken = _cache.GetValue<string>(key);
+            var cacheToken = await _cache.GetValueAsync<string>(key);
             if (cacheToken.IsEmpty())
             {
                 await SetResponseAndComplete(context, 401);
@@ -69,7 +69,6 @@ public class JwtMiddleware(RequestDelegate next, CacheService redis, ILogger<Jwt
                 return;
             }
 
-            _cache.Cache.Refresh(key);
             await _next(context);
             return;
         }

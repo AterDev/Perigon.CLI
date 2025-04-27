@@ -22,7 +22,6 @@ public class CacheService(
     public async Task SetValueAsync(string key, object data)
     {
         await cache.SetAsync(key, data);
-
     }
 
     /// <summary>
@@ -45,7 +44,7 @@ public class CacheService(
             Expiration = expiration.HasValue ?
                 TimeSpan.FromSeconds(expiration.Value) :
                 TimeSpan.FromMinutes(cacheOption.Expiration),
-            Flags = GetGlobalCacheFlags(cacheOption),
+            Flags = flags ?? GetGlobalCacheFlags(cacheOption),
             LocalCacheExpiration = localExpiration.HasValue ?
                 TimeSpan.FromMinutes(localExpiration.Value) :
                 TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration)

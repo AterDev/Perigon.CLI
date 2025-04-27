@@ -86,7 +86,7 @@ public class SystemUserManager(
                 return false;
             }
             var key = WebConst.VerifyCodeCachePrefix + user.Email;
-            var code = _cache.GetValue<string>(key);
+            var code = await _cache.GetValueAsync<string>(key);
             if (code == null)
             {
                 ErrorStatus = 500003;
@@ -282,9 +282,9 @@ public class SystemUserManager(
     /// </summary>
     /// <param name="password"></param>
     /// <returns></returns>
-    public bool ValidatePassword(string password)
+    public async Task<bool> ValidatePasswordAsync(string password)
     {
-        var loginPolicy = _systemConfig.GetLoginSecurityPolicy();
+        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
         // 密码复杂度校验
         var pwdReg = loginPolicy.PasswordLevel switch
         {

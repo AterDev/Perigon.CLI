@@ -1,14 +1,6 @@
 using Entity.UserMod;
 using Framework.Common.Options;
-using Framework.Common.Utils;
-using Framework.Web.Convention;
-using Framework.Web.Convention.Services;
 using Share.Models.UserDtos;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SharedModule.Managers;
-using SharedModule.Services;
 
 namespace Http.API.Controllers;
 
@@ -50,7 +42,7 @@ public class UserController(
                 return BadRequest("邮箱不能为空");
             }
             var key = WebConst.VerifyCodeCachePrefix + dto.Email;
-            var code = _cache.GetValue<string>(key);
+            var code = await _cache.GetValueAsync<string>(key);
             if (code == null)
             {
                 return BadRequest("验证码已过期");
@@ -74,7 +66,7 @@ public class UserController(
     {
         var captcha = HashCrypto.GetRnd(6);
         var key = WebConst.VerifyCodeCachePrefix + email;
-        if (_cache.GetValue<string>(key) != null)
+        if (await _cache.GetValueAsync<string>(key) != null)
         {
             return Conflict("验证码已发送!");
         }
@@ -100,7 +92,7 @@ public class UserController(
         }
         var captcha = HashCrypto.GetRnd(6);
         var key = WebConst.VerifyCodeCachePrefix + email;
-        if (_cache.GetValue<string>(key) != null)
+        if (await _cache.GetValueAsync<string>(key) != null)
         {
             return Conflict("验证码已发送!");
         }
@@ -132,7 +124,7 @@ public class UserController(
         if (dto.VerifyCode != null)
         {
             var key = WebConst.VerifyCodeCachePrefix + user.Email;
-            var cacheCode = _cache.GetValue<string>(key);
+            var cacheCode = await _cache.GetValueAsync<string>(key);
             if (cacheCode == null)
             {
                 return BadRequest("验证码已过期");
@@ -237,7 +229,8 @@ public class UserController(
         if (current == null)
         {
             return NotFound(ErrorMsg.NotFoundResource);
-        };
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

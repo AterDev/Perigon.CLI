@@ -42,7 +42,7 @@ public class SystemUserController(
         }
         var captcha = _manager.GetCaptcha();
         var key = WebConst.VerifyCodeCachePrefix + email;
-        if (_cache.GetValue<string>(key) != null)
+        if (await _cache.GetValueAsync<string>(key) != null)
         {
             return Conflict("验证码已发送!");
         }
@@ -83,7 +83,7 @@ public class SystemUserController(
             return NotFound("不存在该用户");
         }
 
-        var loginPolicy = _systemConfig.GetLoginSecurityPolicy();
+        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
 
         if (await _manager.ValidateLoginAsync(dto, user, loginPolicy))
         {
@@ -111,10 +111,12 @@ public class SystemUserController(
 
             var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
             // 若会话过期时间为0，则使用jwt过期时间
-            await _cache.SetValueAsync(key, result.Token,
-                sliding: loginPolicy.SessionExpiredSeconds == 0
-                ? jwtOption.ExpiredSecond
-                : loginPolicy.SessionExpiredSeconds);
+            await _cache.SetValueAsync(
+                key,
+                result.Token,
+                loginPolicy.SessionExpiredSeconds == 0
+                    ? jwtOption.ExpiredSecond
+                    : loginPolicy.SessionExpiredSeconds);
 
             result.Menus = menus;
             result.PermissionGroups = permissionGroups;
