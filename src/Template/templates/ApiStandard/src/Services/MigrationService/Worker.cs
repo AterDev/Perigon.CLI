@@ -26,7 +26,6 @@ public class Worker(
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<CommandDbContext>();
 
-            await EnsureDatabaseAsync(dbContext, cancellationToken);
             await RunMigrationAsync(dbContext, cancellationToken);
             await SeedDataAsync(dbContext, cancellationToken);
         }
@@ -36,20 +35,6 @@ public class Worker(
             throw;
         }
         hostApplicationLifetime.StopApplication();
-    }
-
-    private static async Task EnsureDatabaseAsync(CommandDbContext dbContext, CancellationToken cancellationToken)
-    {
-        var dbCreator = dbContext.GetService<IRelationalDatabaseCreator>();
-
-        var strategy = dbContext.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(async () =>
-        {
-            if (!await dbCreator.ExistsAsync(cancellationToken))
-            {
-                await dbCreator.CreateAsync(cancellationToken);
-            }
-        });
     }
 
     private static async Task RunMigrationAsync(CommandDbContext dbContext, CancellationToken cancellationToken)
