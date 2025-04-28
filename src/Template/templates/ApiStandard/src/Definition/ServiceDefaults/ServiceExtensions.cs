@@ -52,11 +52,18 @@ public static class ServiceExtensions
     /// <returns></returns>
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOpenAPI();
         services.AddJwtAuthentication(configuration);
         services.AddAuthorize();
         services.AddCORS();
         services.AddRateLimiter();
+
+        services.AddOutputCache(options =>
+        {
+            options.AddBasePolicy(policy => policy.Expire(TimeSpan.FromMinutes(10)));
+        });
+
+        services.AddOpenApi("admin");
+        services.AddOpenApi("client");
         return services;
     }
 
@@ -64,6 +71,8 @@ public static class ServiceExtensions
     public static WebApplication UseDefaultWebServices(this WebApplication app)
     {
         app.UseWebAppContext();
+        app.UseOutputCache();
+
         // 异常统一处理
         app.UseExceptionHandler(ExceptionHandler.Handler());
         if (app.Environment.IsProduction())
@@ -75,6 +84,7 @@ public static class ServiceExtensions
         else
         {
             app.UseCors(WebConst.Default);
+            app.MapOpenApi().CacheOutput();
         }
 
         app.UseRateLimiter();
@@ -86,7 +96,6 @@ public static class ServiceExtensions
         app.UseAuthorization();
         app.MapControllers();
         app.MapFallbackToFile("index.html");
-
         return app;
     }
 
@@ -202,18 +211,6 @@ public static class ServiceExtensions
                 ValidateIssuerSigningKey = true
             };
         });
-        return services;
-    }
-
-    /// <summary>
-    /// 添加swagger服务
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddOpenAPI(this IServiceCollection services)
-    {
-        services.AddEndpointsApiExplorer();
-
         return services;
     }
 

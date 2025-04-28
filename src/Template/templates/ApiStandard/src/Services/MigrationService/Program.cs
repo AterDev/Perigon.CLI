@@ -1,5 +1,4 @@
-﻿
-using MigrationService;
+﻿using MigrationService;
 using ServiceDefaults;
 
 var builder = Host.CreateApplicationBuilder(args);
