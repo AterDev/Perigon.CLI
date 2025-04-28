@@ -11,9 +11,9 @@ namespace CustomerMod.Managers;
 public class CustomerInfoManager(
     DataAccessContext<CustomerInfo> dataContext,
     ILogger<CustomerInfoManager> logger,
-    IUserContext userContext) : ManagerBase<CustomerInfo>(dataContext, logger)
+    UserContext userContext) : ManagerBase<CustomerInfo>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     /// <summary>
     /// 创建待添加实体

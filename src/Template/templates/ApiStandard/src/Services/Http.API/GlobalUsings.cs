@@ -1,20 +1,13 @@
-global using System.Text;
-global using System.Text.Json.Serialization;
-global using SharedModule;
-global using SharedModule.Const;
-global using SharedModule.Implement;
-global using SharedModule.Managers;
-global using SharedModule.Services;
-global using Entity;
-global using Framework.Common.Converters;
 global using Framework.Common.Models;
 global using Framework.Common.Utils;
 global using Framework.Web.Convention;
 global using Framework.Web.Convention.Abstraction;
-global using Framework.Web.Convention.Middleware;
 global using Framework.Web.Convention.Services;
-global using Http.API.Middleware;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
-
+global using ServiceDefaults;
+global using SharedModule.Const;
+global using SharedModule.Implement;
+global using SharedModule.Managers;
+global using SharedModule.Services;

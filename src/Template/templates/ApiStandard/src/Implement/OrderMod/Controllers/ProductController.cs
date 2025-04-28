@@ -11,7 +11,7 @@ namespace OrderMod.Controllers;
 /// </summary>
 /// <see cref="Managers.ProductManager"/>
 public class ProductController(
-    IUserContext user,
+    UserContext user,
     ILogger<ProductController> logger,
     ProductManager manager
         ) : ClientControllerBase<ProductManager>(manager, user, logger)

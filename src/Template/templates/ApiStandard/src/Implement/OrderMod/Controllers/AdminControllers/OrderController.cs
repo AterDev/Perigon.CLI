@@ -11,7 +11,7 @@ namespace OrderMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.OrderManager"/>
 public class OrderController(
-    IUserContext user,
+    UserContext user,
     ILogger<OrderController> logger,
     OrderManager manager
         ) : RestControllerBase<OrderManager>(manager, user, logger)

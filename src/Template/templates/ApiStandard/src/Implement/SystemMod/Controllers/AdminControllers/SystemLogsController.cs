@@ -10,7 +10,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="SystemLogsManager"/>
 public class SystemLogsController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemLogsController> logger,
     SystemLogsManager manager
         ) : RestControllerBase<SystemLogsManager>(manager, user, logger)

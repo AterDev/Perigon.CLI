@@ -1,9 +1,5 @@
 using Entity.UserMod;
-using Framework.Common.Models;
-using Framework.Common.Utils;
 using Share.Models.UserDtos;
-using SharedModule;
-using SharedModule.Implement;
 
 namespace SharedModule.Managers;
 /// <summary>
@@ -12,9 +8,9 @@ namespace SharedModule.Managers;
 public class UserManager(
     DataAccessContext<User> dataContext,
     ILogger<UserManager> logger,
-    IUserContext userContext) : ManagerBase<User>(dataContext, logger)
+    UserContext userContext) : ManagerBase<User>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     /// <summary>
     /// 更新密码

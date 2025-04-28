@@ -1,0 +1,41 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+@HostAddress = http://localhost:5002
+
+### 管理员登录
+// @name login
+PUT {{HostAddress}}/api/admin/SystemUser/login
+{
+  "userName": "administrator",
+  "password": "Hello.Net"
+}
+
+### 查询管理员
+POST {{HostAddress}}/api/admin/SystemUser/filter
+Content-Type:  application/json
+Authorization:  Bearer {{login.response.body.$.token}}
+{
+  "pageSize": 10,
+  "pageIndex": 1
+}
+
+
+### 添加管理员测试
+POST {{HostAddress}}/api/admin/SystemUser/add
+Content-Type:  application/json
+Authorization:  Bearer {{login.response.body.$.token}}
+{
+  "userName": "newAdmin",
+  "password": "SecurePassword",
+  "email": "admin@example.com"
+}
+
+### 详情
+GET {{HostAddress}}/api/admin/SystemUser/{id}
+Content-Type:  application/json
+Authorization:  Bearer {{login.response.body.$.token}}
+
+### 删除管理员
+DELETE {{HostAddress}}/api/admin/SystemUser/{id}
+Content-Type:  application/json
+Authorization:  Bearer {{login.response.body.$.token}}

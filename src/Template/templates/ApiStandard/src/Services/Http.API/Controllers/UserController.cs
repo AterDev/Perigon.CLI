@@ -9,7 +9,7 @@ namespace Http.API.Controllers;
 /// </summary>
 /// <see cref="SharedModule.Managers.UserManager"/>
 public class UserController(
-    IUserContext user,
+    UserContext user,
     ILogger<UserController> logger,
     UserManager manager,
     CacheService cache,

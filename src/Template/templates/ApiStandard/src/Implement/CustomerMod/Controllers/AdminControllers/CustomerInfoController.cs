@@ -11,7 +11,7 @@ namespace CustomerMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.CustomerInfoManager"/>
 public class CustomerInfoController(
-    IUserContext user,
+    UserContext user,
     ILogger<CustomerInfoController> logger,
     CustomerInfoManager manager
     ) : RestControllerBase<CustomerInfoManager>(manager, user, logger)

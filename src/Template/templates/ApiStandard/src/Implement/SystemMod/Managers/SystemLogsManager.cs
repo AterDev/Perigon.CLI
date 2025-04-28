@@ -11,9 +11,9 @@ namespace SystemMod.Managers;
 public class SystemLogsManager(
     DataAccessContext<SystemLogs> dataContext,
     ILogger<SystemLogsManager> logger,
-    IUserContext userContext) : ManagerBase<SystemLogs>(dataContext, logger)
+    UserContext userContext) : ManagerBase<SystemLogs>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     public async Task<PageList<SystemLogsItemDto>> ToPageAsync(SystemLogsFilterDto filter)
     {

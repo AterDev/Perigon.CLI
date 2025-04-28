@@ -12,7 +12,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="SystemConfigManager"/>
 public class SystemConfigController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemConfigController> logger,
     SystemConfigManager manager
         ) : RestControllerBase<SystemConfigManager>(manager, user, logger)

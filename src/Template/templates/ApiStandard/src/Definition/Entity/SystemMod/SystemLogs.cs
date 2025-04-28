@@ -48,7 +48,7 @@ public class SystemLogs : EntityBase
 
     public Guid SystemUserId { get; set; } = default!;
 
-    public static SystemLogs NewLog(string userName, Guid userId, UserActionType actionType, object? entity, string? route = null, string? description = null)
+    public static SystemLogs NewLog(string userName, Guid userId, object entity, UserActionType actionType, string? route = null, string? description = null)
     {
         return new SystemLogs
         {

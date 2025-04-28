@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace SharedModule.Implement;
+namespace ServiceDefaults;
 
 /// <summary>
 /// 配置上下文
 /// </summary>
-public class SettingContext : ISettingContext
+public class SettingContext
 {
     private readonly IConfiguration _configuration;
     public SettingContext(IConfiguration configuration)

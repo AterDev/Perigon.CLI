@@ -12,7 +12,7 @@ namespace FileManagerMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.FileDataManager"/>
 public class FileDataController(
-    IUserContext user,
+    UserContext user,
     ILogger<FileDataController> logger,
     FileDataManager manager,
     FolderManager folderManager) : RestControllerBase<FileDataManager>(manager, user, logger)

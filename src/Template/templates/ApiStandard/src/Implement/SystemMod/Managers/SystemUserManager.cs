@@ -8,13 +8,13 @@ namespace SystemMod.Managers;
 
 public class SystemUserManager(
     DataAccessContext<SystemUser> dataContext,
-    IUserContext userContext,
+    UserContext userContext,
     IConfiguration configuration,
     CacheService cache,
     SystemConfigManager systemConfig,
     ILogger<SystemUserManager> logger) : ManagerBase<SystemUser>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;

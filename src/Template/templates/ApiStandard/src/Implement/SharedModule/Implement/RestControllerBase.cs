@@ -13,12 +13,12 @@ namespace SharedModule.Implement;
 [Route("api/admin/[controller]")]
 [Authorize(WebConst.AdminUser)]
 [ApiExplorerSettings(GroupName = "admin")]
-public class RestControllerBase<TManager>(TManager manager, IUserContextBase user, ILogger logger) : RestControllerBase
+public class RestControllerBase<TManager>(TManager manager, UserContext user, ILogger logger) : RestControllerBase
     where TManager : class
 {
     protected readonly TManager _manager = manager;
     protected readonly ILogger _logger = logger;
-    protected readonly IUserContextBase _user = user;
+    protected readonly UserContext _user = user;
 }
 
 /// <summary>
@@ -29,14 +29,14 @@ public class RestControllerBase<TManager>(TManager manager, IUserContextBase use
 [ApiExplorerSettings(GroupName = "client")]
 public class ClientControllerBase<TManager>(
     TManager manager,
-    IUserContextBase user,
+    UserContext user,
     ILogger logger
         ) : RestControllerBase
      where TManager : class
 {
     protected readonly TManager _manager = manager;
     protected readonly ILogger _logger = logger;
-    protected readonly IUserContextBase _user = user;
+    protected readonly UserContext _user = user;
 }
 
 /// <summary>

@@ -11,7 +11,7 @@ namespace FileManagerMod.Controllers;
 /// </summary>
 /// <see cref="Managers.FolderManager"/>
 public class FolderController(
-    IUserContext user,
+    UserContext user,
     ILogger<FolderController> logger,
     FolderManager manager
         ) : ClientControllerBase<FolderManager>(manager, user, logger)

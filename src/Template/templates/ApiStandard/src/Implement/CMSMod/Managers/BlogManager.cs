@@ -1,10 +1,6 @@
 using CMSMod.Models.BlogDtos;
 
 using EntityFramework;
-using Framework.Common.Models;
-using Framework.Common.Utils;
-using SharedModule;
-using SharedModule.Implement;
 
 namespace CMSMod.Managers;
 /// <summary>
@@ -13,9 +9,9 @@ namespace CMSMod.Managers;
 public class BlogManager(
     DataAccessContext<Blog> dataContext,
     ILogger<BlogManager> logger,
-    IUserContext userContext) : ManagerBase<Blog>(dataContext, logger)
+    UserContext userContext) : ManagerBase<Blog>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     /// <summary>
     /// 创建待添加实体

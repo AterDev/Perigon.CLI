@@ -4,6 +4,7 @@
 /// </summary>
 public static class WebConst
 {
+    public const string ProjectName = "MyProjectName";
     public const string Default = "Default";
     public const string DefaultStateName = "statestore";
     public const string DefaultPubSubName = "pubsub";

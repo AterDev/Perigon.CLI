@@ -1,3 +1,4 @@
+using Entity.SystemMod;
 using EntityFramework.DBProvider;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -445,10 +446,9 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <param name="actionType"></param>
     /// <param name="description"></param>
     /// <returns></returns>
-    protected async Task SaveToLogAsync(UserActionType actionType, object? entity, string? description = null)
+    protected async Task SaveToLogAsync(UserActionType actionType, object entity, string? description = null)
     {
-        var userContext = WebAppContext.GetScopeService<IUserContext>();
-
+        var userContext = WebAppContext.GetScopeService<UserContext>();
         if (userContext == null)
         {
             _logger.LogWarning("UserContext is null, can't save log");
@@ -456,28 +456,21 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         }
         // 日志入库代码示例：
         await Task.CompletedTask; // 实现记录逻辑时 请删除此行
-        //var route = userContext.GetHttpContext()?.Request.Path.Value;
-        //if (userContext.IsAdmin)
-        //{
-        //    // 管理员日志
-        //    // 使用SystemMod时生效
-        //    var log = SystemLogs.NewLog(userContext.Username ?? "", userContext.UserId, actionType, entity, route, description);
-        //    var taskQueue = WebAppContext.GetScopeService<IEntityTaskQueue<SystemLogs>>();
-        //    if (taskQueue != null)
-        //    {
-        //        await taskQueue.AddItemAsync(log);
-        //    }
-        //}
-        //else
-        //{
-        //    // 用户日志
-        //    var log = UserLogs.NewLog(userContext.Username ?? "", userContext.UserId, actionType, entity, route, description);
-        //    var taskQueue = WebAppContext.GetScopeService<IEntityTaskQueue<UserLogs>>();
-        //    if (taskQueue != null)
-        //    {
-        //        await taskQueue.AddItemAsync(log);
-        //    }
-        //}
+        var route = userContext.HttpContext?.Request.Path.Value;
+        if (userContext.IsAdmin)
+        {
+            // 管理员日志
+            var log = SystemLogs.NewLog(userContext.Username ?? "", userContext.UserId, entity, actionType, route, description);
+            var taskQueue = WebAppContext.GetScopeService<IEntityTaskQueue<SystemLogs>>();
+            if (taskQueue != null)
+            {
+                await taskQueue.AddItemAsync(log);
+            }
+        }
+        else
+        {
+            // TODO:其他日志
+        }
     }
 
     /// <summary>

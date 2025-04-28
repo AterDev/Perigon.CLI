@@ -1,13 +1,13 @@
+using System.Security.Claims;
 using EntityFramework.DBProvider;
 using Framework.Common.Models;
 using Framework.Web.Convention;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using SharedModule;
 
-namespace SharedModule.Implement;
+namespace ServiceDefaults;
 
-public class UserContext : IUserContext
+public class UserContext 
 {
     /// <summary>
     /// 用户id
@@ -26,12 +26,12 @@ public class UserContext : IUserContext
     public string? CurrentRole { get; set; }
     public List<string>? Roles { get; set; }
 
+    public HttpContext? HttpContext { get; set; }
+
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly CommandDbContext _context;
     public UserContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context)
     {
-        _httpContextAccessor = httpContextAccessor;
-        _context = context;
+        HttpContext = _httpContextAccessor!.HttpContext;
         if (Guid.TryParse(FindClaim(ClaimTypes.NameIdentifier)?.Value, out Guid userId) && userId != Guid.Empty)
         {
             UserId = userId;
@@ -45,7 +45,7 @@ public class UserContext : IUserContext
 
         CurrentRole = FindClaim(ClaimTypes.Role)?.Value;
 
-        Roles = _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role)
+        Roles = HttpContext?.User?.FindAll(ClaimTypes.Role)
             .Select(c => c.Value).ToList();
         if (Roles != null)
         {
@@ -68,16 +68,6 @@ public class UserContext : IUserContext
         return Roles != null && Roles.Any(r => r == roleName);
     }
 
-    /// <summary>
-    /// 是否存在
-    /// </summary>
-    /// <returns></returns>
-    public async Task<bool> ExistAsync<TUser>() where TUser : class, IEntityBase
-    {
-        return IsAdmin ?
-            await _context.Set<TUser>().AnyAsync(u => u.Id == UserId) :
-            await _context.Set<TUser>().AnyAsync(u => u.Id == UserId);
-    }
 
     /// <summary>
     /// 获取ip地址
@@ -85,20 +75,11 @@ public class UserContext : IUserContext
     /// <returns></returns>
     public string? GetIpAddress()
     {
-        HttpRequest? request = _httpContextAccessor.HttpContext?.Request;
+        HttpRequest? request = HttpContext?.Request;
         return request == null
             ? string.Empty
-            : request.Headers.TryGetValue("X-Forwarded-For", out StringValues value) ? value.Where(x => x != null).FirstOrDefault()
-            : _httpContextAccessor.HttpContext!.Connection.RemoteIpAddress?.ToString();
-    }
-
-    public async Task<TUser?> GetUserAsync<TUser>() where TUser : class, IEntityBase
-    {
-        return await _context.Set<TUser>().FindAsync(UserId);
-    }
-
-    public HttpContext? GetHttpContext()
-    {
-        return _httpContextAccessor.HttpContext;
+            : request.Headers.TryGetValue("X-Forwarded-For", out StringValues value)
+                ? value.Where(x => x != null).FirstOrDefault()
+                : HttpContext!.Connection.RemoteIpAddress?.ToString();
     }
 }

@@ -1,8 +1,4 @@
-using Framework.Common.Models;
-using Framework.Common.Utils;
 using OrderMod.Models.OrderDtos;
-using SharedModule;
-using SharedModule.Implement;
 
 namespace OrderMod.Managers;
 /// <summary>
@@ -11,11 +7,11 @@ namespace OrderMod.Managers;
 public class OrderManager(
     DataAccessContext<Order> dataContext,
     ILogger<OrderManager> logger,
-    IUserContext userContext,
+    UserContext userContext,
     ProductManager productManager) : ManagerBase<Order>(dataContext, logger)
 {
     private readonly ProductManager _productManager = productManager;
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     /// <summary>
     /// 创建待添加实体
@@ -39,7 +35,7 @@ public class OrderManager(
         Queryable = Queryable
             .WhereNotNull(filter.OrderNumber, q => q.OrderNumber == filter.OrderNumber)
             .WhereNotNull(filter.ProductId, q => q.Product.Id == filter.ProductId)
-            .WhereNotNull(filter.UserId, q => q.User.Id == filter.UserId)
+            .WhereNotNull(filter.UserId, q => q.User!.Id == filter.UserId)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);
 
         return await ToPageAsync<OrderFilterDto, OrderItemDto>(filter);

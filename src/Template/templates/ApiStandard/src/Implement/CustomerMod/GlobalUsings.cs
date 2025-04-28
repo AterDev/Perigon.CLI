@@ -1,5 +1,5 @@
 global using System.ComponentModel.DataAnnotations;
-global using SharedModule;
+global using ServiceDefaults;
 global using SharedModule.Const;
 global using SharedModule.Implement;
 global using CustomerMod.Managers;

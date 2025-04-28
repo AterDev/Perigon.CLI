@@ -10,7 +10,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// 系统用户
 /// </summary>
 public class SystemUserController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemUserController> logger,
     SystemUserManager manager,
     SystemConfigManager systemConfig,

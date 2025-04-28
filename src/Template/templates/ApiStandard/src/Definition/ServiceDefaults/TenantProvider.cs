@@ -1,8 +1,8 @@
-﻿using Framework.Web.Convention;
+﻿using System.Security.Claims;
 using Framework.Web.Convention.Abstraction;
 using Microsoft.AspNetCore.Http;
 
-namespace SharedModule.Implement;
+namespace ServiceDefaults;
 public class TenantProvider : ITenantProvider
 {
     public Guid TenantId { get; set; } = Guid.Empty;

@@ -11,7 +11,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="SystemPermissionManager"/>
 public class SystemPermissionController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemPermissionController> logger,
     SystemPermissionManager manager,
     SystemPermissionGroupManager systemPermissionGroupManager

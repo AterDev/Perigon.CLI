@@ -1,9 +1,3 @@
-using Framework.Common.Models;
-using Framework.Web.Convention;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SystemMod.Managers;
 using SystemMod.Models.SystemRoleDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
@@ -13,7 +7,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemRoleController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemRoleController> logger,
     SystemRoleManager manager
         ) : RestControllerBase<SystemRoleManager>(manager, user, logger)

@@ -1,19 +1,15 @@
 using CMSMod.Models.CatalogDtos;
 
 using EntityFramework;
-using Framework.Common.Models;
-using Framework.Common.Utils;
-using SharedModule;
-using SharedModule.Implement;
 
 namespace CMSMod.Managers;
 
 /// <summary>
 /// 目录管理
 /// </summary>
-public class CatalogManager(DataAccessContext<Catalog> dataContext, IUserContext userContext, ILogger<BlogManager> logger) : ManagerBase<Catalog>(dataContext, logger)
+public class CatalogManager(DataAccessContext<Catalog> dataContext, UserContext userContext, ILogger<BlogManager> logger) : ManagerBase<Catalog>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     /// <summary>
     /// 创建待添加实体

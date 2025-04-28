@@ -1,8 +1,4 @@
-using Framework.Common.Models;
-using Framework.Common.Utils;
 using OrderMod.Models.ProductDtos;
-using SharedModule;
-using SharedModule.Implement;
 
 namespace OrderMod.Managers;
 /// <summary>
@@ -11,10 +7,10 @@ namespace OrderMod.Managers;
 public class ProductManager(
     DataAccessContext<Product> dataContext,
     ILogger<ProductManager> logger,
-    IUserContext userContext
+    UserContext userContext
         ) : ManagerBase<Product>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
 
     /// <summary>
     /// 创建待添加实体

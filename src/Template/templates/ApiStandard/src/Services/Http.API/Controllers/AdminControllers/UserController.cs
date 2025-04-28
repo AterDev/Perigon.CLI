@@ -13,7 +13,7 @@ namespace Http.API.Controllers.AdminControllers;
 /// <see cref="SharedModule.Managers.UserManager"/>
 [Authorize(WebConst.AdminUser)]
 public class UserController(
-    IUserContext user,
+    UserContext user,
     ILogger<UserController> logger,
     UserManager manager
         ) : RestControllerBase<UserManager>(manager, user, logger)

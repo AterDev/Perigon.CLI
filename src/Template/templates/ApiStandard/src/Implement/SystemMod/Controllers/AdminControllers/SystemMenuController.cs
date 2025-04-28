@@ -15,7 +15,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// <see cref="SystemMenuManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemMenuController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemMenuController> logger,
     IWebHostEnvironment env,
     SystemMenuManager manager

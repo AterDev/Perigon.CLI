@@ -10,7 +10,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// <see cref="SystemPermissionGroupManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemPermissionGroupController(
-    IUserContext user,
+    UserContext user,
     ILogger<SystemPermissionGroupController> logger,
     SystemPermissionGroupManager manager
         ) : RestControllerBase<SystemPermissionGroupManager>(manager, user, logger)

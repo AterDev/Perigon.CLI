@@ -1,6 +1,4 @@
 ﻿// 系统日志服务示例
-using SharedModule;
-
 namespace SystemMod.Services;
 /// <summary>
 /// 业务日志服务
@@ -9,10 +7,9 @@ public class SystemLogService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IEntityTaskQueue<SystemLogs> _taskQueue;
-    private readonly IUserContext _context;
 
     /// <summary>
-    /// 
+    /// 系统日志服务
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <param name="taskQueue"></param>
@@ -20,7 +17,6 @@ public class SystemLogService
     {
         _serviceProvider = serviceProvider;
         _taskQueue = taskQueue;
-        _context = _serviceProvider.CreateScope().ServiceProvider.GetRequiredService<IUserContext>();
     }
 
     /// <summary>
@@ -35,15 +31,17 @@ public class SystemLogService
     /// <returns></returns>
     public async Task NewLog(string targetName, UserActionType actionType, string description, string? userName = null, Guid? userId = null)
     {
+        var _context = _serviceProvider.CreateScope().ServiceProvider.GetRequiredService<UserContext>();
+
         userId = _context.UserId == Guid.Empty ? userId : _context.UserId;
         userName = string.IsNullOrEmpty(_context.Username) ? userName : _context.Username;
-        var route = _context!.GetHttpContext()?.Request.Path.Value;
+        var route = _context!.HttpContext?.Request.Path.Value;
 
         if (userId == null || userId.Equals(Guid.Empty))
         {
             return;
         }
-        var log = SystemLogs.NewLog(userName ?? "", userId.Value, actionType, targetName, route, description);
+        var log = SystemLogs.NewLog(userName ?? "", userId.Value, targetName, actionType, route, description);
         await _taskQueue.AddItemAsync(log);
     }
 }

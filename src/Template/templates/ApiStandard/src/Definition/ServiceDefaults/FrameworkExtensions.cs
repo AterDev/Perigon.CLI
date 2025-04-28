@@ -1,22 +1,17 @@
-using EntityFramework.DBProvider;
-using Framework.Common.Options;
 using Framework.Web.Convention.Services;
 using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using SharedModule.Const;
 
-namespace SharedModule;
+namespace ServiceDefaults;
 /// <summary>
 /// 应用扩展服务
 /// </summary>
-public static class SharedServiceExtensions
+public static class FrameworkExtensions
 {
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IUserContext, UserContext>();
-        builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+        builder.Services.AddScoped<UserContext>();
+        builder.Services.AddScoped<TenantProvider>();
 
         var components = builder.Configuration.GetSection(ComponentOption.ConfigPath)
             .Get<ComponentOption>()
@@ -121,7 +116,7 @@ public static class SharedServiceExtensions
             builder.Services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = builder.Configuration.GetConnectionString(WebConst.Cache);
-                options.InstanceName = Constant.ProjectName;
+                options.InstanceName = WebConst.ProjectName;
             });
         }
         // 混合缓存

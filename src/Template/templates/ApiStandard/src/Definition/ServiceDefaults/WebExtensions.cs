@@ -17,9 +17,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ServiceDefaults;
-public static class ServiceExtensions
+public static class WebExtensions
 {
-
     /// <summary>
     /// 注册和配置Web服务依赖
     /// </summary>
@@ -98,8 +97,6 @@ public static class ServiceExtensions
         app.MapFallbackToFile("index.html");
         return app;
     }
-
-
 
     /// <summary>
     /// 添加速率限制

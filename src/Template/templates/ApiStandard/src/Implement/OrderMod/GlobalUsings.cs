@@ -1,7 +1,4 @@
 global using System.ComponentModel.DataAnnotations;
-global using SharedModule.Const;
-global using SharedModule.Implement;
-global using Entity;
 global using Entity.OrderMod;
 global using EntityFramework;
 global using Framework.Common.Models;
@@ -11,3 +8,6 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using OrderMod.Managers;
+global using ServiceDefaults;
+global using SharedModule.Const;
+global using SharedModule.Implement;

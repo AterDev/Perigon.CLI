@@ -1,5 +1,3 @@
-using Entity.CMSMod;
-
 namespace CMSMod.Models.CatalogDtos;
 /// <summary>
 /// 目录更新时请求结构
