@@ -74,7 +74,7 @@ namespace Framework.Web.Analyzers.SourceGenerators
                 string? source = GenerateExtensions(classes);
                 if (!string.IsNullOrWhiteSpace(source))
                 {
-                    spc.AddSource("AppManagerServiceExtensions.g.cs", SourceText.From(source, System.Text.Encoding.UTF8));
+                    spc.AddSource("AppManagerServiceExtensions.g.cs", SourceText.From(source!, System.Text.Encoding.UTF8));
                 }
             });
         }

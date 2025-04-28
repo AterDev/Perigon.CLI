@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Ater.Web.Core.Utils;
 using Entity.SystemMod;
 using Framework.Common.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +15,11 @@ public class Worker(
 {
     private readonly ILogger<Worker> _logger = logger;
     public const string ActivitySourceName = "Migrations";
-    private static readonly ActivitySource s_activitySource = new(ActivitySourceName);
+    private static readonly ActivitySource _activitySource = new(ActivitySourceName);
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        using var activity = s_activitySource.StartActivity("Migrating database", ActivityKind.Client);
+        using var activity = _activitySource.StartActivity("Migrating database", ActivityKind.Client);
         try
         {
             using var scope = serviceProvider.CreateScope();
@@ -37,6 +36,20 @@ public class Worker(
         hostApplicationLifetime.StopApplication();
     }
 
+    private static async Task EnsureDatabaseAsync(CommandDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var dbCreator = dbContext.GetService<IRelationalDatabaseCreator>();
+
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            if (!await dbCreator.ExistsAsync(cancellationToken))
+            {
+                await dbCreator.CreateAsync(cancellationToken);
+            }
+        });
+    }
+
     private static async Task RunMigrationAsync(CommandDbContext dbContext, CancellationToken cancellationToken)
     {
         var strategy = dbContext.Database.CreateExecutionStrategy();
@@ -49,7 +62,7 @@ public class Worker(
     private async Task SeedDataAsync(CommandDbContext dbContext, CancellationToken cancellationToken)
     {
         var strategy = dbContext.Database.CreateExecutionStrategy();
-        
+
         await strategy.ExecuteAsync(async () =>
         {
             // 初始化用户
@@ -60,7 +73,6 @@ public class Worker(
             }
         });
     }
-
 
     /// <summary>
     /// 初始化角色

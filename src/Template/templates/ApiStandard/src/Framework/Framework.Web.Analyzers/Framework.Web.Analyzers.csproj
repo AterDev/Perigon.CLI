@@ -6,7 +6,7 @@
 
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <!--<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>-->
 
         <PackageId>Ater.Web.Analyzers</PackageId>
         <Title>Ater.Web.Analyzers</Title>

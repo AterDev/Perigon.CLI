@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -15,24 +16,24 @@ namespace EntityFramework.Migrations
                 name: "CustomerRegisters",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    ContactName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    ContactPhone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
-                    CustomerType = table.Column<int>(type: "int", nullable: false),
-                    CompanyType = table.Column<int>(type: "int", nullable: false),
-                    UnifiedCode = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
-                    LegalPerson = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    InvoiceType = table.Column<int>(type: "int", nullable: true),
-                    BankName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    BankAccount = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Address = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    ContactName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    ContactPhone = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    Remark = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    CustomerType = table.Column<int>(type: "integer", nullable: false),
+                    CompanyType = table.Column<int>(type: "integer", nullable: false),
+                    UnifiedCode = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    LegalPerson = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    InvoiceType = table.Column<int>(type: "integer", nullable: true),
+                    BankName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    BankAccount = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -43,14 +44,14 @@ namespace EntityFramework.Migrations
                 name: "Folders",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Path = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Path = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -66,22 +67,22 @@ namespace EntityFramework.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Images = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Videos = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    CostScore = table.Column<int>(type: "int", nullable: false),
-                    Sort = table.Column<int>(type: "int", nullable: false),
-                    Days = table.Column<int>(type: "int", nullable: false),
-                    ProductType = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    OriginPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Images = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Videos = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    CostScore = table.Column<int>(type: "integer", nullable: false),
+                    Sort = table.Column<int>(type: "integer", nullable: false),
+                    Days = table.Column<int>(type: "integer", nullable: false),
+                    ProductType = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    OriginPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -92,17 +93,17 @@ namespace EntityFramework.Migrations
                 name: "SystemConfigs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Valid = table.Column<bool>(type: "bit", nullable: false),
-                    IsSystem = table.Column<bool>(type: "bit", nullable: false),
-                    GroupName = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Value = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Valid = table.Column<bool>(type: "boolean", nullable: false),
+                    IsSystem = table.Column<bool>(type: "boolean", nullable: false),
+                    GroupName = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -113,20 +114,20 @@ namespace EntityFramework.Migrations
                 name: "SystemMenus",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    Path = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Icon = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsValid = table.Column<bool>(type: "bit", nullable: false),
-                    AccessCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MenuType = table.Column<int>(type: "int", nullable: false),
-                    Sort = table.Column<int>(type: "int", nullable: false),
-                    Hidden = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Path = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Icon = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsValid = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessCode = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    MenuType = table.Column<int>(type: "integer", nullable: false),
+                    Sort = table.Column<int>(type: "integer", nullable: false),
+                    Hidden = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -142,13 +143,13 @@ namespace EntityFramework.Migrations
                 name: "SystemOrganizations",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -164,13 +165,13 @@ namespace EntityFramework.Migrations
                 name: "SystemPermissionGroups",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -181,15 +182,15 @@ namespace EntityFramework.Migrations
                 name: "SystemRoles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    NameValue = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    IsSystem = table.Column<bool>(type: "bit", nullable: false),
-                    Icon = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    NameValue = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    IsSystem = table.Column<bool>(type: "boolean", nullable: false),
+                    Icon = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -200,28 +201,28 @@ namespace EntityFramework.Migrations
                 name: "SystemUsers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    RealName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PasswordSalt = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false),
-                    LastLoginTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LastPwdEditTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    RetryCount = table.Column<int>(type: "int", nullable: false),
-                    Avatar = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Sex = table.Column<int>(type: "int", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    RealName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    PasswordSalt = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false),
+                    LastLoginTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LastPwdEditTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    RetryCount = table.Column<int>(type: "integer", nullable: false),
+                    Avatar = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Sex = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -232,15 +233,15 @@ namespace EntityFramework.Migrations
                 name: "Tenants",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    QueryDbString = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CommandDbString = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    QueryDbString = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CommandDbString = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -251,26 +252,26 @@ namespace EntityFramework.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    UserType = table.Column<int>(type: "int", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PasswordSalt = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false),
-                    LastLoginTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    RetryCount = table.Column<int>(type: "int", nullable: false),
-                    Avatar = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
+                    UserType = table.Column<int>(type: "integer", nullable: false),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    PasswordSalt = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false),
+                    LastLoginTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    RetryCount = table.Column<int>(type: "integer", nullable: false),
+                    Avatar = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -281,16 +282,16 @@ namespace EntityFramework.Migrations
                 name: "FileDatas",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FolderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Extension = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Md5 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Content = table.Column<byte[]>(type: "varbinary(max)", maxLength: 2097152, nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FolderId = table.Column<Guid>(type: "uuid", nullable: true),
+                    FileName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Extension = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    Md5 = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Content = table.Column<byte[]>(type: "bytea", maxLength: 2097152, nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -306,16 +307,16 @@ namespace EntityFramework.Migrations
                 name: "SystemPermissions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Enable = table.Column<bool>(type: "bit", nullable: false),
-                    PermissionType = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Enable = table.Column<bool>(type: "boolean", nullable: false),
+                    PermissionType = table.Column<int>(type: "integer", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -332,8 +333,8 @@ namespace EntityFramework.Migrations
                 name: "SystemMenuSystemRole",
                 columns: table => new
                 {
-                    MenusId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RolesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    MenusId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RolesId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -356,14 +357,14 @@ namespace EntityFramework.Migrations
                 name: "SystemPermissionGroupSystemRole",
                 columns: table => new
                 {
-                    PermissionGroupsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RolesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PermissionGroupsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RolesId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SystemPermissionGroupSystemRole", x => new { x.PermissionGroupsId, x.RolesId });
                     table.ForeignKey(
-                        name: "FK_SystemPermissionGroupSystemRole_SystemPermissionGroups_PermissionGroupsId",
+                        name: "FK_SystemPermissionGroupSystemRole_SystemPermissionGroups_Perm~",
                         column: x => x.PermissionGroupsId,
                         principalTable: "SystemPermissionGroups",
                         principalColumn: "Id",
@@ -380,36 +381,36 @@ namespace EntityFramework.Migrations
                 name: "CustomerInfos",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyType = table.Column<int>(type: "int", nullable: false),
-                    UnifiedCode = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
-                    LegalPerson = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    InvoiceType = table.Column<int>(type: "int", nullable: true),
-                    BankName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    BankAccount = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    Numbering = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    RealName = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
-                    BirthDay = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    GenderType = table.Column<int>(type: "int", nullable: false),
-                    IsFormal = table.Column<bool>(type: "bit", nullable: false),
-                    CustomerType = table.Column<int>(type: "int", nullable: false),
-                    FollowUpStatus = table.Column<int>(type: "int", nullable: false),
-                    Source = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
-                    ContactInfo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ContactName = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
-                    ContactPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    ContactEmail = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CustomerRegisterId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ManagerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompanyType = table.Column<int>(type: "integer", nullable: false),
+                    UnifiedCode = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    LegalPerson = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    InvoiceType = table.Column<int>(type: "integer", nullable: true),
+                    BankName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    BankAccount = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Name = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
+                    Numbering = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
+                    RealName = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: true),
+                    BirthDay = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    GenderType = table.Column<int>(type: "integer", nullable: false),
+                    IsFormal = table.Column<bool>(type: "boolean", nullable: false),
+                    CustomerType = table.Column<int>(type: "integer", nullable: false),
+                    FollowUpStatus = table.Column<int>(type: "integer", nullable: false),
+                    Source = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    Address = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Remark = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    ContactInfo = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ContactName = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    ContactPhone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    ContactEmail = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    CustomerRegisterId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Tags = table.Column<List<string>>(type: "text[]", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -437,17 +438,17 @@ namespace EntityFramework.Migrations
                 name: "SystemLogs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ActionUserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    TargetName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Route = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    ActionType = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    SystemUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ActionUserName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    TargetName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Route = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    ActionType = table.Column<int>(type: "integer", nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    SystemUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -464,14 +465,14 @@ namespace EntityFramework.Migrations
                 name: "SystemOrganizationSystemUser",
                 columns: table => new
                 {
-                    SystemOrganizationsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    SystemOrganizationsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SystemOrganizationSystemUser", x => new { x.SystemOrganizationsId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_SystemOrganizationSystemUser_SystemOrganizations_SystemOrganizationsId",
+                        name: "FK_SystemOrganizationSystemUser_SystemOrganizations_SystemOrga~",
                         column: x => x.SystemOrganizationsId,
                         principalTable: "SystemOrganizations",
                         principalColumn: "Id",
@@ -488,8 +489,8 @@ namespace EntityFramework.Migrations
                 name: "SystemRoleSystemUser",
                 columns: table => new
                 {
-                    SystemRolesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    SystemRolesId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -512,15 +513,15 @@ namespace EntityFramework.Migrations
                 name: "Catalogs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Level = table.Column<short>(type: "smallint", nullable: false),
-                    ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -542,15 +543,15 @@ namespace EntityFramework.Migrations
                 name: "CustomerAccount",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerInfoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PasswordSalt = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CustomerInfoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
+                    PasswordHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    PasswordSalt = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -567,21 +568,21 @@ namespace EntityFramework.Migrations
                 name: "Orders",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerInfoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OrderNumber = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    PayNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductName = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
-                    OriginPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    DiscountCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CustomerInfoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrderNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    PayNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductName = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    OriginPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    DiscountCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -610,25 +611,25 @@ namespace EntityFramework.Migrations
                 name: "Blogs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    Content = table.Column<string>(type: "nvarchar(max)", maxLength: 10000, nullable: false),
-                    Authors = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    TranslateTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    TranslateContent = table.Column<string>(type: "nvarchar(max)", maxLength: 12000, nullable: true),
-                    LanguageType = table.Column<int>(type: "int", nullable: false),
-                    BlogType = table.Column<int>(type: "int", nullable: false),
-                    IsAudit = table.Column<bool>(type: "bit", nullable: false),
-                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
-                    IsOriginal = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CatalogId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ViewCount = table.Column<int>(type: "int", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
+                    Content = table.Column<string>(type: "character varying(10000)", maxLength: 10000, nullable: false),
+                    Authors = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    TranslateTitle = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    TranslateContent = table.Column<string>(type: "character varying(12000)", maxLength: 12000, nullable: true),
+                    LanguageType = table.Column<int>(type: "integer", nullable: false),
+                    BlogType = table.Column<int>(type: "integer", nullable: false),
+                    IsAudit = table.Column<bool>(type: "boolean", nullable: false),
+                    IsPublic = table.Column<bool>(type: "boolean", nullable: false),
+                    IsOriginal = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CatalogId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -939,8 +940,7 @@ namespace EntityFramework.Migrations
                 name: "IX_SystemUsers_Email",
                 table: "SystemUsers",
                 column: "Email",
-                unique: true,
-                filter: "[Email] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemUsers_IsDeleted",
@@ -951,8 +951,7 @@ namespace EntityFramework.Migrations
                 name: "IX_SystemUsers_PhoneNumber",
                 table: "SystemUsers",
                 column: "PhoneNumber",
-                unique: true,
-                filter: "[PhoneNumber] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemUsers_UserName",
@@ -969,8 +968,7 @@ namespace EntityFramework.Migrations
                 name: "IX_User_Email",
                 table: "User",
                 column: "Email",
-                unique: true,
-                filter: "[Email] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_IsDeleted",
@@ -981,8 +979,7 @@ namespace EntityFramework.Migrations
                 name: "IX_User_PhoneNumber",
                 table: "User",
                 column: "PhoneNumber",
-                unique: true,
-                filter: "[PhoneNumber] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_UserName",

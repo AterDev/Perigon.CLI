@@ -84,8 +84,23 @@ public static class SharedServiceExtensions
         builder.Services.AddScoped(typeof(DataAccessContext<>));
         builder.Services.AddScoped(typeof(DataAccessContext));
 
-        builder.AddSqlServerDbContext<QueryDbContext>(WebConst.QueryDb);
-        builder.AddSqlServerDbContext<CommandDbContext>(WebConst.CommandDb);
+        switch (components.Database)
+        {
+            case DatabaseType.SqlServer:
+                builder.Services.AddDbContext<CommandDbContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString(WebConst.CommandDb)));
+                builder.Services.AddDbContext<QueryDbContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString(WebConst.QueryDb)));
+                break;
+            case DatabaseType.PostgreSql:
+                builder.Services.AddDbContext<CommandDbContext>(options =>
+                    options.UseNpgsql(builder.Configuration.GetConnectionString(WebConst.CommandDb)));
+                builder.Services.AddDbContext<QueryDbContext>(options =>
+                    options.UseNpgsql(builder.Configuration.GetConnectionString(WebConst.QueryDb)));
+                break;
+            default:
+                throw new NotSupportedException($"Database provider {components.Database} is not supported.");
+        }
         return builder;
     }
 

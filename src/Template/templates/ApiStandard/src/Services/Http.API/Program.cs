@@ -34,5 +34,4 @@ using (app)
     }
     app.Run();
 }
-
 public partial class Program { }

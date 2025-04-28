@@ -3,7 +3,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 #region containers
 var sqlPassword = builder.AddParameter("sql-password", value: "MyProjectName_DevSecret", secret: true);
 
-var devDb = builder.AddPostgres(name: "db", password: sqlPassword, port: 5432)
+var devDb = builder.AddPostgres(name: "db", password: sqlPassword, port: 15432)
     .WithDataVolume()
     .AddDatabase("MyProjectName");
 
@@ -17,7 +17,7 @@ var cache = builder.AddRedis("cache", port: 6379)
     .WithPersistence(interval: TimeSpan.FromMinutes(5));
 #endregion
 
-builder.AddProject<Projects.Http_API>("http-api")
+builder.AddProject<Projects.Http_API>("httpapi")
     .WithExternalHttpEndpoints()
     .WithReference(devDb)
     .WaitFor(devDb)

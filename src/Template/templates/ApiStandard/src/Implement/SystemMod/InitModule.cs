@@ -2,9 +2,6 @@
 
 using EntityFramework.DBProvider;
 using Framework.Common.Options;
-using Framework.Common.Utils;
-using Framework.Web.Convention;
-using Framework.Web.Convention.Services;
 
 namespace SystemMod;
 public class InitModule
