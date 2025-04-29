@@ -1,3 +1,4 @@
+using Framework.Web.Convention.Abstraction;
 using Framework.Web.Convention.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 
@@ -11,7 +12,7 @@ public static class FrameworkExtensions
     {
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<UserContext>();
-        builder.Services.AddScoped<TenantProvider>();
+        builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
         var components = builder.Configuration.GetSection(ComponentOption.ConfigPath)
             .Get<ComponentOption>()
@@ -82,16 +83,14 @@ public static class FrameworkExtensions
         switch (components.Database)
         {
             case DatabaseType.SqlServer:
-                builder.Services.AddDbContext<CommandDbContext>(options =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString(WebConst.CommandDb)));
-                builder.Services.AddDbContext<QueryDbContext>(options =>
-                    options.UseSqlServer(builder.Configuration.GetConnectionString(WebConst.QueryDb)));
+
+                builder.AddSqlServerDbContext<CommandDbContext>(WebConst.CommandDb);
+                builder.AddSqlServerDbContext<QueryDbContext>(WebConst.QueryDb);
+
                 break;
             case DatabaseType.PostgreSql:
-                builder.Services.AddDbContext<CommandDbContext>(options =>
-                    options.UseNpgsql(builder.Configuration.GetConnectionString(WebConst.CommandDb)));
-                builder.Services.AddDbContext<QueryDbContext>(options =>
-                    options.UseNpgsql(builder.Configuration.GetConnectionString(WebConst.QueryDb)));
+                builder.AddNpgsqlDbContext<CommandDbContext>(WebConst.CommandDb);
+                builder.AddNpgsqlDbContext<QueryDbContext>(WebConst.QueryDb);
                 break;
             default:
                 throw new NotSupportedException($"Database provider {components.Database} is not supported.");
@@ -113,10 +112,9 @@ public static class FrameworkExtensions
         // 分布式缓存
         if (components.Cache != CacheType.Memory)
         {
-            builder.Services.AddStackExchangeRedisCache(options =>
+            builder.AddRedisDistributedCache(WebConst.Cache, settings =>
             {
-                options.Configuration = builder.Configuration.GetConnectionString(WebConst.Cache);
-                options.InstanceName = WebConst.ProjectName;
+                settings.ConnectionString = builder.Configuration.GetConnectionString(WebConst.Cache);
             });
         }
         // 混合缓存

@@ -1,6 +1,5 @@
 using Http.API.Extensions;
 using Http.API.Worker;
-using ServiceDefaults;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +7,11 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 // 框架依赖服务:options, cache, dbContext
 builder.AddFrameworkServices();
+
 // 业务Managers
 builder.Services.AddManagers();
+// 模块服务
+builder.AddModules();
 
 // Web中间件服务:route, openapi, jwt, cors, auth, rateLimiter etc.
 builder.AddMiddlewareServices();
@@ -22,16 +24,15 @@ WebApplication app = builder.Build();
 app.MapDefaultEndpoints();
 
 // 使用中间件
-app.UseDefaultWebServices();
+app.UseMiddlewareServices();
 
 using (app)
 {
-    // 初始化工作
-    await using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
+    // 在启动前执行初始化操作
+    await using (var scope = app.Services.CreateAsyncScope())
     {
         IServiceProvider provider = scope.ServiceProvider;
-        await InitDataTask.InitDataAsync(provider);
+        await Initialize.InitAsync(provider);
     }
     app.Run();
 }
-public partial class Program { }

@@ -199,8 +199,8 @@ public class SystemUserController(
         }
         SystemUser? user = await _manager.GetCurrentAsync(_user.UserId);
         return !HashCrypto.Validate(password, user!.PasswordSalt, user.PasswordHash)
-            ? (ActionResult<bool>)Problem("当前密码不正确")
-            : (ActionResult<bool>)await _manager.ChangePasswordAsync(user, newPassword);
+            ? Problem("当前密码不正确")
+            : await _manager.ChangePasswordAsync(user, newPassword);
     }
 
     /// <summary>
@@ -227,7 +227,7 @@ public class SystemUserController(
     public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        SystemUser? entity = await _manager.GetOwnedAsync(id);
+        SystemUser? entity = await _manager.GetCurrentAsync(id);
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

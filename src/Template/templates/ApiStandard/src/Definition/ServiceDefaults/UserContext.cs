@@ -1,13 +1,10 @@
 using System.Security.Claims;
-using EntityFramework.DBProvider;
-using Framework.Common.Models;
-using Framework.Web.Convention;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
 namespace ServiceDefaults;
 
-public class UserContext 
+public class UserContext
 {
     /// <summary>
     /// 用户id
@@ -28,10 +25,9 @@ public class UserContext
 
     public HttpContext? HttpContext { get; set; }
 
-    private readonly IHttpContextAccessor _httpContextAccessor;
     public UserContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context)
     {
-        HttpContext = _httpContextAccessor!.HttpContext;
+        HttpContext = httpContextAccessor!.HttpContext;
         if (Guid.TryParse(FindClaim(ClaimTypes.NameIdentifier)?.Value, out Guid userId) && userId != Guid.Empty)
         {
             UserId = userId;
@@ -55,7 +51,7 @@ public class UserContext
 
     protected Claim? FindClaim(string claimType)
     {
-        return _httpContextAccessor?.HttpContext?.User?.FindFirst(claimType);
+        return HttpContext?.User?.FindFirst(claimType);
     }
 
     /// <summary>

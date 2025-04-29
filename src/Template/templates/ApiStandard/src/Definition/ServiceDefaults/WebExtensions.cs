@@ -5,15 +5,10 @@ using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Framework.Common.Converters;
-using Framework.Common.Options;
-using Framework.Web.Convention;
 using Framework.Web.Convention.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ServiceDefaults;
@@ -67,9 +62,10 @@ public static class WebExtensions
     }
 
 
-    public static WebApplication UseDefaultWebServices(this WebApplication app)
+    public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
         app.UseWebAppContext();
+        app.UseDomainException();
         app.UseOutputCache();
 
         // 异常统一处理

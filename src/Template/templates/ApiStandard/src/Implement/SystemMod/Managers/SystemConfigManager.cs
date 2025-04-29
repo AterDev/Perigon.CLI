@@ -1,9 +1,5 @@
 using System.Text.Json;
 using Framework.Common.Options;
-using Framework.Common.Utils;
-using Framework.Web.Convention;
-using Framework.Web.Convention.Services;
-using SharedModule.Implement;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
@@ -89,7 +85,7 @@ public class SystemConfigManager(
     {
         // 优先级：缓存>配置文件
         var policy = new LoginSecurityPolicyOption();
-        var configString = await _cache.GetValueAsync<string>(LoginSecurityPolicyOption.ConfigPath);
+        var configString = await _cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
         if (configString != null)
         {
             policy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(configString);

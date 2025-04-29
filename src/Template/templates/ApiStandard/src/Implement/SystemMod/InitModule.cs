@@ -19,12 +19,13 @@ public class InitModule
         IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
         CacheService cache = provider.GetRequiredService<CacheService>();
 
-        var isInitString = context.SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
+        try
+        {
+            var isInitString = context.SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
             .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
             .Select(c => c.Value)
             .FirstOrDefault();
-        try
-        {
+
             // 未初始化时
             if (isInitString.IsEmpty() || isInitString.Equals("false"))
             {
@@ -37,13 +38,14 @@ public class InitModule
         }
         catch (Exception ex)
         {
-            logger.LogError("初始化系统配置失败！{message}", ex.Message);
+            var conn = context.Database.GetConnectionString();
+            logger.LogError("初始化系统配置失败！{message}. ", ex.Message);
         }
     }
 
     private static async Task InitRoleAndUserAsync(CommandDbContext context, ILogger<InitModule> logger, IConfiguration configuration)
     {
-        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r => r.NameValue == WebConst.AdminUser);
+        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r => r.NameValue == WebConst.SuperAdmin);
         // 初始化管理员账号和角色
         if (role == null)
         {
@@ -130,6 +132,11 @@ public class InitModule
         if (securityPolicy != null)
         {
             await cache.SetValueAsync(WebConst.LoginSecurityPolicy, securityPolicy, null);
+
+
+            var test = await cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
+
+            logger.LogInformation("加载登录安全策略成功:{securityPolicy}", test);
         }
     }
 }

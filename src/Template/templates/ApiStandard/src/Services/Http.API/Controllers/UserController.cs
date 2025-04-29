@@ -213,7 +213,7 @@ public class UserController(
         }
         User? user = await _manager.GetCurrentAsync(_user.UserId);
         return !HashCrypto.Validate(password, user!.PasswordSalt, user.PasswordHash)
-            ? (ActionResult<bool>)Problem("当前密码不正确")
+            ? Problem("当前密码不正确")
             : await _manager.ChangePasswordAsync(user, newPassword);
     }
 

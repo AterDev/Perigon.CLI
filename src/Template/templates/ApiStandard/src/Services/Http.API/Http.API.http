@@ -5,6 +5,7 @@
 ### 管理员登录
 // @name login
 PUT {{HostAddress}}/api/admin/SystemUser/login
+Content-Type:  application/json
 {
   "userName": "administrator",
   "password": "Hello.Net"
@@ -19,9 +20,8 @@ Authorization:  Bearer {{login.response.body.$.token}}
   "pageIndex": 1
 }
 
-
 ### 添加管理员测试
-POST {{HostAddress}}/api/admin/SystemUser/add
+POST {{HostAddress}}/api/admin/SystemUser
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
 {
@@ -31,11 +31,11 @@ Authorization:  Bearer {{login.response.body.$.token}}
 }
 
 ### 详情
-GET {{HostAddress}}/api/admin/SystemUser/{id}
+GET {{HostAddress}}/api/admin/SystemUser/01968090-0ecc-7b39-996a-046415a790eb
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
 
 ### 删除管理员
-DELETE {{HostAddress}}/api/admin/SystemUser/{id}
+DELETE {{HostAddress}}/api/admin/SystemUser/01968090-0ecc-7b39-996a-046415a790eb
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}

@@ -1,9 +1,4 @@
-using Entity.OrderMod;
-
-using OrderMod.Managers;
 using OrderMod.Models.ProductDtos;
-using SharedModule;
-using SharedModule.Implement;
 namespace OrderMod.Controllers;
 
 /// <summary>
@@ -36,7 +31,7 @@ public class ProductController(
     public async Task<ActionResult<Order>> BuyProductAsync([FromRoute] Guid id)
     {
         Order? res = await _manager.BuyProductAsync(id);
-        return res == null ? Problem(_manager.ErrorMsg) : (ActionResult<Order>)res;
+        return res == null ? Problem(_manager.ErrorMsg) : res;
     }
 
     /// <summary>
