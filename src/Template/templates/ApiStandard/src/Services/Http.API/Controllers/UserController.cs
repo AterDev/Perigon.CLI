@@ -245,4 +245,14 @@ public class UserController(
         return (res == null) ? NotFound(ErrorMsg.NotFoundResource)
             : await _manager.DeleteAsync([_user.UserId], true);
     }
+
+
+    [HttpGet("test/{val}")]
+    [AllowAnonymous]
+    public async Task<string> TestCache([FromRoute] string val = "test cache")
+    {
+        await cache.SetValueAsync("test", val);
+        var value = await cache.GetValueAsync<string>("test");
+        return value;
+    }
 }

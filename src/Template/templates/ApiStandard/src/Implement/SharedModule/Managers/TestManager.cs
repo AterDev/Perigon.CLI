@@ -1,6 +1,7 @@
 using Entity.UserMod;
 using EntityFramework.DBProvider;
 using Framework.Common.Options;
+using Framework.Web.Convention.Services;
 
 namespace SharedModule.Managers;
 
@@ -13,6 +14,7 @@ namespace SharedModule.Managers;
 public class TestManager(
     TenantDbContextFactory factory,
     DbContextFactory dbFactory,
+    CacheService cache,
     ILogger<TestManager> logger)
     : ManagerBase<User>(factory, logger)
 {
@@ -28,4 +30,5 @@ public class TestManager(
         pgsqlDb.Database.SetCommandTimeout(30);
         var user = await pgsqlDb.Tenants.FirstOrDefaultAsync(u => u.TenantId == tenant.TenantId);
     }
+
 }

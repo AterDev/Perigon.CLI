@@ -112,16 +112,14 @@ public static class FrameworkExtensions
         // 分布式缓存
         if (components.Cache != CacheType.Memory)
         {
-            builder.AddRedisDistributedCache(WebConst.Cache, settings =>
-            {
-                settings.ConnectionString = builder.Configuration.GetConnectionString(WebConst.Cache);
-            });
+            // 暂时有问题，无法正常使用
+            builder.AddRedisDistributedCache(WebConst.Cache);
         }
         // 混合缓存
         var cacheOption = builder.Configuration.GetSection(CacheOption.ConfigPath).Get<CacheOption>();
         builder.Services.AddHybridCache(options =>
         {
-            HybridCacheEntryFlags flags = components.Cache switch
+            HybridCacheEntryFlags? flags = components.Cache switch
             {
                 CacheType.Memory => HybridCacheEntryFlags.DisableDistributedCache,
                 CacheType.Redis => HybridCacheEntryFlags.DisableLocalCache,

@@ -65,7 +65,7 @@ public static class WebExtensions
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
         app.UseWebAppContext();
-        app.UseDomainException();
+        //app.UseDomainException();
         app.UseOutputCache();
 
         // 异常统一处理
@@ -85,6 +85,7 @@ public static class WebExtensions
         app.UseRateLimiter();
         app.UseStaticFiles();
         app.UseRouting();
+        // TODO: if use Jwt
         app.UseMiddleware<JwtMiddleware>();
         app.UseRequestLocalization();
         app.UseAuthentication();

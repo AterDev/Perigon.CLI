@@ -21,7 +21,7 @@
         <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.2.1" />
         <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.2.1" />
         <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.4.0" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\Framework\Framework.Web.Convention\Framework.Web.Convention.csproj" />

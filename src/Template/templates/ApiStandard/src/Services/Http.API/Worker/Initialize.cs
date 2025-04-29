@@ -1,4 +1,4 @@
-﻿using EntityFramework.DBProvider;
+using EntityFramework.DBProvider;
 
 namespace Http.API.Worker;
 public class Initialize
@@ -15,24 +15,11 @@ public class Initialize
         ILogger<Initialize> logger = loggerFactory.CreateLogger<Initialize>();
         IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
 
-
-        try
-        {
-            CacheService cache = provider.GetRequiredService<CacheService>();
-        }
-        catch (Exception ex)
-        {
-
-            logger.LogError("初始化系统配置失败！{message}. ", ex.Message);
-            throw;
-        }
-
-
-
         var connectionString = context.Database.GetConnectionString();
 #if DEBUG
         logger.LogDebug("connectString:{cs}", connectionString);
 #endif
+
         await SystemMod.InitModule.InitializeAsync(provider);
     }
 }
