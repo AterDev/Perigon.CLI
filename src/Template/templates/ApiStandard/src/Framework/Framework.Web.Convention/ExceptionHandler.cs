@@ -11,6 +11,8 @@ public static class ExceptionHandler
     {
         return builder =>
         {
+
+            Activity? activity = Activity.Current;
             builder.Run(async context =>
             {
                 context.Response.StatusCode = 500;
@@ -20,13 +22,10 @@ public static class ExceptionHandler
                     Title = "Exception",
                     Detail = exception?.Message + exception?.InnerException?.Message,
                     Status = 500,
-                    TraceId = context.TraceIdentifier
+                    TraceId = activity?.TraceId.ToString() ?? context.TraceIdentifier
                 };
 
-                Activity? at = Activity.Current;
-
-                _ = (at?.SetTag("responseBody", exception));
-
+                _ = (activity?.SetTag("responseBody", exception));
                 await context.Response.WriteAsJsonAsync(result);
             });
         };

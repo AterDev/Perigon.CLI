@@ -8,11 +8,11 @@ public static class ErrorKeys
     /// <summary>
     /// 未找到该用户
     /// </summary>
-    public const string NotFoundUser = "NotFoundUser!";
-    public const string ExistUser = "ExistUser!";
+    public const string NotFoundUser = "NotFoundUser";
+    public const string ExistUser = "ExistUser";
     /// <summary>
     /// 未找到的资源
     /// </summary>
-    public const string NotFoundResource = "NotFoundResource!";
-    public const string ConflictResource = "ConflictResource!";
+    public const string NotFoundResource = "NotFoundResource";
+    public const string ConflictResource = "ConflictResource";
 }

@@ -39,3 +39,12 @@ Authorization:  Bearer {{login.response.body.$.token}}
 DELETE {{HostAddress}}/api/admin/SystemUser/01968090-0ecc-7b39-996a-046415a790eb
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
+
+
+### Debug
+GET {{HostAddress}}/debug
+
+### debug localizer
+GET {{HostAddress}}/debug/localizer
+# Accept-Language: zh-CN
+Accept-Language: en-US
