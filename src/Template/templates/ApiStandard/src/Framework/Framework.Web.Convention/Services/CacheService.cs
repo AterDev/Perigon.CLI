@@ -19,7 +19,7 @@ public class CacheService(
     /// <param name="data"></param>
     /// <param name="expiration">seconds</param>
     /// <returns></returns>
-    public async Task SetValueAsync(string key, object data)
+    public async Task SetValueAsync<T>(string key, T data)
     {
         await cache.SetAsync(key, data);
     }
@@ -31,9 +31,9 @@ public class CacheService(
     /// <param name="key">键</param>
     /// <param name="expiration">绝对过期时间</param>
     /// <returns></returns>
-    public async Task SetValueAsync(
+    public async Task SetValueAsync<T>(
         string key,
-        object data,
+        T data,
         int? expiration = null,
         int? localExpiration = null,
         HybridCacheEntryFlags? flags = null)

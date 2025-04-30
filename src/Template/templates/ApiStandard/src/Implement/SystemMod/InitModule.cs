@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using EntityFramework.DBProvider;
 using Framework.Common.Options;
@@ -22,9 +22,9 @@ public class InitModule
         try
         {
             var isInitString = context.SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
-            .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
-            .Select(c => c.Value)
-            .FirstOrDefault();
+                .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
+                .Select(c => c.Value)
+                .FirstOrDefault();
 
             // 未初始化时
             if (isInitString.IsEmpty() || isInitString.Equals("false"))
@@ -34,7 +34,10 @@ public class InitModule
                 // 初始化配置
                 await InitConfigAsync(context, configuration, logger);
             }
+
+            logger.LogInformation("✅ Database check!");
             await InitCacheAsync(context, cache, logger);
+            logger.LogInformation("✅ Cache check!");
         }
         catch (Exception ex)
         {
@@ -109,7 +112,6 @@ public class InitModule
         context.SystemConfigs.Add(initConfig);
 
         await context.SaveChangesAsync();
-
         logger.LogInformation("写入登录安全策略成功");
     }
 
@@ -132,11 +134,6 @@ public class InitModule
         if (securityPolicy != null)
         {
             await cache.SetValueAsync(WebConst.LoginSecurityPolicy, securityPolicy, null);
-
-
-            var test = await cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
-
-            logger.LogInformation("加载登录安全策略成功:{securityPolicy}", test);
         }
     }
 }

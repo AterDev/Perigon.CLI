@@ -2,7 +2,7 @@
 
 @HostAddress = http://localhost:5002
 
-### ¹ÜÀíÔ±µÇÂ¼
+### ç®¡ç†å‘˜ç™»å½•
 // @name login
 PUT {{HostAddress}}/api/admin/SystemUser/login
 Content-Type:  application/json
@@ -11,7 +11,7 @@ Content-Type:  application/json
   "password": "Hello.Net"
 }
 
-### ²éÑ¯¹ÜÀíÔ±
+### æŸ¥è¯¢ç®¡ç†å‘˜
 POST {{HostAddress}}/api/admin/SystemUser/filter
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
@@ -20,7 +20,7 @@ Authorization:  Bearer {{login.response.body.$.token}}
   "pageIndex": 1
 }
 
-### Ìí¼Ó¹ÜÀíÔ±²âÊÔ
+### æ·»åŠ ç®¡ç†å‘˜æµ‹è¯•
 POST {{HostAddress}}/api/admin/SystemUser
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
@@ -30,12 +30,12 @@ Authorization:  Bearer {{login.response.body.$.token}}
   "email": "admin@example.com"
 }
 
-### ÏêÇé
+### è¯¦æƒ…
 GET {{HostAddress}}/api/admin/SystemUser/01968090-0ecc-7b39-996a-046415a790eb
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
 
-### É¾³ı¹ÜÀíÔ±
+### åˆ é™¤ç®¡ç†å‘˜
 DELETE {{HostAddress}}/api/admin/SystemUser/01968090-0ecc-7b39-996a-046415a790eb
 Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
