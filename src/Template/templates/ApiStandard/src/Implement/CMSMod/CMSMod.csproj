@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -8,8 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedModule\SharedModule.csproj" />
-        <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
+        <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
     </ItemGroup>
 
     <ItemGroup>

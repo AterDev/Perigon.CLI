@@ -1,7 +1,7 @@
+using CommonMod.Managers;
 using Entity.UserMod;
 using Framework.Common.Options;
 using Share;
-using Share.Constants;
 using Share.Models.UserDtos;
 
 namespace Http.API.Controllers;
@@ -9,19 +9,19 @@ namespace Http.API.Controllers;
 /// <summary>
 /// 用户账户
 /// </summary>
-/// <see cref="SharedModule.Managers.UserManager"/>
+/// <see cref="CommonMod.Managers.UserManager"/>
 public class UserController(
     Localizer localizer,
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager,
     CacheService cache,
-    IEmailService emailService,
+    EmailManager emailService,
     IConfiguration config) : ClientControllerBase<UserManager>(localizer, manager, user, logger)
 {
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
-    private readonly IEmailService _emailService = emailService;
+    private readonly EmailManager _emailService = emailService;
 
     /// <summary>
     /// 用户注册 ✅
@@ -247,15 +247,5 @@ public class UserController(
         User? res = await _manager.FindAsync(_user.UserId);
         return (res == null) ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.DeleteAsync([_user.UserId], true);
-    }
-
-
-    [HttpGet("test/{val}")]
-    [AllowAnonymous]
-    public async Task<string> TestCache([FromRoute] string val = "test cache")
-    {
-        await cache.SetValueAsync("test", val);
-        var value = await cache.GetValueAsync<string>("test");
-        return value;
     }
 }

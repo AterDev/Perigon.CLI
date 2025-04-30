@@ -1,9 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Share;
 
-namespace SharedModule.Implement;
+namespace Share.Implement;
 
 /// <summary>
 /// 管理后台权限控制器

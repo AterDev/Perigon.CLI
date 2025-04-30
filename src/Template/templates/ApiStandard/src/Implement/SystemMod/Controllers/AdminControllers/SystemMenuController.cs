@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Share;
-using Share.Constants;
+using Share.Implement;
 using SystemMod.Models.SystemMenuDtos;
 namespace SystemMod.Controllers.AdminControllers;
 

@@ -1,4 +1,6 @@
 using OrderMod.Models.ProductDtos;
+using Share;
+using Share.Implement;
 
 namespace OrderMod.Managers;
 /// <summary>

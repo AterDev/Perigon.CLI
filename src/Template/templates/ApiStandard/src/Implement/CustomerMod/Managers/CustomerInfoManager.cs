@@ -1,8 +1,4 @@
 using CustomerMod.Models.CustomerInfoDtos;
-using Framework.Common.Models;
-using Framework.Common.Utils;
-using SharedModule;
-using SharedModule.Implement;
 
 namespace CustomerMod.Managers;
 /// <summary>

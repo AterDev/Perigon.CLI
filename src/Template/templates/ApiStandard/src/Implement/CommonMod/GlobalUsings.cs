@@ -1,13 +1,7 @@
-global using System.ComponentModel.DataAnnotations;
-global using Entity.OrderMod;
 global using EntityFramework;
 global using Framework.Common.Models;
 global using Framework.Common.Utils;
-global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
-global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-global using OrderMod.Managers;
 global using Share;
-global using Share.Constants;
 global using Share.Implement;

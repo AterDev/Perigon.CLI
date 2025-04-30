@@ -1,4 +1,4 @@
-using Share;
+using Share.Implement;
 using SystemMod.Models.SystemPermissionDtos;
 namespace SystemMod.Controllers.AdminControllers;
 

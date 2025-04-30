@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 
-namespace ServiceDefaults;
+namespace Share;
 
 /// <summary>
 /// 配置上下文

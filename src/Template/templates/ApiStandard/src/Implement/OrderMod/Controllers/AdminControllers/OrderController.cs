@@ -1,6 +1,5 @@
 using OrderMod.Models.OrderDtos;
-using Share;
-using Share.Constants;
+using Share.Implement;
 namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>

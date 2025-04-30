@@ -8,6 +8,6 @@ global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
-global using ServiceDefaults;
+global using Share;
 global using Share.Constants;
-global using SharedModule.Implement;
+global using Share.Implement;

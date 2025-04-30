@@ -1,6 +1,6 @@
 using Framework.Common.Models;
 using Framework.Common.Utils;
-using SharedModule.Implement;
+using Share.Implement;
 using SystemMod.Models.SystemPermissionDtos;
 
 namespace SystemMod.Managers;

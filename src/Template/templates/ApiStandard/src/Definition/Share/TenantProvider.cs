@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using Framework.Web.Convention.Abstraction;
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Http;
 
-namespace ServiceDefaults;
+namespace Share;
 public class TenantProvider : ITenantProvider
 {
     public Guid TenantId { get; set; } = Guid.Empty;

@@ -1,7 +1,7 @@
 using Entity.UserMod;
 using Share.Models.UserDtos;
 
-namespace SharedModule.Managers;
+namespace CommonMod.Managers;
 /// <summary>
 /// 用户账户
 /// </summary>

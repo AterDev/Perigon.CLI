@@ -1,9 +1,7 @@
+using System.Linq.Expressions;
 using Entity.SystemMod;
-using EntityFramework.DBProvider;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace SharedModule.Implement;
-
+namespace Share.Implement;
 
 /// <summary>
 /// without any implement
@@ -483,5 +481,3 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
             : Queryable.IgnoreQueryFilters().AsQueryable();
     }
 }
-
-

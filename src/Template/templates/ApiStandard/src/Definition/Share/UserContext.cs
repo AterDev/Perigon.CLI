@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace ServiceDefaults;
+namespace Share;
 
 public class UserContext
 {
@@ -25,7 +25,7 @@ public class UserContext
 
     public HttpContext? HttpContext { get; set; }
 
-    public UserContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context)
+    public UserContext(IHttpContextAccessor httpContextAccessor)
     {
         HttpContext = httpContextAccessor!.HttpContext;
         if (Guid.TryParse(FindClaim(ClaimTypes.NameIdentifier)?.Value, out Guid userId) && userId != Guid.Empty)

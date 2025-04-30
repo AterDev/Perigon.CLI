@@ -39,7 +39,4 @@
             </PackagePath>
         </None>
     </ItemGroup>
-    <ItemGroup>
-        <Folder Include="Options\" />
-    </ItemGroup>
 </Project>

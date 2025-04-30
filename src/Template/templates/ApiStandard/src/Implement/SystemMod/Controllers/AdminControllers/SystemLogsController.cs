@@ -1,4 +1,5 @@
 using Share;
+using Share.Implement;
 using SystemMod.Models.SystemLogsDtos;
 namespace SystemMod.Controllers.AdminControllers;
 

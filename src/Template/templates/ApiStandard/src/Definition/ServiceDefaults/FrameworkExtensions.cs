@@ -1,5 +1,6 @@
 using Framework.Web.Convention.Abstraction;
 using Framework.Web.Convention.Services;
+using Framework.Web.Extension.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace ServiceDefaults;
@@ -23,6 +24,7 @@ public static class FrameworkExtensions
         builder.Services.AddDbFactory();
         builder.AddDbContext(components);
 
+        builder.Services.AddScoped<SmtpService>();
         return builder;
     }
 

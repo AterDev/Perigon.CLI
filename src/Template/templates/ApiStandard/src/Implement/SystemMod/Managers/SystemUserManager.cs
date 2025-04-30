@@ -1,6 +1,9 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Framework.Common.Options;
+using Framework.Web.Extension.Helpers;
+using Share;
+using Share.Implement;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 

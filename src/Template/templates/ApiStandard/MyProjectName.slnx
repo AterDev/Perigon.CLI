@@ -27,11 +27,11 @@
     <Project Path="src/Framework/Framework.Web.Extension/Framework.Web.Extension.csproj" />
   </Folder>
   <Folder Name="/src/Implement/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">
-    <Project Path="src/Implement/SharedModule/SharedModule.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
     <Project Path="src/Implement/CMSMod/CMSMod.csproj" />
     <Project Path="src/Implement/CustomerMod/CustomerMod.csproj" />
     <Project Path="src/Implement/FileManagerMod/FileManagerMod.csproj" />
     <Project Path="src/Implement/OrderMod/OrderMod.csproj" />
+    <Project Path="src/Implement/CommonMod/CommonMod.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
     <Project Path="src/Implement/SystemMod/SystemMod.csproj" />
   </Folder>
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">

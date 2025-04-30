@@ -2,7 +2,7 @@ using FileManagerMod.Models.FileDataDtos;
 using Framework.Common.Models;
 using Framework.Common.Utils;
 using Microsoft.AspNetCore.Http;
-using SharedModule.Implement;
+using Share.Implement;
 
 namespace FileManagerMod.Managers;
 /// <summary>

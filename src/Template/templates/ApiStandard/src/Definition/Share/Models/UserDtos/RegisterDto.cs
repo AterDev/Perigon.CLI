@@ -1,4 +1,6 @@
-﻿namespace Share.Models.UserDtos;
+using Share.Constants;
+
+namespace Share.Models.UserDtos;
 
 /// <summary>
 /// 用户注册
@@ -27,7 +29,7 @@ public class RegisterDto
     /// <summary>
     /// 密码
     /// </summary>
-    [RegularExpression(RegConst.PasswordRegex, ErrorMessage = "密码不可以是纯数字")]
+    [RegularExpression(RegexConst.PasswordRegex, ErrorMessage = "密码不可以是纯数字")]
     //[RegularExpression(Const.StrongPasswordRegex, ErrorMessage = "密码至少一个大写字母、一个小写字母、一个数字和一个特殊字符")]
     [Required(ErrorMessage = "密码必填")]
     public required string Password { get; set; }

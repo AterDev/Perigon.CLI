@@ -1,3 +1,4 @@
+global using CommonMod.Managers;
 global using Framework.Common.Models;
 global using Framework.Common.Utils;
 global using Framework.Web.Convention;
@@ -7,7 +8,6 @@ global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using ServiceDefaults;
+global using Share;
 global using Share.Constants;
-global using SharedModule.Implement;
-global using SharedModule.Managers;
-global using SharedModule.Services;
+global using Share.Implement;

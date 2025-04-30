@@ -1,6 +1,5 @@
-using Http.API.Extensions;
+using Http.API.Extension;
 using Http.API.Worker;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
@@ -15,9 +14,6 @@ builder.AddModules();
 
 // Web中间件服务:route, openapi, jwt, cors, auth, rateLimiter etc.
 builder.AddMiddlewareServices();
-
-// 自定义选项及服务
-builder.Services.AddSingleton<IEmailService, EmailService>();
 
 WebApplication app = builder.Build();
 

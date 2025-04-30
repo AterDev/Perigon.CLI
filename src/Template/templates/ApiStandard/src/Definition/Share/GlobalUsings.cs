@@ -1,8 +1,11 @@
 global using System;
 global using System.ComponentModel.DataAnnotations;
-
+global using EntityFramework;
+global using EntityFramework.DBProvider;
 global using Framework.Common.Models;
-
-global using Entity;
-global using System.Text.Json.Serialization;
-
+global using Framework.Common.Utils;
+global using Framework.Web.Convention;
+global using Framework.Web.Convention.Abstraction;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.Extensions.Logging;

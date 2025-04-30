@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Entity\Entity.csproj" />
+        <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Options\" />

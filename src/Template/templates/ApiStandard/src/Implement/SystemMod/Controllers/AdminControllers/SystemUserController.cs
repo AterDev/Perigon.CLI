@@ -1,6 +1,6 @@
+using CommonMod.Managers;
 using Framework.Common.Options;
 using Microsoft.AspNetCore.RateLimiting;
-using Share;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 using SystemMod.Services;
@@ -18,14 +18,14 @@ public class SystemUserController(
     SystemConfigManager systemConfig,
     CacheService cache,
     IConfiguration config,
-    IEmailService emailService,
+    EmailManager emailManager,
     SystemLogService logService,
     SystemRoleManager roleManager) : AdminControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
-    private readonly IEmailService _emailService = emailService;
+    private readonly EmailManager _emailManager = emailManager;
     private readonly SystemLogService _logService = logService;
     private readonly SystemRoleManager _roleManager = roleManager;
 
@@ -50,7 +50,7 @@ public class SystemUserController(
         }
 
         // 使用 smtp，可替换成其他
-        await _emailService.SendLoginVerifyAsync(email, captcha);
+        await _emailManager.SendLoginVerifyAsync(email, captcha);
         // 缓存，默认5分钟过期
         await _cache.SetValueAsync(key, captcha, 60 * 5);
         return Ok();

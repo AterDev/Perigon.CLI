@@ -1,6 +1,7 @@
 using CMSMod.Models.CatalogDtos;
 
 using EntityFramework;
+using Share.Implement;
 
 namespace CMSMod.Managers;
 

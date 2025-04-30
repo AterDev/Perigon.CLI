@@ -1,12 +1,13 @@
+using CommonMod.Managers;
 using Share;
-using Share.Constants;
+using Share.Implement;
 using Share.Models.UserDtos;
 namespace Http.API.Controllers.AdminControllers;
 
 /// <summary>
 /// 用户账户
 /// </summary>
-/// <see cref="SharedModule.Managers.UserManager"/>
+/// <see cref="CommonMod.Managers.UserManager"/>
 [Authorize(WebConst.AdminUser)]
 public class UserController(
     Localizer localizer,

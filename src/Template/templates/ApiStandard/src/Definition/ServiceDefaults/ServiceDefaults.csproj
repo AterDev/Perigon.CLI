@@ -24,7 +24,8 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
+        <!--<ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />-->
+        <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
         <ProjectReference Include="..\Share\Share.csproj" />
     </ItemGroup>
 </Project>

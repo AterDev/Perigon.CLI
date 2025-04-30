@@ -1,5 +1,5 @@
 using SkiaSharp;
-namespace Framework.Web.Extension;
+namespace Framework.Web.Extension.Helpers;
 
 /// <summary>
 /// 图形帮助类
@@ -14,7 +14,6 @@ public class ImageHelper
     /// <param name="height"></param>
     /// <param name="fontSize"></param>
     /// <returns>png文件的bytes</returns>
-    [Obsolete]
     public static byte[] GenerateImageCaptcha(string captchaText, int width = 80, int height = 40, int fontSize = 24)
     {
         using var surface = SKSurface.Create(new SKImageInfo(width, height));
