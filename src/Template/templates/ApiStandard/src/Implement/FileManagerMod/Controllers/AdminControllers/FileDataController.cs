@@ -1,9 +1,6 @@
-using FileManagerMod.Managers;
 using FileManagerMod.Models.FileDataDtos;
-using Framework.Common.Models;
 using Microsoft.AspNetCore.Http;
-using SharedModule;
-using SharedModule.Implement;
+using Share;
 
 namespace FileManagerMod.Controllers.AdminControllers;
 
@@ -12,10 +9,11 @@ namespace FileManagerMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.FileDataManager"/>
 public class FileDataController(
+    Localizer localizer,
     UserContext user,
     ILogger<FileDataController> logger,
     FileDataManager manager,
-    FolderManager folderManager) : RestControllerBase<FileDataManager>(manager, user, logger)
+    FolderManager folderManager) : AdminControllerBase<FileDataManager>(localizer, manager, user, logger)
 {
     private readonly FolderManager _folderManager = folderManager;
 
@@ -91,7 +89,8 @@ public class FileDataController(
         if (entity == null)
         {
             return NotFound();
-        };
+        }
+        ;
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

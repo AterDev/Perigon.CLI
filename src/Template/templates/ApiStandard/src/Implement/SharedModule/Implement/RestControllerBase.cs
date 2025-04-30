@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using Framework.Web.Convention;
-using Framework.Web.Convention.Abstraction;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Share;
 
 namespace SharedModule.Implement;
 
@@ -13,7 +11,11 @@ namespace SharedModule.Implement;
 [Route("api/admin/[controller]")]
 [Authorize(WebConst.AdminUser)]
 [ApiExplorerSettings(GroupName = "admin")]
-public class RestControllerBase<TManager>(TManager manager, UserContext user, ILogger logger) : RestControllerBase
+public class AdminControllerBase<TManager>(
+    Localizer localizer,
+    TManager manager,
+    UserContext user,
+    ILogger logger) : RestControllerBase(localizer)
     where TManager : class
 {
     protected readonly TManager _manager = manager;
@@ -28,10 +30,11 @@ public class RestControllerBase<TManager>(TManager manager, UserContext user, IL
 [Authorize(WebConst.User)]
 [ApiExplorerSettings(GroupName = "client")]
 public class ClientControllerBase<TManager>(
+    Localizer localizer,
     TManager manager,
     UserContext user,
     ILogger logger
-        ) : RestControllerBase
+        ) : RestControllerBase(localizer)
      where TManager : class
 {
     protected readonly TManager _manager = manager;
@@ -39,25 +42,28 @@ public class ClientControllerBase<TManager>(
     protected readonly UserContext _user = user;
 }
 
+
 /// <summary>
 /// RestApi base
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class RestControllerBase : ControllerBase
+public class RestControllerBase(Localizer localizer) : ControllerBase
 {
+    private readonly Localizer? _localizer = localizer;
+
     /// <summary>
     /// 自定义403
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
     [NonAction]
-    public ObjectResult Forbid([ActionResultObjectValue] string value)
+    public ObjectResult Forbid(string? value)
     {
         var res = new ErrorResult
         {
-            Title = "无权访问",
+            Title = "Forbidden",
             Detail = value?.ToString(),
             Status = 403,
             TraceId = HttpContext.TraceIdentifier
@@ -75,37 +81,30 @@ public class RestControllerBase : ControllerBase
     /// <param name="value"></param>
     /// <returns></returns>
     [NonAction]
-    public override NotFoundObjectResult NotFound([ActionResultObjectValue] object? value)
+    public NotFoundObjectResult NotFound(string? value)
     {
         var res = new ErrorResult
         {
-            Title = "访问的资源不存在",
+            Title = "NotFound",
             Detail = value?.ToString(),
             Status = 404,
             TraceId = HttpContext.TraceIdentifier
         };
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", value));
         return base.NotFound(res);
     }
 
     /// <summary>
     /// 409返回格式处理
     /// </summary>
-    /// <param name="error"></param>
     /// <returns></returns>
     [NonAction]
-    public override ConflictObjectResult Conflict([ActionResultObjectValue] object? error)
+    public ConflictObjectResult Conflict(string? detail)
     {
-        var res = new ErrorResult
-        {
-            Title = "重复的资源",
-            Detail = error?.ToString(),
-            Status = 409,
-            TraceId = HttpContext.TraceIdentifier
-        };
+        var res = CreateResult("Conflict", detail, 409);
+
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", error));
+        _ = (at?.SetTag("responseBody", detail));
         return base.Conflict(res);
     }
 
@@ -113,41 +112,55 @@ public class RestControllerBase : ControllerBase
     /// 500业务错误
     /// </summary>
     /// <param name="detail"></param>
-    /// <param name="status"></param>
+    /// <param name="errorCode"></param>
+    /// <param name="arguments"></param>
     /// <returns></returns>
     [NonAction]
-    public ObjectResult Problem(string? detail = null, int status = 500)
+    public ObjectResult Problem(string detail = "", int errorCode = 0, params object[] arguments)
     {
-        var res = new ErrorResult
-        {
-            Title = "业务错误",
-            Detail = detail,
-            Status = status,
-            TraceId = HttpContext.TraceIdentifier
-        };
+        var res = CreateResult("Problem", detail, errorCode, arguments);
+
         Activity? at = Activity.Current;
         _ = (at?.SetTag("responseBody", detail));
+
         return new ObjectResult(res)
         {
             StatusCode = 500,
-
         };
     }
     /// <summary>
     /// 400返回格式处理
     /// </summary>
     /// <param name="error"></param>
+    /// <param name="arguments"></param>
     /// <returns></returns>
     [NonAction]
-    public override BadRequestObjectResult BadRequest([ActionResultObjectValue] object? error)
+    public BadRequestObjectResult BadRequest(string? error, params object[] arguments)
     {
-        var res = new ErrorResult
+        var res = CreateResult("BadRequest", error, 0, arguments);
+        return base.BadRequest(res);
+    }
+
+    [NonAction]
+    private ErrorResult CreateResult(string title, string? detail = null, int errorCode = 0, params object[] arguments)
+    {
+        var error = detail ?? string.Empty;
+
+        if (detail != null)
         {
-            Title = "请求错误",
-            Detail = error?.ToString(),
-            Status = 400,
+            error = _localizer?.Get(detail, arguments) ?? detail;
+        }
+        else if (errorCode != 0)
+        {
+            error = _localizer?.Get(errorCode.ToString()) ?? error;
+        }
+
+        return new ErrorResult
+        {
+            Title = title,
+            Detail = error,
+            Status = errorCode,
             TraceId = HttpContext.TraceIdentifier
         };
-        return base.BadRequest(res);
     }
 }

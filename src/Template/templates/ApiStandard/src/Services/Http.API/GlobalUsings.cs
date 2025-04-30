@@ -7,7 +7,7 @@ global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using ServiceDefaults;
-global using SharedModule.Const;
+global using Share.Constants;
 global using SharedModule.Implement;
 global using SharedModule.Managers;
 global using SharedModule.Services;

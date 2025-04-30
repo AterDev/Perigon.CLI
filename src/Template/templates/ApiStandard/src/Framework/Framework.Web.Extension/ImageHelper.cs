@@ -1,4 +1,4 @@
-﻿using SkiaSharp;
+using SkiaSharp;
 namespace Framework.Web.Extension;
 
 /// <summary>
@@ -14,6 +14,7 @@ public class ImageHelper
     /// <param name="height"></param>
     /// <param name="fontSize"></param>
     /// <returns>png文件的bytes</returns>
+    [Obsolete]
     public static byte[] GenerateImageCaptcha(string captchaText, int width = 80, int height = 40, int fontSize = 24)
     {
         using var surface = SKSurface.Create(new SKImageInfo(width, height));
@@ -22,20 +23,20 @@ public class ImageHelper
         // 填充背景色
         canvas.Clear(SKColors.White);
 
+        // 创建字体
+        using var font = new SKFont(SKTypeface.Default, fontSize);
         // 创建文本画笔
         var textPaint = new SKPaint
         {
             Color = SKColors.Black,
-            TextSize = fontSize,
-            TextAlign = SKTextAlign.Center,
             IsAntialias = true,
-            Typeface = SKTypeface.Default
         };
         // 计算文本位置
         var textX = width / 2;
         var textY = height * 3 / 4;
+
         // 绘制文本
-        canvas.DrawText(captchaText, textX, textY, textPaint);
+        canvas.DrawText(captchaText, textX, textY, SKTextAlign.Center, font, textPaint);
 
         // 添加干扰线条
         var random = new Random();

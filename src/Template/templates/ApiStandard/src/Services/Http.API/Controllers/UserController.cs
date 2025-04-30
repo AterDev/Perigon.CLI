@@ -1,5 +1,7 @@
 using Entity.UserMod;
 using Framework.Common.Options;
+using Share;
+using Share.Constants;
 using Share.Models.UserDtos;
 
 namespace Http.API.Controllers;
@@ -9,12 +11,13 @@ namespace Http.API.Controllers;
 /// </summary>
 /// <see cref="SharedModule.Managers.UserManager"/>
 public class UserController(
+    Localizer localizer,
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager,
     CacheService cache,
     IEmailService emailService,
-    IConfiguration config) : ClientControllerBase<UserManager>(manager, user, logger)
+    IConfiguration config) : ClientControllerBase<UserManager>(localizer, manager, user, logger)
 {
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
@@ -32,7 +35,7 @@ public class UserController(
         // 判断重复用户名
         if (await _manager.ExistAsync(q => q.UserName.Equals(dto.UserName)))
         {
-            return Conflict(ErrorMsg.ExistUser);
+            return Conflict(ErrorKeys.ExistUser);
         }
         // TODO:根据实际需求自定义验证码逻辑
         if (dto.VerifyCode != null)
@@ -228,7 +231,7 @@ public class UserController(
         User? current = await _manager.GetCurrentAsync(_user.UserId);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
+            return NotFound(ErrorKeys.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);
@@ -242,7 +245,7 @@ public class UserController(
     public async Task<ActionResult<bool?>> GetDetailAsync()
     {
         User? res = await _manager.FindAsync(_user.UserId);
-        return (res == null) ? NotFound(ErrorMsg.NotFoundResource)
+        return (res == null) ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.DeleteAsync([_user.UserId], true);
     }
 

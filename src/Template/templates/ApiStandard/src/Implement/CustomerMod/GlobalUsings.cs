@@ -1,7 +1,4 @@
 global using System.ComponentModel.DataAnnotations;
-global using ServiceDefaults;
-global using SharedModule.Const;
-global using SharedModule.Implement;
 global using CustomerMod.Managers;
 global using Entity.CustomerMod;
 global using EntityFramework;
@@ -12,3 +9,6 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
+global using ServiceDefaults;
+global using Share.Constants;
+global using SharedModule.Implement;

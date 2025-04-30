@@ -1,7 +1,4 @@
-using Framework.Common.Models;
-using SharedModule;
-using SharedModule.Implement;
-using SystemMod.Managers;
+using Share;
 using SystemMod.Models.SystemLogsDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
@@ -10,10 +7,11 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="SystemLogsManager"/>
 public class SystemLogsController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemLogsController> logger,
     SystemLogsManager manager
-        ) : RestControllerBase<SystemLogsManager>(manager, user, logger)
+        ) : AdminControllerBase<SystemLogsManager>(localizer, manager, user, logger)
 {
 
     /// <summary>

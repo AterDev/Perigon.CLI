@@ -1,9 +1,6 @@
-using Framework.Common.Models;
-using OrderMod.Managers;
 using OrderMod.Models.OrderDtos;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
+using Share;
+using Share.Constants;
 namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>
@@ -11,10 +8,11 @@ namespace OrderMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.OrderManager"/>
 public class OrderController(
+    Localizer localizer,
     UserContext user,
     ILogger<OrderController> logger,
     OrderManager manager
-        ) : RestControllerBase<OrderManager>(manager, user, logger)
+        ) : AdminControllerBase<OrderManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -40,8 +38,9 @@ public class OrderController(
         Order? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

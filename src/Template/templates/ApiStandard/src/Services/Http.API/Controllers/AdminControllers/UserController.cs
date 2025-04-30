@@ -1,10 +1,6 @@
-using Framework.Common.Models;
-using Framework.Web.Convention;
+using Share;
+using Share.Constants;
 using Share.Models.UserDtos;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SharedModule.Managers;
 namespace Http.API.Controllers.AdminControllers;
 
 /// <summary>
@@ -13,10 +9,11 @@ namespace Http.API.Controllers.AdminControllers;
 /// <see cref="SharedModule.Managers.UserManager"/>
 [Authorize(WebConst.AdminUser)]
 public class UserController(
+    Localizer localizer,
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager
-        ) : RestControllerBase<UserManager>(manager, user, logger)
+        ) : AdminControllerBase<UserManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -41,10 +38,10 @@ public class UserController(
         // 判断重复用户名
         if (await _manager.IsUniqueAsync(dto.UserName))
         {
-            return Conflict(ErrorMsg.ExistUser);
+            return Conflict(ErrorKeys.ExistUser);
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -57,7 +54,7 @@ public class UserController(
     public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, UserUpdateDto dto)
     {
         var current = await _manager.GetOwnedAsync(id);
-        return current == null ? NotFound(ErrorMsg.NotFoundResource) : await _manager.UpdateAsync(current, dto);
+        return current == null ? NotFound(ErrorKeys.NotFoundResource) : await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>
@@ -83,7 +80,7 @@ public class UserController(
     {
         // 注意删除权限
         var res = await _manager.GetOwnedAsync(id);
-        return res == null ? NotFound(ErrorMsg.NotFoundResource)
+        return res == null ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.DeleteAsync([id], true);
 
     }

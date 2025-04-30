@@ -1,4 +1,5 @@
 using OrderMod.Models.ProductDtos;
+using Share;
 namespace OrderMod.Controllers;
 
 /// <summary>
@@ -6,10 +7,11 @@ namespace OrderMod.Controllers;
 /// </summary>
 /// <see cref="Managers.ProductManager"/>
 public class ProductController(
+    Localizer localizer,
     UserContext user,
     ILogger<ProductController> logger,
     ProductManager manager
-        ) : ClientControllerBase<ProductManager>(manager, user, logger)
+        ) : ClientControllerBase<ProductManager>(localizer, manager, user, logger)
 {
 
     /// <summary>

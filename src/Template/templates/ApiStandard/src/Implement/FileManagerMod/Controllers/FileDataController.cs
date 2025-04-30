@@ -1,10 +1,6 @@
-using FileManagerMod.Managers;
 using FileManagerMod.Models.FileDataDtos;
-using Framework.Common.Models;
-using ServiceDefaults;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
+using Share;
+using Share.Constants;
 namespace FileManagerMod.Controllers;
 
 /// <summary>
@@ -12,10 +8,11 @@ namespace FileManagerMod.Controllers;
 /// </summary>
 /// <see cref="Managers.FileDataManager"/>
 public class FileDataController(
+    Localizer localizer,
     UserContext user,
     ILogger<FileDataController> logger,
     FileDataManager manager
-        ) : ClientControllerBase<FileDataManager>(manager, user, logger)
+        ) : ClientControllerBase<FileDataManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -41,8 +38,9 @@ public class FileDataController(
         FileData? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

@@ -1,9 +1,6 @@
-using Framework.Common.Models;
-using OrderMod.Managers;
 using OrderMod.Models.ProductDtos;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
+using Share;
+using Share.Constants;
 namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>
@@ -11,10 +8,11 @@ namespace OrderMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.ProductManager"/>
 public class ProductController(
+    Localizer localizer,
     UserContext user,
     ILogger<ProductController> logger,
     ProductManager manager
-        ) : RestControllerBase<ProductManager>(manager, user, logger)
+        ) : AdminControllerBase<ProductManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -37,7 +35,7 @@ public class ProductController(
     public async Task<ActionResult<Guid?>> AddAsync(ProductAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -52,8 +50,9 @@ public class ProductController(
         Product? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

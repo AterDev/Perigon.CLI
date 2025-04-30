@@ -1,8 +1,4 @@
-using Framework.Common.Models;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SystemMod.Managers;
+using Share;
 using SystemMod.Models.SystemPermissionDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
@@ -11,11 +7,12 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="SystemPermissionManager"/>
 public class SystemPermissionController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemPermissionController> logger,
     SystemPermissionManager manager,
     SystemPermissionGroupManager systemPermissionGroupManager
-        ) : RestControllerBase<SystemPermissionManager>(manager, user, logger)
+        ) : AdminControllerBase<SystemPermissionManager>(localizer, manager, user, logger)
 {
     private readonly SystemPermissionGroupManager _systemPermissionGroupManager = systemPermissionGroupManager;
 
@@ -43,7 +40,7 @@ public class SystemPermissionController(
             return NotFound("不存在的权限组");
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -58,8 +55,9 @@ public class SystemPermissionController(
         SystemPermission? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         if (dto.SystemPermissionGroupId != null && current.Group.Id != dto.SystemPermissionGroupId)
         {
             SystemPermissionGroup? systemPermissionGroup = await _systemPermissionGroupManager.GetCurrentAsync(dto.SystemPermissionGroupId.Value);

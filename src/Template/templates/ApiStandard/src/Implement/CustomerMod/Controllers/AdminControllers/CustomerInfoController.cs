@@ -1,9 +1,5 @@
-using CustomerMod.Managers;
 using CustomerMod.Models.CustomerInfoDtos;
-using Framework.Common.Models;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
+using Share;
 namespace CustomerMod.Controllers.AdminControllers;
 
 /// <summary>
@@ -11,10 +7,11 @@ namespace CustomerMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="Managers.CustomerInfoManager"/>
 public class CustomerInfoController(
+    Localizer localizer,
     UserContext user,
     ILogger<CustomerInfoController> logger,
     CustomerInfoManager manager
-    ) : RestControllerBase<CustomerInfoManager>(manager, user, logger)
+    ) : AdminControllerBase<CustomerInfoManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -38,10 +35,10 @@ public class CustomerInfoController(
     {
         if (await _manager.IsConflictAsync(dto.Name, dto.ContactInfo))
         {
-            return Conflict(ErrorMsg.ConflictResource);
+            return Conflict(ErrorKeys.ConflictResource);
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -54,7 +51,8 @@ public class CustomerInfoController(
     public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, CustomerInfoUpdateDto dto)
     {
         var current = await _manager.GetCurrentAsync(id);
-        if (current == null) { return NotFound("不存在的资源"); };
+        if (current == null) { return NotFound("不存在的资源"); }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

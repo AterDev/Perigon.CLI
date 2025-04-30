@@ -1,11 +1,7 @@
-using Framework.Common.Models;
-using Framework.Web.Convention;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SystemMod.Managers;
+using Share;
+using Share.Constants;
 using SystemMod.Models.SystemMenuDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
@@ -15,11 +11,12 @@ namespace SystemMod.Controllers.AdminControllers;
 /// <see cref="SystemMenuManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemMenuController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemMenuController> logger,
     IWebHostEnvironment env,
     SystemMenuManager manager
-        ) : RestControllerBase<SystemMenuManager>(manager, user, logger)
+        ) : AdminControllerBase<SystemMenuManager>(localizer, manager, user, logger)
 {
     private readonly IWebHostEnvironment _env = env;
 
@@ -73,11 +70,11 @@ public class SystemMenuController(
         {
             if (!await _manager.ExistAsync(dto.ParentId.Value))
             {
-                return NotFound(ErrorMsg.NotFoundResource);
+                return NotFound(ErrorKeys.NotFoundResource);
             }
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -92,8 +89,9 @@ public class SystemMenuController(
         SystemMenu? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 
@@ -111,7 +109,8 @@ public class SystemMenuController(
         if (entity == null)
         {
             return NotFound();
-        };
+        }
+        ;
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
 
     }

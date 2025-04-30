@@ -1,3 +1,5 @@
+using Share;
+using Share.Constants;
 using SystemMod.Models.SystemRoleDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
@@ -7,10 +9,11 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemRoleController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemRoleController> logger,
     SystemRoleManager manager
-        ) : RestControllerBase<SystemRoleManager>(manager, user, logger)
+        ) : AdminControllerBase<SystemRoleManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -33,7 +36,7 @@ public class SystemRoleController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemRoleAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -48,7 +51,7 @@ public class SystemRoleController(
         SystemRole? current = await _manager.GetOwnedAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
+            return NotFound(ErrorKeys.NotFoundResource);
         }
 
         return await _manager.UpdateAsync(current, dto);
@@ -65,7 +68,7 @@ public class SystemRoleController(
         SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
+            return NotFound(ErrorKeys.NotFoundResource);
         }
         SystemRole? res = await _manager.SetMenusAsync(current, dto);
         return Ok(res) ?? Problem("菜单更新失败");
@@ -82,7 +85,7 @@ public class SystemRoleController(
         SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
+            return NotFound(ErrorKeys.NotFoundResource);
         }
         SystemRole? res = await _manager.SetPermissionGroupsAsync(current, dto);
         return Ok(res) ?? Problem("权限组更新失败");

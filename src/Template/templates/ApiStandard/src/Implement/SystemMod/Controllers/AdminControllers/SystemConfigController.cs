@@ -1,9 +1,4 @@
-using Framework.Common.Models;
-using Framework.Common.Utils;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SystemMod.Managers;
+using Share;
 using SystemMod.Models.SystemConfigDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
@@ -12,10 +7,11 @@ namespace SystemMod.Controllers.AdminControllers;
 /// </summary>
 /// <see cref="SystemConfigManager"/>
 public class SystemConfigController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemConfigController> logger,
     SystemConfigManager manager
-        ) : RestControllerBase<SystemConfigManager>(manager, user, logger)
+        ) : AdminControllerBase<SystemConfigManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -47,7 +43,7 @@ public class SystemConfigController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemConfigAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -62,8 +58,9 @@ public class SystemConfigController(
         SystemConfig? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 
@@ -92,7 +89,8 @@ public class SystemConfigController(
         if (entity == null)
         {
             return NotFound();
-        };
+        }
+        ;
         return entity.IsSystem
             ? Problem("系统配置，无法删除!")
             : await _manager.DeleteAsync([id], false);

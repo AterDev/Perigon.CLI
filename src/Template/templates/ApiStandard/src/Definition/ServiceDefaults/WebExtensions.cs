@@ -1,14 +1,9 @@
-using System.Net;
-using System.Text;
 using System.Text.Encodings.Web;
-using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Framework.Common.Converters;
-using Framework.Web.Convention.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ServiceDefaults;
@@ -58,6 +53,7 @@ public static class WebExtensions
 
         services.AddOpenApi("admin");
         services.AddOpenApi("client");
+        services.AddLocalizer();
         return services;
     }
 
@@ -159,7 +155,7 @@ public static class WebExtensions
         services.AddLocalization();
         services.AddRequestLocalization(options =>
         {
-            // TODO:添加更多语言支持
+            // 添加更多语言支持
             var supportedCultures = new[] { "zh-CN", "en-US" };
             options.SetDefaultCulture(supportedCultures[0])
                 .AddSupportedCultures(supportedCultures)
@@ -168,6 +164,8 @@ public static class WebExtensions
             options.FallBackToParentUICultures = true;
             options.ApplyCurrentCultureToResponseHeaders = true;
         });
+
+        services.AddSingleton<Localizer>();
         return services;
     }
 

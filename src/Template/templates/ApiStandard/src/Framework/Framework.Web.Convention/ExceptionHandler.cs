@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -17,16 +17,15 @@ public static class ExceptionHandler
                 Exception? exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
                 var result = new
                 {
-                    Title = "异常错误",
-                    exception?.Source,
+                    Title = "Exception",
                     Detail = exception?.Message + exception?.InnerException?.Message,
-                    exception?.StackTrace,
                     Status = 500,
                     TraceId = context.TraceIdentifier
                 };
 
                 Activity? at = Activity.Current;
-                _ = (at?.SetTag("responseBody", result.Detail));
+
+                _ = (at?.SetTag("responseBody", exception));
 
                 await context.Response.WriteAsJsonAsync(result);
             });

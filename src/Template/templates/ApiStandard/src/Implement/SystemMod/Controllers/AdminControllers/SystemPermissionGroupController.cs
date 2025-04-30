@@ -1,19 +1,16 @@
-using Framework.Common.Models;
-using Framework.Web.Convention;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
-using SystemMod.Managers;
+using Share;
+using Share.Constants;
 using SystemMod.Models.SystemPermissionGroupDtos;
 namespace SystemMod.Controllers.AdminControllers;
 
 /// <see cref="SystemPermissionGroupManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemPermissionGroupController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemPermissionGroupController> logger,
     SystemPermissionGroupManager manager
-        ) : RestControllerBase<SystemPermissionGroupManager>(manager, user, logger)
+        ) : AdminControllerBase<SystemPermissionGroupManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -36,7 +33,7 @@ public class SystemPermissionGroupController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemPermissionGroupAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -51,8 +48,9 @@ public class SystemPermissionGroupController(
         SystemPermissionGroup? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

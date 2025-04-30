@@ -9,5 +9,5 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using OrderMod.Managers;
 global using ServiceDefaults;
-global using SharedModule.Const;
+global using Share.Constants;
 global using SharedModule.Implement;

@@ -1,9 +1,6 @@
-using FileManagerMod.Managers;
 using FileManagerMod.Models.FolderDtos;
-using Framework.Common.Models;
-using SharedModule;
-using SharedModule.Const;
-using SharedModule.Implement;
+using Share;
+using Share.Constants;
 namespace FileManagerMod.Controllers;
 
 /// <summary>
@@ -11,10 +8,11 @@ namespace FileManagerMod.Controllers;
 /// </summary>
 /// <see cref="Managers.FolderManager"/>
 public class FolderController(
+    Localizer localizer,
     UserContext user,
     ILogger<FolderController> logger,
     FolderManager manager
-        ) : ClientControllerBase<FolderManager>(manager, user, logger)
+        ) : ClientControllerBase<FolderManager>(localizer, manager, user, logger)
 {
 
     /// <summary>
@@ -37,7 +35,7 @@ public class FolderController(
     public async Task<ActionResult<Guid?>> AddAsync(FolderAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -52,8 +50,9 @@ public class FolderController(
         Folder? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorMsg.NotFoundResource);
-        };
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
         return await _manager.UpdateAsync(current, dto);
     }
 

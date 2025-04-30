@@ -1,9 +1,5 @@
-using Entity.OrderMod;
-using Framework.Common.Models;
-using OrderMod.Managers;
 using OrderMod.Models.OrderDtos;
-using SharedModule;
-using SharedModule.Implement;
+using Share;
 namespace OrderMod.Controllers;
 
 /// <summary>
@@ -11,9 +7,10 @@ namespace OrderMod.Controllers;
 /// </summary>
 /// <see cref="Managers.OrderManager"/>
 public class OrderController(
+    Localizer localizer,
     UserContext user,
     ILogger<OrderController> logger,
-    OrderManager manager) : ClientControllerBase<OrderManager>(manager, user, logger)
+    OrderManager manager) : ClientControllerBase<OrderManager>(localizer, manager, user, logger)
 {
 
     /// <summary>

@@ -14,7 +14,7 @@ global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using ServiceDefaults;
-global using SharedModule.Const;
+global using Share.Constants;
 global using SharedModule.Implement;
 global using SharedModule.Services;
 global using SystemMod.Managers;

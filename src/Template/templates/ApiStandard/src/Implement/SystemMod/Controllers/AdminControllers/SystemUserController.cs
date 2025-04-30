@@ -1,5 +1,6 @@
-﻿using Framework.Common.Options;
+using Framework.Common.Options;
 using Microsoft.AspNetCore.RateLimiting;
+using Share;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 using SystemMod.Services;
@@ -10,6 +11,7 @@ namespace SystemMod.Controllers.AdminControllers;
 /// 系统用户
 /// </summary>
 public class SystemUserController(
+    Localizer localizer,
     UserContext user,
     ILogger<SystemUserController> logger,
     SystemUserManager manager,
@@ -18,7 +20,7 @@ public class SystemUserController(
     IConfiguration config,
     IEmailService emailService,
     SystemLogService logService,
-    SystemRoleManager roleManager) : RestControllerBase<SystemUserManager>(manager, user, logger)
+    SystemRoleManager roleManager) : AdminControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
@@ -126,9 +128,8 @@ public class SystemUserController(
         }
         else
         {
-            var errorMsg = ErrorInfo.Get(_manager.ErrorStatus);
-            await _logService.NewLog("登录", UserActionType.Login, "登录失败:" + errorMsg, user.UserName, user.Id);
-            return Problem(errorMsg, _manager.ErrorStatus);
+            await _logService.NewLog("登录", UserActionType.Login, "登录失败:" + _manager.ErrorStatus, user.UserName, user.Id);
+            return Problem(errorCode: _manager.ErrorStatus);
         }
     }
     /// <summary>
@@ -169,7 +170,7 @@ public class SystemUserController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorMsg.AddFailed) : id;
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 
     /// <summary>
@@ -183,7 +184,7 @@ public class SystemUserController(
     public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
     {
         SystemUser? current = await _manager.GetCurrentAsync(id);
-        return current == null ? NotFound(ErrorMsg.NotFoundResource) : await _manager.UpdateAsync(current, dto);
+        return current == null ? NotFound(ErrorKeys.NotFoundResource) : await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>

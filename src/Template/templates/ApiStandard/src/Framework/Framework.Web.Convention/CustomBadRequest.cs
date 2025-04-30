@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Framework.Web.Convention;
 
@@ -9,7 +9,7 @@ public class CustomBadRequest : ObjectResult
         StatusCode = 400;
         Value = new
         {
-            Title = "请求参数错误",
+            Title = "Bad Request",
             Detail = GetErrorMessage(context),
             Status = 400,
             TraceId = context.HttpContext.TraceIdentifier
