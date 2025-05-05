@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityServer.Definition.Entity;
 
@@ -8,9 +8,9 @@ namespace IdentityServer.Definition.Entity;
 public class Account : EntityBase
 {
     [MaxLength(100)]
-    public string UserName { get; set; }
+    public required string UserName { get; set; }
     [MaxLength(100)]
-    public string HashPassword { get; set; }
+    public required string HashPassword { get; set; }
     [MaxLength(100)]
-    public string HashSalt { get; set; }
+    public required string HashSalt { get; set; }
 }

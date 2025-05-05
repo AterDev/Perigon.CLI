@@ -19,6 +19,4 @@ public class DebugController(Localizer localizer, DebugManager manager)
     {
         return Problem(ErrorKeys.ConflictResource);
     }
-
-
 }

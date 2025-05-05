@@ -19,11 +19,11 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Ater.DeepSeek.Core" Version="1.1.5" />
-        <PackageReference Include="AWSSDK.S3" Version="4.0.0" />
-        <PackageReference Include="MailKit" Version="4.11.0" />
+        <PackageReference Include="AWSSDK.S3" Version="4.0.0.1" />
+        <PackageReference Include="MailKit" Version="4.12.0" />
         <PackageReference Include="MiniExcel" Version="1.41.1" />
-        <PackageReference Include="SkiaSharp" Version="3.116.1" />
-        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
+        <PackageReference Include="SkiaSharp" Version="3.119.0" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Framework.Web.Convention\Framework.Web.Convention.csproj" />

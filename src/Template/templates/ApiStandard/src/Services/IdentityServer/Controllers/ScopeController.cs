@@ -14,7 +14,7 @@ public class ScopeController : ControllerBase
         _scopeManager = scopeManager;
     }
 
-    // ²éÑ¯ËùÓÐÒÑ×¢²áµÄScope
+    // ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½Scope
     [HttpGet]
     public async Task<IActionResult> ListAsync()
     {
@@ -31,7 +31,7 @@ public class ScopeController : ControllerBase
         return Ok(scopes);
     }
 
-    // ÐÂÔöScope
+    // ï¿½ï¿½ï¿½ï¿½Scope
     [HttpPost]
     public async Task<IActionResult> CreateAsync([FromBody] CreateScopeDto dto)
     {
@@ -45,7 +45,7 @@ public class ScopeController : ControllerBase
         return Ok();
     }
 
-    // ¸üÐÂScope
+    // ï¿½ï¿½ï¿½ï¿½Scope
     [HttpPut("{name}")]
     public async Task<IActionResult> UpdateAsync(string name, [FromBody] UpdateScopeDto dto)
     {
@@ -66,7 +66,7 @@ public class ScopeController : ControllerBase
         return Ok();
     }
 
-    // É¾³ýScope
+    // É¾ï¿½ï¿½Scope
     [HttpDelete("{name}")]
     public async Task<IActionResult> DeleteAsync(string name)
     {
@@ -83,14 +83,14 @@ public class ScopeController : ControllerBase
 
 public class CreateScopeDto
 {
-    public string Name { get; set; }
-    public string DisplayName { get; set; }
-    public List<string> Resources { get; set; }
+    public required string Name { get; set; }
+    public required string DisplayName { get; set; }
+    public List<string> Resources { get; set; } = [];
 }
 
 public class UpdateScopeDto
 {
-    public string Name { get; set; }
-    public string DisplayName { get; set; }
-    public List<string> Resources { get; set; }
+    public string? Name { get; set; }
+    public string? DisplayName { get; set; }
+    public List<string>? Resources { get; set; }
 }

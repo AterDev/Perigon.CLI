@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 
 namespace IdentityServer.Controllers;
@@ -107,17 +107,17 @@ public class ApplicationController : ControllerBase
 
 public class CreateApplicationDto
 {
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string DisplayName { get; set; }
-    public string RedirectUri { get; set; }
+    public required string ClientId { get; set; }
+    public required string ClientSecret { get; set; }
+    public required string DisplayName { get; set; }
+    public required string RedirectUri { get; set; }
 }
 
 public class UpdateApplicationDto
 {
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string DisplayName { get; set; }
-    public string RedirectUri { get; set; }
-    public List<string> Permissions { get; set; }
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
+    public string? DisplayName { get; set; }
+    public string RedirectUri { get; set; } = string.Empty;
+    public List<string>? Permissions { get; set; }
 }
