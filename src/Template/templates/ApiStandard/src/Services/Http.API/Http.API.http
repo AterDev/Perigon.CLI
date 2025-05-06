@@ -41,10 +41,7 @@ Content-Type:  application/json
 Authorization:  Bearer {{login.response.body.$.token}}
 
 
-### Debug
-GET {{HostAddress}}/debug
-
-### debug localizer
-GET {{HostAddress}}/debug/localizer
-# Accept-Language: zh-CN
-Accept-Language: en-US
+### common localizer
+GET {{HostAddress}}/common/enums
+Accept-Language: zh-CN
+# Accept-Language: en-US

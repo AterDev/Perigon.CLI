@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace Framework.Common.Utils;
 /// <summary>
@@ -20,13 +20,14 @@ public static class EnumHelper
         {
             for (var i = 0; i < enumNames.Length; i++)
             {
-                var fi = type.GetField(enumNames[i], BindingFlags.Public | BindingFlags.Static);
-                if (fi != null && fi.GetCustomAttribute<DescriptionAttribute>(true) is DescriptionAttribute attribute)
+                var field = type.GetField(enumNames[i], BindingFlags.Public | BindingFlags.Static);
+                if (field != null)
                 {
+                    var attribute = field.GetCustomAttribute<DescriptionAttribute>(true);
                     result.Add(new EnumDictionary
                     {
-                        Name = fi.Name,
-                        Description = attribute.Description,
+                        Name = field.Name,
+                        Description = attribute?.Description ?? field.Name,
                         Value = Convert.ToInt32(values.GetValue(i))
                     });
                 }
@@ -42,8 +43,8 @@ public static class EnumHelper
     /// <returns></returns>
     public static string GetDescription(this Enum value)
     {
-        var fi = value.GetType().GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
-        if (fi != null && fi.GetCustomAttribute<DescriptionAttribute>(true) is DescriptionAttribute attribute)
+        var field = value.GetType().GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
+        if (field != null && field.GetCustomAttribute<DescriptionAttribute>(true) is DescriptionAttribute attribute)
         {
             return attribute.Description;
         }
@@ -81,16 +82,16 @@ public static class EnumHelper
 
         foreach (Type type in allTypes)
         {
-            List<EnumDictionary> infos = ToList(type);
-            res.Add(type.Name, infos);
+            List<EnumDictionary> enumDict = ToList(type);
+            res.Add(type.Name, enumDict);
         }
         return res;
     }
 }
 
-public struct EnumDictionary
+public class EnumDictionary
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
     public int Value { get; set; }
 }

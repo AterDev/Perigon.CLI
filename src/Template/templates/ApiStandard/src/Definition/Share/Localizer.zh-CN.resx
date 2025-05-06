@@ -138,6 +138,9 @@
   <data name="ConflictResource" xml:space="preserve">
     <value>已存在的资源</value>
   </data>
+  <data name="en-US" xml:space="preserve">
+    <value>英语</value>
+  </data>
   <data name="ExistUser" xml:space="preserve">
     <value>用户名已存在</value>
   </data>
@@ -146,5 +149,11 @@
   </data>
   <data name="NotFoundUser" xml:space="preserve">
     <value>未找到该用户</value>
+  </data>
+  <data name="OnlyClient" xml:space="preserve">
+    <value>客户端唯一</value>
+  </data>
+  <data name="zh-CN" xml:space="preserve">
+    <value>简体中文</value>
   </data>
 </root>

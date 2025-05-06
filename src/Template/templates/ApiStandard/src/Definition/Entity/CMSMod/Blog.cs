@@ -1,4 +1,4 @@
-﻿using Entity.UserMod;
+using Entity.UserMod;
 
 namespace Entity.CMSMod;
 /// <summary>
@@ -110,11 +110,11 @@ public enum LanguageType
     /// <summary>
     /// 中文
     /// </summary>
-    [Description("中文")]
+    [Description("zh-CN")]
     CN,
     /// <summary>
     /// 英文
     /// </summary>
-    [Description("英文")]
+    [Description("en-US")]
     EN
 }

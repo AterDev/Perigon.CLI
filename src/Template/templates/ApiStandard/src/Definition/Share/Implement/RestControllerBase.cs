@@ -50,7 +50,7 @@ public class ClientControllerBase<TManager>(
 [Produces("application/json")]
 public class RestControllerBase(Localizer localizer) : ControllerBase
 {
-    private readonly Localizer? _localizer = localizer;
+    protected readonly Localizer? _localizer = localizer;
 
     /// <summary>
     /// 自定义403
