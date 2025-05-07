@@ -28,7 +28,6 @@ public class CommonController(Localizer localizer)
             });
         });
 
-
         return enums;
     }
 }

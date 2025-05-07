@@ -48,7 +48,7 @@ public static class WebExtensions
 
         services.AddOutputCache(options =>
         {
-            options.AddBasePolicy(policy => policy.Expire(TimeSpan.FromMinutes(10)));
+            options.AddPolicy("openapi", policy => policy.Expire(TimeSpan.FromMinutes(10)));
         });
 
         services.AddOpenApi("admin");
@@ -57,15 +57,13 @@ public static class WebExtensions
         return services;
     }
 
-
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
         app.UseWebAppContext();
         //app.UseDomainException();
-        app.UseOutputCache();
-
         // 异常统一处理
         app.UseExceptionHandler(ExceptionHandler.Handler());
+
         if (app.Environment.IsProduction())
         {
             app.UseCors(WebConst.Default);
@@ -75,15 +73,16 @@ public static class WebExtensions
         else
         {
             app.UseCors(WebConst.Default);
-            app.MapOpenApi().CacheOutput();
+            app.MapOpenApi().CacheOutput("openapi");
         }
 
         app.UseRateLimiter();
         app.UseStaticFiles();
+        app.UseRequestLocalization();
         app.UseRouting();
+        app.UseOutputCache();
         // TODO: if use Jwt
         app.UseMiddleware<JwtMiddleware>();
-        app.UseRequestLocalization();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
