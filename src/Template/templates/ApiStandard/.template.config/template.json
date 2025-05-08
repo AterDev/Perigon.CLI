@@ -2,13 +2,14 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "ater.niltor",
   "classifications": [
-    "Web",
+    "Web Framework",
     "Web API",
     "API",
+    "Aspire",
     "Service"
   ],
   "identity": "Ater.Web.Standard",
-  "name": "Ater Web API Standard",
+  "name": "Web API Framework",
   "shortName": "atapi",
   "tags": {
     "language": "C#",

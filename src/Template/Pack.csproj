@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageType>Template</PackageType>
-        <PackageVersion>9.0.0-beta1</PackageVersion>
+        <PackageVersion>9.0.0</PackageVersion>
         <PackageId>ater.web.templates</PackageId>
         <Title>Ater Web Templates</Title>
         <Authors>ater.niltor</Authors>
@@ -23,8 +23,8 @@
         <RepositoryUrl>https://github.com/AterDev/ater.web</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReleaseNotes>
-            - manager中的Query和Command不在为public，避免在控制器中滥用!
-        </PackageReleaseNotes>
+1. Update package version 
+2. use .NET Aspire</PackageReleaseNotes>
         <NoWarn>$(NoWarn);NU5128;NU5110;NU5111</NoWarn>
         <NoDefaultExcludes>true</NoDefaultExcludes>
     </PropertyGroup>
