@@ -19,7 +19,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Http.API\Http.API.csproj" />
-        <ProjectReference Include="..\IdentityServer\IdentityServer.csproj" />
     </ItemGroup>
 
 </Project>
