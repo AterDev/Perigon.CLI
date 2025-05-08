@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace CodeGenerator.Generate;
 /// <summary>
@@ -88,15 +88,12 @@ public class DtoCodeGenerate
             Tag = EntityInfo.Name,
             Properties = EntityInfo.PropertyInfos?
                 .Where(p => p.Name is not ConstVal.IsDeleted and not ConstVal.UpdatedTime)
-                .Where(p => !p.IsJsonIgnore)
-                .ToList() ?? []
-        };
-
-        dto.Properties = dto.Properties?
-            .Where(p => !p.IsList
+                .Where(p => !p.IsJsonIgnore && !EntityInfo.IgnoreTypes.Contains(p.Type))
+                .Where(p => !p.IsList
                 && (p.MaxLength is not (not null and >= 200))
                 && (!p.Name.EndsWith("Id") || p.Name.Equals("Id"))
-                && !p.IsNavigation).ToList() ?? [];
+                && !p.IsNavigation).ToList() ?? []
+        };
 
         return dto;
     }
@@ -156,7 +153,7 @@ public class DtoCodeGenerate
             .Where(p => !p.Type.Equals("User") && !p.Type.Equals("SystemUser"))
             .Select(s => new PropertyInfo()
             {
-                Name = s.NavigationName + "Id",
+                Name = s.NavigationName + (s.IsList ? "Ids" : "Id"),
                 Type = s.IsList ? $"List<{KeyType}>" + (s.IsRequired ? "" : "?") : KeyType,
                 IsRequired = s.IsRequired,
                 IsNullable = s.IsNullable,

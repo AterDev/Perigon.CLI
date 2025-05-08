@@ -446,12 +446,13 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     protected async Task SaveToLogAsync(UserActionType actionType, object entity, string? description = null)
     {
-        var userContext = WebAppContext.GetScopeService<UserContext>();
-        if (userContext == null)
+        using var userContextScope = WebAppContext.GetScopeService<UserContext>();
+        if (userContextScope == null)
         {
             _logger.LogWarning("UserContext is null, can't save log");
             return;
         }
+        var userContext = userContextScope.Instance;
         // 日志入库代码示例：
         await Task.CompletedTask; // 实现记录逻辑时 请删除此行
         var route = userContext.HttpContext?.Request.Path.Value;
@@ -459,10 +460,10 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         {
             // 管理员日志
             var log = SystemLogs.NewLog(userContext.Username ?? "", userContext.UserId, entity, actionType, route, description);
-            var taskQueue = WebAppContext.GetScopeService<IEntityTaskQueue<SystemLogs>>();
+            using var taskQueue = WebAppContext.GetScopeService<IEntityTaskQueue<SystemLogs>>();
             if (taskQueue != null)
             {
-                await taskQueue.AddItemAsync(log);
+                await taskQueue.Instance.AddItemAsync(log);
             }
         }
         else

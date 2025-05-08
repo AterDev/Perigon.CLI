@@ -28,12 +28,23 @@ public static class WebAppContext
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T? GetScopeService<T>()
+    public static ScopedService<T>? GetScopeService<T>() where T : class
     {
-        return ServiceProvider.CreateScope().ServiceProvider.GetService<T>();
+        var scope = ServiceProvider.CreateScope();
+        var service = scope.ServiceProvider.GetService<T>();
+        return service == null ? null : new ScopedService<T>(scope, service);
     }
 }
 
+public sealed class ScopedService<T>(IServiceScope scope, T instance) : IDisposable where T : class
+{
+    public T Instance { get; } = instance;
+
+    public void Dispose()
+    {
+        scope.Dispose();
+    }
+}
 public static partial class WebApplicationExtensions
 {
     /// <summary>

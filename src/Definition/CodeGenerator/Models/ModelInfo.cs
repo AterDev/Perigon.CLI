@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeGenerator.Models;
-public  class EntityInfo
+public class EntityInfo
 {
     public static string[] IgnoreTypes = ["JsonDocument?", "byte[]"];
     public static string[] IgnoreProperties = [
