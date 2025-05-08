@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,12 +25,34 @@ public static class WebAppContext
 
     /// <summary>
     /// 获取新作用域服务
+    /// 尽量使用DI而不是该方法
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T? GetScopeService<T>()
+    public static ScopedService<T>? GetScopeService<T>() where T : class
     {
-        return ServiceProvider.CreateScope().ServiceProvider.GetService<T>();
+        var scope = ServiceProvider.CreateScope();
+        var service = scope.ServiceProvider.GetService<T>();
+        return service == null ? null : new ScopedService<T>(scope, service);
+    }
+
+    /// <summary>
+    /// 获取单例服务
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T? GetSingletonService<T>() where T : class
+    {
+        return ServiceProvider.GetService<T>();
+    }
+}
+public sealed class ScopedService<T>(IServiceScope scope, T instance) : IDisposable where T : class
+{
+    public T Instance { get; } = instance;
+
+    public void Dispose()
+    {
+        scope.Dispose();
     }
 }
 

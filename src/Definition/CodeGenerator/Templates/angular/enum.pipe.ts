@@ -1,4 +1,4 @@
-﻿// 该文件自动生成，会被覆盖更新
+// 该文件自动生成，会被覆盖更新
 import { Injectable, Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
@@ -16,3 +16,8 @@ export class EnumTextPipe implements PipeTransform {
     return result;
   }
 }
+
+//@NgModule({
+//  declarations: [EnumTextPipe], exports: [EnumTextPipe]
+//})
+//export class EnumTextPipeModule { }
