@@ -7,7 +7,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <AssemblyVersion>9.0.0</AssemblyVersion>
     <PackageId>ater.dry</PackageId>
-    <Version>9.0.0-rc2</Version>
+    <Version>9.0.0</Version>
     <Description> DRY代码生成助手</Description>
     <Authors>NilTor</Authors>
     <Company>Atersoft</Company>
@@ -17,9 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AterDev/cli.git</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>
-- 主要完善了csharp客户端请求服务的代码生成
-        </PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageIcon>logo.jpg</PackageIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
