@@ -1,4 +1,4 @@
-﻿namespace Entity;
+namespace Entity.StudioMod;
 /// <summary>
 /// 操作模板
 /// </summary>

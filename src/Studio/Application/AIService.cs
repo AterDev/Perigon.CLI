@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using DeepSeek.Core;
 using DeepSeek.Core.Models;
 

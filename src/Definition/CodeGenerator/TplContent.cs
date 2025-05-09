@@ -1,4 +1,6 @@
-﻿namespace CodeGenerator;
+using Entity.StudioMod;
+
+namespace CodeGenerator;
 /// <summary>
 /// 模板内容类
 /// </summary>

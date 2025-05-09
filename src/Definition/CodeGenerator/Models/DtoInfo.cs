@@ -1,4 +1,6 @@
-﻿namespace CodeGenerator.Models;
+using Entity.StudioMod;
+
+namespace CodeGenerator.Models;
 
 /// <summary>
 /// DTO 

@@ -1,4 +1,6 @@
-﻿namespace CodeGenerator.Generate;
+using Entity.StudioMod;
+
+namespace CodeGenerator.Generate;
 
 /// <summary>
 /// 生成Rest API控制器

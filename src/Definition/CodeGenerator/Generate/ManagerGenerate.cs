@@ -1,3 +1,5 @@
+using Entity.StudioMod;
+
 namespace CodeGenerator.Generate;
 
 /// <summary>

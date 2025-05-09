@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -6,8 +6,7 @@ namespace EntityFramework.DBProvider;
 
 public class ContextBase(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<Project> Projects { get; set; } = null!;
-    public DbSet<ModelInfo> ModelInfos { get; set; } = null!;
+    public DbSet<Project> Projects { get; set; }
     public DbSet<ModelProperty> ModelProperties { get; set; }
     public DbSet<ApiDocInfo> ApiDocInfos { get; set; } = null!;
     public DbSet<GenAction> GenActions { get; set; } = null!;
@@ -25,9 +24,6 @@ public class ContextBase(DbContextOptions options) : DbContext(options)
                 .WithOne(a => a.Project)
                 .OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.GenSteps)
-                .WithOne(a => a.Project)
-                .OnDelete(DeleteBehavior.Cascade);
-            e.HasMany(p => p.ModelInfos)
                 .WithOne(a => a.Project)
                 .OnDelete(DeleteBehavior.Cascade);
         });

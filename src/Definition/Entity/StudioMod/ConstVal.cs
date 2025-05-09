@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Entity;
+namespace Entity.StudioMod;
 public static class ConstVal
 {
     public static Guid PROJECT_ID;

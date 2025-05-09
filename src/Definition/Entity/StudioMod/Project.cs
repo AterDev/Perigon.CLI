@@ -1,7 +1,8 @@
-﻿namespace Entity;
+namespace Entity.StudioMod;
 /// <summary>
 /// 项目
 /// </summary>
+[Module(Modules.Studio)]
 public class Project : EntityBase
 {
     /// <summary>
@@ -35,7 +36,6 @@ public class Project : EntityBase
     /// </summary>
     public ProjectConfig Config { get; set; } = new ProjectConfig();
 
-    public List<ModelInfo> ModelInfos { get; set; } = [];
     public List<ApiDocInfo> ApiDocInfos { get; set; } = [];
 
     public ICollection<GenAction> GenActions { get; set; } = [];
@@ -92,6 +92,6 @@ public enum SolutionType
     DotNet,
     [Description("Node")]
     Node,
-    [Description("Empty")]
+    [Description("Else")]
     Else
 }

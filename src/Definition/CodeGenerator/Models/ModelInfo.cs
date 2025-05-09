@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Entity.StudioMod;
 
 namespace CodeGenerator.Models;
 public class EntityInfo

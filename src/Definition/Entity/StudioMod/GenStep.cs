@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Ater.Web.Core.Utils;
+using Framework.Common.Utils;
 
-namespace Entity;
+namespace Entity.StudioMod;
 /// <summary>
 /// task step
 /// </summary>

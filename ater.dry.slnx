@@ -22,7 +22,7 @@
     <Project Path="src\Command\CommandLine\CommandLine.csproj" />
   </Folder>
   <Folder Name="/src/Studio/">
-    <Project Path="src\Studio\Application\Application.csproj" />
+    <Project Path="src/Studio/Application/StudioMod.csproj" />
     <Project Path="src\Studio\AterStudio\AterStudio.csproj" />
   </Folder>
 

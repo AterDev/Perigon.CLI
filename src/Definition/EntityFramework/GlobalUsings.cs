@@ -1,5 +1,5 @@
-global using Ater.Web.Abstraction.EntityFramework;
-global using Ater.Web.Core.Models;
-global using Entity;
+global using Entity.StudioMod;
 global using EntityFramework.DBProvider;
+global using Framework.Common.Models;
+global using Framework.Web.Convention.EntityFramework;
 global using Microsoft.EntityFrameworkCore;

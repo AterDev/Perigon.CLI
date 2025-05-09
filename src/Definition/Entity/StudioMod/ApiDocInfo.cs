@@ -1,8 +1,8 @@
-﻿
-namespace Entity;
+namespace Entity.StudioMod;
 /// <summary>
 /// 接口文档
 /// </summary>
+[Module(Modules.Studio)]
 public class ApiDocInfo : EntityBase
 {
     /// <summary>
@@ -28,11 +28,6 @@ public class ApiDocInfo : EntityBase
     /// </summary>
     [MaxLength(200)]
     public string? LocalPath { get; set; }
-
-    /// <summary>
-    /// 文档内容
-    /// </summary>
-    public string? Content { get; set; }
 
     public Project Project { get; set; } = null!;
     public Guid ProjectId { get; set; } = default!;

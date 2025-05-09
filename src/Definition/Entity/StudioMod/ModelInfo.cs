@@ -1,6 +1,4 @@
-﻿using Ater.Web.Core.Utils;
-
-namespace Entity;
+namespace Entity.StudioMod;
 /// <summary>
 /// 模型信息
 /// </summary>

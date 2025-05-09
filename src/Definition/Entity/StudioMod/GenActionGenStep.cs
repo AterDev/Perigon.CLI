@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Entity;
+namespace Entity.StudioMod;
 /// <summary>
 /// 操作与步骤中间表
 /// </summary>

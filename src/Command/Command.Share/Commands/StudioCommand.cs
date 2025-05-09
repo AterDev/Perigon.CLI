@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using CodeGenerator.Helper;
-using Entity;
+using Entity.StudioMod;
 using Microsoft.Extensions.Logging;
 using Share.Infrastructure.Helper;
 
