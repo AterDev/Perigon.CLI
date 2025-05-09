@@ -41,8 +41,7 @@ public class ManagerSourceGen : IIncrementalGenerator
                 var assemblySymbol = compilation.GetAssemblyOrModuleSymbol(reference) as IAssemblySymbol;
 
                 if (assemblySymbol != null &&
-                    (assemblySymbol.Name.EndsWith("Mod", StringComparison.OrdinalIgnoreCase) ||
-                    assemblySymbol.Name.Equals("SharedModule", StringComparison.OrdinalIgnoreCase)))
+                    (assemblySymbol.Name.EndsWith("Mod", StringComparison.OrdinalIgnoreCase)))
                 {
 
                     if (!assemblies.Contains(assemblySymbol.Name))

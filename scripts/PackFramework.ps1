@@ -5,12 +5,13 @@ param (
     $version = "1.0.0"
 )
 $location = Get-Location
-$infrastructurePath = Join-Path $location "../src/Template/templates/ApiStandard/src/Infrastructure/"
+$infrastructurePath = Join-Path $location "../src/Template/templates/ApiStandard/src/Framework/"
 $projects = @(
-    "Ater.Web.Core/Ater.Web.Core.csproj", 
-    "Ater.Web.Abstraction/Ater.Web.Abstraction.csproj", 
-    "Ater.Web.Extension/Ater.Web.Extension.csproj")
-
+    "Framework.Common/Framework.Common.csproj", 
+    "Framework.Web.Convention/Framework.Web.Convention.csproj", 
+    "Framework.Web.Extension/Framework.Web.Extension.csproj",
+    "Framework.Web.Analyzers/Framework.Web.Analyzers.csproj"
+)
 
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 try {

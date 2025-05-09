@@ -1,9 +1,10 @@
-# Intrudction
+# Introduction
 
-This library contains some common middleware and services when using ASP.NET Core, like:
-- JwtMiddleware
-- CacheService
-- JwtService
-- ImageHelper
+This library is part of the `Ater.web.templates` project. It contains some services and extensions for web api project, including:
+
+- [x] ImageHelper
+- [x] SmtpService
+- [ ] ExcelExportHelper
+- [ ] OssService
 
 

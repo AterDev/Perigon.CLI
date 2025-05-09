@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/scripts/" Id="6dec682d-5f0d-1973-951c-0b9630672490">
     <File Path="scripts/installTemplate.ps1" />
-    <File Path="scripts/PackInfrastructure.ps1" />
+    <File Path="scripts/PackFramework.ps1" />
     <File Path="scripts/PackTemplate.ps1" />
     <File Path="scripts/PublishToLocal.ps1" />
     <File Path="scripts/SetVersion.ps1" />
@@ -10,18 +10,18 @@
   <Folder Name="/src/">
   </Folder>
 
-  <Folder Name="/src/Definition/" Id="6c4d18c5-5566-cc07-9a5e-d0047fa19ca3">
+  <Folder Name="/src/Definition/">
     <Project Path="src\Definition\CodeGenerator\CodeGenerator.csproj" />
     <Project Path="src\Definition\EntityFramework\EntityFramework.csproj" />
     <Project Path="src\Definition\Entity\Entity.csproj" />
     <Project Path="src\Definition\Share\Share.csproj" />
   </Folder>
 
-  <Folder Name="/src/Command/" Id="765e863f-92d1-9ec9-a760-0ce58f35de60">
+  <Folder Name="/src/Command/">
     <Project Path="src\Command\Command.Share\Command.Share.csproj" />
     <Project Path="src\Command\CommandLine\CommandLine.csproj" />
   </Folder>
-  <Folder Name="/src/Studio/" Id="2b4e54ac-7def-1549-9779-3de57d644187">
+  <Folder Name="/src/Studio/">
     <Project Path="src\Studio\Application\Application.csproj" />
     <Project Path="src\Studio\AterStudio\AterStudio.csproj" />
   </Folder>

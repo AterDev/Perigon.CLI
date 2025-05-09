@@ -1,30 +1,12 @@
-# 说明
+# Ater.Web.templates
 
-本仓库包含了Ater.Web 相关内容的源代码。主要包括：
+ `Ater.Web.templates`是基于`ASP.NET Core`和`Entity Framework Core`的快速开发模板，提供一个规范化的项目目录及工程结构。
 
-- templates:dotnet 模板内容
-- 基础包:templates\ApiStandard\src\Infrastructure
-- analyzer:分析器项目
-
-The web framework with best practices base on ASP.NET Core.
-
-基于`ASP.NET Core`和`Entity Framework Core`的快速开发模板，提供一个规范化的项目目录及工程结构。
-
-集成了`ater.droplet.cli`代码生成工具，帮助你生成基础代码，减少重复性的代码编写工作。
-
-## 版本
-
-|版本|.NET版本|支持
-|-|-|-|
-|8.x|.NET8|当前版本
-|9.x|.NET9|预览
+现在它被集成在`ater.dry.cli`代码生成工具中，建议使用该命令行工具来创建项目，以获得更好的体验。
 
 ## 文档
 
-请查阅[使用文档](https://docs.dusi.dev/)！
-
-> [!TIP]
-> 如有问题，可在GitHub上提交问题，或者加入QQ群:149272857.
+关于模板详细的说明和使用方法，请查阅[使用文档](https://www.dusi.dev/docs)！
 
 ## 安装
 

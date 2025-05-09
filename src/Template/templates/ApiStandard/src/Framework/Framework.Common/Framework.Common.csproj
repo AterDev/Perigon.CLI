@@ -6,12 +6,12 @@
     <PackageId>Ater.Common</PackageId>
     <Title>Ater.Common</Title>
     <Authors>niltor</Authors>
-    <Version>1.0.0</Version>
+    <Version>1.0.0-beta1</Version>
     <PackageTags>helper;util;framework;ater;webapi</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AterDev/ater.web</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
     <PackageIcon>logo.jpg</PackageIcon>
-    <RepositoryUrl>https://github.com/AterDev/ater.web</RepositoryUrl>
+    <RepositoryUrl>https://github.com/AterDev/ater.dry.cli</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
     </PackageReleaseNotes>

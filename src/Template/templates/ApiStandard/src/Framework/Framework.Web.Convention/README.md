@@ -1,10 +1,3 @@
-# Intrudction
+# Introduction
 
-This class library defines the interface specifications and conventions when using ASP.NET Core and EF Core, like:
-
-- RestControllerBase
-- WebAppContext
-- IUserContextBase
-- ExceptionHandler
-- DataAccessContextBase
-
+This library is part of the `Ater.web.templates` project. It contains some conventions for web api project.
