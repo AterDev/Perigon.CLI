@@ -1,18 +1,16 @@
-﻿using Share.Models.GenStepDtos;
+using Share.Models.GenStepDtos;
 namespace AterStudio.Controllers;
 
 /// <summary>
 /// task step
 /// </summary>
 public class GenStepController(
-    IUserContext user,
+    Localizer localizer,
     IProjectContext projectContext,
     ILogger<GenStepController> logger,
     GenStepManager manager
-    ) : RestControllerBase<GenStepManager>(manager, user, logger)
+    ) : BaseController<GenStepManager>(localizer, manager, projectContext, logger)
 {
-
-    private readonly IProjectContext _projectContext = projectContext;
 
     /// <summary>
     /// 分页数据 
@@ -22,7 +20,7 @@ public class GenStepController(
     [HttpPost("filter")]
     public async Task<ActionResult<PageList<GenStepItemDto>>> FilterAsync(GenStepFilterDto filter)
     {
-        filter.ProjectId = _projectContext.ProjectId;
+        filter.ProjectId = _project.ProjectId;
         return await _manager.ToPageAsync(filter);
     }
 
@@ -77,7 +75,8 @@ public class GenStepController(
     {
         // 注意删除权限
         var entity = await _manager.GetOwnedAsync(id);
-        if (entity == null) { return NotFound(); };
+        if (entity == null) { return NotFound(); }
+        ;
         // return Forbid();
         return await _manager.DeleteAsync(entity, false);
     }

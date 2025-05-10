@@ -1,14 +1,15 @@
-﻿namespace AterStudio.Controllers;
+namespace AterStudio.Controllers;
 
 /// <summary>
 /// 项目
 /// </summary>
 /// <see cref="ProjectManager"/>
 public class ProjectController(
+    Localizer localizer,
     ProjectManager manager,
     IProjectContext project,
     AdvanceManager advance,
-    ILogger<ProjectContext> logger) : BaseController<ProjectManager>(manager, project, logger)
+    ILogger<ProjectContext> logger) : BaseController<ProjectManager>(localizer, manager, project, logger)
 {
     private readonly AdvanceManager _advance = advance;
 

@@ -1,8 +1,9 @@
-﻿using CodeGenerator;
+using CodeGenerator;
 using Share.Models.GenActionDtos;
 using Share.Models.GenStepDtos;
+using StudioMod;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 /// <summary>
 /// The project's generate action
 /// </summary>
@@ -12,9 +13,9 @@ public class GenActionManager(
     ILogger<GenActionManager> logger,
     IProjectContext projectContext,
     CodeAnalysisService codeAnalysis,
-    IUserContext userContext) : ManagerBase<GenAction>(dataContext, logger)
+    UserContext userContext) : ManagerBase<GenAction>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeGenService _codeGen = codeGenService;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;

@@ -1,4 +1,5 @@
-﻿namespace Share.Models;
+
+namespace Share.Models;
 
 public class EntityFile
 {

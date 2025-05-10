@@ -1,4 +1,4 @@
-﻿namespace Application.AppConst;
+namespace StudioMod.AppConst;
 /// <summary>
 /// 错误信息
 /// </summary>

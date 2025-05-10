@@ -1,8 +1,8 @@
-﻿using CodeGenerator.Models;
 using Microsoft.OpenApi.Readers;
 using Share.Models.ApiDocInfoDtos;
+using StudioMod.Models;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 /// <summary>
 /// 接口文档
 /// </summary>

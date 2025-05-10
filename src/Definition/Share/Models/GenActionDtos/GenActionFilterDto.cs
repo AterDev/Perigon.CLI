@@ -1,8 +1,10 @@
-﻿namespace Share.Models.GenActionDtos;
+
+
+namespace Share.Models.GenActionDtos;
 /// <summary>
 /// 生成操作筛选条件
 /// </summary>
-/// <see cref="Entity.GenAction"/>
+/// <see cref="Entity.StudioMod.GenAction"/>
 public class GenActionFilterDto : FilterBase
 {
     /// <summary>

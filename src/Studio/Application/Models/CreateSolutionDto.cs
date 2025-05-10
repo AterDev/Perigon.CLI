@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Application.Models;
+namespace StudioMod.Models;
 
 /// <summary>
 /// 创建解决方案dto

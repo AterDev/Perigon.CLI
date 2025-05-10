@@ -1,4 +1,4 @@
-﻿namespace Application.Managers;
+namespace StudioMod.Managers;
 
 public class ProjectManager(DataAccessContext<Project> dataContext,
     IProjectContext projectContext,

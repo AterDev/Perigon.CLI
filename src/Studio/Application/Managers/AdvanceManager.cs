@@ -1,6 +1,6 @@
-﻿using CodeGenerator.Models;
+using CodeGenerator.Models;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 
 public class AdvanceManager(CommandDbContext dbContext, IProjectContext projectContext)
 {

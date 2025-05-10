@@ -1,8 +1,8 @@
-﻿namespace Share.Models.GenActionDtos;
+namespace Share.Models.GenActionDtos;
 /// <summary>
 /// 生成操作列表元素
 /// </summary>
-/// <see cref="Entity.GenAction"/>
+/// <see cref="Entity.StudioMod.GenAction"/>
 public class GenActionItemDto
 {
     /// <summary>

@@ -1,13 +1,14 @@
-﻿namespace AterStudio.Controllers;
+namespace AterStudio.Controllers;
 
 /// <summary>
 ///  实体
 /// </summary>
 public class EntityInfoController(
+    Localizer localizer,
     EntityInfoManager manager,
     IProjectContext project,
     ILogger<EntityInfoController> logger
-    ) : BaseController<EntityInfoManager>(manager, project, logger)
+    ) : BaseController<EntityInfoManager>(localizer, manager, project, logger)
 {
     /// <summary>
     /// 实体列表

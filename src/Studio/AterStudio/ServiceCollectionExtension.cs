@@ -1,9 +1,6 @@
-﻿using System.Text.Encodings.Web;
+using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
-using Application.Services;
-using Ater.Web.Core.Converters;
-using AterStudio;
 using AterStudio.Middlewares;
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Share.Services;
+using StudioMod.Services;
 
 namespace AterStudio;
 
@@ -27,12 +25,10 @@ public static class ServiceCollectionExtension
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddScoped<IProjectContext, ProjectContext>();
-        builder.Services.AddScoped<IUserContext, UserContext>();
 
         builder.Services.AddScoped<CodeAnalysisService>();
         builder.Services.AddScoped<CodeGenService>();
         builder.Services.AddScoped<SolutionService>();
-        builder.Services.AddSingleton<AIService>();
 
         builder.Services.AddManagers();
 
@@ -57,7 +53,7 @@ public static class ServiceCollectionExtension
     {
         // 异常统一处理
         app.UseExceptionHandler(ExceptionHandler.Handler());
-        app.UseCors(AterConst.Default);
+        app.UseCors(WebConst.Default);
 
         app.UseSwagger();
         app.UseStaticFiles();
@@ -80,7 +76,6 @@ public static class ServiceCollectionExtension
     public static IServiceCollection ConfigWebComponents(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOpenApi();
-        services.AddAuthorize();
         return services;
     }
 
@@ -173,25 +168,6 @@ public static class ServiceCollectionExtension
                 Format = "date"
             });
         });
-        return services;
-    }
-
-    public static IServiceCollection AddCors(this IServiceCollection services)
-    {
-        services.AddCors(options =>
-        {
-            options.AddPolicy(AterConst.Default, builder =>
-            {
-                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-            });
-        });
-        return services;
-    }
-
-    public static IServiceCollection AddAuthorize(this IServiceCollection services)
-    {
-        services.AddAuthorizationBuilder()
-            .AddPolicy(AterConst.AdminUser, policy => policy.RequireRole("AdminUser"));
         return services;
     }
 }

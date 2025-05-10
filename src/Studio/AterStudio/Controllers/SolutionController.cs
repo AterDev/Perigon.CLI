@@ -1,11 +1,16 @@
-﻿namespace AterStudio.Controllers;
+namespace AterStudio.Controllers;
 
 /// <summary>
 /// 功能模块
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class SolutionController(SolutionManager manager, IProjectContext projectContext, ILogger<SolutionController> logger) : BaseController<SolutionManager>(manager, projectContext, logger)
+public class SolutionController(
+    Localizer localizer,
+    SolutionManager manager,
+    IProjectContext projectContext,
+    ILogger<SolutionController> logger)
+    : BaseController<SolutionManager>(localizer, manager, projectContext, logger)
 {
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace Application.Models;
+namespace StudioMod.Models;
 /// <summary>
 /// 模块信息
 /// </summary>

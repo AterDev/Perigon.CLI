@@ -1,6 +1,7 @@
-﻿using Share.Models.GenStepDtos;
+using Share.Models.GenStepDtos;
+using StudioMod;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 /// <summary>
 /// task step
 /// </summary>
@@ -8,9 +9,9 @@ public class GenStepManager(
     DataAccessContext<GenStep> dataContext,
     ILogger<GenStepManager> logger,
     IProjectContext projectContext,
-    IUserContext userContext) : ManagerBase<GenStep>(dataContext, logger)
+    UserContext userContext) : ManagerBase<GenStep>(dataContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
+    private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
 
     /// <summary>

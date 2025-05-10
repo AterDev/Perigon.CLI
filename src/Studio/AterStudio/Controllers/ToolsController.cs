@@ -1,4 +1,7 @@
-﻿namespace AterStudio.Controllers;
+using StudioMod.Managers;
+using StudioMod.Models;
+
+namespace AterStudio.Controllers;
 /// <summary>
 /// Tools
 /// </summary>

@@ -1,8 +1,8 @@
-﻿namespace Share.Models.GenStepDtos;
+namespace Share.Models.GenStepDtos;
 /// <summary>
 /// task step列表元素
 /// </summary>
-/// <see cref="Entity.GenStep"/>
+/// <see cref="Entity.StudioMod.GenStep"/>
 public class GenStepItemDto
 {
     /// <summary>

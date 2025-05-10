@@ -1,6 +1,6 @@
-﻿using Share.Models.ApiDocInfoDtos;
+using Share.Models.ApiDocInfoDtos;
 
-namespace Application.Models;
+namespace StudioMod.Models;
 
 /// <summary>
 /// 接口返回模型

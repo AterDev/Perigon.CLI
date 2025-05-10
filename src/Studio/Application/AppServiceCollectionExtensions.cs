@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
-namespace Application;
+namespace StudioMod;
 
 /// <summary>
 /// 服务注册扩展

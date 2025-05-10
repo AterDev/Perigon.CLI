@@ -1,4 +1,4 @@
-﻿namespace Application.Models;
+namespace StudioMod.Models;
 /// <summary>
 /// 创建UI组件结果
 /// </summary>
