@@ -7,6 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="Ater.Common" Version="1.0.0-beta1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.4" />
   </ItemGroup>
 </Project>

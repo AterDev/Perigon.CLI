@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Ater.Web.Core.Utils;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;

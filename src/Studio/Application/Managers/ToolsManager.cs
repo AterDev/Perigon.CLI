@@ -1,8 +1,7 @@
-﻿using System.Net;
-
+using System.Net;
 using Share.Infrastructure.Utils;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 
 /// <summary>
 /// 工具类

@@ -1,8 +1,8 @@
-﻿namespace Share.Models.GenActionDtos;
+namespace Share.Models.GenActionDtos;
 /// <summary>
 /// 生成操作更新时DTO
 /// </summary>
-/// <see cref="Entity.GenAction"/>
+/// <see cref="Entity.StudioMod.GenAction"/>
 public class GenActionUpdateDto
 {
     /// <summary>

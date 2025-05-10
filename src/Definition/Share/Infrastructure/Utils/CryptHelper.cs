@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 
 namespace Share.Infrastructure.Utils;
 
@@ -24,10 +24,4 @@ public class CryptHelper
             _ => throw new NotSupportedException()
         };
     }
-}
-public enum HashType
-{
-    MD5,
-    SHA256,
-    SHA512,
 }

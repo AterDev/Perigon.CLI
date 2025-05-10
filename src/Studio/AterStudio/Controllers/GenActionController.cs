@@ -1,16 +1,17 @@
-﻿using Application.Services;
 using Share.Models.GenActionDtos;
 using Share.Models.GenStepDtos;
+using StudioMod.Services;
 namespace AterStudio.Controllers;
 
 /// <summary>
 /// 生成操作
 /// </summary>
 public class GenActionController(
-    IUserContext user,
+    Localizer localizer,
+    IProjectContext project,
     ILogger<GenActionController> logger,
     GenActionManager manager
-    ) : RestControllerBase<GenActionManager>(manager, user, logger)
+    ) : BaseController<GenActionManager>(localizer, manager, project, logger)
 {
     /// <summary>
     /// 分页数据
@@ -122,7 +123,8 @@ public class GenActionController(
     {
         // 注意删除权限
         var entity = await _manager.GetOwnedAsync(id);
-        if (entity == null) { return NotFound(); };
+        if (entity == null) { return NotFound(); }
+        ;
         // return Forbid();
         return await _manager.DeleteAsync(entity, false);
     }

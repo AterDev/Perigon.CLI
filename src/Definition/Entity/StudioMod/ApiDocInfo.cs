@@ -11,6 +11,9 @@ public class ApiDocInfo : EntityBase
     [MaxLength(100)]
     public required string Name { get; set; }
 
+    [MaxLength(10000)]
+    public string? Content { get; set; }
+
     /// <summary>
     /// 文档描述
     /// </summary>

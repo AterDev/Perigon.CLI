@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Nodes;
-using Application.Services;
+using System.Text.Json.Nodes;
+using StudioMod.Models;
+using StudioMod.Services;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 /// <summary>
 /// 功能集成
 /// </summary>

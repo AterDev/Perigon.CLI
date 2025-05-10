@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Share.Models.ApiDocInfoDtos;
 
@@ -9,10 +9,11 @@ namespace AterStudio.Controllers;
 /// </summary>
 [AllowAnonymous]
 public class ApiDocInfoController(
-    ApiDocInfoManager _manager,
+    Localizer localizer,
+    ApiDocInfoManager manager,
     IProjectContext project,
     ILogger<ApiDocInfoController> logger
-    ) : BaseController<ApiDocInfoManager>(_manager, project, logger)
+    ) : BaseController<ApiDocInfoManager>(localizer, manager, project, logger)
 {
 
     /// <summary>

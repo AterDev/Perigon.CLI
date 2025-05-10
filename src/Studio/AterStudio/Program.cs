@@ -1,6 +1,7 @@
-﻿using AterStudio;
+using AterStudio;
 using AterStudio.Worker;
 using Mapster;
+using StudioMod;
 
 TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
 

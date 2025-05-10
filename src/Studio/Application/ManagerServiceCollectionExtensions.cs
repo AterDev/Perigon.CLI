@@ -1,4 +1,6 @@
-﻿namespace Application;
+using StudioMod.Managers;
+
+namespace StudioMod;
 public static partial class ManagerServiceCollectionExtensions
 {
     public static IServiceCollection AddManagers(this IServiceCollection services)

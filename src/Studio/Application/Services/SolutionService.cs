@@ -1,7 +1,8 @@
-﻿using CodeGenerator;
+using CodeGenerator;
 using Humanizer;
+using StudioMod.Models;
 
-namespace Application.Services;
+namespace StudioMod.Services;
 /// <summary>
 /// 解决方案相关功能
 /// </summary>

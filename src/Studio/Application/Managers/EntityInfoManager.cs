@@ -1,17 +1,17 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
 
-namespace Application.Managers;
+namespace StudioMod.Managers;
 
 public partial class EntityInfoManager(
-    DataAccessContext<Entity.ModelInfo> dataContext,
+    DataAccessContext<ModelInfo> dataContext,
     ILogger<EntityInfoManager> logger,
     CodeAnalysisService codeAnalysis,
     CodeGenService codeGenService,
     IProjectContext projectContext)
-    : ManagerBase<Entity.ModelInfo>(dataContext, logger)
+    : ManagerBase<ModelInfo>(dataContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
