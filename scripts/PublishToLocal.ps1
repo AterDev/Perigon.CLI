@@ -9,7 +9,7 @@ $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEnco
 
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
 $studioPath = Join-Path $location "../src/Studio/AterStudio";
-$dotnetVersion = "net8.0"
+$dotnetVersion = "net9.0"
 
 try {
     Set-Location $location
@@ -48,7 +48,7 @@ try {
     $xml.Save($studioProjectPath)
 
     # pack modules
-    & "./PackTemplate.ps1"
+    # & "./PackTemplate.ps1"
 
     # build web project
     if ($withStudio -eq $true) {

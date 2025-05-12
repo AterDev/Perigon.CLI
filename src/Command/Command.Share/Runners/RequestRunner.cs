@@ -1,10 +1,10 @@
-﻿using CodeGenerator.Models;
-namespace Command.Share.Commands;
+using CodeGenerator.Models;
+namespace Command.Share.Runners;
 
 /// <summary>
 /// 前端ts请求生成命令
 /// </summary>
-public class RequestCommand : CommandBase
+public class RequestRunner : CommandBase
 {
     /// <summary>
     /// swagger文档链接
@@ -21,7 +21,7 @@ public class RequestCommand : CommandBase
 
     public string OutputPath { get; set; }
 
-    public RequestCommand(string docUrl, string output, RequestLibType libType)
+    public RequestRunner(string docUrl, string output, RequestLibType libType)
     {
         DocUrl = docUrl;
         OutputPath = output;

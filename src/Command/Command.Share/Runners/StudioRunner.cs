@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 using Share.Infrastructure.Helper;
 
 namespace Command.Share.Commands;
-public class StudioCommand(ILogger<StudioCommand> logger)
+public class StudioRunner(ILogger<StudioRunner> logger)
 {
-    private readonly ILogger<StudioCommand> _logger = logger;
+    private readonly ILogger<StudioRunner> _logger = logger;
 
     public async Task RunStudioAsync()
     {

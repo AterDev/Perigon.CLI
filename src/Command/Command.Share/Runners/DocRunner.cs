@@ -1,15 +1,15 @@
-﻿using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 
 namespace Command.Share.Commands;
-public class DocCommand : CommandBase
+public class DocRunner : CommandBase
 {
     public string DocUrl { get; set; } = default!;
     public OpenApiDocument? ApiDocument { get; set; }
 
     public string OutputPath { get; set; }
 
-    public DocCommand(string docUrl, string output)
+    public DocRunner(string docUrl, string output)
     {
         DocUrl = docUrl;
         OutputPath = Path.Combine(output);
