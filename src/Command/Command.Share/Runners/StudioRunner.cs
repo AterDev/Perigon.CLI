@@ -7,7 +7,7 @@ using Entity.StudioMod;
 using Microsoft.Extensions.Logging;
 using Share.Infrastructure.Helper;
 
-namespace Command.Share.Commands;
+namespace Command.Share.Runners;
 public class StudioRunner(ILogger<StudioRunner> logger)
 {
     private readonly ILogger<StudioRunner> _logger = logger;
@@ -112,7 +112,7 @@ public class StudioRunner(ILogger<StudioRunner> logger)
             "Microsoft.Extensions.Configuration.Abstractions",
             "Microsoft.Extensions.DependencyInjection.Abstractions",
             "Microsoft.Extensions.DependencyInjection",
-            "Microsoft.Extensions.Logging.Abstractions",
+            "Microsoft.Extensions.Logging.Abstractions",1
             "Microsoft.Extensions.Logging",
             "Microsoft.Extensions.Options",
             "Microsoft.Extensions.Primitives",

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Services;
+using Spectre.Console;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -17,7 +18,6 @@ if (!systemCulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.Ordina
     CultureInfo.CurrentUICulture = new CultureInfo("en-US");
 }
 
-Console.WriteLine(systemCulture.Name);
 OutputHelper.ShowLogo();
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -31,8 +31,6 @@ var host = builder.Build();
 
 var localizer = host.Services.GetRequiredService<Localizer>();
 var registrar = new DITypeRegistrar(host.Services);
-
-
 
 var app = new CommandApp(registrar);
 app.Configure(config =>
@@ -49,9 +47,13 @@ app.Configure(config =>
         .WithExample(["new", "name"]);
 
     config.AddCommand<StudioCommand>(SubCommand.Studio)
-        .WithDescription(localizer.Get(SubCommand.StudioDes))
-        .WithExample(["studio", "name"]);
+    .WithDescription(localizer.Get(SubCommand.StudioDes));
 
+    config.SetExceptionHandler((ex, resolver) =>
+    {
+        AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+        return -1;
+    });
 });
 
 return app.Run(args);
