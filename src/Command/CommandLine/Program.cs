@@ -1,53 +1,59 @@
-﻿using System.CommandLine;
+using System.Globalization;
 using System.Text;
+using CommandLine;
+using CommandLine.Commands;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Share;
 using Share.Services;
+using Spectre.Console;
 
-namespace CommandLine;
+Console.OutputEncoding = Encoding.UTF8;
 
-internal class Program
+var systemCulture = CultureInfo.InstalledUICulture;
+
+if (!systemCulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase))
 {
-    private static async Task<int> Main(string[] args)
-    {
-        if (args.Length == 0) return 0;
-        Console.OutputEncoding = Encoding.UTF8;
-        ShowLogo();
-
-        var serviceCollection = new ServiceCollection();
-        ConfigureServices(serviceCollection);
-
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-        var commandBuilder = serviceProvider.GetRequiredService<CommandBuilder>();
-        var root = commandBuilder.Build();
-        return await root.InvokeAsync(args);
-    }
-
-    private static void ConfigureServices(IServiceCollection services)
-    {
-        services.AddLogging(config => { config.AddConsole(); })
-            .Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Information);
-
-        services.AddSingleton<CodeAnalysisService>();
-        services.AddSingleton<CodeGenService>();
-        services.AddSingleton<CommandRunner>();
-        services.AddSingleton<CommandBuilder>();
-        services.AddSingleton<StudioCommand>();
-    }
-
-    private static void ShowLogo()
-    {
-        string logo = """
-                 _____    _____   __     __
-                |  __ \  |  __ \  \ \   / /
-                | |  | | | |__) |  \ \_/ / 
-                | |  | | |  _  /    \   /  
-                | |__| | | | \ \     | |   
-                |_____/  |_|  \_\    |_|
-
-                       —→ for freedom 🗽 ←—
-
-            """;
-        Console.WriteLine(logo);
-    }
+    CultureInfo.CurrentCulture = new CultureInfo("en-US");
+    CultureInfo.CurrentUICulture = new CultureInfo("en-US");
 }
+
+OutputHelper.ShowLogo();
+
+var builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddLocalization();
+
+builder.Services.AddScoped<Localizer>();
+builder.Services.AddScoped<CodeAnalysisService>();
+builder.Services.AddScoped<CodeGenService>();
+builder.Services.AddScoped<CommandRunner>();
+var host = builder.Build();
+
+var localizer = host.Services.GetRequiredService<Localizer>();
+var registrar = new DITypeRegistrar(host.Services);
+
+var app = new CommandApp(registrar);
+app.Configure(config =>
+{
+#if DEBUG
+    config.PropagateExceptions();
+    config.ValidateExamples();
+#endif
+    config.SetApplicationName("dry");
+    config.SetApplicationVersion("1.0.0");
+
+    config.AddCommand<NewCommand>(SubCommand.New)
+        .WithDescription(localizer.Get(SubCommand.NewDes))
+        .WithExample(["new", "name"]);
+
+    config.AddCommand<StudioCommand>(SubCommand.Studio)
+    .WithDescription(localizer.Get(SubCommand.StudioDes));
+
+    config.SetExceptionHandler((ex, resolver) =>
+    {
+        AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+        return -1;
+    });
+});
+
+return app.Run(args);

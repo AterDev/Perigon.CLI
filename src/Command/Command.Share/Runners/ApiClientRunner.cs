@@ -1,10 +1,10 @@
-﻿using CodeGenerator.Models;
+using CodeGenerator.Models;
 using Share.Infrastructure.Helper;
-namespace Command.Share.Commands;
+namespace Command.Share.Runners;
 /// <summary>
 /// 客户端请求生成
 /// </summary>
-public class ApiClientCommand : CommandBase
+public class ApiClientRunner : CommandBase
 {
     /// <summary>
     /// swagger文档链接
@@ -24,7 +24,7 @@ public class ApiClientCommand : CommandBase
     /// </summary>
     public string OutputPath { get; set; }
 
-    public ApiClientCommand(string docUrl, string output, LanguageType languageType)
+    public ApiClientRunner(string docUrl, string output, LanguageType languageType)
     {
         DocUrl = docUrl;
         DocName = docUrl.Split('/').Reverse().Skip(1).First();

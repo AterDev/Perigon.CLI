@@ -41,8 +41,6 @@ public class ContextBase(DbContextOptions options) : DbContext(options)
         OnModelExtendCreating(builder);
         base.OnModelCreating(builder);
     }
-
-
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         List<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry> entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added).ToList();

@@ -7,10 +7,10 @@ using Entity.StudioMod;
 using Microsoft.Extensions.Logging;
 using Share.Infrastructure.Helper;
 
-namespace Command.Share.Commands;
-public class StudioCommand(ILogger<StudioCommand> logger)
+namespace Command.Share.Runners;
+public class StudioRunner(ILogger<StudioRunner> logger)
 {
-    private readonly ILogger<StudioCommand> _logger = logger;
+    private readonly ILogger<StudioRunner> _logger = logger;
 
     public async Task RunStudioAsync()
     {
@@ -112,7 +112,7 @@ public class StudioCommand(ILogger<StudioCommand> logger)
             "Microsoft.Extensions.Configuration.Abstractions",
             "Microsoft.Extensions.DependencyInjection.Abstractions",
             "Microsoft.Extensions.DependencyInjection",
-            "Microsoft.Extensions.Logging.Abstractions",
+            "Microsoft.Extensions.Logging.Abstractions",1
             "Microsoft.Extensions.Logging",
             "Microsoft.Extensions.Options",
             "Microsoft.Extensions.Primitives",

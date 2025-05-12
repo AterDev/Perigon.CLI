@@ -1,7 +1,7 @@
-﻿using CodeGenerator;
+using CodeGenerator;
 using CodeGenerator.Helper;
 using CodeGenerator.Models;
-using Entity;
+using Command.Share.Runners;
 using Microsoft.Extensions.Logging;
 using Share.Services;
 
@@ -25,8 +25,8 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     public static async Task RunStudioAsync()
     {
         using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        ILogger<StudioCommand> studioLogger = loggerFactory.CreateLogger<StudioCommand>();
-        var studioCommand = new StudioCommand(studioLogger);
+        ILogger<StudioRunner> studioLogger = loggerFactory.CreateLogger<StudioRunner>();
+        var studioCommand = new StudioRunner(studioLogger);
         await studioCommand.RunStudioAsync();
     }
 
@@ -36,8 +36,8 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     public static void UpdateStudio()
     {
         using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        ILogger<StudioCommand> studioLogger = loggerFactory.CreateLogger<StudioCommand>();
-        var studioCommand = new StudioCommand(studioLogger);
+        ILogger<StudioRunner> studioLogger = loggerFactory.CreateLogger<StudioRunner>();
+        var studioCommand = new StudioRunner(studioLogger);
         studioCommand.UpdateStudio();
     }
 
@@ -52,7 +52,7 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
         try
         {
             _logger.LogInformation("🚀 Generating ts models and ng services...");
-            RequestCommand cmd = new(url, output, RequestLibType.NgHttp);
+            RequestRunner cmd = new(url, output, RequestLibType.NgHttp);
             await cmd.RunAsync();
         }
         catch (WebException webExp)
@@ -77,7 +77,7 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
         try
         {
             _logger.LogInformation($"🚀 Generating ts models and {type} request services...");
-            RequestCommand cmd = new(url, output, type);
+            RequestRunner cmd = new(url, output, type);
             await cmd.RunAsync();
         }
         catch (WebException webExp)
@@ -171,7 +171,7 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// <returns></returns>
     public static async Task GenerateCSharpApiClientAsync(string swaggerUrl, string outputPath, LanguageType language = LanguageType.CSharp)
     {
-        ApiClientCommand cmd = new(swaggerUrl, outputPath, language);
+        ApiClientRunner cmd = new(swaggerUrl, outputPath, language);
         await cmd.RunAsync();
     }
 }
