@@ -9,7 +9,7 @@ using Share.Infrastructure.Helper;
 namespace Command.Share.Runners;
 public class StudioRunner
 {
-    public async Task RunStudioAsync()
+    public static async Task RunStudioAsync()
     {
         var cpuThread = Environment.ProcessorCount;
         int sleepTime = 3000 - 100 * cpuThread;
@@ -79,7 +79,7 @@ public class StudioRunner
     /// <summary>
     /// 升级studio
     /// </summary>
-    public void UpdateStudio()
+    public static void UpdateStudio()
     {
         string[] copyFiles =
         [
@@ -218,6 +218,7 @@ public class StudioRunner
             UpdateTemplate();
             OutputHelper.Success($"update to {version} completed!");
             ctx.Status("Done!");
+            ctx.Refresh();
         });
     }
 
@@ -247,7 +248,7 @@ public class StudioRunner
     /// <summary>
     /// 下载或更新模板
     /// </summary>
-    public void UpdateTemplate()
+    public static void UpdateTemplate()
     {
         // 安装模板
         if (!ProcessHelper.RunCommand("dotnet", "new list atapi", out string _))

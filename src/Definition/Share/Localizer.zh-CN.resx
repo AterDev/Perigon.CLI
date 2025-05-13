@@ -123,4 +123,7 @@
   <data name="StudioDes" xml:space="preserve">
     <value>开启Dry Studio</value>
   </data>
+  <data name="UpdateDes" xml:space="preserve">
+    <value>升级studio,project等</value>
+  </data>
 </root>

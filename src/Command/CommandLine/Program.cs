@@ -47,7 +47,10 @@ app.Configure(config =>
         .WithExample(["new", "name"]);
 
     config.AddCommand<StudioCommand>(SubCommand.Studio)
-    .WithDescription(localizer.Get(SubCommand.StudioDes));
+        .WithDescription(localizer.Get(SubCommand.StudioDes));
+
+    config.AddCommand<UpdateCommand>(SubCommand.Update)
+        .WithDescription(localizer.Get(SubCommand.UpdateDes));
 
     config.SetExceptionHandler((ex, resolver) =>
     {

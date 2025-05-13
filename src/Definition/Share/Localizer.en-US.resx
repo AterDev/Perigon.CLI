@@ -123,4 +123,7 @@
   <data name="StudioDes" xml:space="preserve">
     <value>start Dry Studio</value>
   </data>
+  <data name="UpdateDes" xml:space="preserve">
+    <value>update studio,project etc</value>
+  </data>
 </root>

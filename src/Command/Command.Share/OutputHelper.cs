@@ -53,5 +53,6 @@ public class SubCommand
     public const string Update = "update";
     public const string NewDes = "NewDes";
     public const string StudioDes = "StudioDes";
+    public const string UpdateDes = "UpdateDes";
     public const string StudioUpdateDes = "StudioUpdateDes";
 }
