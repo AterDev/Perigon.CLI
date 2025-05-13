@@ -24,9 +24,7 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// <returns></returns>
     public static async Task RunStudioAsync()
     {
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        ILogger<StudioRunner> studioLogger = loggerFactory.CreateLogger<StudioRunner>();
-        var studioCommand = new StudioRunner(studioLogger);
+        var studioCommand = new StudioRunner();
         await studioCommand.RunStudioAsync();
     }
 
@@ -35,9 +33,7 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// </summary>
     public static void UpdateStudio()
     {
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        ILogger<StudioRunner> studioLogger = loggerFactory.CreateLogger<StudioRunner>();
-        var studioCommand = new StudioRunner(studioLogger);
+        var studioCommand = new StudioRunner();
         studioCommand.UpdateStudio();
     }
 

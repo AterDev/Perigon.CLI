@@ -21,19 +21,28 @@ public class OutputHelper
         AnsiConsole.MarkupLine($"[yellow]{sign1}[/]");
     }
 
-    public static void ShowError(string message)
+    public static void Error(string message)
     {
         AnsiConsole.MarkupLine($"[red]✖️ {message}[/]");
     }
 
-    public static void ShowSuccess(string message)
+    public static void Success(string message)
     {
         AnsiConsole.MarkupLine($"[green]✔️ {message}[/]");
     }
 
-    public static void ShowInfo(string message)
+    public static void Warning(string message)
     {
-        AnsiConsole.MarkupLine($"ℹ️ {message}");
+        AnsiConsole.MarkupLine($"[yellow]⚠️ {message}[/]");
+    }
+
+    public static void Info(string message)
+    {
+        AnsiConsole.MarkupLine($"{message}");
+    }
+    public static void Important(string message)
+    {
+        AnsiConsole.MarkupLine($"[blue]{message}[/]");
     }
 }
 

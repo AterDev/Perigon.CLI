@@ -4,6 +4,10 @@ using System.Text.Json.Serialization;
 namespace Entity.StudioMod;
 public static class ConstVal
 {
+    public const string Version = "10.0.0";
+    public const string NetVersion = "net9.0";
+    public const string PackageId = "ater.dry";
+
     public static Guid PROJECT_ID;
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
     {
@@ -51,11 +55,6 @@ public static class ConstVal
     public const string CreatedTime = "CreatedTime";
     public const string UpdatedTime = "UpdatedTime";
     public const string IsDeleted = "IsDeleted";
-
-
-    public const string Version = "9.0.0";
-    public const string NetVersion = "net8.0";
-    public const string PackageId = "ater.dry";
 
     // files 
     public const string TemplateZip = "template.zip";
