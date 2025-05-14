@@ -17,10 +17,6 @@
         <Folder Include="Models\ToolsDtos\" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="9.0.4" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
         <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
     </ItemGroup>
