@@ -51,8 +51,14 @@ public class SubCommand
     public const string New = "new";
     public const string Studio = "studio";
     public const string Update = "update";
+    public const string Generate = "generate";
+    public const string Request = "request";
+
+
     public const string NewDes = "NewDes";
     public const string StudioDes = "StudioDes";
     public const string UpdateDes = "UpdateDes";
     public const string StudioUpdateDes = "StudioUpdateDes";
+    public const string GenerateDes = "GenerateDes";
+    public const string RequestDes = "RequestDes";
 }

@@ -6,17 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Services;
-using Spectre.Console;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var systemCulture = CultureInfo.InstalledUICulture;
-
-if (!systemCulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase))
-{
-    CultureInfo.CurrentCulture = new CultureInfo("en-US");
-    CultureInfo.CurrentUICulture = new CultureInfo("en-US");
-}
+var systemCulture = CultureInfo.CurrentCulture;
 
 OutputHelper.ShowLogo();
 
@@ -35,12 +28,14 @@ var registrar = new DITypeRegistrar(host.Services);
 var app = new CommandApp(registrar);
 app.Configure(config =>
 {
+
 #if DEBUG
     config.PropagateExceptions();
     config.ValidateExamples();
 #endif
     config.SetApplicationName("dry");
     config.SetApplicationVersion("1.0.0");
+    config.SetApplicationCulture(systemCulture);
 
     config.AddCommand<NewCommand>(SubCommand.New)
         .WithDescription(localizer.Get(SubCommand.NewDes))
@@ -51,6 +46,16 @@ app.Configure(config =>
 
     config.AddCommand<UpdateCommand>(SubCommand.Update)
         .WithDescription(localizer.Get(SubCommand.UpdateDes));
+
+    config.AddBranch(SubCommand.Generate, config =>
+    {
+        config.SetDescription(localizer.Get(SubCommand.GenerateDes));
+
+        config.AddCommand<RequestCommand>(SubCommand.Request)
+            .WithDescription(localizer.Get(SubCommand.RequestDes))
+            .WithExample(["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]);
+
+    }).WithAlias("g");
 
     config.SetExceptionHandler((ex, resolver) =>
     {
