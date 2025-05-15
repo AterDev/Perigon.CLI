@@ -13,6 +13,7 @@ public sealed class DITypeRegistrar : ITypeRegistrar
 
     public void Register(Type service, Type implementation)
     {
+
     }
 
     public void RegisterInstance(Type service, object implementation)

@@ -117,8 +117,41 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CacheConnectionString" xml:space="preserve">
+    <value>缓存连接字符串</value>
+  </data>
+  <data name="CacheType" xml:space="preserve">
+    <value>缓存类型</value>
+  </data>
+  <data name="ConfigurationItem" xml:space="preserve">
+    <value>配置项</value>
+  </data>
+  <data name="CreateSolutionSuccess" xml:space="preserve">
+    <value>创建解决方案成功！</value>
+  </data>
+  <data name="DatabaseProvider" xml:space="preserve">
+    <value>数据库类型</value>
+  </data>
+  <data name="DbConnectionString" xml:space="preserve">
+    <value>Db连接字符串</value>
+  </data>
+  <data name="Directory" xml:space="preserve">
+    <value>目录</value>
+  </data>
   <data name="GenerateDes" xml:space="preserve">
     <value>代码生成</value>
+  </data>
+  <data name="InputCacheConnectionString" xml:space="preserve">
+    <value>👉 输入缓存连接字符串或按Enter跳过</value>
+  </data>
+  <data name="InputDbConnectionString" xml:space="preserve">
+    <value>👉 输入数据库连接字符串或按Enter跳过</value>
+  </data>
+  <data name="InputDirectory" xml:space="preserve">
+    <value>👉 输入解决方案根目录</value>
+  </data>
+  <data name="Modules" xml:space="preserve">
+    <value>模块</value>
   </data>
   <data name="NewDes" xml:space="preserve">
     <value>创建新解决方案</value>
@@ -126,10 +159,34 @@
   <data name="RequestDes" xml:space="preserve">
     <value>生成客户端请求服务及模型</value>
   </data>
+  <data name="RunSolutionCreate" xml:space="preserve">
+    <value>创建解决方案?</value>
+  </data>
+  <data name="SelectCacheType" xml:space="preserve">
+    <value>👇 选择缓存类型，默认为hybrid</value>
+  </data>
+  <data name="SelectDatabaseProvider" xml:space="preserve">
+    <value>👇 选择EntityFramework Core Provider，默认:PostgreSql</value>
+  </data>
+  <data name="SelectModules" xml:space="preserve">
+    <value>👇 选择包含的模块</value>
+  </data>
+  <data name="SelectSolutionType" xml:space="preserve">
+    <value>👇 选择解决方案模板类型，Light使用minimalApi，仅适用小型接口程序，推荐Standard（默认值）.</value>
+  </data>
+  <data name="SolutionSummary" xml:space="preserve">
+    <value>你的解决方案配置:</value>
+  </data>
+  <data name="SolutionType" xml:space="preserve">
+    <value>解决方案类型</value>
+  </data>
   <data name="StudioDes" xml:space="preserve">
     <value>开启Dry Studio</value>
   </data>
   <data name="UpdateDes" xml:space="preserve">
     <value>升级studio,project等</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>值</value>
   </data>
 </root>

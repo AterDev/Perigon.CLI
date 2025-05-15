@@ -117,8 +117,41 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CacheConnectionString" xml:space="preserve">
+    <value>Cache ConnectionString</value>
+  </data>
+  <data name="CacheType" xml:space="preserve">
+    <value>Cache Type</value>
+  </data>
+  <data name="ConfigurationItem" xml:space="preserve">
+    <value>ConfigurationItem</value>
+  </data>
+  <data name="CreateSolutionSuccess" xml:space="preserve">
+    <value>Create solution success!</value>
+  </data>
+  <data name="DatabaseProvider" xml:space="preserve">
+    <value>Database Provider</value>
+  </data>
+  <data name="DbConnectionString" xml:space="preserve">
+    <value>DbConnectionString</value>
+  </data>
+  <data name="Directory" xml:space="preserve">
+    <value>Directory</value>
+  </data>
   <data name="GenerateDes" xml:space="preserve">
     <value>Code generate</value>
+  </data>
+  <data name="InputCacheConnectionString" xml:space="preserve">
+    <value>👉 Input cache connectionString</value>
+  </data>
+  <data name="InputDbConnectionString" xml:space="preserve">
+    <value>👉 Input database ConnectionString or skip with enter</value>
+  </data>
+  <data name="InputDirectory" xml:space="preserve">
+    <value>👉 Input solution root path</value>
+  </data>
+  <data name="Modules" xml:space="preserve">
+    <value>Modules</value>
   </data>
   <data name="NewDes" xml:space="preserve">
     <value>Create new .NET solution</value>
@@ -126,10 +159,34 @@
   <data name="RequestDes" xml:space="preserve">
     <value>Generate client request service and models</value>
   </data>
+  <data name="RunSolutionCreate" xml:space="preserve">
+    <value>Create solution?</value>
+  </data>
+  <data name="SelectCacheType" xml:space="preserve">
+    <value>👇 Select cache type, hybrid is default.</value>
+  </data>
+  <data name="SelectDatabaseProvider" xml:space="preserve">
+    <value>👇 Select database provider for EntityFramework Core, default is:PostgreSql</value>
+  </data>
+  <data name="SelectModules" xml:space="preserve">
+    <value>👇👉 Select modules</value>
+  </data>
+  <data name="SelectSolutionType" xml:space="preserve">
+    <value>👇 Select Solution Type, Mini is use MinimalApi for mini application, Standard is recommend(default).</value>
+  </data>
+  <data name="SolutionSummary" xml:space="preserve">
+    <value>Your solution configuration is:</value>
+  </data>
+  <data name="SolutionType" xml:space="preserve">
+    <value>Solution Type</value>
+  </data>
   <data name="StudioDes" xml:space="preserve">
     <value>start Dry Studio</value>
   </data>
   <data name="UpdateDes" xml:space="preserve">
     <value>update studio,project etc</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Values</value>
   </data>
 </root>

@@ -20,12 +20,14 @@ builder.Services.AddScoped<Localizer>();
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandRunner>();
+
+builder.Services.AddScoped<NewCommand>();
 var host = builder.Build();
 
-var localizer = host.Services.GetRequiredService<Localizer>();
 var registrar = new DITypeRegistrar(host.Services);
-
 var app = new CommandApp(registrar);
+
+var localizer = host.Services.GetRequiredService<Localizer>();
 app.Configure(config =>
 {
 
