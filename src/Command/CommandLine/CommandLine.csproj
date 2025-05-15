@@ -6,7 +6,7 @@
     <ToolCommandName>ater</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <AssemblyVersion>10.0.0</AssemblyVersion>
-    <PackageId>ater.dry</PackageId>
+    <PackageId>ater.dry.copilot</PackageId>
     <Version>10.0.0-beta1</Version>
     <Description> DRY代码生成助手</Description>
     <Authors>NilTor</Authors>
