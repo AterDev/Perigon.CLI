@@ -1,5 +1,5 @@
 using System.Net;
-using Share.Infrastructure.Utils;
+using Share.Helper;
 
 namespace StudioMod.Managers;
 

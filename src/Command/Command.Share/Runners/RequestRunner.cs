@@ -4,7 +4,7 @@ namespace Command.Share.Runners;
 /// <summary>
 /// 前端ts请求生成命令
 /// </summary>
-public class RequestRunner : CommandBase
+public class RequestRunner : RunnerBase
 {
     /// <summary>
     /// swagger文档链接

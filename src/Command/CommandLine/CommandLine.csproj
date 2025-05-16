@@ -6,7 +6,7 @@
     <ToolCommandName>ater</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <AssemblyVersion>10.0.0</AssemblyVersion>
-    <PackageId>ater.dry</PackageId>
+    <PackageId>ater.dry.copilot</PackageId>
     <Version>10.0.0-beta1</Version>
     <Description> DRY代码生成助手</Description>
     <Authors>NilTor</Authors>
@@ -26,7 +26,6 @@
     <PackageTags>ater;cli;code generate;angular;webapi;asp.net core</PackageTags>
     <Nullable>enable</Nullable>
     <Title>Ater.Dry</Title>
-    <SatelliteResourceLanguages>None</SatelliteResourceLanguages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,7 +45,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Spectre.Console.Cli" Version="0.50.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md">

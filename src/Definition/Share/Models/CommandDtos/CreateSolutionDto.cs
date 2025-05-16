@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
-namespace StudioMod.Models;
+namespace Share.Models.CommandDtos;
 
 /// <summary>
 /// 创建解决方案dto
@@ -71,11 +71,6 @@ public class CreateSolutionDto
     /// </summary>
     [MaxLength(60)]
     public string? CacheInstanceName { get; set; }
-
-    /// <summary>
-    /// 项目类型
-    /// </summary>
-    public ProjectType ProjectType { get; set; } = ProjectType.WebAPI;
 
     [MaxLength(60)]
     public string? DefaultPassword { get; set; }

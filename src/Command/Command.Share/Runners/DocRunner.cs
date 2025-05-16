@@ -1,8 +1,9 @@
+using Command.Share.Runners;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 
 namespace Command.Share.Commands;
-public class DocRunner : CommandBase
+public class DocRunner : RunnerBase
 {
     public string DocUrl { get; set; } = default!;
     public OpenApiDocument? ApiDocument { get; set; }

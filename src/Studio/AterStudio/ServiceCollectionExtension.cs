@@ -1,11 +1,8 @@
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
-using AterStudio.Middlewares;
 using CodeGenerator.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Share.Services;
 using StudioMod.Services;
@@ -28,6 +25,7 @@ public static class ServiceCollectionExtension
 
         builder.Services.AddScoped<CodeAnalysisService>();
         builder.Services.AddScoped<CodeGenService>();
+        builder.Services.AddScoped<CommandService>();
         builder.Services.AddScoped<SolutionService>();
 
         builder.Services.AddManagers();
@@ -58,7 +56,6 @@ public static class ServiceCollectionExtension
         app.UseSwagger();
         app.UseStaticFiles();
         app.UseRouting();
-        app.UseDebugAuthorization();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
@@ -97,34 +94,6 @@ public static class ServiceCollectionExtension
             options.FallBackToParentCultures = true;
             options.FallBackToParentUICultures = true;
             options.ApplyCurrentCultureToResponseHeaders = true;
-        });
-        return services;
-    }
-
-    /// <summary>
-    /// 添加 jwt 验证
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(cfg =>
-        {
-            cfg.TokenValidationParameters = new TokenValidationParameters()
-            {
-                //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sign)),
-                ValidateIssuer = false,
-                ValidateLifetime = false,
-                RequireExpirationTime = false,
-                ValidateIssuerSigningKey = false
-            };
         });
         return services;
     }

@@ -1,10 +1,11 @@
 using CodeGenerator.Models;
-using Share.Infrastructure.Helper;
+using Share.Helper;
+
 namespace Command.Share.Runners;
 /// <summary>
 /// 客户端请求生成
 /// </summary>
-public class ApiClientRunner : CommandBase
+public class ApiClientRunner : RunnerBase
 {
     /// <summary>
     /// swagger文档链接

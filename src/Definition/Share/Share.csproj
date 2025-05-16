@@ -9,15 +9,15 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Remove="Managers\**" />
+        <Compile Remove="Models\ToolsDtos\**" />
         <EmbeddedResource Remove="Managers\**" />
+        <EmbeddedResource Remove="Models\ToolsDtos\**" />
         <None Remove="Managers\**" />
+        <None Remove="Models\ToolsDtos\**" />
     </ItemGroup>
+
     <ItemGroup>
-        <Folder Include="Models\ModelInfos\" />
-        <Folder Include="Models\ToolsDtos\" />
-    </ItemGroup>
-    <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="9.0.4" />
+        <PackageReference Include="Spectre.Console" Version="0.50.0" />
     </ItemGroup>
 
     <ItemGroup>

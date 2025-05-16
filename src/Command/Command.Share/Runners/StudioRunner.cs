@@ -4,37 +4,31 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using CodeGenerator.Helper;
 using Entity.StudioMod;
-using Microsoft.Extensions.Logging;
-using Share.Infrastructure.Helper;
+using Share.Helper;
 
 namespace Command.Share.Runners;
-public class StudioRunner(ILogger<StudioRunner> logger)
+public class StudioRunner
 {
-    private readonly ILogger<StudioRunner> _logger = logger;
-
-    public async Task RunStudioAsync()
+    public static async Task RunStudioAsync()
     {
-        _logger.LogInformation("🙌 Welcome Ater studio!");
+        var cpuThread = Environment.ProcessorCount;
+        int sleepTime = 3000 - 100 * cpuThread;
+        sleepTime = sleepTime < 1000 ? 1000 : sleepTime;
+
         string studioPath = AssemblyHelper.GetStudioPath();
-        int sleepTime = 1500;
         // 检查并更新
         string version = AssemblyHelper.GetCurrentToolVersion();
-        if (File.Exists(Path.Combine(studioPath, $"{version}.txt")))
+        if (!File.Exists(Path.Combine(studioPath, $"{version}.txt")))
         {
-            _logger.LogInformation("😊 Already latest version!");
-        }
-        else
-        {
+            OutputHelper.Important($"find new version：{version}");
             UpdateStudio();
         }
-        _logger.LogInformation("🚀 start studio...");
-        // 运行
+
+        OutputHelper.Info("🚀 start studio...");
         string shell = "dotnet";
         var port = GetAvailablePort();
-        _logger.LogInformation("可用端口:{port}", port);
+        OutputHelper.Info($"using port:{port}");
         string url = $"http://localhost:{port}";
-
-        var args = Path.Combine(studioPath, ConstVal.StudioFileName) + $" --urls \"{url}\"";
 
         Process process = new()
         {
@@ -76,7 +70,7 @@ public class StudioRunner(ILogger<StudioRunner> logger)
                 }
                 else
                 {
-                    _logger.LogInformation("start browser failed: {message}", ex.Message);
+                    OutputHelper.Error($"can't start studio: {ex.Message}");
                 }
             }
             await process.WaitForExitAsync();
@@ -85,12 +79,11 @@ public class StudioRunner(ILogger<StudioRunner> logger)
     /// <summary>
     /// 升级studio
     /// </summary>
-    public void UpdateStudio()
+    public static void UpdateStudio()
     {
-        _logger.LogInformation($"☑️ check&update studio...");
         string[] copyFiles =
         [
-            "Ater.Web.Core",
+            "Ater.Common",
             "CodeGenerator",
             "Entity",
             "Humanizer",
@@ -112,7 +105,7 @@ public class StudioRunner(ILogger<StudioRunner> logger)
             "Microsoft.Extensions.Configuration.Abstractions",
             "Microsoft.Extensions.DependencyInjection.Abstractions",
             "Microsoft.Extensions.DependencyInjection",
-            "Microsoft.Extensions.Logging.Abstractions",1
+            "Microsoft.Extensions.Logging.Abstractions",
             "Microsoft.Extensions.Logging",
             "Microsoft.Extensions.Options",
             "Microsoft.Extensions.Primitives",
@@ -149,75 +142,84 @@ public class StudioRunner(ILogger<StudioRunner> logger)
 
         if (!File.Exists(zipPath))
         {
-            _logger.LogInformation($"not found studio.zip in:{toolRootPath}");
+            OutputHelper.Error($"not found studio.zip in:{toolRootPath}");
             return;
         }
         string studioPath = AssemblyHelper.GetStudioPath();
         string dbFile = Path.Combine(studioPath, ConstVal.DbName);
         string tempDbFile = Path.Combine(Path.GetTempPath(), ConstVal.DbName);
 
-        // 删除旧文件
-        if (Directory.Exists(studioPath))
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Aesthetic).Start("Updating...", ctx =>
         {
-            if (File.Exists(dbFile))
+            // 删除旧文件
+            if (Directory.Exists(studioPath))
             {
-                File.Copy(dbFile, tempDbFile, true);
+                ctx.Status("delete old files");
+                if (File.Exists(dbFile))
+                {
+                    File.Copy(dbFile, tempDbFile, true);
+                }
+                Directory.Delete(studioPath, true);
+                OutputHelper.Info($"delete {studioPath}");
             }
-            _logger.LogInformation("delete {path}", studioPath);
-            Directory.Delete(studioPath, true);
-        }
 
-        // 解压
-        if (File.Exists(templatePath))
-        {
-            ZipFile.ExtractToDirectory(templatePath, studioPath, true);
-        }
-        ZipFile.ExtractToDirectory(zipPath, studioPath, true);
-        _logger.LogInformation("extract {zip} to {path}", zipPath, studioPath);
-
-        if (File.Exists(tempDbFile))
-        {
-            File.Copy(tempDbFile, dbFile, true);
-        }
-
-        // copy其他文件
-        _logger.LogInformation("start copy {0} files to {studioPath}", copyFiles.Count(), studioPath);
-        copyFiles.ToList().ForEach(file =>
-        {
-            string sourceFile = Path.Combine(toolRootPath, file + ".dll");
-            if (File.Exists(sourceFile))
+            // 解压
+            ctx.Status("copy new files");
+            if (File.Exists(templatePath))
             {
-                File.Copy(sourceFile, Path.Combine(studioPath, file + ".dll"), true);
+                ZipFile.ExtractToDirectory(templatePath, studioPath, true);
             }
-            else
+            ZipFile.ExtractToDirectory(zipPath, studioPath, true);
+            OutputHelper.Info($"extract {zipPath} to {studioPath}");
+
+            if (File.Exists(tempDbFile))
             {
-                _logger.LogWarning("{source} file not exist!", sourceFile);
+                OutputHelper.Info($"recover db file");
+                File.Copy(tempDbFile, dbFile, true);
             }
+
+            // copy其他文件
+            OutputHelper.Info($"start copy {copyFiles.Length} files to {studioPath}");
+            copyFiles.ToList().ForEach(file =>
+            {
+                string sourceFile = Path.Combine(toolRootPath, file + ".dll");
+                if (File.Exists(sourceFile))
+                {
+                    File.Copy(sourceFile, Path.Combine(studioPath, file + ".dll"), true);
+                }
+                else
+                {
+                    OutputHelper.Info($"{sourceFile} file not exist!");
+                }
+            });
+
+            string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
+            if (Directory.Exists(runtimesDir))
+            {
+                string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
+                if (Directory.Exists(targetDir))
+                {
+                    Directory.Delete(targetDir, true);
+                }
+                try
+                {
+                    Directory.CreateSymbolicLink(targetDir, runtimesDir);
+                }
+                catch (Exception)
+                {
+                    IOHelper.CopyDirectory(runtimesDir, targetDir);
+                }
+            }
+
+            // create version file
+            File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
+            ctx.Status("update template");
+            UpdateTemplate();
+            OutputHelper.Success($"update to {version} completed!");
+            ctx.Status("Done!");
+            ctx.Refresh();
         });
-
-        string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
-        if (Directory.Exists(runtimesDir))
-        {
-            string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
-            if (Directory.Exists(targetDir))
-            {
-                Directory.Delete(targetDir, true);
-            }
-            try
-            {
-                Directory.CreateSymbolicLink(targetDir, runtimesDir);
-            }
-            catch (Exception)
-            {
-                IOHelper.CopyDirectory(runtimesDir, targetDir);
-            }
-        }
-
-        // create version file
-        File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
-
-        UpdateTemplate();
-        _logger.LogInformation("✅ update complete!");
     }
 
     /// <summary>
@@ -242,17 +244,18 @@ public class StudioRunner(ILogger<StudioRunner> logger)
         }
         return defaultPort;
     }
+
     /// <summary>
     /// 下载或更新模板
     /// </summary>
-    public void UpdateTemplate()
+    public static void UpdateTemplate()
     {
         // 安装模板
         if (!ProcessHelper.RunCommand("dotnet", "new list atapi", out string _))
         {
             if (!ProcessHelper.RunCommand("dotnet", "new install ater.web.templates", out _))
             {
-                _logger.LogInformation("⚠️ ater.web.templates install failed!");
+                OutputHelper.Warning("ater.web.templates install failed!");
             }
         }
         else

@@ -4,13 +4,20 @@ using System.Text.Json.Serialization;
 namespace Entity.StudioMod;
 public static class ConstVal
 {
+    public const string Version = "10.0.0";
+    public const string NetVersion = "net9.0";
+    public const string PackageId = "ater.dry";
+
+    public const string Mini = "mini";
+    public const string Standard = "standard";
+
     public static Guid PROJECT_ID;
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public const string DbName = "ater.dry.db";
+    public const string DbName = "ater.dry.copilot.db";
     public const string ConfigFileName = ".dry-config.json";
     public const string StudioFileName = "AterStudio.dll";
 
@@ -51,11 +58,6 @@ public static class ConstVal
     public const string CreatedTime = "CreatedTime";
     public const string UpdatedTime = "UpdatedTime";
     public const string IsDeleted = "IsDeleted";
-
-
-    public const string Version = "9.0.0";
-    public const string NetVersion = "net8.0";
-    public const string PackageId = "ater.dry";
 
     // files 
     public const string TemplateZip = "template.zip";

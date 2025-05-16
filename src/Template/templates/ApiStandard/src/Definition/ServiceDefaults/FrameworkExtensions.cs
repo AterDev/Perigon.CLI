@@ -114,7 +114,6 @@ public static class FrameworkExtensions
         // 分布式缓存
         if (components.Cache != CacheType.Memory)
         {
-            // 暂时有问题，无法正常使用
             builder.AddRedisDistributedCache(WebConst.Cache);
         }
         // 混合缓存

@@ -1,6 +1,6 @@
 using CodeGenerator;
 using Humanizer;
-using StudioMod.Models;
+using Share.Models.CommandDtos;
 
 namespace StudioMod.Services;
 /// <summary>

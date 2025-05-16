@@ -1,17 +1,48 @@
+using System.ComponentModel;
+using Share.Helper;
 
 namespace CommandLine.Commands;
-public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
+
+/// <summary>
+/// 生成请求
+/// </summary>
+public class RequestCommand : AsyncCommand<RequestSettings>
 {
-    public class Settings : CommandSettings
+    public override Task<int> ExecuteAsync(CommandContext context, RequestSettings settings)
     {
-        [CommandArgument(0, "[name]")]
-        public string Name { get; set; } = string.Empty;
-        [CommandOption("--path")]
-        public string Path { get; set; } = string.Empty;
-    }
-    public override Task<int> ExecuteAsync(CommandContext context, Settings settings)
-    {
-        throw new NotImplementedException();
+        if (Enum.TryParse<RequestType>(settings.Type, true, out RequestType type))
+        {
+            if (type == RequestType.Angular)
+            {
+                //StudioRunner.UpdateStudio();
+            }
+            return Task.FromResult(0);
+        }
+        else
+        {
+            OutputHelper.Error("Invalid type, only support: axios, csharp, angular");
+            return Task.FromResult(-1);
+        }
     }
 }
+public sealed class RequestSettings : CommandSettings
+{
+    [CommandArgument(0, "<path|url>")]
+    [Description("local path or url, support json format")]
+    public string Path { get; set; } = string.Empty;
 
+    [CommandArgument(1, "<outputPath>")]
+    [Description("you client project path")]
+    public required string OutputPath { get; set; }
+
+    [CommandOption("-t|--type")]
+    [DefaultValue("axios")]
+    [Description("only support: axios, csharp, angular, default: axios")]
+    public string Type { get; set; } = "axios";
+}
+public enum RequestType
+{
+    Axios,
+    Csharp,
+    Angular
+}

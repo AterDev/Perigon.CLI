@@ -1,5 +1,6 @@
+using Spectre.Console;
 
-namespace Command.Share;
+namespace Share.Helper;
 public class OutputHelper
 {
     public static void ShowLogo()
@@ -21,19 +22,36 @@ public class OutputHelper
         AnsiConsole.MarkupLine($"[yellow]{sign1}[/]");
     }
 
-    public static void ShowError(string message)
+    public static void Error(string message)
     {
         AnsiConsole.MarkupLine($"[red]✖️ {message}[/]");
     }
 
-    public static void ShowSuccess(string message)
+    public static void Success(string message)
     {
         AnsiConsole.MarkupLine($"[green]✔️ {message}[/]");
     }
 
-    public static void ShowInfo(string message)
+    public static void Warning(string message)
     {
-        AnsiConsole.MarkupLine($"ℹ️ {message}");
+        AnsiConsole.MarkupLine($"[yellow]⚠️ {message}[/]");
+    }
+
+    public static void Info(string message)
+    {
+        AnsiConsole.MarkupLine($"{message}");
+    }
+    public static void Important(string message)
+    {
+        AnsiConsole.MarkupLine($"[blue]{message}[/]");
+    }
+
+    public static void ClearLine()
+    {
+        int currentLineCursor = Console.CursorTop;
+        Console.SetCursorPosition(0, currentLineCursor - 1);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, currentLineCursor - 1);
     }
 }
 
@@ -42,7 +60,7 @@ public class SubCommand
     public const string New = "new";
     public const string Studio = "studio";
     public const string Update = "update";
-    public const string NewDes = "NewDes";
-    public const string StudioDes = "StudioDes";
-    public const string StudioUpdateDes = "StudioUpdateDes";
+    public const string Generate = "generate";
+    public const string Request = "request";
 }
+

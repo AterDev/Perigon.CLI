@@ -2,21 +2,16 @@ using System.Globalization;
 using System.Text;
 using CommandLine;
 using CommandLine.Commands;
+using EntityFramework.DBProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
+using Share.Helper;
 using Share.Services;
-using Spectre.Console;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var systemCulture = CultureInfo.InstalledUICulture;
-
-if (!systemCulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase))
-{
-    CultureInfo.CurrentCulture = new CultureInfo("en-US");
-    CultureInfo.CurrentUICulture = new CultureInfo("en-US");
-}
+var systemCulture = CultureInfo.CurrentCulture;
 
 OutputHelper.ShowLogo();
 
@@ -24,30 +19,51 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
 
 builder.Services.AddScoped<Localizer>();
+builder.Services.AddScoped<CommandDbContext>();
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
-builder.Services.AddScoped<CommandRunner>();
+builder.Services.AddScoped<CommandService>();
+
+builder.Services.AddScoped<NewCommand>();
+builder.Services.AddScoped<StudioCommand>();
+builder.Services.AddScoped<AddCommand>();
+
 var host = builder.Build();
 
-var localizer = host.Services.GetRequiredService<Localizer>();
 var registrar = new DITypeRegistrar(host.Services);
-
 var app = new CommandApp(registrar);
+
+var localizer = host.Services.GetRequiredService<Localizer>();
 app.Configure(config =>
 {
+
 #if DEBUG
     config.PropagateExceptions();
     config.ValidateExamples();
 #endif
     config.SetApplicationName("dry");
     config.SetApplicationVersion("1.0.0");
+    config.SetApplicationCulture(systemCulture);
 
     config.AddCommand<NewCommand>(SubCommand.New)
-        .WithDescription(localizer.Get(SubCommand.NewDes))
+        .WithDescription(localizer.Get(TipConst.NewDes))
         .WithExample(["new", "name"]);
 
     config.AddCommand<StudioCommand>(SubCommand.Studio)
-    .WithDescription(localizer.Get(SubCommand.StudioDes));
+        .WithDescription(localizer.Get(TipConst.StudioDes));
+
+    config.AddCommand<UpdateCommand>(SubCommand.Update)
+        .WithDescription(localizer.Get(TipConst.UpdateDes));
+
+    config.AddBranch(SubCommand.Generate, config =>
+    {
+        config.SetDescription(localizer.Get(TipConst.GenerateDes));
+
+        config.AddCommand<RequestCommand>(SubCommand.Request)
+            .WithDescription(localizer.Get(TipConst.RequestDes))
+            .WithExample(["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]);
+
+    }).WithAlias("g");
 
     config.SetExceptionHandler((ex, resolver) =>
     {
