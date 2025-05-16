@@ -4,7 +4,7 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using CodeGenerator.Helper;
 using Entity.StudioMod;
-using Share.Infrastructure.Helper;
+using Share.Helper;
 
 namespace Command.Share.Runners;
 public class StudioRunner

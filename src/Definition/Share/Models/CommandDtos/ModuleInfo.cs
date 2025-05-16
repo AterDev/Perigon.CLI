@@ -1,4 +1,4 @@
-namespace StudioMod.Models;
+namespace Share.Models.CommandDtos;
 /// <summary>
 /// 模块信息
 /// </summary>
@@ -31,34 +31,34 @@ public class ModuleInfo
     /// </summary>
     /// <returns></returns>
     public static List<ModuleInfo> GetModules() => [
-            new() {
-                Name = "系统模块",
-                Value = System,
-                Description = "含角色/用户/菜单/系统日志等基础功能"
-            },
+            //new() {
+            //    Name = "系统模块",
+            //    Value = System,
+            //    Description = "含角色/用户/菜单/系统日志等基础功能"
+            //},
             new ModuleInfo
             {
                 Name = "客户模块",
                 Value = Customer,
-                Description = "客户信息管理"
+                Description = TipConst.CustomerModuleDes
             },
             new ModuleInfo
             {
                 Name = "文件管理模块",
                 Value = FileManager,
-                Description = "文件管理"
+                Description = TipConst.FileManagerModuleDes
             },
             new ModuleInfo
             {
                 Name = "订单模块",
                 Value = Order,
-                Description = "含产品/订单/对账单等功能"
+                Description = TipConst.OrderModuleDes
             },
             new ModuleInfo
             {
                 Name = "内容管理模块",
                 Value = CMS,
-                Description = "含博客及分类等基础功能"
+                Description = TipConst.CMSModuleDes
             },
             //new ModuleInfo
             //{

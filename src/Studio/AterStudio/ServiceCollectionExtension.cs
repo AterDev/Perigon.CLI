@@ -25,6 +25,7 @@ public static class ServiceCollectionExtension
 
         builder.Services.AddScoped<CodeAnalysisService>();
         builder.Services.AddScoped<CodeGenService>();
+        builder.Services.AddScoped<CommandService>();
         builder.Services.AddScoped<SolutionService>();
 
         builder.Services.AddManagers();

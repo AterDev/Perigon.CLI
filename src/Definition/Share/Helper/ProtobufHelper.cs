@@ -1,4 +1,4 @@
-﻿namespace Share.Infrastructure.Helper;
+namespace Share.Helper;
 public class ProtobufHelper
 {
     public static Dictionary<string, string> TypeMap = new()

@@ -24,7 +24,6 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// <returns></returns>
     public static async Task RunStudioAsync()
     {
-        var studioCommand = new StudioRunner();
         await StudioRunner.RunStudioAsync();
     }
 

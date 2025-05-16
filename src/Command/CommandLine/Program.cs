@@ -2,9 +2,11 @@ using System.Globalization;
 using System.Text;
 using CommandLine;
 using CommandLine.Commands;
+using EntityFramework.DBProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
+using Share.Helper;
 using Share.Services;
 
 Console.OutputEncoding = Encoding.UTF8;
@@ -17,11 +19,15 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
 
 builder.Services.AddScoped<Localizer>();
+builder.Services.AddScoped<CommandDbContext>();
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
-builder.Services.AddScoped<CommandRunner>();
+builder.Services.AddScoped<CommandService>();
 
 builder.Services.AddScoped<NewCommand>();
+builder.Services.AddScoped<StudioCommand>();
+builder.Services.AddScoped<AddCommand>();
+
 var host = builder.Build();
 
 var registrar = new DITypeRegistrar(host.Services);
@@ -40,21 +46,21 @@ app.Configure(config =>
     config.SetApplicationCulture(systemCulture);
 
     config.AddCommand<NewCommand>(SubCommand.New)
-        .WithDescription(localizer.Get(SubCommand.NewDes))
+        .WithDescription(localizer.Get(TipConst.NewDes))
         .WithExample(["new", "name"]);
 
     config.AddCommand<StudioCommand>(SubCommand.Studio)
-        .WithDescription(localizer.Get(SubCommand.StudioDes));
+        .WithDescription(localizer.Get(TipConst.StudioDes));
 
     config.AddCommand<UpdateCommand>(SubCommand.Update)
-        .WithDescription(localizer.Get(SubCommand.UpdateDes));
+        .WithDescription(localizer.Get(TipConst.UpdateDes));
 
     config.AddBranch(SubCommand.Generate, config =>
     {
-        config.SetDescription(localizer.Get(SubCommand.GenerateDes));
+        config.SetDescription(localizer.Get(TipConst.GenerateDes));
 
         config.AddCommand<RequestCommand>(SubCommand.Request)
-            .WithDescription(localizer.Get(SubCommand.RequestDes))
+            .WithDescription(localizer.Get(TipConst.RequestDes))
             .WithExample(["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]);
 
     }).WithAlias("g");

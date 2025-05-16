@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace Share.Infrastructure.Utils;
+namespace Share.Helper;
 
 /// <summary>
 /// hash加密

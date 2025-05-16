@@ -8,13 +8,16 @@ public static class ConstVal
     public const string NetVersion = "net9.0";
     public const string PackageId = "ater.dry";
 
+    public const string Mini = "mini";
+    public const string Standard = "standard";
+
     public static Guid PROJECT_ID;
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public const string DbName = "ater.dry.db";
+    public const string DbName = "ater.dry.copilot.db";
     public const string ConfigFileName = ".dry-config.json";
     public const string StudioFileName = "AterStudio.dll";
 

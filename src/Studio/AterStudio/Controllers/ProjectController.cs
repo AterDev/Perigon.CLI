@@ -1,3 +1,5 @@
+using Share.Services;
+
 namespace AterStudio.Controllers;
 
 /// <summary>
@@ -8,10 +10,10 @@ public class ProjectController(
     Localizer localizer,
     ProjectManager manager,
     IProjectContext project,
-    AdvanceManager advance,
+    CommandService commandService,
     ILogger<ProjectContext> logger) : BaseController<ProjectManager>(localizer, manager, project, logger)
 {
-    private readonly AdvanceManager _advance = advance;
+
 
     /// <summary>
     /// 获取解决方案列表
@@ -58,14 +60,7 @@ public class ProjectController(
             return Problem("未找到该目录");
         }
 
-        var projectFilePath = Directory.GetFiles(path, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-
-        projectFilePath ??= Directory.GetFiles(path, $"*{ConstVal.SolutionXMLExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-
-        projectFilePath ??= Directory.GetFiles(path, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(path, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly).FirstOrDefault();
-
-        return await _manager.AddAsync(name, projectFilePath);
+        return await commandService.AddProjectAsync(name, path);
     }
 
     /// <summary>

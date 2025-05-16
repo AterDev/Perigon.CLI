@@ -1,6 +1,6 @@
-namespace Command.Share.Commands;
+namespace Command.Share.Runners;
 
-public class CommandBase
+public class RunnerBase
 {
     protected List<string> Instructions = [];
 

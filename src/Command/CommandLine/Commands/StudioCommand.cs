@@ -8,7 +8,7 @@ public class StudioCommand : AsyncCommand<StudioCommand.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        await CommandRunner.RunStudioAsync();
+        await StudioRunner.RunStudioAsync();
         return 0;
     }
 }

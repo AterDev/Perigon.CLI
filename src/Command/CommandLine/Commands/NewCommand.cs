@@ -1,5 +1,7 @@
 using System.ComponentModel;
 using Share;
+using Share.Helper;
+using Share.Models.CommandDtos;
 
 namespace CommandLine.Commands;
 public class NewCommand(Localizer localizer) : AsyncCommand<NewCommand.Settings>
@@ -56,11 +58,15 @@ public class NewCommand(Localizer localizer) : AsyncCommand<NewCommand.Settings>
         // 7. 其他配置 (暂不支持)
 
         // 8. 模块选择(多选)
+        var options = ModuleInfo.GetModules();
+
         var selectModules = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<string>()
+            new MultiSelectionPrompt<ModuleInfo>()
                 .Title(localizer.Get(TipConst.SelectModules))
+                .InstructionsText(localizer.Get(TipConst.CommandSelectTip))
                 .NotRequired()
-                .AddChoices([TipConst.ModuleCMS, TipConst.ModuleCustomer, TipConst.ModuleFileManager, TipConst.ModuleOrder]));
+                .AddChoices(options)
+                .UseConverter(opt => $"{localizer.Get(opt.Description)}"));
 
         // 9. 输入目录
         var defaultDirectory = "./";

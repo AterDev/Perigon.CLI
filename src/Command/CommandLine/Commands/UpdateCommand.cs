@@ -1,3 +1,5 @@
+using Share.Helper;
+
 namespace CommandLine.Commands;
 public class UpdateCommand : Command<UpdateCommand.Settings>
 {

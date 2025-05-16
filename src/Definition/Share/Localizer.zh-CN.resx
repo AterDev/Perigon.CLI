@@ -123,11 +123,20 @@
   <data name="CacheType" xml:space="preserve">
     <value>缓存类型</value>
   </data>
+  <data name="CMSModuleDes" xml:space="preserve">
+    <value>内容管理系统模块</value>
+  </data>
+  <data name="CommandSelectTip" xml:space="preserve">
+    <value>[gray](按 [blue]&lt;空格键&gt;[/] 选择, [green]&lt;回车键&gt;[/] 确认) [/]</value>
+  </data>
   <data name="ConfigurationItem" xml:space="preserve">
     <value>配置项</value>
   </data>
   <data name="CreateSolutionSuccess" xml:space="preserve">
     <value>创建解决方案成功！</value>
+  </data>
+  <data name="CustomerModuleDes" xml:space="preserve">
+    <value>客户信息管理模块</value>
   </data>
   <data name="DatabaseProvider" xml:space="preserve">
     <value>数据库类型</value>
@@ -137,6 +146,9 @@
   </data>
   <data name="Directory" xml:space="preserve">
     <value>目录</value>
+  </data>
+  <data name="FileManagerModuleDes" xml:space="preserve">
+    <value>基于数据库的文件管理模块</value>
   </data>
   <data name="GenerateDes" xml:space="preserve">
     <value>代码生成</value>
@@ -155,6 +167,9 @@
   </data>
   <data name="NewDes" xml:space="preserve">
     <value>创建新解决方案</value>
+  </data>
+  <data name="OrderModuleDes" xml:space="preserve">
+    <value>订单管理模块</value>
   </data>
   <data name="RequestDes" xml:space="preserve">
     <value>生成客户端请求服务及模型</value>

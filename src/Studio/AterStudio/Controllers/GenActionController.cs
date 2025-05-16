@@ -144,7 +144,7 @@ public class GenActionController(
         }
         else
         {
-            return Problem(res.message);
+            return Problem(res.message ?? "");
         }
     }
 

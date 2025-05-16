@@ -123,11 +123,20 @@
   <data name="CacheType" xml:space="preserve">
     <value>Cache Type</value>
   </data>
+  <data name="CMSModuleDes" xml:space="preserve">
+    <value>Content manager System Module</value>
+  </data>
+  <data name="CommandSelectTip" xml:space="preserve">
+    <value>[gray](Press [blue]&lt;space&gt;[/] to toggle a option, [green]&lt;enter&gt;[/] to accept) [/]</value>
+  </data>
   <data name="ConfigurationItem" xml:space="preserve">
     <value>ConfigurationItem</value>
   </data>
   <data name="CreateSolutionSuccess" xml:space="preserve">
     <value>Create solution success!</value>
+  </data>
+  <data name="CustomerModuleDes" xml:space="preserve">
+    <value>Customer Information Module</value>
   </data>
   <data name="DatabaseProvider" xml:space="preserve">
     <value>Database Provider</value>
@@ -137,6 +146,9 @@
   </data>
   <data name="Directory" xml:space="preserve">
     <value>Directory</value>
+  </data>
+  <data name="FileManagerModuleDes" xml:space="preserve">
+    <value>File management using database storage</value>
   </data>
   <data name="GenerateDes" xml:space="preserve">
     <value>Code generate</value>
@@ -155,6 +167,9 @@
   </data>
   <data name="NewDes" xml:space="preserve">
     <value>Create new .NET solution</value>
+  </data>
+  <data name="OrderModuleDes" xml:space="preserve">
+    <value>Order Management Module</value>
   </data>
   <data name="RequestDes" xml:space="preserve">
     <value>Generate client request service and models</value>

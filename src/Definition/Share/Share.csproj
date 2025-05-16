@@ -9,13 +9,17 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Remove="Managers\**" />
+        <Compile Remove="Models\ToolsDtos\**" />
         <EmbeddedResource Remove="Managers\**" />
+        <EmbeddedResource Remove="Models\ToolsDtos\**" />
         <None Remove="Managers\**" />
+        <None Remove="Models\ToolsDtos\**" />
     </ItemGroup>
+
     <ItemGroup>
-        <Folder Include="Models\ModelInfos\" />
-        <Folder Include="Models\ToolsDtos\" />
+        <PackageReference Include="Spectre.Console" Version="0.50.0" />
     </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
         <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />

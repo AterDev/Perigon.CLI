@@ -1,7 +1,11 @@
-using Spectre.Console.Cli;
+using Share.Services;
 
 namespace CommandLine.Commands;
-public class AddCommand : AsyncCommand<AddCommand.Settings>
+/// <summary>
+/// add command
+/// </summary>
+/// <param name="dbContext"></param>
+public class AddCommand(CommandService commandService) : AsyncCommand<AddCommand.Settings>
 {
     public class Settings : CommandSettings
     {
@@ -11,9 +15,11 @@ public class AddCommand : AsyncCommand<AddCommand.Settings>
         public string Path { get; set; } = string.Empty;
     }
 
-
-    public override Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        throw new NotImplementedException();
+        var path = settings.Path;
+        var name = settings.Name;
+        var projectId = await commandService.AddProjectAsync(name, path);
+        return projectId == null ? 1 : 0;
     }
 }

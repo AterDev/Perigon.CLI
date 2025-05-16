@@ -1,7 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using Microsoft.EntityFrameworkCore;
-
-namespace Share.Infrastructure.Helper;
+namespace Share.Helper;
 /// <summary>
 /// 文件IO帮助类
 /// </summary>
