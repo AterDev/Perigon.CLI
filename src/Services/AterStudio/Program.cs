@@ -1,7 +1,6 @@
 using AterStudio;
 using AterStudio.Worker;
 using Mapster;
-using StudioMod;
 
 TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
 
@@ -16,7 +15,17 @@ builder.AddDefaultComponents();
 
 builder.AddDefaultWebServices();
 
+
+// add MCP Server
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport()
+    .WithToolsFromAssembly();
+
+
 WebApplication app = builder.Build();
+app.MapMcp();
+
 app.UseDefaultWebServices();
 
 using (app)
