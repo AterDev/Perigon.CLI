@@ -1,10 +1,12 @@
 using System.ComponentModel;
+using System.Data;
 using Share;
 using Share.Helper;
 using Share.Models.CommandDtos;
+using Share.Services;
 
 namespace CommandLine.Commands;
-public class NewCommand(Localizer localizer) : AsyncCommand<NewCommand.Settings>
+public class NewCommand(Localizer localizer, CommandService commandService) : AsyncCommand<NewCommand.Settings>
 {
     public class Settings : CommandSettings
     {
@@ -13,7 +15,7 @@ public class NewCommand(Localizer localizer) : AsyncCommand<NewCommand.Settings>
         public required string Name { get; set; }
     }
 
-    public override Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         AnsiConsole.WriteLine();
         // 1. 选择项目类型
@@ -90,7 +92,7 @@ public class NewCommand(Localizer localizer) : AsyncCommand<NewCommand.Settings>
                 }));
         OutputHelper.ClearLine();
 
-        AnsiConsole.Write(new Rule(localizer.Get(TipConst.SolutionSummary))
+        AnsiConsole.Write(new Spectre.Console.Rule(localizer.Get(TipConst.SolutionSummary))
             .RuleStyle("yellow").Centered()); // 打印一个规则线作为分隔和标题
 
         var summaryTable = new Table()
@@ -116,8 +118,25 @@ public class NewCommand(Localizer localizer) : AsyncCommand<NewCommand.Settings>
             OutputHelper.Info("creating solution!");
 
             // TODO:具体创建逻辑
+            var dto = new CreateSolutionDto
+            {
+                Name = settings.Name,
+                Path = targetDirectory,
+                IsLight = solutionType == TipConst.SolutionTypeMini,
+                DBType = dbType == TipConst.DatabasePostgreSql ? DBType.PostgreSQL : DBType.SQLServer,
+                CacheType = cacheType == TipConst.CacheTypeHybrid ? CacheType.Hybrid
+                    : cacheType == TipConst.CacheTypeMemory ? CacheType.Memory : CacheType.Redis,
+                CommandDbConnStrings = dbConnectionString,
+                QueryDbConnStrings = dbConnectionString,
+                CacheConnStrings = cacheConnectionString,
+            };
+            if (selectModules.Count > 0)
+            {
+                dto.Modules = selectModules.Select(m => m.Name).ToList();
+            }
+            await commandService.CreateSolutionAsync(dto);
             OutputHelper.Success(localizer.Get(TipConst.CreateSolutionSuccess));
         }
-        return Task.FromResult(0);
+        return 0;
     }
 }

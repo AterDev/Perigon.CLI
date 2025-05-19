@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using Share.Models.CommandDtos;
-using StudioMod.Services;
 
 namespace StudioMod.Managers;
 /// <summary>
@@ -10,6 +9,7 @@ public class SolutionManager(
     IProjectContext projectContext,
     ProjectManager projectManager,
     ILogger<SolutionManager> logger,
+    CommandService commandService,
     SolutionService solution
     )
 {
@@ -17,6 +17,7 @@ public class SolutionManager(
     private readonly ProjectManager _projectManager = projectManager;
     private readonly ILogger<SolutionManager> _logger = logger;
     private readonly SolutionService _solution = solution;
+    private readonly CommandService _commandService = commandService;
 
     public string ErrorMsg { get; set; } = string.Empty;
 
@@ -35,76 +36,7 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<bool> CreateNewSolutionAsync(CreateSolutionDto dto)
     {
-        // 生成项目
-        string solutionPath = Path.Combine(dto.Path, dto.Name);
-        string apiName = "Http.API";
-        string templateType = dto.IsLight ? "atlight" : "atapi";
-
-        string version = AssemblyHelper.GetCurrentToolVersion();
-
-        if (ProcessHelper.RunCommand("dotnet", $"new list atapi", out _))
-        {
-            ProcessHelper.RunCommand("dotnet", $"new update", out _);
-        }
-        else
-        {
-            ProcessHelper.RunCommand("dotnet", $"new install ater.web.templates::{version}", out string msg);
-            Console.WriteLine(msg);
-        }
-
-        if (!Directory.Exists(dto.Path))
-        {
-            Directory.CreateDirectory(solutionPath);
-        }
-        if (!ProcessHelper.RunCommand("dotnet", $"new {templateType} -o {solutionPath} --force", out _))
-        {
-            ErrorMsg = "创建项目失败，请尝试使用空目录创建";
-            return false;
-        }
-        await Console.Out.WriteLineAsync($"✅ create new solution {solutionPath}");
-
-        // 更新配置文件
-        UpdateAppSettings(dto, solutionPath, apiName);
-
-        // 前端项目处理
-        if (dto.FrontType == FrontType.None)
-        {
-            string appPath = Path.Combine(solutionPath, "src", "ClientApp");
-            if (Directory.Exists(appPath))
-            {
-                Directory.Delete(appPath, true);
-            }
-        }
-
-        if (!dto.IsLight)
-        {
-            List<string> allModules = ModuleInfo.GetModules().Select(m => m.Value).ToList();
-
-            List<string> notChoseModules = allModules.Except(dto.Modules).ToList();
-            foreach (string? item in notChoseModules)
-            {
-                _solution.CleanModule(item);
-            }
-            foreach (string item in dto.Modules)
-            {
-                SolutionService.AddDefaultModule(item, solutionPath);
-            }
-        }
-
-        // 保存项目信息
-        var projectFilePath = Directory.GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(solutionPath, $"*{ConstVal.SolutionXMLExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(solutionPath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly).FirstOrDefault();
-        var id = await _projectManager.AddAsync(dto.Name, projectFilePath);
-        // restore & build solution
-        Console.WriteLine("⛏️ restore & build project!");
-        if (!ProcessHelper.RunCommand("dotnet", $"build {solutionPath}", out _))
-        {
-            ErrorMsg = "项目创建成功，但构建失败，请查看错误信息!";
-            return false;
-        }
-        return true;
+        return await _commandService.CreateSolutionAsync(dto);
     }
 
     /// <summary>

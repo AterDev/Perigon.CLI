@@ -1,21 +1,22 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "ater.niltor",
+  "author": "Niltor",
   "classifications": [
     "Web",
     "Web API",
     "API",
-    "Service"
+    "Entity Framework Core",
+    "ASP.NET Core",
+    "Web Framework"
   ],
   "identity": "Ater.Web.Standard",
   "name": "Ater Web API Standard",
-  "shortName": "atapi",
+  "shortName": "ater-standard",
   "tags": {
     "language": "C#",
     "type": "project"
   },
   "sourceName": "MyProjectName",
   "preferNameDirectory": true,
-  "sources": [
-  ]
+  "sources": []
 }

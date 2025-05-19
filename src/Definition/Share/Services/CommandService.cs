@@ -37,7 +37,7 @@ public class CommandService(CommandDbContext context)
         return await context.SaveChangesAsync() > 0 ? entity.Id : null;
     }
 
-    public bool CreateSolution(CreateSolutionDto dto)
+    public async Task<bool> CreateSolutionAsync(CreateSolutionDto dto)
     {
         // 生成项目
         string solutionPath = Path.Combine(dto.Path, dto.Name);
@@ -46,7 +46,7 @@ public class CommandService(CommandDbContext context)
 
         string version = AssemblyHelper.GetCurrentToolVersion();
 
-        if (ProcessHelper.RunCommand("dotnet", $"new list atapi", out _))
+        if (ProcessHelper.RunCommand("dotnet", $"new list ater-{templateType}", out _))
         {
             ProcessHelper.RunCommand("dotnet", $"new update", out _);
         }
@@ -60,10 +60,10 @@ public class CommandService(CommandDbContext context)
         {
             Directory.CreateDirectory(solutionPath);
         }
-        if (!ProcessHelper.RunCommand("dotnet", $"new {templateType} -o {solutionPath} --force", out string error))
+        if (!ProcessHelper.RunCommand("dotnet", $"new ater-{templateType} -o {solutionPath} --force", out string error))
         {
             OutputHelper.Error(error);
-            ErrorMsg = "创建项目失败，请尝试使用空目录创建";
+            ErrorMsg = "Create failed, check the error output.";
             return false;
         }
 
@@ -82,21 +82,12 @@ public class CommandService(CommandDbContext context)
             }
         }
 
-        if (!dto.IsLight)
+        if (!dto.IsLight && dto.Modules.Count > 0)
         {
-            List<string> allModules = ModuleInfo.GetModules().Select(m => m.Value).ToList();
-
-            List<string> notChoseModules = allModules.Except(dto.Modules).ToList();
-            foreach (string? item in notChoseModules)
-            {
-                // TODO:从解决方案中删除模块
-                /// <see cref="SolutionManager.CleanModule(string)"/>
-
-            }
             foreach (string item in dto.Modules)
             {
-                // TODO:    添加模块到解决方案中？
-                // SolutionService.AddDefaultModule(item, solutionPath);
+                // 添加模块到解决方案中
+                SolutionService.AddDefaultModule(item, solutionPath);
             }
         }
 
@@ -106,15 +97,19 @@ public class CommandService(CommandDbContext context)
         projectFilePath ??= Directory.GetFiles(solutionPath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
         projectFilePath ??= Directory.GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly).FirstOrDefault();
 
-        //var id = await _projectManager.AddAsync(dto.Name, projectFilePath);
 
-        // restore & build solution
-        Console.WriteLine("⛏️ restore & build project!");
-        if (!ProcessHelper.RunCommand("dotnet", $"build {solutionPath}", out _))
+        var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
+        var solutionName = Path.GetFileName(projectFilePath) ?? dto.Name;
+        var entity = new Project()
         {
-            ErrorMsg = "项目创建成功，但构建失败，请查看错误信息!";
-            return false;
-        }
+            DisplayName = dto.Name,
+            Path = solutionPath,
+            Name = solutionName,
+            SolutionType = solutionType
+        };
+        entity.Config.SolutionPath = solutionPath;
+        await context.Projects.AddAsync(entity);
+        await context.SaveChangesAsync();
         return true;
     }
 
@@ -137,11 +132,21 @@ public class CommandService(CommandDbContext context)
         {
             JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Database", dto.DBType.ToString());
             JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Cache", dto.CacheType.ToString());
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "Key.DefaultPassword", dto.DefaultPassword ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CommandDb", dto.CommandDbConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.QueryDb", dto.QueryDbConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.Cache", dto.CacheConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CacheInstanceName", dto.CacheInstanceName ?? "");
+
+            if (dto.CommandDbConnStrings.NotEmpty())
+            {
+                JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CommandDb", dto.CommandDbConnStrings);
+            }
+
+            if (dto.QueryDbConnStrings.NotEmpty())
+            {
+                JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.QueryDb", dto.QueryDbConnStrings);
+            }
+            if (dto.CacheConnStrings.NotEmpty())
+            {
+                JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.Cache", dto.CacheConnStrings);
+            }
+            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CacheInstanceName", dto.CacheInstanceName ?? "Dev");
 
             jsonString = jsonNode.ToString();
             File.WriteAllText(configFile, jsonString);

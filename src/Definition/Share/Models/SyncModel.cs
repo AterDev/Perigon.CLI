@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StudioMod.Models;
+namespace Share.Models;
 /// <summary>
 /// 同步模型
 /// </summary>

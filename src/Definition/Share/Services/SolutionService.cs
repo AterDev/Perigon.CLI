@@ -1,8 +1,9 @@
 using CodeGenerator;
+using CodeGenerator.Helper;
 using Humanizer;
 using Share.Models.CommandDtos;
 
-namespace StudioMod.Services;
+namespace Share.Services;
 /// <summary>
 /// 解决方案相关功能
 /// </summary>
@@ -19,7 +20,6 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
     /// <summary>
     /// 创建模块
     /// </summary>
-    /// <param name="ModuleName"></param>
     public async Task CreateModuleAsync(string moduleName)
     {
         string moduleDir = Path.Combine(SolutionPath, PathConst.ModulesPath);
@@ -356,7 +356,6 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
     /// </summary>
     /// <param name="sourceDir"></param>`
     /// <param name="destinationDir"></param>
-    /// <param name="recursive"></param>
     private static void CopyModuleFiles(string sourceDir, string destinationDir)
     {
         DirectoryInfo dir = new(sourceDir);
@@ -375,7 +374,7 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         foreach (DirectoryInfo subDir in dirs)
         {
             // 过滤不必要的目录
-            if (subDir.Name is "Entity" or "Application")
+            if (subDir.Name is ConstVal.EntityName)
             {
                 continue;
             }

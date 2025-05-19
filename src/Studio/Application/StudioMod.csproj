@@ -14,4 +14,8 @@
         <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Services\" />
+    </ItemGroup>
 </Project>

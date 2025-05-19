@@ -1,6 +1,3 @@
-using StudioMod.Managers;
-using StudioMod.Models;
-
 namespace AterStudio.Controllers;
 /// <summary>
 /// Tools
@@ -19,7 +16,7 @@ public class ToolsController(ToolsManager toolsManager) : ControllerBase
     public ActionResult<List<string>?> ConvertToClass([FromBody] ConvertDto dto)
     {
         List<string>? res = _toolsManager.ConvertToClass(dto.Content);
-        return res == null ? (ActionResult<List<string>?>)Problem("未能转换成功,请输入合法的json") : (ActionResult<List<string>?>)res;
+        return res == null ? Problem("未能转换成功,请输入合法的json") : res;
     }
 
     /// <summary>

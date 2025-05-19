@@ -107,7 +107,7 @@ public class ProjectController(
     public async Task<ActionResult<bool>> UpdateConfigAsync([FromRoute] Guid id, ProjectConfig dto)
     {
         var project = await _manager.GetCurrentAsync(id);
-        return project == null ? (ActionResult<bool>)NotFound() : (ActionResult<bool>)await _manager.UpdateConfigAsync(project, dto);
+        return project == null ? NotFound() : await _manager.UpdateConfigAsync(project, dto);
     }
 
     /// <summary>
