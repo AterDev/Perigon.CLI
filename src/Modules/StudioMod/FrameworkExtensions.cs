@@ -5,15 +5,18 @@ namespace StudioMod;
 /// <summary>
 /// 服务注册扩展
 /// </summary>
-public static partial class AppServiceCollectionExtensions
+public static partial class FrameworkExtensions
 {
     /// <summary>
     /// 添加默认应用组件
     /// pgsql/redis/otlp
     /// </summary>
     /// <returns></returns>
-    public static IHostApplicationBuilder AddDefaultComponents(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<UserContext>();
+
         builder.AddDbContext();
         builder.Services.AddMemoryCache();
         return builder;
@@ -25,6 +28,9 @@ public static partial class AppServiceCollectionExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddScoped(typeof(DataAccessContext<>));
+        builder.Services.AddScoped(typeof(DataAccessContext));
+
         var dir = AssemblyHelper.GetStudioPath();
         if (!Directory.Exists(dir))
         {

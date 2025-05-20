@@ -7,6 +7,9 @@
     <File Path="scripts/SetVersion.ps1" />
     <File Path="scripts/SyncInfrastructure.ps1" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+  </Folder>
   <Folder Name="/src/">
   </Folder>
 
@@ -25,6 +28,7 @@
     <Project Path="src\Modules\StudioMod\StudioMod.csproj" />
   </Folder>
   <Folder Name="/src/Services/">
+    <Project Path="src/Services/MCPServer/MCPServer.csproj" Id="9537c799-bb9d-4faf-9bd2-21a3a9604573" />
     <Project Path="src\Services\AterStudio\AterStudio.csproj" />
   </Folder>
 

@@ -1,0 +1,7 @@
+{
+  "servers": {
+    "ater": {
+      "url": "http://localhost:5278/mcp"
+    }
+  }
+}

@@ -1,10 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
-using CodeGenerator.Models;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.OpenApi.Models;
-using Share.Services;
 
 namespace AterStudio;
 
@@ -15,22 +11,9 @@ public static class ServiceCollectionExtension
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static IServiceCollection AddDefaultWebServices(this WebApplicationBuilder builder)
+    public static IServiceCollection AddMiddlewareServices(this WebApplicationBuilder builder)
     {
-        builder.Services.ConfigWebComponents(builder.Configuration);
-        builder.Services.AddHttpContextAccessor();
-
-        builder.Services.AddScoped<IProjectContext, ProjectContext>();
-
-        builder.Services.AddScoped<CodeAnalysisService>();
-        builder.Services.AddScoped<CodeGenService>();
-        builder.Services.AddScoped<CommandService>();
-        builder.Services.AddScoped<SolutionService>();
-
-
-        builder.Services.AddLocalizer();
-
-        //builder.Services.AddManagers();
+        builder.Services.ConfigureWebMiddleware(builder.Configuration);
 
         builder.Services.AddControllers()
             .ConfigureApiBehaviorOptions(o =>
@@ -49,13 +32,13 @@ public static class ServiceCollectionExtension
         return builder.Services;
     }
 
-    public static WebApplication UseDefaultWebServices(this WebApplication app)
+    public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
         // 异常统一处理
         app.UseExceptionHandler(ExceptionHandler.Handler());
         app.UseCors(WebConst.Default);
+        app.MapOpenApi();
 
-        app.UseSwagger();
         app.UseStaticFiles();
         app.UseRouting();
         app.UseAuthentication();
@@ -72,9 +55,11 @@ public static class ServiceCollectionExtension
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigWebComponents(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOpenApi();
+        services.AddOpenApi("admin");
+        services.AddLocalizer();
+
         return services;
     }
 
@@ -88,7 +73,6 @@ public static class ServiceCollectionExtension
         services.AddLocalization();
         services.AddRequestLocalization(options =>
         {
-            // TODO:添加更多语言支持
             var supportedCultures = new[] { "zh-CN", "en-US" };
             options.SetDefaultCulture(supportedCultures[0])
                 .AddSupportedCultures(supportedCultures)
@@ -96,48 +80,6 @@ public static class ServiceCollectionExtension
             options.FallBackToParentCultures = true;
             options.FallBackToParentUICultures = true;
             options.ApplyCurrentCultureToResponseHeaders = true;
-        });
-        return services;
-    }
-
-    /// <summary>
-    /// 添加swagger服务
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddOpenApi(this IServiceCollection services)
-    {
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("admin", new OpenApiInfo
-            {
-                Title = "AterStudio API doc",
-                Description = "Studio API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
-                Version = "v1"
-            });
-            var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly);
-            foreach (var item in xmlFiles)
-            {
-                try
-                {
-                    c.IncludeXmlComments(item, includeControllerXmlComments: true);
-                }
-                catch (Exception) { }
-            }
-            c.SupportNonNullableReferenceTypes();
-            c.DescribeAllParametersInCamelCase();
-            c.CustomOperationIds((z) =>
-            {
-                var descriptor = (ControllerActionDescriptor)z.ActionDescriptor;
-                return $"{descriptor.ControllerName}_{descriptor.ActionName}";
-            });
-            c.SchemaFilter<EnumSchemaFilter>();
-            c.MapType<DateOnly>(() => new OpenApiSchema
-            {
-                Type = JsonSchemaType.String,
-                Format = "date"
-            });
         });
         return services;
     }

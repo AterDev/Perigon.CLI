@@ -1,6 +1,7 @@
 using AterStudio;
 using AterStudio.Worker;
 using Mapster;
+using Share.Services;
 
 TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
 
@@ -11,8 +12,18 @@ builder.Logging.AddSimpleConsole(options =>
     options.TimestampFormat = "⏱️ HH:mm:ss ";
 });
 
-builder.AddDefaultComponents();
-builder.AddDefaultWebServices();
+builder.AddFrameworkServices();
+builder.AddMiddlewareServices();
+
+builder.Services.AddManagers();
+
+// services 
+builder.Services.AddScoped<IProjectContext, ProjectContext>();
+
+builder.Services.AddScoped<CodeAnalysisService>();
+builder.Services.AddScoped<CodeGenService>();
+builder.Services.AddScoped<CommandService>();
+builder.Services.AddScoped<SolutionService>();
 
 // add MCP Server
 builder.Services.AddMcpServer()
@@ -20,9 +31,9 @@ builder.Services.AddMcpServer()
     .WithToolsFromAssembly();
 
 WebApplication app = builder.Build();
-app.MapMcp();
+app.MapMcp("mcp");
 
-app.UseDefaultWebServices();
+app.UseMiddlewareServices();
 
 using (app)
 {

@@ -1,15 +1,14 @@
 global using System;
 global using System.Collections.Generic;
 global using System.IO;
-global using System.Linq;
 global using System.Text.Json;
 global using CodeGenerator.Generate;
 global using Entity.StudioMod;
 global using EntityFramework.DBProvider;
 global using Framework.Common.Converters;
 global using Framework.Common.Models;
-global using Framework.Common.Utils;
 global using Framework.Web.Convention;
+global using Http.API.Extension;
 global using Microsoft.AspNetCore.Mvc;
 global using Share;
 global using Share.Implement;
