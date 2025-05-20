@@ -1,7 +1,7 @@
 {
     "inputs": [],
     "servers": {
-        "my-mcp-server-8d337114": {
+        "ater": {
             "url": "http://localhost:5278/mcp"
         }
     }
