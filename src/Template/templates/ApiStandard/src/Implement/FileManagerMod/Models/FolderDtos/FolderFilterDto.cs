@@ -1,4 +1,4 @@
-using Framework.Common.Models;
+using Ater.Common.Models;
 
 namespace FileManagerMod.Models.FolderDtos;
 /// <summary>

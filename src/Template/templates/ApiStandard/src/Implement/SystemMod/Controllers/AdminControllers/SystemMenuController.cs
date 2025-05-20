@@ -1,3 +1,4 @@
+using Ater.Common.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Share.Implement;

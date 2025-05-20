@@ -1,6 +1,5 @@
 using Microsoft.OpenApi.Readers;
 using Share.Models.ApiDocInfoDtos;
-using StudioMod.Models;
 
 namespace StudioMod.Managers;
 /// <summary>

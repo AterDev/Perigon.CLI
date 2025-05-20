@@ -1,5 +1,6 @@
-﻿using EntityFramework.DBProvider;
-using Framework.Web.Convention.EntityFramework;
+using Ater.Common.Models;
+using Ater.Web.Convention.EntityFramework;
+using EntityFramework.DBProvider;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace EntityFramework;

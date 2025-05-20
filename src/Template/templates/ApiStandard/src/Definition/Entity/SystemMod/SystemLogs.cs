@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
+using Ater.Common.Models;
 
 namespace Entity.SystemMod;
 /// <summary>

@@ -1,4 +1,4 @@
-using Framework.Common.Models;
+using Ater.Common.Models;
 
 namespace CustomerMod.Models.CustomerInfoDtos;
 /// <summary>

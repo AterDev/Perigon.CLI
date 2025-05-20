@@ -27,7 +27,10 @@ public static class ServiceCollectionExtension
         builder.Services.AddScoped<CommandService>();
         builder.Services.AddScoped<SolutionService>();
 
-        builder.Services.AddManagers();
+
+        builder.Services.AddLocalizer();
+
+        //builder.Services.AddManagers();
 
         builder.Services.AddControllers()
             .ConfigureApiBehaviorOptions(o =>

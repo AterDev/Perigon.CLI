@@ -1,7 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
+using Ater.Common.Utils;
 using Entity.CustomerMod;
 using Entity.UserMod;
-using Framework.Common.Utils;
 
 namespace Entity.OrderMod;
 /// <summary>

@@ -1,2 +1,2 @@
-﻿global using Framework.Web.Convention;
+global using Ater.Web.Convention;
 global using EntityFramework.DBProvider;

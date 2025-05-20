@@ -1,4 +1,5 @@
-﻿using MigrationService;
+using Ater.Web.Convention;
+using MigrationService;
 using ServiceDefaults;
 
 var builder = Host.CreateApplicationBuilder(args);

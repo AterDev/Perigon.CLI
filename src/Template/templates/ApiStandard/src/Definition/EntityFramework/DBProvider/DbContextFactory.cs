@@ -1,3 +1,4 @@
+using Ater.Common.Options;
 using Microsoft.Extensions.Configuration;
 
 namespace EntityFramework.DBProvider;

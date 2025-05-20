@@ -1,4 +1,6 @@
-﻿namespace Entity.SystemMod;
+using Ater.Common.Models;
+
+namespace Entity.SystemMod;
 /// <summary>
 /// 组织结构
 /// </summary>
