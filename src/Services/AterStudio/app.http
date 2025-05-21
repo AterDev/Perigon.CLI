@@ -1,10 +1,2 @@
-# For more info on HTTP files go to https://aka.ms/vs/httpfile
-@address = http://localhost:5278/mcp
+@address = http://localhost:5278/
 
-
-### 
-
-POST {{address}}/tools/list                        
-Content-Type: application/json
-Accept: application/json,text/event-stream
-{}

@@ -9,5 +9,4 @@ namespace AterStudio.McpTools;
 public sealed class ProjectTools
 {
 
-
 }
