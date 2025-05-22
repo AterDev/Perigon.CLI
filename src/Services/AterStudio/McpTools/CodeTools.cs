@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text;
 using ModelContextProtocol.Server;
 
 namespace AterStudio.McpTools;
@@ -48,7 +49,10 @@ public class CodeTools(
     }
 
     [McpServerTool, Description("生成前端请求服务")]
-    public string? GenerateService([Description("openapi的url地址或本地路径")] string openApiPath, [Description("生成的目标根目录")] string outputPath, [Description("前端请求类型,NgHttp或Axios")] RequestLibType clientType)
+    public string? GenerateService(
+        [Description("openapi的url地址或本地路径")] string openApiPath,
+        [Description("生成的目标根目录")] string outputPath,
+        [Description("前端请求类型,NgHttp或Axios")] RequestLibType clientType)
     {
         logger.LogInformation(openApiPath, outputPath, clientType.ToString());
         return "Service Generation Completed";
@@ -95,7 +99,6 @@ public class CodeTools(
             }
 
             await projectContext.SetProjectAsync(solutionPath);
-            logger.LogInformation($"生成{type}，路径：{entityPath},root:{solutionPath}");
             var dto = new GenerateDto
             {
                 EntityPath = entityPath,
@@ -104,12 +107,17 @@ public class CodeTools(
             };
 
             var res = await manager.GenerateAsync(dto);
-            var resDes = string.Empty;
+            var resDes = new StringBuilder("<result>");
             foreach (var file in res)
             {
-                resDes += $"已生成文件{file.Name}，路径: {file.FullName}.{Environment.NewLine}";
+                resDes.Append("成功生成文件:")
+                      .Append(file.Name)
+                      .Append("，路径: ")
+                      .AppendLine(file.FullName);
+
             }
-            return resDes;
+            resDes.Append("</result>");
+            return resDes.ToString();
         }
         catch (Exception ex)
         {

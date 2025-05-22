@@ -97,28 +97,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             ModuleName = entityInfo.ModuleName
         };
 
-        var managerDIFile = GetManagerService(entityInfo, outputPath);
-        return [globalFile, managerFile, managerDIFile];
-    }
-
-    /// <summary>
-    /// Manager服务注入内容
-    /// </summary>
-    /// <returns></returns>
-    public GenFileInfo GetManagerService(EntityInfo entityInfo, string outputPath)
-    {
-        var managerPath = Path.Combine(outputPath, ConstVal.ManagersDir);
-        string content = ManagerGenerate.GetManagerServiceContent(managerPath, entityInfo.ModuleName);
-        string name = entityInfo.ModuleName.IsEmpty()
-            ? ConstVal.ManagerServiceExtensionsFile
-            : ConstVal.ServiceExtensionsFile;
-
-        return new GenFileInfo(name, content)
-        {
-            IsCover = true,
-            FullName = Path.Combine(outputPath, name),
-            ModuleName = entityInfo.ModuleName
-        };
+        return [globalFile, managerFile];
     }
 
     /// <summary>

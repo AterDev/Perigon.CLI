@@ -1,4 +1,3 @@
-﻿using System.Text.Json.Nodes;
 using CodeGenerator.Models;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Extensions;
@@ -231,8 +230,8 @@ public class OpenApiService
 
         if (extEnumData.Value != null)
         {
-            var jsonString = extEnumData.Value.ToString();
-            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(jsonString));
+            //var jsonString = extEnumData.Value.ToString();
+            //var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(jsonString));
 
             OpenApiArray? data = extEnumData.Value as OpenApiArray;
             data?.ForEach(item =>

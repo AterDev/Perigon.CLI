@@ -16,9 +16,9 @@ public class TplContent
             public class @(Model.EntityName)Manager(
                 DataAccessContext<@(Model.EntityName)> dataContext, 
                 ILogger<@(Model.EntityName)Manager> logger,
-                IUserContext userContext) : ManagerBase<@(Model.EntityName)>(dataContext, logger)
+                UserContext userContext) : ManagerBase<@(Model.EntityName)>(dataContext, logger)
             {
-                private readonly IUserContext _userContext = userContext;
+                private readonly UserContext _userContext = userContext;
 
                 /// <summary>
                 /// 添加实体
@@ -68,7 +68,6 @@ public class TplContent
                 /// <returns></returns>
                 public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
                 {
-                    // 自定义唯一性验证参数和逻辑
                     return await Command.Where(q => q.Id.ToString() == unique)
                         .WhereNotNull(id, q => q.Id != id)
                         .AnyAsync();
@@ -101,61 +100,6 @@ public class TplContent
             """;
     }
 
-    /// <summary>
-    /// 获取服务注入扩展模板
-    /// </summary>
-    /// <param name="isModule"></param>
-    /// <returns></returns>
-    public static string ManagerServiceExtensionTpl(bool isModule = false)
-    {
-        return isModule ?
-            $$"""
-            using @(Model.Namespace).{{ConstVal.ManagersDir}};
-
-            namespace @(Model.Namespace);
-            /// <summary>
-            /// 服务注入扩展
-            /// </summary>
-            public static class ServiceCollectionExtensions
-            {
-                /// <summary>
-                /// 添加模块服务
-                /// </summary>
-                /// <param name="services"></param>
-                /// <returns></returns>
-                public static IServiceCollection Add@(Model.Namespace)Services(this IServiceCollection services)
-                {
-                    services.Add@(Model.Namespace)Managers();
-                    // add other services
-                    return services;
-                }
-
-
-                /// <summary>
-                /// 添加@(Model.Namespace) 注入服务
-                /// </summary>
-                /// <param name="services"></param>
-                public static IServiceCollection Add@(Model.Namespace)Managers(this IServiceCollection services)
-                {
-            @Model.ManagerServices
-                    return services;
-                }
-            }
-            """ :
-            $$"""
-            namespace @(Model.Namespace);
-            public static partial class {{ConstVal.ManagerServiceExtensionsFile}}
-            {
-                public static IServiceCollection AddManagers(this IServiceCollection services)
-                {
-                    services.AddScoped(typeof(DataAccessContext<>));
-            @Model.ManagerServices
-                    return services;
-                }
-            }
-            """;
-
-    }
     public static string ControllerTpl(bool isAdmin = true)
     {
         var baseClass = isAdmin ? "RestControllerBase" : "ClientControllerBase";
