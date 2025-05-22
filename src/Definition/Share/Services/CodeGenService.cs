@@ -280,6 +280,8 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             return;
         }
+        var sb = new StringBuilder();
+        sb.AppendLine();
         foreach (var file in files)
         {
             if (file.IsCover || !File.Exists(file.FullName))
@@ -289,10 +291,33 @@ public class CodeGenService(ILogger<CodeGenService> logger)
                 {
                     Directory.CreateDirectory(dir!);
                 }
-                File.WriteAllText(file.FullName, file.Content, new UTF8Encoding(false));
-                _logger.LogInformation("🆕📄 :{path}", file.FullName);
+                // 换行合并处理
+                if (file.FileType == GenFileType.Global)
+                {
+                    var globalLines = File.Exists(file.FullName)
+                        ? File.ReadLines(file.FullName)
+                        : [];
+
+                    var newLines = file.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                    var lines = globalLines.ToList();
+                    foreach (var line in newLines)
+                    {
+                        if (!lines.Contains(line))
+                        {
+                            lines.Add(line);
+                        }
+                    }
+                    File.WriteAllLines(file.FullName, lines, new UTF8Encoding(false));
+                }
+                else
+                {
+                    File.WriteAllText(file.FullName, file.Content, new UTF8Encoding(false));
+                }
+                sb.AppendLine(file.FullName);
             }
         }
+        _logger.LogInformation("🆕[files]: {path}", sb.ToString());
     }
 
     /// <summary>

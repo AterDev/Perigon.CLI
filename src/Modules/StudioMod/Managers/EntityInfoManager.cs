@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using CodeGenerator;
-using CodeGenerator.Helper;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
 

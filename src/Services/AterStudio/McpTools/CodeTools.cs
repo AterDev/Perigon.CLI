@@ -74,14 +74,6 @@ public class CodeTools(
 
         try
         {
-            if (roots.Roots.Count > 0)
-            {
-                foreach (var root in roots.Roots)
-                {
-                    logger.LogInformation($"获取到的根目录：{root.Name}, {root.Uri}, {root?.Meta?.ToString()}");
-                }
-            }
-
             var uri = roots.Roots.FirstOrDefault()?.Uri;
             if (string.IsNullOrEmpty(uri))
             {
@@ -108,15 +100,13 @@ public class CodeTools(
 
             var res = await manager.GenerateAsync(dto);
             var resDes = new StringBuilder("<result>");
+            resDes.AppendLine("受影响的文件路径:");
             foreach (var file in res)
             {
-                resDes.Append("成功生成文件:")
-                      .Append(file.Name)
-                      .Append("，路径: ")
-                      .AppendLine(file.FullName);
-
+                resDes.AppendLine(file.FullName);
             }
             resDes.Append("</result>");
+            resDes.AppendLine("在对话中列出以上文件，标记出新增或修改的文件");
             return resDes.ToString();
         }
         catch (Exception ex)
@@ -124,7 +114,5 @@ public class CodeTools(
             logger.LogError("{ex}", ex);
             return "工具出错：" + ex.Message;
         }
-
     }
-
 }
