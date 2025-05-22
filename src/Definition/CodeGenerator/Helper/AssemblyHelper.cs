@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Xml.Linq;
+using Entity;
 using Entity.StudioMod;
 
 namespace CodeGenerator.Helper;

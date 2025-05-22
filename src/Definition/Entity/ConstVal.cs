@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Entity.StudioMod;
+namespace Entity;
 public static class ConstVal
 {
     public const string Version = "10.0.0";
@@ -22,7 +22,7 @@ public static class ConstVal
     public const string StudioFileName = "AterStudio.dll";
 
     // assembly name
-    public const string ApplicationName = "Application";
+    public const string CommonMod = "CommonMod";
     public const string ShareName = "Share";
     public const string EntityName = "Entity";
     public const string APIName = "Http.API";
@@ -83,7 +83,7 @@ public static class ConstVal
 public static class PathConst
 {
     public static readonly string APIPath = Path.Combine(ConstVal.SrcDir, ConstVal.APIName);
-    public static readonly string ApplicationPath = Path.Combine(ConstVal.SrcDir, ConstVal.ApplicationName);
+    public static readonly string CommonModPath = Path.Combine(ConstVal.SrcDir, ConstVal.CommonMod);
     public static readonly string DefinitionPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir);
     public static readonly string SharePath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.ShareName);
     public static readonly string EntityPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityName);

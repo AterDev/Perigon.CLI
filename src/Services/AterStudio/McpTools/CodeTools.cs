@@ -7,7 +7,7 @@ namespace AterStudio.McpTools;
 /// 代码生成MCP工具
 /// </summary>
 [McpServerToolType]
-public class CodeTools(ILogger<CodeTools> logger)
+public class CodeTools(ILogger<CodeTools> logger, EntityInfoManager manager)
 {
     [McpServerTool, Description("创建实体模型类")]
     public string? NewEntity([Description("用户输入的提示词内容")] string prompt)
@@ -27,24 +27,21 @@ public class CodeTools(ILogger<CodeTools> logger)
     }
 
     [McpServerTool, Description("根据实体模型生成Dto")]
-    public string? GenerateDto([Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateDtoAsync([Description("实体模型文件的绝对路径")] string entityPath)
     {
-        logger.LogInformation(entityPath);
-        return "DTO Generation Completed";
+        return await GenerateAsync(entityPath, CommandType.Dto);
     }
 
     [McpServerTool, Description("根据实体模型生成Manager")]
-    public string? GenerateManager([Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateManagerAsync([Description("实体模型文件的绝对路径")] string entityPath)
     {
-        logger.LogInformation(entityPath);
-        return "Manager Generation Completed";
+        return await GenerateAsync(entityPath, CommandType.Manager);
     }
 
     [McpServerTool, Description("根据实体模型生成Controller")]
-    public string? GenerateController([Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateControllerAsync([Description("实体模型文件的绝对路径")] string entityPath)
     {
-        logger.LogInformation(entityPath);
-        return "Controller Generation Completed";
+        return await GenerateAsync(entityPath, CommandType.API);
     }
 
     [McpServerTool, Description("生成前端请求服务")]
@@ -53,4 +50,29 @@ public class CodeTools(ILogger<CodeTools> logger)
         logger.LogInformation(openApiPath, outputPath, clientType.ToString());
         return "Service Generation Completed";
     }
+
+    /// <summary>
+    /// 生成服务
+    /// </summary>
+    /// <returns></returns>
+    private async Task<string> GenerateAsync(string entityPath, CommandType type)
+    {
+
+        logger.LogInformation($"生成{type}，路径：{entityPath}");
+        var dto = new GenerateDto
+        {
+            EntityPath = entityPath,
+            CommandType = type,
+            Force = true,
+        };
+
+        var res = await manager.GenerateAsync(dto);
+        var resDes = string.Empty;
+        foreach (var file in res)
+        {
+            resDes += $"已生成文件{file.Name}，路径: {file.FullName}.{Environment.NewLine}";
+        }
+        return resDes;
+    }
+
 }

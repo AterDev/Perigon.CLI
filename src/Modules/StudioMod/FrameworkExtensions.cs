@@ -1,3 +1,4 @@
+using Entity;
 using Microsoft.Extensions.Hosting;
 
 namespace StudioMod;

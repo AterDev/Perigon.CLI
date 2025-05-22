@@ -1,3 +1,4 @@
+using Entity;
 using Entity.StudioMod;
 
 namespace CodeGenerator.Models;

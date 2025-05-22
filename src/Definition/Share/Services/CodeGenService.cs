@@ -3,6 +3,7 @@ using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
+using Entity;
 using Microsoft.OpenApi.Readers;
 
 namespace Share.Services;
@@ -20,7 +21,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath">输出项目目录</param>
     /// <param name="isCover">是否覆盖</param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateDtosAsync(EntityInfo entityInfo, string outputPath, bool isCover = false)
+    public List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string outputPath, bool isCover = false)
     {
         _logger.LogInformation("🚀 Generating Dtos...");
         // 生成Dto

@@ -1,4 +1,4 @@
-using Entity.StudioMod;
+using Entity;
 
 namespace CodeGenerator;
 /// <summary>

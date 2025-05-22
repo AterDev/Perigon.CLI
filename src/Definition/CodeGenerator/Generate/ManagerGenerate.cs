@@ -1,4 +1,4 @@
-using Entity.StudioMod;
+using Entity;
 
 namespace CodeGenerator.Generate;
 
@@ -92,7 +92,7 @@ public class ManagerGenerate(EntityInfo entityInfo)
     /// <returns></returns>
     public static string GetManagerServiceContent(string managerPath, string? moduleName = null)
     {
-        var nspName = moduleName ?? ConstVal.ApplicationName;
+        var nspName = moduleName ?? ConstVal.CommonMod;
 
         if (!Directory.Exists(managerPath))
         {

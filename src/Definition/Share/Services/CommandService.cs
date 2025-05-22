@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using CodeGenerator.Helper;
+using Entity;
 using Share.Models.CommandDtos;
 
 namespace Share.Services;

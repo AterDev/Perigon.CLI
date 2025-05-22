@@ -1,3 +1,4 @@
+using Entity;
 using Microsoft.AspNetCore.Http;
 
 namespace Share;
@@ -77,14 +78,14 @@ public class ProjectContext : IProjectContext
     public string GetManagerPath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(ApplicationPath ?? PathConst.ApplicationPath, ConstVal.ManagersDir)
+            ? Path.Combine(ApplicationPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName, ConstVal.ManagersDir);
     }
 
     public string GetApplicationPath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(ApplicationPath ?? PathConst.ApplicationPath)
+            ? Path.Combine(ApplicationPath ?? PathConst.CommonModPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
     }
 

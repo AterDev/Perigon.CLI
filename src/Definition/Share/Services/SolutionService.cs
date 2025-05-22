@@ -1,5 +1,6 @@
 using CodeGenerator;
 using CodeGenerator.Helper;
+using Entity;
 using Humanizer;
 using Share.Models.CommandDtos;
 

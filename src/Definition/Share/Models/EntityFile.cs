@@ -1,4 +1,6 @@
 
+using Entity;
+
 namespace Share.Models;
 
 public class EntityFile
@@ -40,7 +42,7 @@ public class EntityFile
     public string GetManagerPath(IProjectContext project)
     {
         return ModuleName.IsEmpty()
-            ? Path.Combine(project.ApplicationPath ?? PathConst.ApplicationPath, ConstVal.ManagersDir)
+            ? Path.Combine(project.ApplicationPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
             : Path.Combine(project.ModulesPath ?? PathConst.ModulesPath, ModuleName, ConstVal.ManagersDir);
     }
 

@@ -266,7 +266,7 @@ public partial class EntityInfoManager(
     /// <param name="project"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task GenerateAsync(GenerateDto dto)
+    public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
         var helper = new EntityParseHelper(dto.EntityPath);
         var entityInfo = await helper.ParseEntityAsync();
@@ -280,12 +280,12 @@ public partial class EntityInfoManager(
         switch (dto.CommandType)
         {
             case CommandType.Dto:
-                files = await _codeGenService.GenerateDtosAsync(entityInfo, sharePath, dto.Force);
+                files = _codeGenService.GenerateDtos(entityInfo, sharePath, dto.Force);
                 //files = await MergeDtoModelsAsync(entityInfo, files);
                 break;
             case CommandType.Manager:
             {
-                files = await _codeGenService.GenerateDtosAsync(entityInfo, sharePath, dto.Force);
+                files = _codeGenService.GenerateDtos(entityInfo, sharePath, dto.Force);
                 //files = await MergeDtoModelsAsync(entityInfo, files);
                 var tplContent = TplContent.ManagerTpl();
                 var managerFiles = _codeGenService.GenerateManager(entityInfo, applicationPath, tplContent, dto.Force);
@@ -294,7 +294,7 @@ public partial class EntityInfoManager(
             }
             case CommandType.API:
             {
-                files = await _codeGenService.GenerateDtosAsync(entityInfo, sharePath, dto.Force);
+                files = _codeGenService.GenerateDtos(entityInfo, sharePath, dto.Force);
                 //files = await MergeDtoModelsAsync(entityInfo, files);
                 var tplContent = TplContent.ManagerTpl();
                 var managerFiles = _codeGenService.GenerateManager(entityInfo, applicationPath, tplContent, dto.Force);
@@ -341,5 +341,6 @@ public partial class EntityInfoManager(
                 break;
         }
         _codeGenService.GenerateFiles(files);
+        return files;
     }
 }
