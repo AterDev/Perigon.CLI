@@ -139,7 +139,7 @@ public partial class EntityInfoManager(
             _projectContext.ApiPath,
             _projectContext.EntityPath,
             _projectContext.EntityFrameworkPath,
-            _projectContext.ApplicationPath,
+            _projectContext.CommonModPath,
             _projectContext.SharePath,
             _projectContext.ModulesPath
             ];

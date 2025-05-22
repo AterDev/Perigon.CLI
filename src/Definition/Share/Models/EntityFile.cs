@@ -42,7 +42,7 @@ public class EntityFile
     public string GetManagerPath(IProjectContext project)
     {
         return ModuleName.IsEmpty()
-            ? Path.Combine(project.ApplicationPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
+            ? Path.Combine(project.CommonModPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
             : Path.Combine(project.ModulesPath ?? PathConst.ModulesPath, ModuleName, ConstVal.ManagersDir);
     }
 

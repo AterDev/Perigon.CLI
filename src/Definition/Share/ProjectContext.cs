@@ -1,6 +1,5 @@
 using Entity;
 using Microsoft.AspNetCore.Http;
-using ModelContextProtocol.Server;
 
 namespace Share;
 
@@ -13,26 +12,18 @@ public class ProjectContext : IProjectContext
     public Project? Project { get; set; }
     public string? SolutionPath { get; set; }
     public string? SharePath { get; set; }
-    public string? ApplicationPath { get; set; }
+    public string? CommonModPath { get; set; }
     public string? EntityPath { get; set; }
     public string? ApiPath { get; set; }
     public string? EntityFrameworkPath { get; set; }
     public string? ModulesPath { get; set; }
 
-    public ProjectContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context, IMcpServer mcp)
+    private readonly CommandDbContext _context;
+
+    public ProjectContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context)
     {
+        _context = context;
         string? id = httpContextAccessor.HttpContext?.Request.Headers["projectId"].ToString();
-
-        var roots = mcp.RequestRootsAsync(new ModelContextProtocol.Protocol.ListRootsRequestParams
-        {
-            Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata()
-            {
-                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("ProjectContext"),
-            }
-        }).Result;
-
-        var root = roots.Roots.FirstOrDefault();
-        Console.WriteLine(root?.Name + root?.Uri);
 
         if (!string.IsNullOrWhiteSpace(id))
         {
@@ -42,11 +33,10 @@ public class ProjectContext : IProjectContext
                 Project = context.Projects.Find(projectId);
                 if (Project != null)
                 {
-                    ConstVal.PROJECT_ID = projectId;
                     SolutionPath = Project.Path;
                     var config = Project.Config;
                     SharePath = Path.Combine(SolutionPath, config.SharePath);
-                    ApplicationPath = Path.Combine(SolutionPath, config.ApplicationPath);
+                    CommonModPath = Path.Combine(SolutionPath, config.ApplicationPath);
                     EntityPath = Path.Combine(SolutionPath, config.EntityPath);
                     ApiPath = Path.Combine(SolutionPath, config.ApiPath);
                     EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
@@ -60,6 +50,18 @@ public class ProjectContext : IProjectContext
         }
     }
 
+    public async Task SetProjectAsync(string solutionPath)
+    {
+        SolutionPath = solutionPath;
+        var project = await _context.Projects.Where(p => p.Path.Equals(solutionPath)).FirstOrDefaultAsync();
+        var config = project?.Config;
+        SharePath = Path.Combine(SolutionPath, config?.SharePath ?? PathConst.SharePath);
+        CommonModPath = Path.Combine(SolutionPath, config?.ApplicationPath ?? PathConst.CommonModPath);
+        EntityPath = Path.Combine(SolutionPath, config?.EntityPath ?? PathConst.EntityPath);
+        ApiPath = Path.Combine(SolutionPath, config?.ApiPath ?? PathConst.APIPath);
+        EntityFrameworkPath = Path.Combine(SolutionPath, config?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath);
+        ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
+    }
 
     /// <summary>
     /// get share(dto) path
@@ -91,14 +93,14 @@ public class ProjectContext : IProjectContext
     public string GetManagerPath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(ApplicationPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
+            ? Path.Combine(CommonModPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName, ConstVal.ManagersDir);
     }
 
     public string GetApplicationPath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(ApplicationPath ?? PathConst.CommonModPath)
+            ? Path.Combine(CommonModPath ?? PathConst.CommonModPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
     }
 

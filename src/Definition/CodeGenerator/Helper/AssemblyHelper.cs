@@ -30,8 +30,6 @@ public class AssemblyHelper
         }
     }
 
-
-
     /// <summary>
     /// 在项目中寻找文件
     /// </summary>
@@ -132,6 +130,7 @@ public class AssemblyHelper
         try
         {
             FileInfo? file = dir.GetFiles("*.sln")?.FirstOrDefault();
+            file ??= dir.GetFiles("*.slnx")?.FirstOrDefault();
             return root == null ? file
                 : file == null && dir != root ? GetSlnFile(dir.Parent!, root) : file;
         }

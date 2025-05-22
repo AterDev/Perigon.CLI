@@ -7,7 +7,10 @@ namespace AterStudio.McpTools;
 /// 代码生成MCP工具
 /// </summary>
 [McpServerToolType]
-public class CodeTools(ILogger<CodeTools> logger, EntityInfoManager manager)
+public class CodeTools(
+    ILogger<CodeTools> logger,
+    EntityInfoManager manager,
+    IProjectContext projectContext)
 {
     [McpServerTool, Description("创建实体模型类")]
     public string? NewEntity([Description("用户输入的提示词内容")] string prompt)
@@ -27,21 +30,21 @@ public class CodeTools(ILogger<CodeTools> logger, EntityInfoManager manager)
     }
 
     [McpServerTool, Description("根据实体模型生成Dto")]
-    public async Task<string?> GenerateDtoAsync([Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateDtoAsync(IMcpServer server, [Description("实体模型文件的绝对路径")] string entityPath)
     {
-        return await GenerateAsync(entityPath, CommandType.Dto);
+        return await GenerateAsync(server, entityPath, CommandType.Dto);
     }
 
     [McpServerTool, Description("根据实体模型生成Manager")]
-    public async Task<string?> GenerateManagerAsync([Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateManagerAsync([Description("实体模型文件的绝对路径")] string entityPath, IMcpServer server)
     {
-        return await GenerateAsync(entityPath, CommandType.Manager);
+        return await GenerateAsync(server, entityPath, CommandType.Manager);
     }
 
     [McpServerTool, Description("根据实体模型生成Controller")]
-    public async Task<string?> GenerateControllerAsync([Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateControllerAsync([Description("实体模型文件的绝对路径")] string entityPath, IMcpServer server)
     {
-        return await GenerateAsync(entityPath, CommandType.API);
+        return await GenerateAsync(server, entityPath, CommandType.API);
     }
 
     [McpServerTool, Description("生成前端请求服务")]
@@ -55,24 +58,57 @@ public class CodeTools(ILogger<CodeTools> logger, EntityInfoManager manager)
     /// 生成服务
     /// </summary>
     /// <returns></returns>
-    private async Task<string> GenerateAsync(string entityPath, CommandType type)
+    private async Task<string> GenerateAsync(IMcpServer server, string entityPath, CommandType type)
     {
-
-        logger.LogInformation($"生成{type}，路径：{entityPath}");
-        var dto = new GenerateDto
+        var roots = await server.RequestRootsAsync(new ModelContextProtocol.Protocol.ListRootsRequestParams
         {
-            EntityPath = entityPath,
-            CommandType = type,
-            Force = true,
-        };
+            Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata
+            {
+                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools")
+            }
+        });
 
-        var res = await manager.GenerateAsync(dto);
-        var resDes = string.Empty;
-        foreach (var file in res)
+        try
         {
-            resDes += $"已生成文件{file.Name}，路径: {file.FullName}.{Environment.NewLine}";
+            if (roots.Roots.Count > 0)
+            {
+                foreach (var root in roots.Roots)
+                {
+                    logger.LogInformation($"获取到的根目录：{root.Name}, {root.Uri}, {root?.Meta?.ToString()}");
+                }
+            }
+
+            var uri = roots.Roots.FirstOrDefault()?.Uri;
+            if (string.IsNullOrEmpty(uri))
+            {
+                logger.LogError("未找到有效的根目录路径。");
+                return "Not get client roots";
+            }
+
+            var solutionPath = new Uri(uri).LocalPath;
+            await projectContext.SetProjectAsync(solutionPath);
+            logger.LogInformation($"生成{type}，路径：{entityPath},root:{solutionPath}");
+            var dto = new GenerateDto
+            {
+                EntityPath = entityPath,
+                CommandType = type,
+                Force = true,
+            };
+
+            var res = await manager.GenerateAsync(dto);
+            var resDes = string.Empty;
+            foreach (var file in res)
+            {
+                resDes += $"已生成文件{file.Name}，路径: {file.FullName}.{Environment.NewLine}";
+            }
+            return resDes;
         }
-        return resDes;
+        catch (Exception ex)
+        {
+            logger.LogError("{ex}", ex);
+            return "工具出错：" + ex.Message;
+        }
+
     }
 
 }

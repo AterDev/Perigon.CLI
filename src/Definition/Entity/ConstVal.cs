@@ -11,7 +11,6 @@ public static class ConstVal
     public const string Mini = "mini";
     public const string Standard = "standard";
 
-    public static Guid PROJECT_ID;
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new JsonSerializerOptions
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
