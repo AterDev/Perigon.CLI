@@ -26,7 +26,7 @@ public class RestApiGenerate(EntityInfo entityInfo)
             "global using Microsoft.EntityFrameworkCore;",
             $"global using {ConstVal.CoreLibName}.Models;",
             $"global using {ConstVal.CoreLibName}.Utils;",
-            $"global using {ConstVal.AbstractionLibName};",
+            $"global using {ConstVal.ConventionLibName};",
             $"global using {ConstVal.ExtensionLibName}.Services;",
             $"global using {EntityInfo.NamespaceName};",
             $"global using {ApplicationNamespace}.Const;",

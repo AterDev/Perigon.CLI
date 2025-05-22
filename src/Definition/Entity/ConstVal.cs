@@ -68,8 +68,8 @@ public static class ConstVal
     public const string SolutionXMLExtension = ".slnx";
     public const string CSharpProjectExtension = ".csproj";
     public const string NodeProjectFile = "package.json";
-    public const string CoreLibName = "Ater.Web.Core";
-    public const string AbstractionLibName = "Ater.Web.Abstraction";
+    public const string CoreLibName = "Ater.Common";
+    public const string ConventionLibName = "Ater.Web.Convention";
     public const string ExtensionLibName = "Ater.Web.Extension";
 
     public const string GlobalUsingsFile = "GlobalUsings.cs";

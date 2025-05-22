@@ -1,5 +1,6 @@
 using Entity;
 using Microsoft.AspNetCore.Http;
+using ModelContextProtocol.Server;
 
 namespace Share;
 
@@ -18,9 +19,21 @@ public class ProjectContext : IProjectContext
     public string? EntityFrameworkPath { get; set; }
     public string? ModulesPath { get; set; }
 
-    public ProjectContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context)
+    public ProjectContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context, IMcpServer mcp)
     {
         string? id = httpContextAccessor.HttpContext?.Request.Headers["projectId"].ToString();
+
+        var roots = mcp.RequestRootsAsync(new ModelContextProtocol.Protocol.ListRootsRequestParams
+        {
+            Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata()
+            {
+                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("ProjectContext"),
+            }
+        }).Result;
+
+        var root = roots.Roots.FirstOrDefault();
+        Console.WriteLine(root?.Name + root?.Uri);
+
         if (!string.IsNullOrWhiteSpace(id))
         {
             if (Guid.TryParse(id, out Guid projectId))
