@@ -86,6 +86,14 @@ public class CodeTools(
             }
 
             var solutionPath = new Uri(uri).LocalPath;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                if (solutionPath.StartsWith('/'))
+                {
+                    solutionPath = solutionPath[1..];
+                }
+            }
+
             await projectContext.SetProjectAsync(solutionPath);
             logger.LogInformation($"生成{type}，路径：{entityPath},root:{solutionPath}");
             var dto = new GenerateDto

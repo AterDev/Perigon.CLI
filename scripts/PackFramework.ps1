@@ -7,10 +7,10 @@ param (
 $location = Get-Location
 $infrastructurePath = Join-Path $location "../src/Template/templates/ApiStandard/src/Framework/"
 $projects = @(
-    "Framework.Common/Framework.Common.csproj", 
-    "Framework.Web.Convention/Framework.Web.Convention.csproj", 
-    "Framework.Web.Extension/Framework.Web.Extension.csproj",
-    "Framework.Web.Analyzers/Framework.Web.Analyzers.csproj"
+    "Ater.Common/Ater.Common.csproj", 
+    "Ater.Web.Convention/Ater.Web.Convention.csproj", 
+    "Ater.Web.Extension/Ater.Web.Extension.csproj",
+    "Ater.Web.Analyzers/Ater.Web.Analyzers.csproj"
 )
 
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8

@@ -1,4 +1,6 @@
-using Entity;
+using CodeGenerator.Helper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace StudioMod;
