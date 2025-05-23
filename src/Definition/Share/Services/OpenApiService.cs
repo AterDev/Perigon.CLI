@@ -3,7 +3,6 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
-using TypeMeta = Share.Models.ApiDocInfoDtos.TypeMeta;
 
 
 namespace Share.Services;

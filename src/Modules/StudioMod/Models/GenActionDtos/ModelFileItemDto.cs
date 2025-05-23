@@ -1,4 +1,4 @@
-﻿namespace Share.Models.GenActionDtos;
+namespace StudioMod.Models.GenActionDtos;
 /// <summary>
 /// 模型文件项
 /// </summary>

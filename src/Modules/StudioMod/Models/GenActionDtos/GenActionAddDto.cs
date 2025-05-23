@@ -1,4 +1,4 @@
-namespace Share.Models.GenActionDtos;
+namespace StudioMod.Models.GenActionDtos;
 /// <summary>
 /// 生成操作添加时DTO
 /// </summary>

@@ -109,10 +109,11 @@ public class TplContent
 
             @Model.Comment
             public class @(Model.EntityName)Controller(
+                Localizer localizer,
                 IUserContext user,
                 ILogger<@(Model.EntityName)Controller> logger,
                 @(Model.EntityName)Manager manager
-                ) : {{baseClass}}<@(Model.EntityName)Manager>(manager, user, logger)
+                ) : {{baseClass}}<@(Model.EntityName)Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
                 /// 分页数据 🛑
@@ -134,7 +135,7 @@ public class TplContent
                 public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
                     // 冲突验证
-                    // if(await _manager.IsUniqueAsync(dto.xxx)) { return Conflict(ErrorMsg.ConflictResource); }
+                    // if(await _manager.IsUniqueAsync(dto.xxx)) { return Conflict(ErrorKeys.ConflictResource); }
                     var id = await _manager.CreateNewEntityAsync(dto);
                     return id == null ? Problem(ErrorMsg.AddFailed) : id;
                 }
@@ -149,7 +150,7 @@ public class TplContent
                 public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
                     var entity = await _manager.GetOwnedAsync(id);
-                    if (entity == null) { return NotFound(ErrorMsg.NotFoundResource); }
+                    if (entity == null) { return NotFound(ErrorKeys.NotFoundResource); }
                     // 冲突验证
                     return await _manager.UpdateAsync(entity, dto);
                 }

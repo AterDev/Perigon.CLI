@@ -1,8 +1,8 @@
-namespace Share.Models.GenStepDtos;
+namespace StudioMod.Models.GenStepDtos;
 /// <summary>
 /// task step添加时DTO
 /// </summary>
-/// <see cref="Entity.StudioMod.GenStep"/>
+/// <see cref="GenStep"/>
 public class GenStepAddDto
 {
     /// <summary>

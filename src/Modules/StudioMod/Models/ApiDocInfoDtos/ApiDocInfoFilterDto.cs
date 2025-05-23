@@ -1,4 +1,4 @@
-namespace Share.Models.ApiDocInfoDtos;
+namespace StudioMod.Models.ApiDocInfoDtos;
 /// <summary>
 /// 接口文档查询筛选
 /// </summary>

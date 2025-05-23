@@ -1,4 +1,4 @@
-﻿namespace Share.Models.GenActionDtos;
+namespace StudioMod.Models.GenActionDtos;
 /// <summary>
 /// 执行结果
 /// </summary>

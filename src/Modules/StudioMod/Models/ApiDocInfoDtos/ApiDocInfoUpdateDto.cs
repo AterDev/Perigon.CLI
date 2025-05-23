@@ -1,4 +1,4 @@
-namespace Share.Models.ApiDocInfoDtos;
+namespace StudioMod.Models.ApiDocInfoDtos;
 /// <summary>
 /// 接口文档更新时请求结构
 /// </summary>

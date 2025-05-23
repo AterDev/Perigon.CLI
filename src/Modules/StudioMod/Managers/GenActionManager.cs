@@ -1,7 +1,6 @@
 using CodeGenerator;
-using Share.Models.GenActionDtos;
-using Share.Models.GenStepDtos;
-using StudioMod;
+using StudioMod.Models.GenActionDtos;
+using StudioMod.Models.GenStepDtos;
 
 namespace StudioMod.Managers;
 /// <summary>

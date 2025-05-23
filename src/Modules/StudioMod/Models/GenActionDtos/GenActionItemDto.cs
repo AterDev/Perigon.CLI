@@ -1,17 +1,19 @@
-namespace Share.Models.GenActionDtos;
+namespace StudioMod.Models.GenActionDtos;
 /// <summary>
-/// 生成操作更新时DTO
+/// 生成操作列表元素
 /// </summary>
-/// <see cref="Entity.StudioMod.GenAction"/>
-public class GenActionUpdateDto
+/// <see cref="GenAction"/>
+public class GenActionItemDto
 {
     /// <summary>
     /// action name
     /// </summary>
     [MaxLength(40)]
-    public string? Name { get; set; }
+    public string Name { get; set; } = default!;
+
     [MaxLength(200)]
     public string? Description { get; set; }
+
     /// <summary>
     /// 实体路径
     /// </summary>
@@ -20,7 +22,6 @@ public class GenActionUpdateDto
     /// open api path
     /// </summary>
     public string? OpenApiPath { get; set; }
-    public List<Variable>? Variables { get; set; }
     /// <summary>
     /// source type
     /// </summary>
@@ -28,6 +29,8 @@ public class GenActionUpdateDto
     /// <summary>
     /// 操作状态
     /// </summary>
-    public ActionStatus? ActionStatus { get; set; }
-
+    public ActionStatus ActionStatus { get; set; } = ActionStatus.NotStarted;
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public DateTimeOffset CreatedTime { get; set; }
+    public List<Variable> Variables { get; set; } = [];
 }

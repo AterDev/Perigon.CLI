@@ -1,4 +1,4 @@
-﻿namespace Share.Models.ApiDocInfoDtos;
+namespace Share.Models;
 /// <summary>
 /// 模型信息
 /// </summary>

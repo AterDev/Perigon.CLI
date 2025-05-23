@@ -1,8 +1,8 @@
-namespace Share.Models.GenStepDtos;
+namespace StudioMod.Models.GenStepDtos;
 /// <summary>
 /// task step筛选条件
 /// </summary>
-/// <see cref="Entity.StudioMod.GenStep"/>
+/// <see cref="GenStep"/>
 public class GenStepFilterDto : FilterBase
 {
     public string? Name { get; set; }

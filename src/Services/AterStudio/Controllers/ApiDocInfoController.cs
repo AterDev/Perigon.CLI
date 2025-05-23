@@ -1,6 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Share.Models.ApiDocInfoDtos;
+using StudioMod.Models.ApiDocInfoDtos;
 
 namespace AterStudio.Controllers;
 

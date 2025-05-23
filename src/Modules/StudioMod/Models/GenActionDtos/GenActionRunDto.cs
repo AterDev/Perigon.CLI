@@ -1,6 +1,6 @@
-﻿using Share.Models.ApiDocInfoDtos;
+using StudioMod.Models.ApiDocInfoDtos;
 
-namespace Share.Models.GenActionDtos;
+namespace StudioMod.Models.GenActionDtos;
 /// <summary>
 /// 操作执行模型
 /// </summary>

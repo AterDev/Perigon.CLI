@@ -1,6 +1,6 @@
-using Share.Models.GenActionDtos;
-using Share.Models.GenStepDtos;
 using Share.Services;
+using StudioMod.Models.GenActionDtos;
+using StudioMod.Models.GenStepDtos;
 
 namespace AterStudio.Controllers;
 
