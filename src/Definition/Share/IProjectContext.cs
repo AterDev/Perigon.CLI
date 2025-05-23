@@ -20,12 +20,6 @@ public interface IProjectContext
     /// <param name="moduleName"></param>
     /// <returns>模块存在时，返回模块项目路径</returns>
     string GetApiPath(string? moduleName = null);
-    /// <summary>
-    /// 获取Application目录路径
-    /// </summary>
-    /// <param name="moduleName">模块名称</param>
-    /// <returns>模块存在时，返回模块项目路径</returns>
-    string GetApplicationPath(string? moduleName = null);
     string GetControllerPath(string? moduleName = null);
     string GetDtoPath(string entityName, string? moduleName = null);
     string GetManagerPath(string? moduleName = null);
@@ -35,7 +29,7 @@ public interface IProjectContext
     /// </summary>
     /// <param name="moduleName"></param>
     /// <returns>模块存在时，返回模块项目路径</returns>
-    string GetSharePath(string? moduleName = null);
+    string GetModulePath(string? moduleName = null);
 
     Task SetProjectAsync(string solutionPath);
 }

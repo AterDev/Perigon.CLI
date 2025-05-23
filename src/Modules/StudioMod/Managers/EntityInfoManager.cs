@@ -17,6 +17,8 @@ public partial class EntityInfoManager(
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
     private readonly CodeGenService _codeGenService = codeGenService;
 
+    public string ModuleName { get; set; } = string.Empty;
+
     /// <summary>
     /// 获取实体列表
     /// </summary>
@@ -268,40 +270,49 @@ public partial class EntityInfoManager(
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
+        if (!ProcessHelper.RunCommand("dotnet", $"build {_projectContext.EntityPath}", out string error))
+        {
+            _logger.LogError(error);
+        }
+
         var helper = new EntityParseHelper(dto.EntityPath);
         var entityInfo = await helper.ParseEntityAsync();
         _ = entityInfo ?? throw new Exception("实体解析失败，请检查实体文件是否正确！");
 
-        string sharePath = _projectContext.GetSharePath(entityInfo.ModuleName);
-        string applicationPath = _projectContext.GetApplicationPath(entityInfo.ModuleName)!;
-        string apiPath = _projectContext.GetApiPath(entityInfo.ModuleName);
+        _logger.LogInformation("✨ 解析到模块：{moduleName}", entityInfo.ModuleName);
+        if (string.IsNullOrWhiteSpace(entityInfo.ModuleName))
+        {
+            _logger.LogWarning("⚠️ 未解析到模块信息，使用默认模块");
+            entityInfo.ModuleName = ConstVal.CommonMod;
+        }
+        ModuleName = entityInfo.ModuleName;
+
+        string modulePath = _projectContext.GetModulePath(entityInfo.ModuleName);
+        string apiPath = _projectContext.GetControllerPath(entityInfo.ModuleName);
 
         var files = new List<GenFileInfo>();
         switch (dto.CommandType)
         {
             case CommandType.Dto:
-                files = _codeGenService.GenerateDtos(entityInfo, sharePath, dto.Force);
-                //files = await MergeDtoModelsAsync(entityInfo, files);
+                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
                 break;
             case CommandType.Manager:
             {
-                files = _codeGenService.GenerateDtos(entityInfo, sharePath, dto.Force);
-                //files = await MergeDtoModelsAsync(entityInfo, files);
+                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
                 var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(entityInfo, applicationPath, tplContent, dto.Force);
+                var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
                 files.AddRange(managerFiles);
                 break;
             }
             case CommandType.API:
             {
-                files = _codeGenService.GenerateDtos(entityInfo, sharePath, dto.Force);
-                //files = await MergeDtoModelsAsync(entityInfo, files);
+                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
                 var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(entityInfo, applicationPath, tplContent, dto.Force);
+                var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
                 files.AddRange(managerFiles);
 
                 _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, true);
-                var controllerType = _projectContext.Project?.Config.ControllerType;
+                var controllerType = _projectContext.Project?.Config.ControllerType ?? ControllerType.Both;
 
                 switch (controllerType)
                 {

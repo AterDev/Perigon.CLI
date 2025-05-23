@@ -8,5 +8,8 @@ public class Modules
     /// 内容管理模块
     /// </summary>
     public const string Studio = "StudioMod";
-
+    /// <summary>
+    /// 采集模块
+    /// </summary>
+    public const string Collection = "CollectionMod";
 }

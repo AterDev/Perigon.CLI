@@ -82,9 +82,10 @@ public static class ConstVal
 public static class PathConst
 {
     public static readonly string APIPath = Path.Combine(ConstVal.SrcDir, ConstVal.APIName);
-    public static readonly string CommonModPath = Path.Combine(ConstVal.SrcDir, ConstVal.CommonMod);
+    public static readonly string CommonModPath = Path.Combine(ConstVal.SrcDir, ConstVal.ModulesDir, ConstVal.CommonMod);
     public static readonly string DefinitionPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir);
     public static readonly string SharePath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.ShareName);
+
     public static readonly string EntityPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityName);
     public static readonly string EntityFrameworkPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityFrameworkName);
     public static readonly string ModulesPath = Path.Combine(ConstVal.SrcDir, ConstVal.ModulesDir);

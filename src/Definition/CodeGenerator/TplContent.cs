@@ -235,14 +235,11 @@ export class EnumTextPipeModule { }
             global using System.ComponentModel.DataAnnotations;
             global using System.Diagnostics;
             global using System.Linq.Expressions;
-            global using Application.Const;
-            global using Application;
-            global using Application.Implement;
             global using ${Module}.Manager;
-            global using Ater.Web.Abstraction;
-            global using Ater.Web.Core.Models;
-            global using Ater.Web.Core.Utils;
-            global using Ater.Web.Extension;
+            global using {{ConstVal.ConventionLibName}};
+            global using {{ConstVal.CoreLibName}}.Models;
+            global using {{ConstVal.CoreLibName}}.Utils;
+            global using {{ConstVal.ExtensionLibName}};
             global using {{definition}}Entity;
             global using {{definition}}Entity.{{moduleName}};
             global using {{definition}}EntityFramework;
@@ -252,7 +249,6 @@ export class EnumTextPipeModule { }
             global using Microsoft.AspNetCore.Mvc;
             global using Microsoft.EntityFrameworkCore;
             global using Microsoft.Extensions.Logging;
-            
             """;
     }
 
@@ -273,8 +269,8 @@ export class EnumTextPipeModule { }
                     <NoWarn>1701;1702;1591</NoWarn>
                 </PropertyGroup>
                 <ItemGroup>
-                    <ProjectReference Include="..\..\Application\Application.csproj" />
-                    <ProjectReference Include="..\..\Infrastructure\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+                    <ProjectReference Include="..\..\CommonMod\CommonMod.csproj" />
+                    <ProjectReference Include="..\..\Framework\Ater.Web.Extension\Ater.Web.Extension.csproj" />
                 </ItemGroup>
             </Project>
             """;

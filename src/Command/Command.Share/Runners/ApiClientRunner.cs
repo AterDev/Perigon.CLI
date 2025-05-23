@@ -1,4 +1,5 @@
 using CodeGenerator.Models;
+using Entity;
 using Share.Helper;
 
 namespace Command.Share.Runners;
@@ -69,7 +70,7 @@ public class ApiClientRunner : RunnerBase
         string dir = Path.Combine(OutputPath, "Services");
         await GenerateFileAsync(dir, "BaseService.cs", baseContent, true);
 
-        await GenerateFileAsync(OutputPath, "GlobalUsings.cs", globalUsingContent, false);
+        await GenerateFileAsync(OutputPath, ConstVal.GlobalUsingsFile, globalUsingContent, false);
     }
 
     public async Task GenerateRequestServicesAsync()
