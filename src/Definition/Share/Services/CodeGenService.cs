@@ -3,6 +3,7 @@ using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
+using Entity;
 using Microsoft.OpenApi.Readers;
 
 namespace Share.Services;
@@ -20,7 +21,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath">输出项目目录</param>
     /// <param name="isCover">是否覆盖</param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateDtosAsync(EntityInfo entityInfo, string outputPath, bool isCover = false)
+    public List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string outputPath, bool isCover = false)
     {
         _logger.LogInformation("🚀 Generating Dtos...");
         // 生成Dto
@@ -96,28 +97,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             ModuleName = entityInfo.ModuleName
         };
 
-        var managerDIFile = GetManagerService(entityInfo, outputPath);
-        return [globalFile, managerFile, managerDIFile];
-    }
-
-    /// <summary>
-    /// Manager服务注入内容
-    /// </summary>
-    /// <returns></returns>
-    public GenFileInfo GetManagerService(EntityInfo entityInfo, string outputPath)
-    {
-        var managerPath = Path.Combine(outputPath, ConstVal.ManagersDir);
-        string content = ManagerGenerate.GetManagerServiceContent(managerPath, entityInfo.ModuleName);
-        string name = entityInfo.ModuleName.IsEmpty()
-            ? ConstVal.ManagerServiceExtensionsFile
-            : ConstVal.ServiceExtensionsFile;
-
-        return new GenFileInfo(name, content)
-        {
-            IsCover = true,
-            FullName = Path.Combine(outputPath, name),
-            ModuleName = entityInfo.ModuleName
-        };
+        return [globalFile, managerFile];
     }
 
     /// <summary>
@@ -300,6 +280,8 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             return;
         }
+        var sb = new StringBuilder();
+        sb.AppendLine();
         foreach (var file in files)
         {
             if (file.IsCover || !File.Exists(file.FullName))
@@ -309,10 +291,33 @@ public class CodeGenService(ILogger<CodeGenService> logger)
                 {
                     Directory.CreateDirectory(dir!);
                 }
-                File.WriteAllText(file.FullName, file.Content, new UTF8Encoding(false));
-                _logger.LogInformation("🆕📄 :{path}", file.FullName);
+                // 换行合并处理
+                if (file.FileType == GenFileType.Global)
+                {
+                    var globalLines = File.Exists(file.FullName)
+                        ? File.ReadLines(file.FullName)
+                        : [];
+
+                    var newLines = file.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                    var lines = globalLines.ToList();
+                    foreach (var line in newLines)
+                    {
+                        if (!lines.Contains(line))
+                        {
+                            lines.Add(line);
+                        }
+                    }
+                    File.WriteAllLines(file.FullName, lines, new UTF8Encoding(false));
+                }
+                else
+                {
+                    File.WriteAllText(file.FullName, file.Content, new UTF8Encoding(false));
+                }
+                sb.AppendLine(file.FullName);
             }
         }
+        _logger.LogInformation("🆕[files]: {path}", sb.ToString());
     }
 
     /// <summary>

@@ -1,7 +1,7 @@
-﻿using System.Reflection;
+using System.Reflection;
 using EntityFramework.DBProvider;
 using Microsoft.Extensions.Hosting;
-using Framework.Common.Attributes;
+using Ater.Common.Attributes;
 
 namespace SystemMod.Worker;
 /// <summary>

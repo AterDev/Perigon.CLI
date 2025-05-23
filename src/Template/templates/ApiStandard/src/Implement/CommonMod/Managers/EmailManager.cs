@@ -1,4 +1,4 @@
-using Framework.Web.Extension.Services;
+using Ater.Web.Extension.Services;
 
 namespace CommonMod.Managers;
 public class EmailManager(ILogger<EmailManager> logger, SmtpService smtp) : ManagerBase(logger)

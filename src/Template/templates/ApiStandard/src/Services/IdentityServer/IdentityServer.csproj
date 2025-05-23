@@ -17,7 +17,7 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\..\Framework\Framework.Common\Framework.Common.csproj" />
+        <ProjectReference Include="..\..\Framework\Ater.Common\Ater.Common.csproj" />
         <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>
 

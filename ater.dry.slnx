@@ -7,6 +7,9 @@
     <File Path="scripts/SetVersion.ps1" />
     <File Path="scripts/SyncInfrastructure.ps1" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+  </Folder>
   <Folder Name="/src/">
   </Folder>
 
@@ -21,9 +24,11 @@
     <Project Path="src\Command\Command.Share\Command.Share.csproj" />
     <Project Path="src\Command\CommandLine\CommandLine.csproj" />
   </Folder>
-  <Folder Name="/src/Studio/">
-    <Project Path="src/Studio/Application/StudioMod.csproj" />
-    <Project Path="src\Studio\AterStudio\AterStudio.csproj" />
+  <Folder Name="/src/Modules/">
+    <Project Path="src\Modules\StudioMod\StudioMod.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/">
+    <Project Path="src\Services\AterStudio\AterStudio.csproj" />
   </Folder>
 
   <Folder Name="/test/">

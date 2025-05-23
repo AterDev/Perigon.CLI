@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Xml.Linq;
+using Entity;
 using Entity.StudioMod;
 
 namespace CodeGenerator.Helper;
@@ -28,8 +29,6 @@ public class AssemblyHelper
             return null;
         }
     }
-
-
 
     /// <summary>
     /// 在项目中寻找文件
@@ -131,6 +130,7 @@ public class AssemblyHelper
         try
         {
             FileInfo? file = dir.GetFiles("*.sln")?.FirstOrDefault();
+            file ??= dir.GetFiles("*.slnx")?.FirstOrDefault();
             return root == null ? file
                 : file == null && dir != root ? GetSlnFile(dir.Parent!, root) : file;
         }

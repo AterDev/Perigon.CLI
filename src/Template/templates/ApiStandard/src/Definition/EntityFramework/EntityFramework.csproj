@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -16,7 +16,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />
-        <ProjectReference Include="..\..\Framework\Framework.Web.Convention\Framework.Web.Convention.csproj" />
+        <ProjectReference Include="..\..\Framework\Ater.Web.Convention\Ater.Web.Convention.csproj" />
     </ItemGroup>
 
 </Project>

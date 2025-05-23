@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+using Ater.Web.Convention.Abstraction;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace EntityFramework.DBProvider;
 public class QueryDbContextFactory(ITenantProvider tenantProvider, IDistributedCache cache) : IDbContextFactory<QueryDbContext>

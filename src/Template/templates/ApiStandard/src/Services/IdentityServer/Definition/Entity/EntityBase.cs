@@ -1,4 +1,3 @@
-﻿
 namespace IdentityServer.Definition.Entity;
 
 /// <summary>

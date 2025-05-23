@@ -1,4 +1,5 @@
 // 系统日志服务示例
+using Ater.Common.Models;
 using Share;
 
 namespace SystemMod.Services;

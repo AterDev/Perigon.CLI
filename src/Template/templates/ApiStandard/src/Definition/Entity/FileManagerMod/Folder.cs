@@ -1,4 +1,6 @@
-﻿namespace Entity.FileManagerMod;
+using Ater.Common.Models;
+
+namespace Entity.FileManagerMod;
 
 /// <summary>
 /// 文件夹

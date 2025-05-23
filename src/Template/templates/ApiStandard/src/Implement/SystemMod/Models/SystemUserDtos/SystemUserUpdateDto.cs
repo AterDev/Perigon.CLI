@@ -1,5 +1,5 @@
+using Ater.Common.Models;
 using Entity.SystemMod;
-using Framework.Common.Models;
 
 namespace SystemMod.Models.SystemUserDtos;
 /// <summary>

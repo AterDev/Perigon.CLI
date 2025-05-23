@@ -37,6 +37,9 @@ public class ContextBase(DbContextOptions options) : DbContext(options)
                 .UsingEntity<GenActionGenStep>();
         });
 
+        builder.Entity<GenActionGenStep>()
+            .HasQueryFilter(gs => !gs.GenAction.IsDeleted);
+
         OnSQLiteModelCreating(builder);
         OnModelExtendCreating(builder);
         base.OnModelCreating(builder);

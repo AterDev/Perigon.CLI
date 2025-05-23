@@ -3,7 +3,7 @@ using System.IO.Compression;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using CodeGenerator.Helper;
-using Entity.StudioMod;
+using Entity;
 using Share.Helper;
 
 namespace Command.Share.Runners;

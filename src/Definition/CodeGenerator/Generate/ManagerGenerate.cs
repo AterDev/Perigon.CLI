@@ -1,4 +1,4 @@
-using Entity.StudioMod;
+using Entity;
 
 namespace CodeGenerator.Generate;
 
@@ -82,39 +82,5 @@ public class ManagerGenerate(EntityInfo entityInfo)
                     return await ToPageAsync<{{entityName + ConstVal.FilterDto}},{{entityName + ConstVal.ItemDto}}>(filter);
             """;
         return content;
-    }
-
-    /// <summary>
-    /// Manager服务注入内容
-    /// </summary>
-    /// <param name="managerPath"></param>
-    /// <param name="moduleName"></param>
-    /// <returns></returns>
-    public static string GetManagerServiceContent(string managerPath, string? moduleName = null)
-    {
-        var nspName = moduleName ?? ConstVal.ApplicationName;
-
-        if (!Directory.Exists(managerPath))
-        {
-            return string.Empty;
-        }
-        string managerServiceContent = "";
-        var files = Directory.GetFiles(managerPath, $"*{ConstVal.Manager}.cs", SearchOption.TopDirectoryOnly);
-
-        files?.ToList().ForEach(file =>
-        {
-            object name = Path.GetFileNameWithoutExtension(file);
-            string row = $"        services.AddScoped<{name}>();";
-            managerServiceContent += row + Environment.NewLine;
-        });
-
-        var genContext = new RazorGenContext();
-        var managerModel = new ManagerServiceViewModel
-        {
-            Namespace = nspName,
-            ManagerServices = managerServiceContent
-        };
-        var tplContent = TplContent.ManagerServiceExtensionTpl(moduleName != null);
-        return genContext.GenCode(tplContent, managerModel);
     }
 }

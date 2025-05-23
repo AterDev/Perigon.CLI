@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-      <TargetFramework>net9.0</TargetFramework>
-      <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ater.Common" Version="1.0.0-beta1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Ater.Common" Version="1.0.0-beta3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
+    </ItemGroup>
 </Project>

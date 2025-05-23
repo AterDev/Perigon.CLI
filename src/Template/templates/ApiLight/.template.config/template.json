@@ -1,15 +1,17 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "ater.niltor",
+  "author": "Niltor",
   "classifications": [
     "Web",
     "Web API",
     "API",
-    "Service"
+    "Entity Framework Core",
+    "ASP.NET Core",
+    "Web Framework"
   ],
-  "identity": "Ater.Web.Light",
-  "name": "Ater Web API Light",
-  "shortName": "atlight",
+  "identity": "Ater.Web.Mini",
+  "name": "Ater Web API Mini",
+  "shortName": "ater-mini",
   "tags": {
     "language": "C#",
     "type": "project"

@@ -1,10 +1,7 @@
 global using System.Net;
 global using System.Text;
+global using Ater.Common.Utils;
 global using CodeGenerator.Generate;
-global using Entity.StudioMod;
-global using EntityFramework.DBProvider;
-global using Framework.Common.Utils;
 global using Microsoft.OpenApi.Models;
 global using Microsoft.OpenApi.Readers;
-global using Share.Models.CommandDtos;
 global using Spectre.Console;

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -25,7 +25,7 @@
     </ItemGroup>
     <ItemGroup>
         <!--<ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />-->
-        <ProjectReference Include="..\..\Framework\Framework.Web.Extension\Framework.Web.Extension.csproj" />
+        <ProjectReference Include="..\..\Framework\Ater.Web.Extension\Ater.Web.Extension.csproj" />
         <ProjectReference Include="..\Share\Share.csproj" />
     </ItemGroup>
 </Project>

@@ -1,3 +1,5 @@
+using Ater.Common.Models;
+
 namespace CMSMod.Models.BlogDtos;
 /// <summary>
 /// 博客查询筛选

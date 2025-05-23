@@ -1,3 +1,4 @@
+using Ater.Common.Models;
 using Share;
 using Share.Implement;
 using SystemMod.Models.SystemLogsDtos;

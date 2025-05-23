@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Entity;
 using Entity.StudioMod;
 
 namespace CodeGenerator.Models;
@@ -76,7 +77,7 @@ public class EntityInfo
     public string GetManagerNamespace()
     {
         return ModuleName.IsEmpty()
-            ? ConstVal.ApplicationName
+            ? ConstVal.CommonMod
             : ModuleName;
     }
 

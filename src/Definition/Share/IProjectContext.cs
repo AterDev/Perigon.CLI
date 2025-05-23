@@ -1,4 +1,4 @@
-﻿namespace Share;
+namespace Share;
 /// <summary>
 /// 项目上下文
 /// </summary>
@@ -8,7 +8,7 @@ public interface IProjectContext
     Project? Project { get; set; }
     string? SolutionPath { get; set; }
     string? SharePath { get; set; }
-    string? ApplicationPath { get; set; }
+    string? CommonModPath { get; set; }
     string? EntityPath { get; set; }
     string? ApiPath { get; set; }
     string? EntityFrameworkPath { get; set; }
@@ -36,4 +36,6 @@ public interface IProjectContext
     /// <param name="moduleName"></param>
     /// <returns>模块存在时，返回模块项目路径</returns>
     string GetSharePath(string? moduleName = null);
+
+    Task SetProjectAsync(string solutionPath);
 }

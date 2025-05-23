@@ -99,13 +99,15 @@ public enum CacheType
     /// <summary>
     /// Redis
     /// </summary>
-    [Description(description: "Redis")]
+    [Description("Redis")]
     Redis,
     /// <summary>
     /// Memory
     /// </summary>
-    [Description(description: "Memory")]
-    Memory
+    [Description("Memory")]
+    Memory,
+    [Description("Hybrid")]
+    Hybrid
 }
 
 /// <summary>

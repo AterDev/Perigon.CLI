@@ -1,6 +1,5 @@
 using System.Text.Json;
-using Framework.Common.Options;
-using Share.Implement;
+using Ater.Common.Options;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;

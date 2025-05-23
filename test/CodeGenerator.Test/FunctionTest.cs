@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi.Readers;
 using Share.Services;
 
 namespace CodeGenerator.Test;
@@ -214,7 +214,7 @@ public class FunctionTest
         compilationHelper.LoadContent("public class MyClass : MyBaseClass, IEntityBase { }");
 
         // Act
-        List<BaseTypeSyntax> baseTypes = compilationHelper.GetBaseLists();
+        List<BaseTypeSyntax>? baseTypes = compilationHelper.GetBaseLists();
 
         // Assert
         Assert.NotNull(baseTypes);

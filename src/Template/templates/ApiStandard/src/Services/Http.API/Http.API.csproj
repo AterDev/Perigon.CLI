@@ -16,9 +16,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\Framework\Framework.Web.Analyzers\Framework.Web.Analyzers.csproj"
-            OutputItemType="Analyzer"
-            ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\Framework\Ater.Web.Analyzers\Ater.Web.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\..\Implement\SystemMod\SystemMod.csproj" />
         <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>
