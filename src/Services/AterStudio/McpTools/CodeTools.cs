@@ -14,6 +14,7 @@ public class CodeTools(
     ILogger<CodeTools> logger,
     EntityInfoManager manager,
     SolutionService solutionService,
+    CodeGenService codeGenService,
     IProjectContext projectContext)
 {
     [McpServerTool, Description("创建实体模型类")]
@@ -70,13 +71,29 @@ public class CodeTools(
     }
 
     [McpServerTool, Description("生成前端请求服务")]
-    public string? GenerateService(
+    public async Task<string?> GenerateServiceAsync(
         [Description("openapi的url地址或本地路径")] string openApiPath,
-        [Description("生成的目标根目录")] string outputPath,
+        [Description("代码生成的输出路径")] string outputPath,
         [Description("前端请求类型,NgHttp或Axios")] RequestLibType clientType)
     {
-        logger.LogInformation(openApiPath, outputPath, clientType.ToString());
-        return "Service Generation Completed";
+
+        try
+        {
+            var genFile = await codeGenService.GenerateWebRequestAsync(openApiPath, outputPath, clientType);
+
+            var resDes = new StringBuilder();
+            resDes.AppendLine("<file result>");
+            foreach (var item in genFile)
+            {
+                resDes.AppendLine($"<file path=\"{item.FullName}\">{item.Name}</file>");
+            }
+            resDes.AppendLine("</file result>");
+            return resDes.ToString();
+        }
+        catch (Exception ex)
+        {
+            return ex.Message + ex.StackTrace;
+        }
     }
 
     /// <summary>
@@ -120,7 +137,6 @@ public class CodeTools(
             return "工具出错：" + ex.Message;
         }
     }
-
 
     private async Task SetProjectContextAsync(IMcpServer server)
     {

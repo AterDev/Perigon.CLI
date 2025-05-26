@@ -149,7 +149,6 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         return globalFile;
     }
 
-
     /// <summary>
     /// 生成Web请求
     /// </summary>
@@ -188,12 +187,15 @@ public class CodeGenService(ILogger<CodeGenService> logger)
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
         var docName = url.Contains("http")
-            ? url.Split('/').Reverse().Skip(1).First()
+            ? url.Split('/').Reverse().First()
             : string.Empty;
+
+        docName = Path.GetFileNameWithoutExtension(docName);
 
         // base service
         string content = RequestGenerate.GetBaseService(type);
         string dir = Path.Combine(outputPath, "services", docName);
+        Directory.CreateDirectory(dir);
         files.Add(new GenFileInfo("base.service.ts", content)
         {
             FullName = Path.Combine(dir, "base.service.ts"),
@@ -205,17 +207,24 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             var schemas = apiDocument!.Components.Schemas;
             dir = Path.Combine(outputPath, "pipe", docName);
+            Directory.CreateDirectory(dir);
             var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
-
             bool isNgModule = false;
-            using (StreamReader reader = new(enumTextPath))
-            {
-                string? firstLine = reader.ReadLine();
-                if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
+            if (File.Exists(enumTextPath))
+                using (StreamReader reader = new(enumTextPath))
                 {
-                    isNgModule = true;
+                    string? firstLine = reader.ReadLine();
+                    string? secondLine = reader.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
+                    {
+                        isNgModule = true;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(secondLine) && secondLine.Contains("NgModule"))
+                    {
+                        isNgModule = true;
+                    }
                 }
-            }
 
             string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
 

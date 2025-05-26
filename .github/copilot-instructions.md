@@ -21,4 +21,4 @@
 以下是在使用 github copilot chat agent 时要遵循的内容：
 
 * 本项目配置了MCP Server `ater.copilot`，提供代码生成功能
-* 当用户需要同时生成实体模型，然后根据模型生成dto或manager或controller/api时，务必要先执行生成实体模型的步骤，然后再执行其他生成操作
+* 当要生成前端请求代码时，使用`http://localhost:5278/openapi/admin.json`作为openapi url路径，使用`NgHttp`作为前端请求类型，输出路径是项目根目录下的`/src/Service/ClientApp/src/app`，作为参数时传递完整的绝对路径。
