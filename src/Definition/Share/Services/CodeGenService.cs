@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
@@ -163,6 +162,8 @@ public class CodeGenService(ILogger<CodeGenService> logger)
 
         // 1 parse openApi json from url
         string openApiContent = "";
+
+        string docName = string.Empty;
         if (url.StartsWith("http://") || url.StartsWith("https://"))
         {
             HttpClientHandler handler = new()
@@ -171,11 +172,9 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             };
             using HttpClient http = new(handler);
 
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
             openApiContent = await http.GetStringAsync(url);
-            stopwatch.Stop();
-            _logger.LogInformation("⬇️ Get OpenAPI from {url} {seconds} seconds", url, stopwatch.Elapsed.TotalSeconds);
+            docName = url.Split('/').Reverse().First();
+            docName = Path.GetFileNameWithoutExtension(docName);
         }
         else
         {
@@ -186,11 +185,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             .Replace("»", "");
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
-        var docName = url.Contains("http")
-            ? url.Split('/').Reverse().First()
-            : string.Empty;
 
-        docName = Path.GetFileNameWithoutExtension(docName);
 
         // base service
         string content = RequestGenerate.GetBaseService(type);
@@ -211,6 +206,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
             bool isNgModule = false;
             if (File.Exists(enumTextPath))
+            {
                 using (StreamReader reader = new(enumTextPath))
                 {
                     string? firstLine = reader.ReadLine();
@@ -225,7 +221,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
                         isNgModule = true;
                     }
                 }
-
+            }
             string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
 
             files.Add(new GenFileInfo("enum-text.pipe.ts", pipeContent)

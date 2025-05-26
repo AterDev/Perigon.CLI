@@ -57,7 +57,10 @@ public static class ServiceCollectionExtension
     /// <returns></returns>
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOpenApi("admin");
+        services.AddOpenApi("admin", options =>
+        {
+            options.AddDocumentTransformer<EnumOpenApiTransformer>();
+        });
         services.AddLocalizer();
 
         return services;

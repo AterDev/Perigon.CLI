@@ -79,15 +79,18 @@ public class CodeTools(
 
         try
         {
-            var genFile = await codeGenService.GenerateWebRequestAsync(openApiPath, outputPath, clientType);
+            var genFiles = await codeGenService.GenerateWebRequestAsync(openApiPath, outputPath, clientType);
+
+            codeGenService.GenerateFiles(genFiles);
+
 
             var resDes = new StringBuilder();
-            resDes.AppendLine("<file result>");
-            foreach (var item in genFile)
+            resDes.AppendLine("生成的文件如下:");
+            foreach (var file in genFiles)
             {
-                resDes.AppendLine($"<file path=\"{item.FullName}\">{item.Name}</file>");
+                resDes.AppendLine(file.FullName);
             }
-            resDes.AppendLine("</file result>");
+            resDes.AppendLine("");
             return resDes.ToString();
         }
         catch (Exception ex)
