@@ -59,7 +59,7 @@ public static class ServiceCollectionExtension
     {
         services.AddOpenApi("admin", options =>
         {
-            options.AddDocumentTransformer<EnumOpenApiTransformer>();
+            options.AddSchemaTransformer<EnumOpenApiTransformer>();
         });
         services.AddLocalizer();
 

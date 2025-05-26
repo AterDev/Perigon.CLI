@@ -51,8 +51,14 @@ public static class WebExtensions
             options.AddPolicy("openapi", policy => policy.Expire(TimeSpan.FromMinutes(10)));
         });
 
-        services.AddOpenApi("admin");
-        services.AddOpenApi("client");
+        services.AddOpenApi("admin", options =>
+        {
+            options.AddSchemaTransformer<EnumOpenApiTransformer>();
+        });
+        services.AddOpenApi("client", options =>
+        {
+            options.AddSchemaTransformer<EnumOpenApiTransformer>();
+        });
         services.AddLocalizer();
         return services;
     }

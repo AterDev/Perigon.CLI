@@ -1,21 +1,21 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
-using Swashbuckle.AspNetCore.SwaggerGen;
+namespace Ater.Web.Convention.Middleware;
 
-namespace Http.API.Middleware;
-
-public class EnumSchemaFilter : ISchemaFilter
+public sealed class EnumOpenApiTransformer : IOpenApiSchemaTransformer
 {
-    public void Apply(OpenApiSchema model, SchemaFilterContext context)
+    public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
-        if (context.Type.IsEnum)
+        if (context.JsonTypeInfo.Type.IsEnum)
         {
+
             var name = new OpenApiArray();
             var enumData = new OpenApiArray();
-            FieldInfo[] fields = context.Type.GetFields();
+            FieldInfo[] fields = context.JsonTypeInfo.Type.GetFields();
             foreach (FieldInfo f in fields)
             {
                 if (f.Name != "value__")
@@ -38,14 +38,14 @@ public class EnumSchemaFilter : ISchemaFilter
                     }
                 }
             }
-            model.Extensions.Add("x-enumNames", name);
-            model.Extensions.Add("x-enumData", enumData);
+            schema.Extensions.Add("x-enumNames", name);
+            schema.Extensions.Add("x-enumData", enumData);
         }
         else
         {
-            PropertyInfo[] properties = context.Type.GetProperties();
+            PropertyInfo[] properties = context.JsonTypeInfo.Type.GetProperties();
 
-            foreach (KeyValuePair<string, OpenApiSchema> property in model.Properties)
+            foreach (KeyValuePair<string, OpenApiSchema> property in schema.Properties)
             {
                 PropertyInfo? prop = properties.FirstOrDefault(x => x.Name.ToCamelCase() == property.Key);
                 if (prop != null)
@@ -54,10 +54,11 @@ public class EnumSchemaFilter : ISchemaFilter
                     if (isRequired)
                     {
                         property.Value.Nullable = false;
-                        _ = model.Required.Add(property.Key);
+                        _ = schema.Required.Add(property.Key);
                     }
                 }
             }
         }
+        return Task.CompletedTask;
     }
 }
