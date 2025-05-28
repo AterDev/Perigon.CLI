@@ -1,8 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Ater.Common.Options;
-using Ater.Common.Utils;
-using Ater.Web.Convention;
 using Ater.Web.Convention.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,10 +19,11 @@ public class JwtMiddleware(RequestDelegate next, CacheService cache, ILogger<Jwt
     {
         // 可匿名访问的放行
         Endpoint? endpoint = context.GetEndpoint();
-        var allowAnon = endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null;
+        var allowAnonymous = endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null;
         var token = context.Request.Headers[WebConst.Authorization].FirstOrDefault()?.Split(" ").Last() ?? string.Empty;
         var client = context.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
-        if (allowAnon || token.IsEmpty())
+
+        if (allowAnonymous || token.IsEmpty())
         {
             await _next(context);
             return;

@@ -88,11 +88,20 @@ public static class FrameworkExtensions
 
                 builder.AddSqlServerDbContext<CommandDbContext>(WebConst.CommandDb);
                 builder.AddSqlServerDbContext<QueryDbContext>(WebConst.QueryDb);
-
                 break;
             case DatabaseType.PostgreSql:
-                builder.AddNpgsqlDbContext<CommandDbContext>(WebConst.CommandDb);
-                builder.AddNpgsqlDbContext<QueryDbContext>(WebConst.QueryDb);
+                builder.AddNpgsqlDbContext<CommandDbContext>(WebConst.CommandDb, options =>
+                {
+#if DEBUG
+                    options.DisableRetry = true;
+#endif
+                });
+                builder.AddNpgsqlDbContext<QueryDbContext>(WebConst.QueryDb, options =>
+                {
+#if DEBUG
+                    options.DisableRetry = true;
+#endif
+                });
                 break;
             default:
                 throw new NotSupportedException($"Database provider {components.Database} is not supported.");

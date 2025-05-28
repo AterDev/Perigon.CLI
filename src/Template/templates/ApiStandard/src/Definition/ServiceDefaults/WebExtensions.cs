@@ -2,7 +2,10 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Ater.Common.Converters;
+using Ater.Common.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.IdentityModel.Tokens;
 
@@ -42,6 +45,8 @@ public static class WebExtensions
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddJwtAuthentication(configuration);
+        services.AddThirdAuthentication(configuration);
+
         services.AddAuthorize();
         services.AddCORS();
         services.AddRateLimiter();
@@ -88,7 +93,7 @@ public static class WebExtensions
         app.UseRouting();
         app.UseOutputCache();
         // TODO: if use Jwt
-        app.UseMiddleware<JwtMiddleware>();
+        //app.UseMiddleware<JwtMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
@@ -185,8 +190,9 @@ public static class WebExtensions
     {
         services.AddAuthentication(options =>
         {
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = MicrosoftAccountDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(cfg =>
         {
@@ -208,6 +214,37 @@ public static class WebExtensions
                 ValidateIssuerSigningKey = true
             };
         });
+        return services;
+    }
+
+    public static IServiceCollection AddThirdAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var section = configuration.GetSection("Authentication");
+        var msClientId = section.GetValue<string>("Microsoft:ClientId");
+        var msClientSecret = section.GetValue<string>("Microsoft:ClientSecret");
+        var msCallBackUrl = section.GetValue<string>("Microsoft:CallbackUrl");
+
+        if (Utils.NoEmptyItem(msClientId, msClientSecret, msCallBackUrl))
+        {
+            services.AddAuthentication().AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, options =>
+            {
+                // 终结点会根据你选择的受支持的账户类型有所不同
+                options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
+                options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
+                options.ClientId = msClientId!;
+                options.ClientSecret = msClientSecret!;
+                options.CallbackPath = msCallBackUrl;
+
+                options.Events = new OAuthEvents
+                {
+                    OnTicketReceived = context =>
+                    {
+                        return Task.CompletedTask;
+                    },
+                };
+            });
+        }
+
         return services;
     }
 
