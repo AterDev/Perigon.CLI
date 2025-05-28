@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Http.API.Controllers;
 
@@ -11,26 +12,43 @@ namespace Http.API.Controllers;
 public class ExternalAuthController : ControllerBase
 {
     private readonly IConfiguration _config;
-    public ExternalAuthController(IConfiguration config)
+    private readonly ILogger<ExternalAuthController> _logger;
+    public ExternalAuthController(IConfiguration config, ILogger<ExternalAuthController> logger)
     {
         _config = config;
+        _logger = logger;
     }
 
-    // 1. 发起微软登录
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
     [HttpGet("signin-microsoft")]
     public IActionResult SignInMicrosoft(string returnUrl = "/")
     {
         var props = new AuthenticationProperties
         {
-            RedirectUri = Url.Action(nameof(MicrosoftCallback), new { returnUrl })
+            RedirectUri = Url.Action(nameof(GetToken), new
+            {
+                type = MicrosoftAccountDefaults.AuthenticationScheme,
+                returnUrl
+            })
         };
         return Challenge(props, "Microsoft");
     }
 
-    // 2. 登录回调
-    [HttpGet("microsoft-callback")]
-    public async Task<IActionResult> MicrosoftCallback(string returnUrl = "/")
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
+    [HttpGet("getToken")]
+    public async Task<IActionResult> GetToken(string type, string returnUrl = "/")
     {
+        _logger.LogInformation("{type} login callback initiated.", type);
+
         // 验证外部登录信息
         var result = await HttpContext.AuthenticateAsync("Microsoft");
         if (!result.Succeeded)
@@ -46,7 +64,7 @@ public class ExternalAuthController : ControllerBase
 
         // 3. 生成自己的 JWT
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_config["Authentication:Jwt:SecretKey"]);
+        var key = Encoding.UTF8.GetBytes(_config["Authentication:Jwt:Sign"]);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]

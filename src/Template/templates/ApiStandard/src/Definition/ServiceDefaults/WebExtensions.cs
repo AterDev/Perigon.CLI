@@ -1,13 +1,13 @@
+using Ater.Common.Converters;
+using Ater.Common.Utils;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.IdentityModel.Tokens;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Ater.Common.Converters;
-using Ater.Common.Utils;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ServiceDefaults;
 public static class WebExtensions
@@ -45,8 +45,7 @@ public static class WebExtensions
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddJwtAuthentication(configuration);
-        services.AddThirdAuthentication(configuration);
-
+        // 替换为标准的 AddAuthorization 和 AddCors
         services.AddAuthorize();
         services.AddCORS();
         services.AddRateLimiter();
@@ -188,11 +187,11 @@ public static class WebExtensions
     /// <exception cref="Exception"></exception>
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication(options =>
+        var builder = services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = MicrosoftAccountDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(cfg =>
         {
@@ -213,12 +212,9 @@ public static class WebExtensions
                 RequireExpirationTime = true,
                 ValidateIssuerSigningKey = true
             };
-        });
-        return services;
-    }
+        })
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
-    public static IServiceCollection AddThirdAuthentication(this IServiceCollection services, IConfiguration configuration)
-    {
         var section = configuration.GetSection("Authentication");
         var msClientId = section.GetValue<string>("Microsoft:ClientId");
         var msClientSecret = section.GetValue<string>("Microsoft:ClientSecret");
@@ -226,28 +222,20 @@ public static class WebExtensions
 
         if (Utils.NoEmptyItem(msClientId, msClientSecret, msCallBackUrl))
         {
-            services.AddAuthentication().AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, options =>
+            builder.AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, options =>
             {
-                // 终结点会根据你选择的受支持的账户类型有所不同
                 options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
                 options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
                 options.ClientId = msClientId!;
                 options.ClientSecret = msClientSecret!;
                 options.CallbackPath = msCallBackUrl;
-
-                options.Events = new OAuthEvents
-                {
-                    OnTicketReceived = context =>
-                    {
-                        return Task.CompletedTask;
-                    },
-                };
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.CorrelationCookie.SameSite = SameSiteMode.None;
+                //options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
             });
         }
-
         return services;
     }
-
     public static IServiceCollection AddCORS(this IServiceCollection services)
     {
         services.AddCors(options =>
