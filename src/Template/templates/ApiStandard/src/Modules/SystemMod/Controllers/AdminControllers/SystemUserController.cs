@@ -1,8 +1,7 @@
-using Ater.Common.Models;
 using Ater.Common.Options;
-using Ater.Common.Utils;
 using CommonMod.Managers;
 using Microsoft.AspNetCore.RateLimiting;
+using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 using SystemMod.Services;
@@ -92,12 +91,8 @@ public class SystemUserController(
         if (await _manager.ValidateLoginAsync(dto, user, loginPolicy))
         {
             user.LastLoginTime = DateTimeOffset.UtcNow;
-            // 获取Jwt配置
-            JwtOption jwtOption = _config.GetSection(JwtOption.ConfigPath).Get<JwtOption>()
-                ?? throw new ArgumentNullException("未找到Jwt选项!");
 
-            var result = _manager.GenerateJwtToken(user, jwtOption);
-
+            // 菜单和权限信息
             var menus = new List<SystemMenu>();
             var permissionGroups = new List<SystemPermissionGroup>();
             if (user.SystemRoles != null)
@@ -106,27 +101,38 @@ public class SystemUserController(
                 permissionGroups = await _roleManager.GetPermissionGroupsAsync([.. user.SystemRoles]);
             }
 
+            AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
+
             // 缓存登录状态
             string client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
             if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
             {
                 client = WebConst.AllPlatform;
             }
-
             var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
             // 若会话过期时间为0，则使用jwt过期时间
-            await _cache.SetValueAsync(
-                key,
-                result.Token,
-                loginPolicy.SessionExpiredSeconds == 0
-                    ? jwtOption.ExpiredSecond
-                    : loginPolicy.SessionExpiredSeconds);
 
-            result.Menus = menus;
-            result.PermissionGroups = permissionGroups;
+            var expiredSeconds = loginPolicy.SessionExpiredSeconds == 0
+                ? jwtToken.ExpiresIn
+                : loginPolicy.SessionExpiredSeconds;
+
+            // 缓存
+            await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
+            await _cache.SetValueAsync(jwtToken.RefreshToken, user.Id.ToString(), jwtToken.RefreshExpiresIn);
 
             await _logService.NewLog("登录", UserActionType.Login, "登录成功", user.UserName, user.Id);
-            return result;
+            return new AuthResult
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Menus = menus,
+                Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
+                PermissionGroups = permissionGroups,
+                AccessToken = jwtToken.AccessToken,
+                ExpiresIn = jwtToken.ExpiresIn,
+                RefreshToken = jwtToken.RefreshToken,
+
+            };
         }
         else
         {
@@ -134,6 +140,43 @@ public class SystemUserController(
             return Problem(errorCode: _manager.ErrorStatus);
         }
     }
+
+    /// <summary>
+    /// 刷新 token
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="Exception"></exception>
+    [HttpGet("refresh_token")]
+    public async Task<ActionResult<AccessTokenDto>> RefreshTokenAsync(string refreshToken)
+    {
+        string? userId = await _cache.GetValueAsync<string>(refreshToken);
+        if (userId == null || userId != _user.UserId.ToString())
+        {
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        SystemUser? user = await _manager.FindAsync(Guid.Parse(userId));
+        if (user == null)
+        {
+            return Forbid(ErrorKeys.NotFoundUser);
+        }
+        AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
+        // 更新缓存
+        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
+
+        string client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+        if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
+        {
+            client = WebConst.AllPlatform;
+        }
+        var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
+
+        await _cache.SetValueAsync(refreshToken, user.Id.ToString(), jwtToken.RefreshExpiresIn);
+        await _cache.SetValueAsync(key, jwtToken.AccessToken, jwtToken.ExpiresIn);
+        return jwtToken;
+    }
+
     /// <summary>
     /// 退出 ✅
     /// </summary>

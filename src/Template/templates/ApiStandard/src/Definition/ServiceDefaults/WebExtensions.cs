@@ -1,3 +1,6 @@
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
+using System.Threading.RateLimiting;
 using Ater.Common.Converters;
 using Ater.Common.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -5,9 +8,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
-using System.Threading.RateLimiting;
 
 namespace ServiceDefaults;
 public static class WebExtensions
@@ -92,7 +92,7 @@ public static class WebExtensions
         app.UseRouting();
         app.UseOutputCache();
         // TODO: if use Jwt
-        //app.UseMiddleware<JwtMiddleware>();
+        app.UseMiddleware<JwtMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();

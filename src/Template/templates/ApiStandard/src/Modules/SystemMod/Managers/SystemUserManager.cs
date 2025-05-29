@@ -1,11 +1,8 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using Ater.Common.Models;
 using Ater.Common.Options;
-using Ater.Common.Utils;
 using Ater.Web.Extension.Helpers;
-using Share;
-using Share.Implement;
+using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 
@@ -16,6 +13,7 @@ public class SystemUserManager(
     UserContext userContext,
     IConfiguration configuration,
     CacheService cache,
+    JwtService jwtService,
     SystemConfigManager systemConfig,
     ILogger<SystemUserManager> logger) : ManagerBase<SystemUser>(dataContext, logger)
 {
@@ -128,44 +126,28 @@ public class SystemUserManager(
     /// 生成jwtToken
     /// </summary>
     /// <param name="user"></param>
-    /// <param name="jwtOption"></param>
     /// <returns></returns>
-    public AuthResult GenerateJwtToken(SystemUser user, JwtOption jwtOption)
+    public AccessTokenDto GenerateJwtToken(SystemUser user)
     {
-        if (jwtOption.Sign.NotEmpty()
-            && jwtOption.ValidIssuer.NotEmpty()
-            && jwtOption.ValidAudiences.NotEmpty())
-        {
-            // 加载关联数据
-            List<string> roles = user.SystemRoles?.Select(r => r.NameValue)?.ToList()
-                ?? [WebConst.AdminUser];
-            // 过期时间:秒
-            var expiredSeconds = jwtOption.ExpiredSecond;
+        // 加载关联数据
+        var roles = user.SystemRoles?.Select(r => r.NameValue)?.ToList()
+            ?? [WebConst.AdminUser];
 
-            JwtService jwt = new(jwtOption.Sign, jwtOption.ValidAudiences, jwtOption.ValidIssuer)
-            {
-                TokenExpires = expiredSeconds,
-            };
-            // 添加管理员用户标识
-            if (!roles.Contains(WebConst.AdminUser))
-            {
-                roles.Add(WebConst.AdminUser);
-            }
-            jwt.Claims = [new(ClaimTypes.Name, user.UserName),];
-            var token = jwt.GetToken(user.Id.ToString(), [.. roles]);
-
-            return new AuthResult
-            {
-                Id = user.Id,
-                Roles = [.. roles],
-                Token = token,
-                Username = user.UserName
-            };
-        }
-        else
+        // 添加管理员用户标识
+        if (!roles.Contains(WebConst.AdminUser))
         {
-            throw new ArgumentNullException("缺少JWT配置，请联系管理员");
+            roles.Add(WebConst.AdminUser);
         }
+        jwtService.Claims = [new(ClaimTypes.Name, user.UserName),];
+        var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
+
+        return new AccessTokenDto
+        {
+            AccessToken = token,
+            ExpiresIn = jwtService.ExpiredSecond,
+            RefreshToken = JwtService.GetRefreshToken(),
+            RefreshExpiresIn = jwtService.RefreshExpiredSecond
+        };
     }
 
     /// <summary>

@@ -1,7 +1,5 @@
-using CommonMod.Managers;
 using Entity.UserMod;
-using Ater.Common.Options;
-using Share;
+using Share.Models.Auth;
 using Share.Models.UserDtos;
 
 namespace Http.API.Controllers;
@@ -16,12 +14,12 @@ public class UserController(
     ILogger<UserController> logger,
     UserManager manager,
     CacheService cache,
-    EmailManager emailService,
+    JwtService jwtService,
+    EmailManager emailManager,
     IConfiguration config) : ClientControllerBase<UserManager>(localizer, manager, user, logger)
 {
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
-    private readonly EmailManager _emailService = emailService;
 
     /// <summary>
     /// 用户注册 ✅
@@ -37,7 +35,7 @@ public class UserController(
         {
             return Conflict(ErrorKeys.ExistUser);
         }
-        // TODO:根据实际需求自定义验证码逻辑
+        // 根据实际需求自定义验证码逻辑
         if (dto.VerifyCode != null)
         {
             if (dto.Email == null)
@@ -74,7 +72,7 @@ public class UserController(
             return Conflict("验证码已发送!");
         }
         // 使用 smtp，可替换成其他
-        await _emailService.SendRegisterVerifyAsync(email, captcha);
+        await emailManager.SendRegisterVerifyAsync(email, captcha);
         // 缓存，默认5分钟过期
         await _cache.SetValueAsync(key, captcha, 60 * 5);
         return Ok();
@@ -100,7 +98,7 @@ public class UserController(
             return Conflict("验证码已发送!");
         }
         // 使用 smtp，可替换成其他
-        await _emailService.SendLoginVerifyAsync(email, captcha);
+        await emailManager.SendLoginVerifyAsync(email, captcha);
         // 缓存，默认5分钟过期
         await _cache.SetValueAsync(key, captcha, 60 * 5);
 
@@ -137,49 +135,29 @@ public class UserController(
                 return BadRequest("验证码错误");
             }
         }
+
+        // 如果有登录安全策略，可以在此处添加验证逻辑
+        // var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
+
         if (HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
-            // 获取Jwt配置
-            JwtOption jwtOption = _config.GetSection(JwtOption.ConfigPath).Get<JwtOption>()
-                ?? throw new ArgumentNullException("未找到Jwt选项!");
-            var sign = jwtOption.Sign;
-            var issuer = jwtOption.ValidIssuer;
-            var audience = jwtOption.ValidAudiences;
+            var roles = new List<string> { WebConst.User };
+            var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
+            var refreshToken = JwtService.GetRefreshToken();
 
-            // 构建返回内容
-            if (!string.IsNullOrWhiteSpace(sign) &&
-                !string.IsNullOrWhiteSpace(issuer) &&
-                !string.IsNullOrWhiteSpace(audience))
-            {
-                // 设置角色或用户等级以区分权限
-                var roles = new List<string> { WebConst.User };
-                // 过期时间:minutes
-                var expired = 60 * 24;
-                JwtService jwt = new(sign, audience, issuer)
-                {
-                    TokenExpires = expired,
-                };
-                // 添加管理员用户标识
-                if (!roles.Contains(WebConst.User))
-                {
-                    roles.Add(WebConst.User);
-                }
-                var token = jwt.GetToken(user.Id.ToString(), [.. roles]);
-                // 缓存登录状态
-                await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, expired * 60);
+            // 缓存
+            await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, jwtService.ExpiredSecond);
+            await _cache.SetValueAsync(refreshToken, user.Id.ToString(), jwtService.RefreshExpiredSecond);
 
-                return new LoginResult
-                {
-                    Id = user.Id,
-                    Roles = [.. roles],
-                    Token = token,
-                    Username = user.UserName
-                };
-            }
-            else
+            return new LoginResult
             {
-                throw new Exception("缺少Jwt配置内容");
-            }
+                Id = user.Id,
+                Roles = [.. roles],
+                AccessToken = token,
+                ExpiresIn = jwtService.ExpiredSecond,
+                RefreshToken = refreshToken,
+                Username = user.UserName
+            };
         }
         else
         {
@@ -188,16 +166,53 @@ public class UserController(
     }
 
     /// <summary>
+    /// 刷新 token
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="Exception"></exception>
+    [HttpGet("refresh_token")]
+    public async Task<ActionResult<AccessTokenDto>> RefreshTokenAsync(string refreshToken)
+    {
+        var userId = await _cache.GetValueAsync<string>(refreshToken);
+        if (userId == null || userId != _user.UserId.ToString())
+        {
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        // 获取用户信息
+        var user = await _manager.FindAsync<User>(u => u.Id.ToString().Equals(userId));
+        if (user == null)
+        {
+            return Forbid(ErrorKeys.NotFoundUser);
+        }
+        var roles = new List<string> { WebConst.User };
+        var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
+        var newRefreshToken = JwtService.GetRefreshToken();
+
+        // 缓存
+        await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, jwtService.ExpiredSecond);
+        await _cache.SetValueAsync(newRefreshToken, user.Id.ToString(), jwtService.RefreshExpiredSecond);
+        return new AccessTokenDto
+        {
+            AccessToken = token,
+            RefreshToken = newRefreshToken,
+            ExpiresIn = jwtService.ExpiredSecond,
+            RefreshExpiresIn = jwtService.RefreshExpiredSecond,
+        };
+    }
+
+    /// <summary>
     /// 退出 ✅
     /// </summary>
     /// <returns></returns>
-    [HttpPut("logout/{id}")]
-    public async Task<ActionResult<bool>> LogoutAsync([FromRoute] Guid id)
+    [HttpPut("logout")]
+    public async Task<ActionResult<bool>> LogoutAsync()
     {
-        if (await _manager.ExistAsync(id))
+        if (await _manager.ExistAsync(_user.UserId))
         {
             // 清除缓存状态
-            await _cache.RemoveAsync(WebConst.LoginCachePrefix + id.ToString());
+            await _cache.RemoveAsync(WebConst.LoginCachePrefix + _user.UserId.ToString());
             return Ok();
         }
         return NotFound();

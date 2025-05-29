@@ -1,19 +1,23 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Ater.Web.Convention.Services;
 
-public class JwtService(string sign, string audience, string issuer)
+/// <summary>
+/// JWT签名
+/// </summary>
+/// <param name="sign"></param>
+/// <param name="audience"></param>
+/// <param name="issuer"></param>
+public class JwtService(IOptions<JwtOption> options)
 {
-    /// <summary>
-    /// 过期时间，分
-    /// </summary>
-    public int TokenExpires { get; set; }
-    public int RefreshTokenExpires { get; set; }
-    public string Sign { get; set; } = sign;
-    public string Audience { get; set; } = audience;
-    public string Issuer { get; set; } = issuer;
+    public readonly int ExpiredSecond = options.Value.ExpiredSecond;
+    public readonly int RefreshExpiredSecond = options.Value.RefreshExpiredSecond;
+    private readonly string Sign = options.Value.Sign;
+    private readonly string Audience = options.Value.ValidAudiences;
+    private readonly string Issuer = options.Value.ValidIssuer;
     public List<Claim>? Claims { get; set; }
 
     /// <summary>
@@ -39,10 +43,21 @@ public class JwtService(string sign, string audience, string issuer)
             claims.AddRange(Claims);
         }
         JwtSecurityToken jwt = new(Issuer, Audience, claims,
-            expires: DateTime.UtcNow.AddMinutes(TokenExpires),
+            expires: DateTime.UtcNow.AddSeconds(ExpiredSecond),
             signingCredentials: signingCredentials);
         var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
         return encodedJwt;
+    }
+
+    /// <summary>
+    /// refresh token
+    /// guid+ random string
+    /// </summary>
+    /// <returns></returns>
+    public static string GetRefreshToken()
+    {
+        var guid = Guid.CreateVersion7().ToString("N");
+        return guid + HashCrypto.GetRnd(32, useLow: true);
     }
 
     /// <summary>

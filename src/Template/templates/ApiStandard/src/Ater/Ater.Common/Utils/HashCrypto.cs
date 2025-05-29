@@ -142,25 +142,25 @@ public class HashCrypto
     /// <returns></returns>
     public static string GetRnd(int length = 4, bool useNum = true, bool useLow = false, bool useUpp = true, bool useSpe = false, string custom = "")
     {
-        var strBuilder = new StringBuilder(custom);
+        var sb = new StringBuilder(custom);
         if (useNum)
         {
-            strBuilder.Append("0123456789");
+            sb.Append("0123456789");
         }
         if (useLow)
         {
-            strBuilder.Append("abcdefghijklmnopqrstuvwxyz");
+            sb.Append("abcdefghijklmnopqrstuvwxyz");
         }
         if (useUpp)
         {
-            strBuilder.Append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            sb.Append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
         if (useSpe)
         {
-            strBuilder.Append("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+            sb.Append("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
         }
 
-        ReadOnlySpan<char> strSpan = strBuilder.ToString().AsSpan();
+        ReadOnlySpan<char> strSpan = sb.ToString().AsSpan();
         var resultBuilder = new StringBuilder(length);
 
         for (var i = 0; i < length; i++)

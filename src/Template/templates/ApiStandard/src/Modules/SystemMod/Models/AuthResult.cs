@@ -1,5 +1,3 @@
-﻿using Entity.SystemMod;
-
 namespace SystemMod.Models;
 
 public class AuthResult
@@ -15,6 +13,12 @@ public class AuthResult
     /// <summary>
     /// token
     /// </summary>
-    public string Token { get; set; } = default!;
+    public string AccessToken { get; set; } = default!;
+    /// <summary>
+    /// 过期时间秒
+    /// </summary>
+    public int ExpiresIn { get; set; }
+
+    public string RefreshToken { get; set; } = string.Empty;
     public List<SystemPermissionGroup>? PermissionGroups { get; set; }
 }
