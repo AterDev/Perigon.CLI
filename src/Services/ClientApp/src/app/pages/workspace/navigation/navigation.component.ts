@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatDrawerContainer, MatDrawer, MatDrawerContent } from '@angular/material/sidenav';
@@ -15,14 +15,14 @@ import { MatNavList, MatListItem } from '@angular/material/list';
   imports: [MatDrawerContainer, MatDrawer, MatIconButton, MatIcon, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatTooltip, MatNavList, MatListItem, RouterLink, RouterLinkActive, MatDrawerContent, RouterOutlet]
 })
 export class NavigationComponent implements OnInit {
+  route = inject(ActivatedRoute);
+
   events: string[] = [];
   opened = true;
   expanded = true;
   isNodeJs = false;
   @ViewChild(MatAccordion, { static: true }) accordion!: MatAccordion;
-  constructor(
-    public route: ActivatedRoute,
-  ) {
+  constructor() {
     const project = localStorage.getItem('project');
     if (project) {
       let solutionType = JSON.parse(project).solutionType;

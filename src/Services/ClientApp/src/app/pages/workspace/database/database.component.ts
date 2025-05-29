@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProjectStateService } from 'src/app/share/project-state.service';
 import { ProjectService } from 'src/app/services/project/project.service';
@@ -18,16 +18,18 @@ import { MarkdownComponent } from 'ngx-markdown';
     imports: [MatProgressSpinner, MarkdownComponent]
 })
 export class DatabaseComponent implements OnInit {
+  private service = inject(ProjectService);
+  private projectState = inject(ProjectStateService);
+  private snb = inject(MatSnackBar);
+  private sanitizer = inject(DomSanitizer);
+
   isLoding = true;
   content: string | null = null;
   projectId: string | null = null;
   editorOptions = { theme: 'vs-dark', language: 'markdown', minimap: { enabled: false } };
-  constructor(
-    private service: ProjectService,
-    private projectState: ProjectStateService,
-    private snb: MatSnackBar,
-    private sanitizer: DomSanitizer
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+
     this.projectId = projectState.project?.id!;
   }
 

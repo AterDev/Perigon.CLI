@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToolsService } from 'src/app/services/tools/tools.service';
 import { MatButton } from '@angular/material/button';
@@ -13,17 +13,14 @@ import { FormsModule } from '@angular/forms';
     imports: [MatButton, MatTooltip, EditorComponent, FormsModule]
 })
 export class Json2TypeComponent {
+  private service = inject(ToolsService);
+  private snb = inject(MatSnackBar);
+
   editorOptions = { theme: 'vs-dark', language: 'csharp', minimap: { enabled: false } };
   jsonEditorOptions = { theme: 'vs-dark', language: 'json', minimap: { enabled: false } };
   jsonContent = '';
   classCode: string | null = null;
   editor: any;
-
-  constructor(
-    private service: ToolsService,
-    private snb: MatSnackBar
-  ) {
-  }
 
   onInit(editor: any) {
     this.editor = editor;

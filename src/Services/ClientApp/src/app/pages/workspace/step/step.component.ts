@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -31,6 +31,12 @@ import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 
 })
 export class StepComponent {
+  private service = inject(GenStepService);
+  private snb = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   GenStepType = GenStepType;
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   isLoading = true;
@@ -48,13 +54,7 @@ export class StepComponent {
   currentItem = {} as GenStepItemDto;
   filter: GenStepFilterDto;
   pageSizeOption = [12, 20, 50];
-  constructor(
-    private service: GenStepService,
-    private snb: MatSnackBar,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {
+  constructor() {
     this.filter = {
       pageIndex: 1,
       pageSize: 12,

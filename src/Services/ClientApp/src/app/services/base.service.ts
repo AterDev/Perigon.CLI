@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 // import { OidcSecurityService } from 'angular-auth-oidc-client';
@@ -7,13 +7,13 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class BaseService {
+  protected http = inject(HttpClient);
   public baseUrl: string | null;
   public isMobile = false;
-  constructor(
-    protected http: HttpClient,
-    @Inject('BASE_URL') baseUrl: string
-    // private oidcSecurityService: OidcSecurityService
-  ) {
+
+  constructor() {
+    const baseUrl = inject<string>('BASE_URL' as any);
+
     this.isMobile = this.isMoblie();
     if (baseUrl.endsWith('/')) {
       this.baseUrl = baseUrl.slice(0, -1);
@@ -29,7 +29,7 @@ export class BaseService {
       body
     };
 
-    
+
     return this.http.request<R>(method, url, options);
   }
 

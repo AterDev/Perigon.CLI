@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
@@ -20,6 +20,12 @@ import { FormsModule } from '@angular/forms';
     imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, MatTabGroup, MatTab, EditorComponent, FormsModule]
 })
 export class DtoComponent implements OnInit {
+  route = inject(ActivatedRoute);
+  snb = inject(MatSnackBar);
+  projectState = inject(ProjectStateService);
+  private service = inject(EntityInfoService);
+  private location = inject(Location);
+
   name: string | null = null;
   path: string | null = null;
   dtos: EntityFile[] = [];
@@ -33,13 +39,9 @@ export class DtoComponent implements OnInit {
   };
   currentTabName: string | null = null;
   code: string = '';
-  constructor(
-    public route: ActivatedRoute,
-    public snb: MatSnackBar,
-    public projectState: ProjectStateService,
-    private service: EntityInfoService,
-    private location: Location
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+
     this.name = this.route.snapshot.paramMap.get('name');
     if (projectState.project) {
       this.projectId = projectState.project?.id;

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -44,6 +44,13 @@ import { EnumTextPipe } from '../../../pipe/enum-text.pipe';
     imports: [MatToolbar, MatToolbarRow, MatFormField, MatLabel, MatInput, FormsModule, MatButton, MatTooltip, MatIcon, MatProgressSpinner, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatIconButton, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDivider, MatPaginator, MatDialogTitle, CdkScrollable, MatDialogContent, ReactiveFormsModule, MatSelect, MatOption, MatDialogActions, MatDialogClose, CdkDropList, CdkDrag, MatAutocompleteTrigger, MatSuffix, MatAutocomplete, SyncButtonComponent, ToKeyValuePipe, EnumTextPipe]
 })
 export class TaskComponent implements OnInit {
+  private service = inject(GenActionService);
+  private stepService = inject(GenStepService);
+  private snb = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   GenSourceType = GenSourceType;
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   isLoading = true;
@@ -72,14 +79,7 @@ export class TaskComponent implements OnInit {
   remainSteps: GenStepItemDto[] = [];
   selectedSteps: GenStepItemDto[] = [];
 
-  constructor(
-    private service: GenActionService,
-    private stepService: GenStepService,
-    private snb: MatSnackBar,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {
+  constructor() {
     this.filter = {
       pageIndex: 1,
       pageSize: 12,

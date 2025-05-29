@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -10,12 +10,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     styleUrl: './progress-dialog.component.css'
 })
 export class ProgressDialogComponent {
+  dialogRef = inject<MatDialogRef<ProgressDialogComponent>>(MatDialogRef);
+  data = inject<{
+    title: '';
+    content: '';
+}>(MAT_DIALOG_DATA);
 
-  constructor(
-    public dialogRef: MatDialogRef<ProgressDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { title: '', content: '' }
-  ) {
-  }
 
   ngOnInit() {
   }

@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialog, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -25,6 +25,13 @@ import { MatInput } from '@angular/material/input';
     imports: [MatToolbar, MatToolbarRow, MatButton, MatProgressSpinner, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatDialogActions, MatDialogClose]
 })
 export class FeatureComponent {
+  private service = inject(SolutionService);
+  private projectSrv = inject(ProjectStateService);
+  private snb = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   isLoading = true;
   isProcessing = false;
@@ -39,14 +46,7 @@ export class FeatureComponent {
 
   project: Project | null = null;
   pageSizeOption = [12, 20, 50];
-  constructor(
-    private service: SolutionService,
-    private projectSrv: ProjectStateService,
-    private snb: MatSnackBar,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {
+  constructor() {
     this.project = this.projectSrv.project;
   }
 

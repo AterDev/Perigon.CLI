@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -50,6 +50,15 @@ import { TypeMeta } from 'src/app/services/models/type-meta.model';
   imports: [NgIf, MatProgressSpinner, MatToolbar, MatFormField, MatSelect, FormsModule, NgFor, MatOption, MatIconButton, MatTooltip, MatIcon, MatTabGroup, MatTab, MatInput, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatNavList, MatListItem, MatChipSet, MatChip, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatLabel, MatButton, EditorComponent, MatDialogTitle, CdkScrollable, MatDialogContent, ReactiveFormsModule, MatDialogActions, MatDialogClose]
 })
 export class DocsComponent implements OnInit {
+  projectSrv = inject(ProjectService);
+  projectState = inject(ProjectStateService);
+  service = inject(ApiDocInfoService);
+  private genActionService = inject(GenActionService);
+  entitySrv = inject(EntityInfoService);
+  router = inject(Router);
+  dialog = inject(MatDialog);
+  snb = inject(MatSnackBar);
+
   OperationType = OperationType;
   RequestLibType = RequestLibType;
   ComponentType = ComponentType;
@@ -112,16 +121,9 @@ export class DocsComponent implements OnInit {
     }
   };
 
-  constructor(
-    public projectSrv: ProjectService,
-    public projectState: ProjectStateService,
-    public service: ApiDocInfoService,
-    private genActionService: GenActionService,
-    public entitySrv: EntityInfoService,
-    public router: Router,
-    public dialog: MatDialog,
-    public snb: MatSnackBar
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+
     if (projectState.project) {
       this.projectId = projectState.project.id;
       this.project = projectState.project;

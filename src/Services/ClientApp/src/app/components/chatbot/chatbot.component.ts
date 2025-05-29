@@ -1,5 +1,5 @@
 import { HttpEvent, HttpEventType } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatSelectionListChange } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -31,18 +31,18 @@ export enum ToolType {
     imports: [MarkdownComponent, MatFormField, MatInput, CdkTextareaAutosize, FormsModule, MatIconButton, MatSuffix, MatTooltip, MatIcon]
 })
 export class ChatBotComponent {
+  private snb = inject(MatSnackBar);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private service = inject(AdvanceService);
+
   isLoading = true;
   isProcessing = false;
   ToolType = ToolType;
   content: string | null = null;
   selectedTool: ToolType;
   answerContent: string = '本对话由DeepSeek V2模型提供支持!';
-  constructor(
-    private snb: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute,
-    private service: AdvanceService
-  ) {
+  constructor() {
     this.selectedTool = ToolType.Entity;
   }
 

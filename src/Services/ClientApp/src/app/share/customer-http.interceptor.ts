@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 
 import { catchError } from 'rxjs/operators';
@@ -9,13 +9,10 @@ import { LoginService } from '../auth/login.service';
 
 @Injectable()
 export class CustomerHttpInterceptor implements HttpInterceptor {
-  constructor(
-    private snb: MatSnackBar,
-    private router: Router,
-    private auth: LoginService
-  ) {
+  private snb = inject(MatSnackBar);
+  private router = inject(Router);
+  private auth = inject(LoginService);
 
-  }
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request)
       .pipe(

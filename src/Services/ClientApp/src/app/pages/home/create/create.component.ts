@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -29,6 +29,10 @@ import { ToKeyValuePipe } from '../../../share/pipe/to-key-value.pipe';
     imports: [FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatSlideToggle, MatIcon, MatTooltip, MatSelect, MatOption, MatHint, MatSelectionList, MatListOption, MatButton, MatProgressSpinner, ToKeyValuePipe]
 })
 export class CreateComponent {
+  private service = inject(SolutionService);
+  private snb = inject(MatSnackBar);
+  private router = inject(Router);
+
   addForm!: FormGroup;
   data = {} as CreateSolutionDto;
   isProcess = false;
@@ -37,14 +41,6 @@ export class CreateComponent {
   CacheType = CacheType;
   ProjectType = ProjectType;
   defaultModules: ModuleInfo[] = [];
-
-  constructor(
-    private service: SolutionService,
-    private snb: MatSnackBar,
-    private router: Router
-  ) {
-
-  }
 
   get name() { return this.addForm.get('name'); }
   get path() { return this.addForm.get('path'); }

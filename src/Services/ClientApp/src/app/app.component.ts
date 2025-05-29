@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { LayoutComponent } from './components/layout/layout.component';
 
@@ -9,8 +9,10 @@ import { LayoutComponent } from './components/layout/layout.component';
   imports: [LayoutComponent]
 })
 export class AppComponent {
+  private matIconReg = inject(MatIconRegistry);
+
   title = 'Ater.Dry';
-  constructor(private matIconReg: MatIconRegistry) {
+  constructor() {
     this.matIconReg.setDefaultFontSetClass('material-symbols-outlined');
   }
 }
