@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonFormModules, MatCardModule, CommonModule],
+  imports: [CommonFormModules, MatCardModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })

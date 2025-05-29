@@ -10,13 +10,17 @@
         <mat-form-field appearance="outline" class="mt-2">
           <mat-label>用户名</mat-label>
           <input matInput type="text" placeholder="用户名4位以上" formControlName="username" required>
-          <mat-error *ngIf="username?.invalid">{{getValidatorMessage('username')}}</mat-error>
+          @if (username?.invalid) {
+            <mat-error>{{getValidatorMessage('username')}}</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>密码</mat-label>
           <input type="password" matInput placeholder="密码长度6位(含6位)以上" formControlName="password" required>
-          <mat-error *ngIf="password?.invalid">{{getValidatorMessage('password')}}
-          </mat-error>
+          @if (password?.invalid) {
+            <mat-error>{{getValidatorMessage('password')}}
+            </mat-error>
+          }
         </mat-form-field>
         <div class="d-flex justify-content-end">
           <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid">登录</button>

@@ -8,16 +8,18 @@
           <mat-label>姓名</mat-label>
           <input matInput placeholder="" [(ngModel)]='filter.searchKey'>
         </mat-form-field>
-      
+
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>GenderType</mat-label>
           <mat-select formControlName="genderType" placeholder="">
-            <mat-option *ngFor="let item of GenderType | toKeyValue" [value]="item.value">
-              {{item.value| enumText:'GenderType'}}
-            </mat-option>
+            @for (item of GenderType | toKeyValue; track item) {
+              <mat-option [value]="item.value">
+                {{item.value| enumText:'GenderType'}}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
-        
+
         <div class="d-flex">
           <button mat-flat-button (click)="getList()" color="primary">搜索</button>
         </div>
@@ -33,39 +35,39 @@
 <!-- 加载框 -->
 <div class="d-flex text-center justify-content-center mt-2">
   @if(isLoading){
-  <mat-spinner mode="indeterminate"></mat-spinner>
+    <mat-spinner mode="indeterminate"></mat-spinner>
   }
 
 </div>
 
 @if(!isLoading){
-<div class="px-2">
-  <!-- 无数据时显示 -->
-  @if(data && data.length<=0){ <h4>
-    暂无数据！
+  <div class="px-2">
+    <!-- 无数据时显示 -->
+    @if(data && data.length<=0){ <h4>
+      暂无数据！
     </h4>
     }@else{
     <table class="default" mat-table [dataSource]="dataSource" style="width: 100%;" #table="matTable">
-          <ng-container matColumnDef="genderType">
-            <th mat-header-cell *matHeaderCellDef> GenderType </th>
-            <td mat-cell *matCellDef="let element;table:table"> {{element.genderType}} </td>
-          </ng-container>
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef> Id </th>
-            <td mat-cell *matCellDef="let element;table:table"> {{element.id}} </td>
-          </ng-container>
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> 账号状态 </th>
-            <td mat-cell *matCellDef="let element;table:table"> {{element.status}} </td>
-          </ng-container>
-          <ng-container matColumnDef="createdTime">
-            <th mat-header-cell *matHeaderCellDef> CreatedTime </th>
-            <td mat-cell *matCellDef="let element;table:table"> {{element.createdTime}} </td>
-          </ng-container>
-          <ng-container matColumnDef="team">
-            <th mat-header-cell *matHeaderCellDef> Team </th>
-            <td mat-cell *matCellDef="let element;table:table"> {{element.team}} </td>
-          </ng-container>
+      <ng-container matColumnDef="genderType">
+        <th mat-header-cell *matHeaderCellDef> GenderType </th>
+        <td mat-cell *matCellDef="let element;table:table"> {{element.genderType}} </td>
+      </ng-container>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef> Id </th>
+        <td mat-cell *matCellDef="let element;table:table"> {{element.id}} </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> 账号状态 </th>
+        <td mat-cell *matCellDef="let element;table:table"> {{element.status}} </td>
+      </ng-container>
+      <ng-container matColumnDef="createdTime">
+        <th mat-header-cell *matHeaderCellDef> CreatedTime </th>
+        <td mat-cell *matCellDef="let element;table:table"> {{element.createdTime}} </td>
+      </ng-container>
+      <ng-container matColumnDef="team">
+        <th mat-header-cell *matHeaderCellDef> Team </th>
+        <td mat-cell *matCellDef="let element;table:table"> {{element.team}} </td>
+      </ng-container>
 
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>操作</th>
@@ -93,7 +95,7 @@
         [length]="total" (page)="getList($event)" showFirstLastButtons>
       </mat-paginator>
     </div>
-    }
+  }
 </div>
 }
 
