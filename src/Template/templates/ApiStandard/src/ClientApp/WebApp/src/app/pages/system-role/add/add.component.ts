@@ -1,4 +1,4 @@
-﻿import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { SystemRoleService } from 'src/app/services/admin/system-role/system-role.service';
 import { SystemRole } from 'src/app/services/admin/system-role/models/system-role.model';
