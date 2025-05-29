@@ -15,7 +15,7 @@ import 'prismjs/components/prism-csharp.min.js';
 import { AdvanceService } from 'src/app/services/advance/advance.service';
 import { ControllerType } from 'src/app/services/enum/models/controller-type.model';
 import { ProjectConfig } from 'src/app/services/project/models/project-config.model';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatButton, MatMiniFabAnchor, MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
@@ -33,7 +33,7 @@ import { ToKeyValuePipe } from '../../../share/pipe/to-key-value.pipe';
   selector: 'app-index',
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.css'],
-  imports: [NgIf, MatButton, MatTooltip, MatMiniFabAnchor, RouterLink, MatIcon, NgFor, MatCard, MatCardHeader, MatCardTitle, MatIconButton, MatCardSubtitle, MatCardContent, MatCardActions, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatDialogClose, MatHint, MatRadioGroup, MatRadioButton, MatProgressBar, MarkdownComponent, EnumTextPipe, ToKeyValuePipe]
+  imports: [MatButton, MatTooltip, MatMiniFabAnchor, RouterLink, MatIcon, MatCard, MatCardHeader, MatCardTitle, MatIconButton, MatCardSubtitle, MatCardContent, MatCardActions, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatDialogClose, MatHint, MatRadioGroup, MatRadioButton, MatProgressBar, MarkdownComponent, EnumTextPipe, ToKeyValuePipe]
 })
 export class IndexComponent implements OnInit {
   @ViewChild("addDialog", { static: true }) dialogTmpRef!: TemplateRef<{}>;

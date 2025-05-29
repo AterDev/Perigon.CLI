@@ -13,7 +13,7 @@ import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatAutocomplete }
 import { StringComponent } from 'src/app/pages/tools/string/string.component';
 import { MatDrawerContainer, MatDrawer, MatDrawerContent } from '@angular/material/sidenav';
 import { ChatBotComponent } from '../chatbot/chatbot.component';
-import { NgIf } from '@angular/common';
+
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
@@ -29,7 +29,7 @@ import { MatOption } from '@angular/material/core';
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css'],
-  imports: [MatDrawerContainer, MatDrawer, ChatBotComponent, NgIf, MatDrawerContent, MatToolbar, MatButton, RouterLinkActive, RouterLink, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem, MatIconButton, MatTooltip, RouterOutlet, QuickNavComponent, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatAutocompleteTrigger, MatAutocomplete, MatOption]
+  imports: [MatDrawerContainer, MatDrawer, ChatBotComponent, MatDrawerContent, MatToolbar, MatButton, RouterLinkActive, RouterLink, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem, MatIconButton, MatTooltip, RouterOutlet, QuickNavComponent, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatAutocompleteTrigger, MatAutocomplete, MatOption]
 })
 export class LayoutComponent implements OnInit {
   isLogin = false;

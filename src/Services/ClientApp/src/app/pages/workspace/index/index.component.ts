@@ -23,7 +23,7 @@ import { ProjectService } from 'src/app/services/project/project.service';
 import { ProjectConfig } from 'src/app/services/project/models/project-config.model';
 import { ProgressDialogComponent } from 'src/app/components/progress-dialog/progress-dialog.component';
 import { SubProjectInfo } from 'src/app/services/solution/models/sub-project-info.model';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIconButton, MatButton } from '@angular/material/button';
@@ -42,7 +42,7 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
     selector: 'app-index',
     templateUrl: './index.component.html',
     styleUrls: ['./index.component.css'],
-    imports: [NgIf, MatProgressSpinner, MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, MatMenu, MatMenuItem, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, TypedCellDefDirective, MatCellDef, MatCell, MatButton, MatMenuTrigger, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, MatSlideToggle, MatDialogActions, MatDialogClose, MatSelectionList, NgFor, MatListOption, MatHint, EditorComponent]
+    imports: [MatProgressSpinner, MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, MatMenu, MatMenuItem, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, TypedCellDefDirective, MatCellDef, MatCell, MatButton, MatMenuTrigger, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, MatSlideToggle, MatDialogActions, MatDialogClose, MatSelectionList, MatListOption, MatHint, EditorComponent]
 })
 export class IndexComponent implements OnInit {
   RequestLibType = RequestLibType;

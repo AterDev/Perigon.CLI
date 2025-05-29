@@ -6,7 +6,7 @@ import { ProjectService } from 'src/app/services/project/project.service';
 import 'prismjs/plugins/line-numbers/prism-line-numbers.js';
 import 'prismjs/components/prism-markup.min.js';
 import { DomSanitizer } from '@angular/platform-browser';
-import { NgIf } from '@angular/common';
+
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MarkdownComponent } from 'ngx-markdown';
 
@@ -15,7 +15,7 @@ import { MarkdownComponent } from 'ngx-markdown';
     templateUrl: './database.component.html',
     styleUrls: ['./database.component.css'],
     encapsulation: ViewEncapsulation.None,
-    imports: [NgIf, MatProgressSpinner, MarkdownComponent]
+    imports: [MatProgressSpinner, MarkdownComponent]
 })
 export class DatabaseComponent implements OnInit {
   isLoding = true;

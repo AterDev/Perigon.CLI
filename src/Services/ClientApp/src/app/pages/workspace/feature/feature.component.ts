@@ -11,7 +11,7 @@ import { SolutionService } from 'src/app/services/solution/solution.service';
 import { SubProjectInfo } from 'src/app/services/solution/models/sub-project-info.model';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { MatButton } from '@angular/material/button';
-import { NgIf } from '@angular/common';
+
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { TypedCellDefDirective } from '../../../components/typed-cell-def.directive';
 import { CdkScrollable } from '@angular/cdk/scrolling';
@@ -22,7 +22,7 @@ import { MatInput } from '@angular/material/input';
     selector: 'app-feature',
     templateUrl: './feature.component.html',
     styleUrls: ['./feature.component.css'],
-    imports: [MatToolbar, MatToolbarRow, MatButton, NgIf, MatProgressSpinner, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatDialogActions, MatDialogClose]
+    imports: [MatToolbar, MatToolbarRow, MatButton, MatProgressSpinner, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatDialogActions, MatDialogClose]
 })
 export class FeatureComponent {
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;

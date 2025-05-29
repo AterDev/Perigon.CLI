@@ -8,7 +8,7 @@ import { AdvanceService } from 'src/app/services/advance/advance.service';
 
 import 'prismjs/plugins/line-numbers/prism-line-numbers.js';
 import 'prismjs/components/prism-markup.min.js';
-import { NgIf } from '@angular/common';
+
 import { MarkdownComponent } from 'ngx-markdown';
 import { MatFormField, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -28,7 +28,7 @@ export enum ToolType {
     selector: 'app-chatbot',
     templateUrl: './chatbot.component.html',
     styleUrls: ['./chatbot.component.css'],
-    imports: [NgIf, MarkdownComponent, MatFormField, MatInput, CdkTextareaAutosize, FormsModule, MatIconButton, MatSuffix, MatTooltip, MatIcon]
+    imports: [MarkdownComponent, MatFormField, MatInput, CdkTextareaAutosize, FormsModule, MatIconButton, MatSuffix, MatTooltip, MatIcon]
 })
 export class ChatBotComponent {
   isLoading = true;

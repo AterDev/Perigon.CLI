@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Location, NgIf } from '@angular/common';
+import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AdvanceService } from 'src/app/services/advance/advance.service';
@@ -18,7 +18,7 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
     selector: 'app-entity',
     templateUrl: './entity.component.html',
     styleUrls: ['./entity.component.css'],
-    imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, NgIf, MatProgressSpinner, EditorComponent]
+    imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, MatProgressSpinner, EditorComponent]
 })
 export class EntityComponent {
   isProcessing = false;

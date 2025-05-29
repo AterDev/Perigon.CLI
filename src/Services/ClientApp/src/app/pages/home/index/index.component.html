@@ -1,64 +1,81 @@
 <!-- project -->
 <div class="p-2">
   <div class="d-flex flex-row align-items-center">
-    <button *ngIf=" type!='desktop'" mat-flat-button (click)="addProjectDialog()" matTooltip="添加本地已有项目" color="primary">
-      添加本地项目
-    </button>
-    <a *ngIf="type!='desktop'" class="ms-2" mat-mini-fab matTooltip="创建新解决方案" routerLink="/create" color="accent">
-      <mat-icon>add</mat-icon>
-    </a>
+    @if ( type!='desktop') {
+      <button mat-flat-button (click)="addProjectDialog()" matTooltip="添加本地已有项目" color="primary">
+        添加本地项目
+      </button>
+    }
+    @if (type!='desktop') {
+      <a class="ms-2" mat-mini-fab matTooltip="创建新解决方案" routerLink="/create" color="accent">
+        <mat-icon>add</mat-icon>
+      </a>
+    }
     <div class="d-flex flex-grow-1 "></div>
     <div>
       <!-- <button mat-icon-button matTooltip="AI配置" (click)="openOpenAI()">
-        <mat-icon class="text-primary">smart_toy</mat-icon>
-      </button> -->
-    </div>
+      <mat-icon class="text-primary">smart_toy</mat-icon>
+    </button> -->
   </div>
+</div>
 
-  <div class="d-flex gap-1 flex-wrap mt-2" *ngIf="!isLoading">
+@if (!isLoading) {
+  <div class="d-flex gap-1 flex-wrap mt-2">
     @if(projects.length==0){
-    <span>暂无任何项目，请添加已存在的本地项目或点击</span>
-    <span class="strong">+</span> 创建新解决方案！
+      <span>暂无任何项目，请添加已存在的本地项目或点击</span>
+      <span class="strong">+</span> 创建新解决方案！
     }
-
-    <mat-card *ngFor="let item of projects" class="col" style="min-width: 300px;" appearance="outlined">
-      <mat-card-header>
-        <mat-card-title class="d-flex align-items-center " style="height: 48px;">
-          <!-- insert svg icon -->
-          <img *ngIf="item.solutionType==SolutionType.DotNet" src="assets/images/logo_net.svg" height="30" width="30">
-          <img *ngIf="item.solutionType==SolutionType.Node" src="assets/images/nodejs.svg" height="30" width="30">
-          <span class="ms-1 strong">
-            {{ item.displayName }}
-          </span>
-          <button *ngIf="item.solutionType==SolutionType.DotNet" mat-icon-button matTooltip="项目路径配置"
-            (click)="openSetting(item)">
-            <mat-icon class="text-primary">settings</mat-icon>
+    @for (item of projects; track item) {
+      <mat-card class="col" style="min-width: 300px;" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title class="d-flex align-items-center " style="height: 48px;">
+            <!-- insert svg icon -->
+            @if (item.solutionType==SolutionType.DotNet) {
+              <img src="assets/images/logo_net.svg" height="30" width="30">
+            }
+            @if (item.solutionType==SolutionType.Node) {
+              <img src="assets/images/nodejs.svg" height="30" width="30">
+            }
+            <span class="ms-1 strong">
+              {{ item.displayName }}
+            </span>
+            @if (item.solutionType==SolutionType.DotNet) {
+              <button mat-icon-button matTooltip="项目路径配置"
+                (click)="openSetting(item)">
+                <mat-icon class="text-primary">settings</mat-icon>
+              </button>
+            }
+            @if (item.solutionType==SolutionType.DotNet && needUpdate(item.version!)) {
+              <button mat-icon-button
+                matTooltip="更新提示" color="warn" (click)="openUpdate(item)">
+                <mat-icon>info</mat-icon>
+              </button>
+            }
+          </mat-card-title>
+          <mat-card-subtitle style="font-size: 1rem;">
+            {{ item.name }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content style="word-break: break-all;" class="d-flex align-items-center">
+          <div class="d-flex align-items-center gap-1">
+            {{ item.path }}
+            @if (item.solutionType==SolutionType.DotNet) {
+              <mat-icon matTooltip="打开项目" class="text-primary clickable"
+                (click)="openSolution(item.path)">launch
+              </mat-icon>
+            }
+          </div>
+        </mat-card-content>
+        <mat-card-actions class="justify-content-end" style="height: 32px;">
+          <button mat-icon-button matTooltip="删除项目" class="delete-action" (click)="deleteConfirm(item.id)">
+            <mat-icon class="text-danger">delete</mat-icon>
           </button>
-          <button *ngIf="item.solutionType==SolutionType.DotNet && needUpdate(item.version!)" mat-icon-button
-            matTooltip="更新提示" color="warn" (click)="openUpdate(item)">
-            <mat-icon>info</mat-icon>
-          </button>
-        </mat-card-title>
-        <mat-card-subtitle style="font-size: 1rem;">
-          {{ item.name }}
-        </mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content style="word-break: break-all;" class="d-flex align-items-center">
-        <div class="d-flex align-items-center gap-1">
-          {{ item.path }}
-          <mat-icon *ngIf="item.solutionType==SolutionType.DotNet" matTooltip="打开项目" class="text-primary clickable"
-            (click)="openSolution(item.path)">launch
-          </mat-icon>
-        </div>
-      </mat-card-content>
-      <mat-card-actions class="justify-content-end" style="height: 32px;">
-        <button mat-icon-button matTooltip="删除项目" class="delete-action" (click)="deleteConfirm(item.id)">
-          <mat-icon class="text-danger">delete</mat-icon>
-        </button>
-        <button mat-button (click)="selectProject(item.id)" color="primary">进入工作台</button>
-      </mat-card-actions>
-    </mat-card>
+          <button mat-button (click)="selectProject(item.id)" color="primary">进入工作台</button>
+        </mat-card-actions>
+      </mat-card>
+    }
   </div>
+}
 </div>
 
 <ng-template #addDialog>
@@ -85,7 +102,7 @@
 </ng-template>
 
 <ng-template #settingDialog>
-  <ng-container *ngIf="config">
+  @if (config) {
     <h2 mat-dialog-title>配置修改</h2>
     <mat-dialog-content class="my-1 py-2">
       <p>也可以直接编辑项目根目录中的.dry-config.json</p>
@@ -116,11 +133,10 @@
           <mat-label>Id类型</mat-label>
           <input matInput placeholder="支持Guid/int" formControlName="idType" required>
         </mat-form-field>
-
         <mat-label>控制器类型</mat-label>
         <mat-radio-group formControlName="controllerType" class="d-flex gap-2">
           @for (item of ControllerType | toKeyValue; track $index) {
-          <mat-radio-button [value]="item.value"> {{ item.value | enumText:'ControllerType' }}</mat-radio-button>
+            <mat-radio-button [value]="item.value"> {{ item.value | enumText:'ControllerType' }}</mat-radio-button>
           }
         </mat-radio-group>
       </form>
@@ -129,40 +145,48 @@
       <button mat-button mat-dialog-close>取消</button>
       <button mat-button (click)="saveSetting()" color="primary">提交修改</button>
     </mat-dialog-actions>
-  </ng-container>
+  }
 </ng-template>
 
 <ng-template #updateProjectDialog>
   <h2 mat-dialog-title>更新提示</h2>
-  <mat-dialog-content *ngIf="!isUpdating&&!updated">
-    <p>
-      <strong>
-        Studio{{ version }}
-      </strong>
-      不兼容
-      <span>
-        <strong>{{ current?.version }}的项目，</strong>
-      </span>
-      请使用对应版本的Studio，或者选择升级项目。
-    </p>
-    <h3>升级说明</h3>
-    <p>当前版本不兼容旧项目，项目结构进行了很多中断性变更。</p>
-    <p>如果你想升级现有项目，建议使用对应版本的模板重新创建项目，然后将旧代码迁移过去。</p>
-  </mat-dialog-content>
-  <mat-dialog-content *ngIf="isUpdating">
-    <p>正在分析和更新解决方案，预计不超过1分钟</p>
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  </mat-dialog-content>
+  @if (!isUpdating&&!updated) {
+    <mat-dialog-content>
+      <p>
+        <strong>
+          Studio{{ version }}
+        </strong>
+        不兼容
+        <span>
+          <strong>{{ current?.version }}的项目，</strong>
+        </span>
+        请使用对应版本的Studio，或者选择升级项目。
+      </p>
+      <h3>升级说明</h3>
+      <p>当前版本不兼容旧项目，项目结构进行了很多中断性变更。</p>
+      <p>如果你想升级现有项目，建议使用对应版本的模板重新创建项目，然后将旧代码迁移过去。</p>
+    </mat-dialog-content>
+  }
+  @if (isUpdating) {
+    <mat-dialog-content>
+      <p>正在分析和更新解决方案，预计不超过1分钟</p>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </mat-dialog-content>
+  }
 
-  <mat-dialog-content *ngIf="!isUpdating&&updated">
-    <markdown *ngIf="updateResult" [data]="updateResult" lineNumbers [start]="1">
-    </markdown>
-  </mat-dialog-content>
+  @if (!isUpdating&&updated) {
+    <mat-dialog-content>
+      @if (updateResult) {
+        <markdown [data]="updateResult" lineNumbers [start]="1">
+        </markdown>
+      }
+    </mat-dialog-content>
+  }
   <mat-dialog-actions class="justify-content-end">
     <button mat-button mat-dialog-close [disabled]="isUpdating">了解</button>
     <!-- <button mat-button (click)="updateProject()" *ngIf="!updated" [disabled]="isUpdating" color="warn"
-      matTooltip="务必做好备份">升级项目</button> -->
-  </mat-dialog-actions>
+  matTooltip="务必做好备份">升级项目</button> -->
+</mat-dialog-actions>
 </ng-template>
 
 <!-- add ng-template dialog -->

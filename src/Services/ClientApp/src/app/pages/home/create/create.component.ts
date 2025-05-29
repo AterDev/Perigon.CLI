@@ -8,7 +8,7 @@ import { ProjectType } from 'src/app/services/enum/models/project-type.model';
 import { CreateSolutionDto } from 'src/app/services/solution/models/create-solution-dto.model';
 import { ModuleInfo } from 'src/app/services/solution/models/module-info.model';
 import { SolutionService } from 'src/app/services/solution/solution.service';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatFormField, MatLabel, MatError, MatHint } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -26,7 +26,7 @@ import { ToKeyValuePipe } from '../../../share/pipe/to-key-value.pipe';
     selector: 'app-create',
     templateUrl: './create.component.html',
     styleUrls: ['./create.component.css'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatSlideToggle, MatIcon, MatTooltip, MatSelect, NgFor, MatOption, MatHint, MatSelectionList, MatListOption, MatButton, MatProgressSpinner, ToKeyValuePipe]
+    imports: [FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatSlideToggle, MatIcon, MatTooltip, MatSelect, MatOption, MatHint, MatSelectionList, MatListOption, MatButton, MatProgressSpinner, ToKeyValuePipe]
 })
 export class CreateComponent {
   addForm!: FormGroup;
