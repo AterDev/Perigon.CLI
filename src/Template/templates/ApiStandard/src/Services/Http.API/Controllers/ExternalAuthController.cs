@@ -79,11 +79,11 @@ public class ExternalAuthController : ControllerBase
             return BadRequest("External authentication failed.");
         }
 
-        // 提取微软用户信息
+        // 提取用户信息
         var externalUser = result.Principal;
         var email = externalUser.FindFirst(ClaimTypes.Email)?.Value;
         var name = externalUser.FindFirst(ClaimTypes.Name)?.Value;
-        // TODO:根据邮件进行后续处理
+        // TODO:根据信息进行后续处理
         return Ok(new
         {
             email,
