@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 
 namespace Http.API.Controllers;
@@ -17,7 +18,7 @@ public class ExternalAuthController : ControllerBase
     }
 
     /// <summary>
-    /// 
+    /// Microsft login
     /// </summary>
     /// <param name="returnUrl"></param>
     /// <returns></returns>
@@ -36,6 +37,25 @@ public class ExternalAuthController : ControllerBase
     }
 
     /// <summary>
+    /// Google login
+    /// </summary>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
+    [HttpGet("signin-google")]
+    public IActionResult SignInGoogle(string returnUrl = "/")
+    {
+        var props = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(GetToken), new
+            {
+                type = GoogleDefaults.AuthenticationScheme,
+                returnUrl
+            })
+        };
+        return Challenge(props, "Google");
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="type"></param>
@@ -47,10 +67,16 @@ public class ExternalAuthController : ControllerBase
         _logger.LogInformation("{type} login callback initiated.", type);
 
         // 验证外部登录信息
-        var result = await HttpContext.AuthenticateAsync("Microsoft");
+        var result = await HttpContext.AuthenticateAsync(MicrosoftAccountDefaults.AuthenticationScheme);
         if (!result.Succeeded)
         {
-            return BadRequest("External authentication failed");
+            result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        }
+
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning("External authentication failed for type: {type}", type);
+            return BadRequest("External authentication failed.");
         }
 
         // 提取微软用户信息
@@ -58,6 +84,10 @@ public class ExternalAuthController : ControllerBase
         var email = externalUser.FindFirst(ClaimTypes.Email)?.Value;
         var name = externalUser.FindFirst(ClaimTypes.Name)?.Value;
         // TODO:根据邮件进行后续处理
-        return Ok();
+        return Ok(new
+        {
+            email,
+            name
+        });
     }
 }

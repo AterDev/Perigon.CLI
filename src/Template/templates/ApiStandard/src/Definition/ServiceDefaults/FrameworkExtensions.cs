@@ -24,6 +24,7 @@ public static class FrameworkExtensions
         builder.Services.AddDbFactory();
         builder.AddDbContext(components);
 
+        builder.Services.AddScoped<JwtService>();
         builder.Services.AddScoped<SmtpService>();
         return builder;
     }

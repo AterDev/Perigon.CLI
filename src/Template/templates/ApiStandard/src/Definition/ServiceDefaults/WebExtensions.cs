@@ -45,7 +45,8 @@ public static class WebExtensions
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddJwtAuthentication(configuration);
-        // 替换为标准的 AddAuthorization 和 AddCors
+        services.AddThirdAuthentication(configuration);
+
         services.AddAuthorize();
         services.AddCORS();
         services.AddRateLimiter();
@@ -187,9 +188,8 @@ public static class WebExtensions
     /// <exception cref="Exception"></exception>
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var builder = services.AddAuthentication(options =>
+        services.AddAuthentication(options =>
         {
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
@@ -214,7 +214,17 @@ public static class WebExtensions
             };
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+        return services;
+    }
 
+    /// <summary>
+    /// 添加第三方认证（如微软）
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddThirdAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
         var section = configuration.GetSection("Authentication");
         var msClientId = section.GetValue<string>("Microsoft:ClientId");
         var msClientSecret = section.GetValue<string>("Microsoft:ClientSecret");
@@ -222,20 +232,37 @@ public static class WebExtensions
 
         if (Utils.NoEmptyItem(msClientId, msClientSecret, msCallBackUrl))
         {
-            builder.AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, options =>
-            {
-                options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
-                options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
-                options.ClientId = msClientId!;
-                options.ClientSecret = msClientSecret!;
-                options.CallbackPath = msCallBackUrl;
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //options.CorrelationCookie.SameSite = SameSiteMode.None;
-                //options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
-            });
+            services.AddAuthentication()
+                .AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, options =>
+                {
+                    options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
+                    options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
+                    options.ClientId = msClientId!;
+                    options.ClientSecret = msClientSecret!;
+                    options.CallbackPath = msCallBackUrl;
+                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                });
         }
+
+        var googleClientId = section.GetValue<string>("Google:ClientId");
+        var googleClientSecret = section.GetValue<string>("Google:ClientSecret");
+        var googleCallBackUrl = section.GetValue<string>("Google:CallbackUrl");
+        if (Utils.NoEmptyItem(googleClientId, googleClientSecret, googleCallBackUrl))
+        {
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = googleClientId!;
+                    options.ClientSecret = googleClientSecret!;
+                    options.CallbackPath = googleCallBackUrl;
+                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                });
+        }
+
         return services;
     }
+
+
     public static IServiceCollection AddCORS(this IServiceCollection services)
     {
         services.AddCors(options =>
