@@ -84,6 +84,8 @@ public static class ServiceCollectionExtension
             options.FallBackToParentUICultures = true;
             options.ApplyCurrentCultureToResponseHeaders = true;
         });
+
+        services.AddSingleton<Localizer>();
         return services;
     }
 }

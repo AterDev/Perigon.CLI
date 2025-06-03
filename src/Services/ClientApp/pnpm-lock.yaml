@@ -48,8 +48,8 @@ importers:
         specifier: ^0.52.2
         version: 0.52.2
       ngx-markdown:
-        specifier: ^19.1.1
-        version: 19.1.1(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(@angular/platform-browser@20.0.0(@angular/animations@20.0.0(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(marked@15.0.12)(rxjs@7.8.1)(zone.js@0.15.0)
+        specifier: ^20.0.0
+        version: 20.0.0(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(@angular/platform-browser@20.0.0(@angular/animations@20.0.0(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(marked@15.0.12)(rxjs@7.8.1)(zone.js@0.15.0)
       ngx-monaco-editor-v2:
         specifier: ^19.0.2
         version: 19.0.2(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(monaco-editor@0.52.2)
@@ -3699,12 +3699,12 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  ngx-markdown@19.1.1:
-    resolution: {integrity: sha512-R0SGsSa8QMLS4mXMWjB7EoK7Vab30QeGA+Y4zeeb4yb+YdAqg0hU/XFkBiQefJx/JxrtxTWJAu1b97LEGscluQ==}
+  ngx-markdown@20.0.0:
+    resolution: {integrity: sha512-AtB0EhYlfZbNBFzzhOkqxw5tIX+Z1rLqkRP207ee8c3QHQTn/uRmVVTMwE7LenF2ZOW11Brq/O8h6VfLy9FG+w==}
     peerDependencies:
-      '@angular/common': ^19.0.0
-      '@angular/core': ^19.0.0
-      '@angular/platform-browser': ^19.0.0
+      '@angular/common': ^20.0.0
+      '@angular/core': ^20.0.0
+      '@angular/platform-browser': ^20.0.0
       marked: ^15.0.0
       rxjs: ^6.5.3 || ^7.4.0
       zone.js: ~0.15.0
@@ -8963,7 +8963,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  ngx-markdown@19.1.1(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(@angular/platform-browser@20.0.0(@angular/animations@20.0.0(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(marked@15.0.12)(rxjs@7.8.1)(zone.js@0.15.0):
+  ngx-markdown@20.0.0(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(@angular/platform-browser@20.0.0(@angular/animations@20.0.0(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(@angular/common@20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)))(marked@15.0.12)(rxjs@7.8.1)(zone.js@0.15.0):
     dependencies:
       '@angular/common': 20.0.0(@angular/core@20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1)
       '@angular/core': 20.0.0(@angular/compiler@20.0.0)(rxjs@7.8.1)(zone.js@0.15.0)

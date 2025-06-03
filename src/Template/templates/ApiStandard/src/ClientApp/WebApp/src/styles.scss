@@ -1,7 +1,9 @@
 @use './theme.scss' as theme;
 @use '@angular/material' as mat;
-
 @import './assets/bootstrap-grid.min.css';
+
+@include mat.elevation-classes();
+@include mat.app-background();
 
 html,
 body {

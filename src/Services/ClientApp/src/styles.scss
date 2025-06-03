@@ -6,6 +6,9 @@
 @import './assets/vs-dark-plus.css';
 @import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
 
+@include mat.elevation-classes();
+@include mat.app-background();
+
 :root {
   --mat-list-active-indicator-shape: 4px;
 }

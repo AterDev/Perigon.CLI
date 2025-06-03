@@ -26,6 +26,7 @@
     <PackageTags>ater;cli;code generate;angular;webapi;asp.net core</PackageTags>
     <Nullable>enable</Nullable>
     <Title>Ater.Dry</Title>
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>

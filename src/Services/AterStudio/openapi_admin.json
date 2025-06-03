@@ -1,9 +1,8 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "title": "AterStudio API doc",
-    "description": "Studio API 文档. 更新时间:2025-05-08 14:46:33",
-    "version": "v1"
+    "title": "AterStudio | admin",
+    "version": "1.0.0"
   },
   "paths": {
     "/api/admin/Advance/config": {
@@ -11,13 +10,10 @@
         "tags": [
           "Advance"
         ],
-        "summary": "获取配置",
-        "operationId": "Advance_GetConfig",
         "parameters": [
           {
             "name": "key",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -40,13 +36,10 @@
         "tags": [
           "Advance"
         ],
-        "summary": "设置配置",
-        "operationId": "Advance_SetConfig",
         "parameters": [
           {
             "name": "key",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -54,7 +47,6 @@
           {
             "name": "value",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -62,43 +54,10 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/admin/Advance/chat": {
-      "get": {
-        "tags": [
-          "Advance"
-        ],
-        "summary": "测试AI对话",
-        "operationId": "Advance_Chat",
-        "parameters": [
-          {
-            "name": "prompt",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "type": "string"
+            "description": "OK",
+            "content": {
+              "application/json": { }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Advance"
-        ],
-        "summary": "清除对话",
-        "operationId": "Advance_ClearChat",
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -108,8 +67,6 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "获取项目文档",
-        "operationId": "ApiDocInfo_List",
         "responses": {
           "200": {
             "description": "OK",
@@ -130,10 +87,7 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "添加",
-        "operationId": "ApiDocInfo_Add",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -150,7 +104,8 @@
                 "$ref": "#/components/schemas/ApiDocInfoAddDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -159,7 +114,8 @@
               "application/json": {
                 "schema": {
                   "type": "string",
-                  "format": "uuid"
+                  "format": "uuid",
+                  "nullable": true
                 }
               }
             }
@@ -172,13 +128,10 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "获取某个文档信息",
-        "operationId": "ApiDocInfo_GetApiDocContent",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -188,7 +141,6 @@
           {
             "name": "isFresh",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "boolean",
               "default": true
@@ -212,13 +164,10 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "更新",
-        "operationId": "ApiDocInfo_Update",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -227,7 +176,6 @@
           }
         ],
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -244,7 +192,8 @@
                 "$ref": "#/components/schemas/ApiDocInfoUpdateDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -263,13 +212,10 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "删除",
-        "operationId": "ApiDocInfo_Delete",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -283,7 +229,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "nullable": true
                 }
               }
             }
@@ -296,13 +243,10 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "导出markdown文档",
-        "operationId": "ApiDocInfo_Export",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -316,8 +260,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/FileContentResult"
                 }
               }
             }
@@ -330,13 +273,10 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "生成前端请求",
-        "operationId": "ApiDocInfo_GenerateRequest",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -346,7 +286,6 @@
           {
             "name": "webPath",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -354,17 +293,32 @@
           {
             "name": "type",
             "in": "query",
-            "description": "",
             "schema": {
-              "$ref": "#/components/schemas/RequestLibType"
+              "type": "integer",
+              "x-enumNames": [
+                "NgHttp",
+                "Axios"
+              ],
+              "x-enumData": [
+                {
+                  "name": "NgHttp",
+                  "value": 0,
+                  "description": "angular http"
+                },
+                {
+                  "name": "Axios",
+                  "value": 1,
+                  "description": "axios"
+                }
+              ]
             }
           },
           {
             "name": "swaggerPath",
             "in": "query",
-            "description": "",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": null
             }
           }
         ],
@@ -387,13 +341,10 @@
         "tags": [
           "ApiDocInfo"
         ],
-        "summary": "生成Csharp请求",
-        "operationId": "ApiDocInfo_GenerateCsharpRequest",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -403,7 +354,6 @@
           {
             "name": "webPath",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -411,9 +361,9 @@
           {
             "name": "swaggerPath",
             "in": "query",
-            "description": "",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": null
             }
           }
         ],
@@ -436,13 +386,10 @@
         "tags": [
           "EntityInfo"
         ],
-        "summary": "实体列表",
-        "operationId": "EntityInfo_List",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -472,13 +419,10 @@
         "tags": [
           "EntityInfo"
         ],
-        "summary": "s\r\n            获取dtos",
-        "operationId": "EntityInfo_GetDtos",
         "parameters": [
           {
             "name": "entityFilePath",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -506,8 +450,6 @@
         "tags": [
           "EntityInfo"
         ],
-        "summary": "清理解决方案",
-        "operationId": "EntityInfo_CleanSolution",
         "responses": {
           "200": {
             "description": "OK",
@@ -527,13 +469,10 @@
         "tags": [
           "EntityInfo"
         ],
-        "summary": "获取文件内容 entity/manager",
-        "operationId": "EntityInfo_GetFileContent",
         "parameters": [
           {
             "name": "entityName",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -541,7 +480,6 @@
           {
             "name": "isManager",
             "in": "query",
-            "description": "是否为manager",
             "schema": {
               "type": "boolean"
             }
@@ -549,9 +487,9 @@
           {
             "name": "moduleName",
             "in": "query",
-            "description": "",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": null
             }
           }
         ],
@@ -574,10 +512,7 @@
         "tags": [
           "EntityInfo"
         ],
-        "summary": "更新内容",
-        "operationId": "EntityInfo_UpdateDtoContent",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -594,7 +529,8 @@
                 "$ref": "#/components/schemas/UpdateDtoDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -615,10 +551,7 @@
         "tags": [
           "EntityInfo"
         ],
-        "summary": "代码生成",
-        "operationId": "EntityInfo_Generate",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -635,7 +568,8 @@
                 "$ref": "#/components/schemas/GenerateDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -656,10 +590,7 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "分页数据",
-        "operationId": "GenAction_Filter",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -676,7 +607,8 @@
                 "$ref": "#/components/schemas/GenActionFilterDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -684,7 +616,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenActionItemDtoPageList"
+                  "$ref": "#/components/schemas/PageListOfGenActionItemDto"
                 }
               }
             }
@@ -697,13 +629,10 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "获取操作步骤",
-        "operationId": "GenAction_GetSteps",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -731,13 +660,10 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "添加操作步骤",
-        "operationId": "GenAction_AddSteps",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -746,7 +672,6 @@
           }
         ],
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -775,7 +700,8 @@
                 }
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -796,15 +722,34 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "获取模型列表",
-        "operationId": "GenAction_GetModelFile",
         "parameters": [
           {
             "name": "sourceType",
             "in": "query",
-            "description": "",
             "schema": {
-              "$ref": "#/components/schemas/GenSourceType"
+              "type": "integer",
+              "x-enumNames": [
+                "EntityCLass",
+                "DtoModel",
+                "OpenAPI"
+              ],
+              "x-enumData": [
+                {
+                  "name": "EntityCLass",
+                  "value": 0,
+                  "description": "实体类"
+                },
+                {
+                  "name": "DtoModel",
+                  "value": 1,
+                  "description": "Dto模型"
+                },
+                {
+                  "name": "OpenAPI",
+                  "value": 2,
+                  "description": "OpenAPI"
+                }
+              ]
             }
           }
         ],
@@ -830,10 +775,7 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "新增",
-        "operationId": "GenAction_Add",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -850,7 +792,8 @@
                 "$ref": "#/components/schemas/GenActionAddDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -859,7 +802,8 @@
               "application/json": {
                 "schema": {
                   "type": "string",
-                  "format": "uuid"
+                  "format": "uuid",
+                  "nullable": true
                 }
               }
             }
@@ -872,13 +816,10 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "更新数据",
-        "operationId": "GenAction_Update",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -887,7 +828,6 @@
           }
         ],
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -904,7 +844,8 @@
                 "$ref": "#/components/schemas/GenActionUpdateDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -923,13 +864,10 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "获取详情",
-        "operationId": "GenAction_GetDetail",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -954,13 +892,10 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "删除",
-        "operationId": "GenAction_Delete",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -987,10 +922,7 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "执行操作",
-        "operationId": "GenAction_Execute",
         "requestBody": {
-          "description": "dto",
           "content": {
             "application/json": {
               "schema": {
@@ -1007,7 +939,8 @@
                 "$ref": "#/components/schemas/GenActionRunDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1028,8 +961,6 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "从本地导入",
-        "operationId": "GenAction_Sync",
         "responses": {
           "200": {
             "description": "OK",
@@ -1049,8 +980,6 @@
         "tags": [
           "GenAction"
         ],
-        "summary": "保存配置",
-        "operationId": "GenAction_SaveSyncData",
         "responses": {
           "200": {
             "description": "OK",
@@ -1070,10 +999,7 @@
         "tags": [
           "GenStep"
         ],
-        "summary": "分页数据",
-        "operationId": "GenStep_Filter",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -1090,7 +1016,8 @@
                 "$ref": "#/components/schemas/GenStepFilterDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1098,7 +1025,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenStepItemDtoPageList"
+                  "$ref": "#/components/schemas/PageListOfGenStepItemDto"
                 }
               }
             }
@@ -1111,10 +1038,7 @@
         "tags": [
           "GenStep"
         ],
-        "summary": "新增",
-        "operationId": "GenStep_Add",
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -1131,7 +1055,8 @@
                 "$ref": "#/components/schemas/GenStepAddDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1140,7 +1065,8 @@
               "application/json": {
                 "schema": {
                   "type": "string",
-                  "format": "uuid"
+                  "format": "uuid",
+                  "nullable": true
                 }
               }
             }
@@ -1153,13 +1079,10 @@
         "tags": [
           "GenStep"
         ],
-        "summary": "更新数据",
-        "operationId": "GenStep_Update",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -1168,7 +1091,6 @@
           }
         ],
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -1185,7 +1107,8 @@
                 "$ref": "#/components/schemas/GenStepUpdateDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1204,13 +1127,10 @@
         "tags": [
           "GenStep"
         ],
-        "summary": "获取详情",
-        "operationId": "GenStep_GetDetail",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -1235,13 +1155,10 @@
         "tags": [
           "GenStep"
         ],
-        "summary": "删除",
-        "operationId": "GenStep_Delete",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -1268,8 +1185,6 @@
         "tags": [
           "Project"
         ],
-        "summary": "获取解决方案列表",
-        "operationId": "Project_List",
         "responses": {
           "200": {
             "description": "OK",
@@ -1290,13 +1205,10 @@
         "tags": [
           "Project"
         ],
-        "summary": "添加项目",
-        "operationId": "Project_Add",
         "parameters": [
           {
             "name": "name",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -1304,7 +1216,6 @@
           {
             "name": "path",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -1317,7 +1228,8 @@
               "application/json": {
                 "schema": {
                   "type": "string",
-                  "format": "uuid"
+                  "format": "uuid",
+                  "nullable": true
                 }
               }
             }
@@ -1330,8 +1242,6 @@
         "tags": [
           "Project"
         ],
-        "summary": "获取工具版本",
-        "operationId": "Project_GetVersion",
         "responses": {
           "200": {
             "description": "OK",
@@ -1351,13 +1261,10 @@
         "tags": [
           "Project"
         ],
-        "summary": "详情",
-        "operationId": "Project_Project",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -1382,13 +1289,10 @@
         "tags": [
           "Project"
         ],
-        "summary": "删除项目",
-        "operationId": "Project_Delete",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -1415,13 +1319,10 @@
         "tags": [
           "Project"
         ],
-        "summary": "添加微服务",
-        "operationId": "Project_AddService",
         "parameters": [
           {
             "name": "name",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -1446,8 +1347,6 @@
         "tags": [
           "Project"
         ],
-        "summary": "更新解决方案",
-        "operationId": "Project_UpdateSolution",
         "responses": {
           "200": {
             "description": "OK",
@@ -1467,13 +1366,10 @@
         "tags": [
           "Project"
         ],
-        "summary": "打开解决方案，仅支持sln",
-        "operationId": "Project_OpenSolution",
         "parameters": [
           {
             "name": "path",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -1498,13 +1394,10 @@
         "tags": [
           "Project"
         ],
-        "summary": "更新配置",
-        "operationId": "Project_UpdateConfig",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "required": true,
             "schema": {
               "type": "string",
@@ -1513,7 +1406,6 @@
           }
         ],
         "requestBody": {
-          "description": "",
           "content": {
             "application/json": {
               "schema": {
@@ -1530,7 +1422,8 @@
                 "$ref": "#/components/schemas/ProjectConfig"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1551,8 +1444,6 @@
         "tags": [
           "Solution"
         ],
-        "summary": "创建新解决方案",
-        "operationId": "Solution_CreateNewSolution",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1570,7 +1461,8 @@
                 "$ref": "#/components/schemas/CreateSolutionDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1591,8 +1483,6 @@
         "tags": [
           "Solution"
         ],
-        "summary": "获取模块列表",
-        "operationId": "Solution_GetModulesInfo",
         "responses": {
           "200": {
             "description": "OK",
@@ -1615,8 +1505,6 @@
         "tags": [
           "Solution"
         ],
-        "summary": "获取默认模块",
-        "operationId": "Solution_GetDefaultModules",
         "responses": {
           "200": {
             "description": "OK",
@@ -1639,13 +1527,10 @@
         "tags": [
           "Solution"
         ],
-        "summary": "创建模块",
-        "operationId": "Solution_CreateModule",
         "parameters": [
           {
             "name": "name",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -1670,8 +1555,6 @@
         "tags": [
           "Tools"
         ],
-        "summary": "转换成类",
-        "operationId": "Tools_ConvertToClass",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1689,7 +1572,8 @@
                 "$ref": "#/components/schemas/ConvertDto"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1729,13 +1613,10 @@
         "tags": [
           "Tools"
         ],
-        "summary": "字符串处理",
-        "operationId": "Tools_ConvertString",
         "parameters": [
           {
             "name": "content",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             }
@@ -1743,9 +1624,42 @@
           {
             "name": "type",
             "in": "query",
-            "description": "",
             "schema": {
-              "$ref": "#/components/schemas/StringConvertType"
+              "type": "integer",
+              "x-enumNames": [
+                "Guid",
+                "NamePolicy",
+                "Encode",
+                "Decode",
+                "EnCrypt"
+              ],
+              "x-enumData": [
+                {
+                  "name": "Guid",
+                  "value": 0,
+                  "description": "Guid"
+                },
+                {
+                  "name": "NamePolicy",
+                  "value": 1,
+                  "description": "命名转换"
+                },
+                {
+                  "name": "Encode",
+                  "value": 2,
+                  "description": "编码"
+                },
+                {
+                  "name": "Decode",
+                  "value": 3,
+                  "description": "解码"
+                },
+                {
+                  "name": "EnCrypt",
+                  "value": 4,
+                  "description": "加密"
+                }
+              ]
             }
           }
         ],
@@ -1786,14 +1700,13 @@
   "components": {
     "schemas": {
       "ActionStatus": {
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "NotStarted",
+          "InProgress",
+          "Success",
+          "Failed"
+        ],
         "x-enumData": [
           {
             "name": "NotStarted",
@@ -1829,7 +1742,7 @@
           "typeMeta": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TypeMeta"
+              "$ref": "#/components/schemas/TypeMeta2"
             }
           },
           "openApiTags": {
@@ -1838,8 +1751,7 @@
               "$ref": "#/components/schemas/ApiDocTag"
             }
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ApiDocInfo": {
         "required": [
@@ -1848,6 +1760,36 @@
         ],
         "type": "object",
         "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 10000,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "localPath": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -1862,38 +1804,8 @@
           },
           "isDeleted": {
             "type": "boolean"
-          },
-          "name": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "description": {
-            "maxLength": 1000,
-            "type": "string",
-            "nullable": true
-          },
-          "path": {
-            "maxLength": 300,
-            "type": "string"
-          },
-          "localPath": {
-            "maxLength": 200,
-            "type": "string",
-            "nullable": true
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "project": {
-            "$ref": "#/components/schemas/Project"
-          },
-          "projectId": {
-            "type": "string",
-            "format": "uuid"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ApiDocInfoAddDto": {
         "required": [
@@ -1904,53 +1816,43 @@
         "properties": {
           "name": {
             "maxLength": 100,
-            "type": "string",
-            "description": "文档名称"
+            "type": "string"
           },
           "description": {
             "maxLength": 1000,
             "type": "string",
-            "description": "文档描述",
             "nullable": true
           },
           "path": {
             "maxLength": 300,
-            "type": "string",
-            "description": "文档地址"
+            "type": "string"
           },
           "localPath": {
             "maxLength": 200,
             "type": "string",
-            "description": "生成路径",
             "nullable": true
           }
-        },
-        "additionalProperties": false,
-        "description": "接口文档添加时请求结构"
+        }
       },
       "ApiDocInfoItemDto": {
         "type": "object",
         "properties": {
           "name": {
             "maxLength": 100,
-            "type": "string",
-            "description": "文档名称"
+            "type": "string"
           },
           "path": {
             "maxLength": 300,
-            "type": "string",
-            "description": "文档地址"
+            "type": "string"
           },
           "description": {
             "maxLength": 1000,
             "type": "string",
-            "description": "文档描述",
             "nullable": true
           },
           "localPath": {
             "maxLength": 200,
             "type": "string",
-            "description": "生成路径",
             "nullable": true
           },
           "id": {
@@ -1961,9 +1863,7 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "additionalProperties": false,
-        "description": "接口文档列表元素"
+        }
       },
       "ApiDocInfoUpdateDto": {
         "type": "object",
@@ -1971,30 +1871,24 @@
           "name": {
             "maxLength": 100,
             "type": "string",
-            "description": "文档名称",
             "nullable": true
           },
           "description": {
             "maxLength": 1000,
             "type": "string",
-            "description": "文档描述",
             "nullable": true
           },
           "path": {
             "maxLength": 300,
             "type": "string",
-            "description": "文档地址",
             "nullable": true
           },
           "localPath": {
             "maxLength": 200,
             "type": "string",
-            "description": "生成路径",
             "nullable": true
           }
-        },
-        "additionalProperties": false,
-        "description": "接口文档更新时请求结构"
+        }
       },
       "ApiDocTag": {
         "required": [
@@ -2009,16 +1903,15 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CacheType": {
-        "enum": [
-          0,
-          1
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "Redis",
+          "Memory",
+          "Hybrid"
+        ],
         "x-enumData": [
           {
             "name": "Redis",
@@ -2029,20 +1922,23 @@
             "name": "Memory",
             "value": 1,
             "description": "Memory"
+          },
+          {
+            "name": "Hybrid",
+            "value": 2,
+            "description": "Hybrid"
           }
         ]
       },
       "CommandType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ],
         "type": "integer",
-        "description": "命令类型",
-        "format": "int32",
+        "x-enumNames": [
+          "Dto",
+          "Manager",
+          "API",
+          "Protobuf",
+          "Clear"
+        ],
         "x-enumData": [
           {
             "name": "Dto",
@@ -2078,6 +1974,17 @@
         ],
         "type": "object",
         "properties": {
+          "key": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "valueType": {
+            "$ref": "#/components/schemas/ValueType"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -2092,29 +1999,16 @@
           },
           "isDeleted": {
             "type": "boolean"
-          },
-          "key": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "value": {
-            "maxLength": 2000,
-            "type": "string"
-          },
-          "valueType": {
-            "$ref": "#/components/schemas/ValueType"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ControllerType": {
-        "enum": [
-          0,
-          1,
-          2
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "Client",
+          "Admin",
+          "Both"
+        ],
         "x-enumData": [
           {
             "name": "Client",
@@ -2146,8 +2040,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CreateSolutionDto": {
         "required": [
@@ -2205,9 +2098,6 @@
             "type": "string",
             "nullable": true
           },
-          "projectType": {
-            "$ref": "#/components/schemas/ProjectType"
-          },
           "defaultPassword": {
             "maxLength": 60,
             "type": "string",
@@ -2219,16 +2109,14 @@
               "type": "string"
             }
           }
-        },
-        "additionalProperties": false
+        }
       },
       "DBType": {
-        "enum": [
-          0,
-          1
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "PostgreSQL",
+          "SQLServer"
+        ],
         "x-enumData": [
           {
             "name": "PostgreSQL",
@@ -2244,8 +2132,8 @@
       },
       "EntityFile": {
         "required": [
-          "fullName",
-          "name"
+          "name",
+          "fullName"
         ],
         "type": "object",
         "properties": {
@@ -2254,7 +2142,6 @@
           },
           "comment": {
             "type": "string",
-            "description": "注释说明",
             "nullable": true
           },
           "baseDirPath": {
@@ -2269,7 +2156,6 @@
           },
           "moduleName": {
             "type": "string",
-            "description": "所属模块",
             "nullable": true
           },
           "hasDto": {
@@ -2281,49 +2167,65 @@
           "hasAPI": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "EntityKeyType": {
-        "enum": [
-          0,
-          1,
-          2
-        ],
         "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "Guid",
-            "value": 0,
-            "description": ""
+        "x-enumNames": [
+          "Guid",
+          "Int",
+          "String"
+        ],
+        "x-enumData": [ ]
+      },
+      "EntityTagHeaderValue": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/StringSegment"
           },
-          {
-            "name": "Int",
-            "value": 1,
-            "description": ""
-          },
-          {
-            "name": "String",
-            "value": 2,
-            "description": ""
+          "isWeak": {
+            "type": "boolean"
           }
-        ]
+        },
+        "nullable": true
+      },
+      "FileContentResult": {
+        "type": "object",
+        "properties": {
+          "fileContents": {
+            "type": "string",
+            "format": "byte"
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileDownloadName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityTag": {
+            "$ref": "#/components/schemas/EntityTagHeaderValue"
+          },
+          "enableRangeProcessing": {
+            "type": "boolean"
+          }
+        }
       },
       "FrontType": {
-        "enum": [
-          0,
-          1,
-          2
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "None",
+          "Angular",
+          "Blazor"
+        ],
         "x-enumData": [
-          {
-            "name": "None",
-            "value": 0,
-            "description": ""
-          },
           {
             "name": "Angular",
             "value": 1,
@@ -2342,21 +2244,6 @@
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
           "name": {
             "maxLength": 40,
             "type": "string"
@@ -2378,12 +2265,10 @@
           },
           "variables": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Variable"
-            }
+            "items": { }
           },
           "sourceType": {
-            "$ref": "#/components/schemas/GenSourceType"
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
           },
           "genSteps": {
             "type": "array",
@@ -2400,9 +2285,23 @@
           },
           "actionStatus": {
             "$ref": "#/components/schemas/ActionStatus"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "GenActionAddDto": {
         "required": [
@@ -2412,8 +2311,7 @@
         "properties": {
           "name": {
             "maxLength": 40,
-            "type": "string",
-            "description": "action name"
+            "type": "string"
           },
           "description": {
             "maxLength": 200,
@@ -2422,12 +2320,10 @@
           },
           "entityPath": {
             "type": "string",
-            "description": "实体路径",
             "nullable": true
           },
           "openApiPath": {
             "type": "string",
-            "description": "open api path",
             "nullable": true
           },
           "variables": {
@@ -2437,22 +2333,19 @@
             }
           },
           "sourceType": {
-            "$ref": "#/components/schemas/GenSourceType"
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
           },
           "actionStatus": {
             "$ref": "#/components/schemas/ActionStatus"
           }
-        },
-        "additionalProperties": false,
-        "description": "生成操作添加时DTO"
+        }
       },
       "GenActionDetailDto": {
         "type": "object",
         "properties": {
           "name": {
             "maxLength": 40,
-            "type": "string",
-            "description": "action name"
+            "type": "string"
           },
           "description": {
             "maxLength": 200,
@@ -2461,12 +2354,10 @@
           },
           "entityPath": {
             "type": "string",
-            "description": "实体路径",
             "nullable": true
           },
           "openApiPath": {
             "type": "string",
-            "description": "open api path",
             "nullable": true
           },
           "variables": {
@@ -2476,7 +2367,7 @@
             }
           },
           "sourceType": {
-            "$ref": "#/components/schemas/GenSourceType"
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
           },
           "project": {
             "$ref": "#/components/schemas/Project"
@@ -2500,13 +2391,27 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "additionalProperties": false,
-        "description": "生成操作详情"
+        }
       },
       "GenActionFilterDto": {
         "type": "object",
         "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string",
+            "nullable": true
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/NullableOfActionStatus"
+          },
           "pageIndex": {
             "type": "integer",
             "format": "int32"
@@ -2521,35 +2426,15 @@
               "type": "boolean"
             },
             "nullable": true
-          },
-          "name": {
-            "maxLength": 40,
-            "type": "string",
-            "description": "action name",
-            "nullable": true
-          },
-          "sourceType": {
-            "$ref": "#/components/schemas/GenSourceType"
-          },
-          "projectId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "actionStatus": {
-            "$ref": "#/components/schemas/ActionStatus"
           }
-        },
-        "additionalProperties": false,
-        "description": "生成操作筛选条件"
+        }
       },
       "GenActionItemDto": {
         "type": "object",
         "properties": {
           "name": {
             "maxLength": 40,
-            "type": "string",
-            "description": "action name"
+            "type": "string"
           },
           "description": {
             "maxLength": 200,
@@ -2558,16 +2443,14 @@
           },
           "entityPath": {
             "type": "string",
-            "description": "实体路径",
             "nullable": true
           },
           "openApiPath": {
             "type": "string",
-            "description": "open api path",
             "nullable": true
           },
           "sourceType": {
-            "$ref": "#/components/schemas/GenSourceType"
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
           },
           "actionStatus": {
             "$ref": "#/components/schemas/ActionStatus"
@@ -2586,40 +2469,16 @@
               "$ref": "#/components/schemas/Variable"
             }
           }
-        },
-        "additionalProperties": false,
-        "description": "生成操作列表元素"
-      },
-      "GenActionItemDtoPageList": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GenActionItemDto"
-            }
-          },
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
+        }
       },
       "GenActionResultDto": {
         "type": "object",
         "properties": {
           "isSuccess": {
-            "type": "boolean",
-            "description": "是否成功"
+            "type": "boolean"
           },
           "errorMsg": {
             "type": "string",
-            "description": "错误信息",
             "nullable": true
           },
           "outputFiles": {
@@ -2628,41 +2487,33 @@
               "$ref": "#/components/schemas/ModelFileItemDto"
             }
           }
-        },
-        "additionalProperties": false,
-        "description": "执行结果"
+        }
       },
       "GenActionRunDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "操作id",
             "format": "uuid"
           },
           "sourceFilePath": {
             "type": "string",
-            "description": "源文件路径",
             "nullable": true
           },
           "onlyOutput": {
-            "type": "boolean",
-            "description": "仅输出"
+            "type": "boolean"
           },
           "variables": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Variable"
             },
-            "description": "额外变量",
             "nullable": true
           },
           "modelInfo": {
             "$ref": "#/components/schemas/TypeMeta"
           }
-        },
-        "additionalProperties": false,
-        "description": "操作执行模型"
+        }
       },
       "GenActionUpdateDto": {
         "type": "object",
@@ -2670,7 +2521,6 @@
           "name": {
             "maxLength": 40,
             "type": "string",
-            "description": "action name",
             "nullable": true
           },
           "description": {
@@ -2680,12 +2530,10 @@
           },
           "entityPath": {
             "type": "string",
-            "description": "实体路径",
             "nullable": true
           },
           "openApiPath": {
             "type": "string",
-            "description": "open api path",
             "nullable": true
           },
           "variables": {
@@ -2696,40 +2544,29 @@
             "nullable": true
           },
           "sourceType": {
-            "$ref": "#/components/schemas/GenSourceType"
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
           },
           "actionStatus": {
-            "$ref": "#/components/schemas/ActionStatus"
+            "$ref": "#/components/schemas/NullableOfActionStatus"
           }
-        },
-        "additionalProperties": false,
-        "description": "生成操作更新时DTO"
+        }
       },
-      "GenSourceType": {
-        "enum": [
-          0,
-          1,
-          2
+      "GenerateDto": {
+        "required": [
+          "entityPath"
         ],
-        "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "EntityCLass",
-            "value": 0,
-            "description": "实体类"
+        "type": "object",
+        "properties": {
+          "entityPath": {
+            "type": "string"
           },
-          {
-            "name": "DtoModel",
-            "value": 1,
-            "description": "Dto模型"
+          "commandType": {
+            "$ref": "#/components/schemas/CommandType"
           },
-          {
-            "name": "OpenAPI",
-            "value": 2,
-            "description": "OpenAPI"
+          "force": {
+            "type": "boolean"
           }
-        ]
+        }
       },
       "GenStep": {
         "required": [
@@ -2737,21 +2574,6 @@
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
           "name": {
             "maxLength": 100,
             "type": "string"
@@ -2786,9 +2608,7 @@
           },
           "genActions": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GenAction"
-            }
+            "items": { }
           },
           "project": {
             "$ref": "#/components/schemas/Project"
@@ -2796,9 +2616,23 @@
           "projectId": {
             "type": "string",
             "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "GenStepAddDto": {
         "required": [
@@ -2808,70 +2642,58 @@
         "properties": {
           "name": {
             "maxLength": 100,
-            "type": "string",
-            "description": "步骤名称"
+            "type": "string"
           },
           "content": {
             "maxLength": 100000,
             "type": "string",
-            "description": "模板或命令内容",
             "nullable": true
           },
           "outputContent": {
             "maxLength": 100000,
             "type": "string",
-            "description": "生成内容",
             "nullable": true
           },
           "path": {
             "maxLength": 400,
             "type": "string",
-            "description": "模板或脚本路径",
             "nullable": true
           },
           "outputPath": {
             "maxLength": 400,
             "type": "string",
-            "description": "输出路径",
             "nullable": true
           },
           "genStepType": {
             "$ref": "#/components/schemas/GenStepType"
           }
-        },
-        "additionalProperties": false,
-        "description": "task step添加时DTO"
+        }
       },
       "GenStepDetailDto": {
         "type": "object",
         "properties": {
           "name": {
             "maxLength": 100,
-            "type": "string",
-            "description": "步骤名称"
+            "type": "string"
           },
           "content": {
             "maxLength": 100000,
             "type": "string",
-            "description": "模板或命令内容",
             "nullable": true
           },
           "outputContent": {
             "maxLength": 100000,
             "type": "string",
-            "description": "生成内容",
             "nullable": true
           },
           "path": {
             "maxLength": 400,
             "type": "string",
-            "description": "模板或脚本路径",
             "nullable": true
           },
           "outputPath": {
             "maxLength": 400,
             "type": "string",
-            "description": "输出路径",
             "nullable": true
           },
           "genStepType": {
@@ -2896,13 +2718,27 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "additionalProperties": false,
-        "description": "task step详情"
+        }
       },
       "GenStepFilterDto": {
         "type": "object",
         "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/NullableOfGenStepType"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "fileType": {
+            "type": "string",
+            "nullable": true
+          },
           "pageIndex": {
             "type": "integer",
             "format": "int32"
@@ -2917,45 +2753,24 @@
               "type": "boolean"
             },
             "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "genStepType": {
-            "$ref": "#/components/schemas/GenStepType"
-          },
-          "projectId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "fileType": {
-            "type": "string",
-            "nullable": true
           }
-        },
-        "additionalProperties": false,
-        "description": "task step筛选条件"
+        }
       },
       "GenStepItemDto": {
         "type": "object",
         "properties": {
           "name": {
             "maxLength": 100,
-            "type": "string",
-            "description": "步骤名称"
+            "type": "string"
           },
           "outputPath": {
             "maxLength": 400,
             "type": "string",
-            "description": "输出路径",
             "nullable": true
           },
           "path": {
             "maxLength": 400,
             "type": "string",
-            "description": "路径",
             "nullable": true
           },
           "genStepType": {
@@ -2969,38 +2784,15 @@
             "type": "string",
             "format": "date-time"
           }
-        },
-        "additionalProperties": false,
-        "description": "task step列表元素"
-      },
-      "GenStepItemDtoPageList": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GenStepItemDto"
-            }
-          },
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
+        }
       },
       "GenStepType": {
-        "enum": [
-          0,
-          1,
-          2
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "File",
+          "Command",
+          "Script"
+        ],
         "x-enumData": [
           {
             "name": "File",
@@ -3025,295 +2817,57 @@
           "name": {
             "maxLength": 100,
             "type": "string",
-            "description": "步骤名称",
             "nullable": true
           },
           "content": {
             "maxLength": 100000,
             "type": "string",
-            "description": "模板或命令内容",
             "nullable": true
           },
           "outputContent": {
             "maxLength": 100000,
             "type": "string",
-            "description": "生成内容",
             "nullable": true
           },
           "path": {
             "maxLength": 400,
             "type": "string",
-            "description": "模板或脚本路径",
             "nullable": true
           },
           "outputPath": {
             "maxLength": 400,
             "type": "string",
-            "description": "输出路径",
             "nullable": true
           },
           "genStepType": {
-            "$ref": "#/components/schemas/GenStepType"
+            "$ref": "#/components/schemas/NullableOfGenStepType"
           }
-        },
-        "additionalProperties": false,
-        "description": "task step更新时DTO"
-      },
-      "GenerateDto": {
-        "required": [
-          "entityPath",
-          "projectId"
-        ],
-        "type": "object",
-        "properties": {
-          "projectId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "entityPath": {
-            "type": "string"
-          },
-          "commandType": {
-            "$ref": "#/components/schemas/CommandType"
-          },
-          "force": {
-            "type": "boolean",
-            "description": "是否覆盖"
-          }
-        },
-        "additionalProperties": false
+        }
       },
       "ModelFileItemDto": {
         "required": [
-          "fullName",
-          "name"
+          "name",
+          "fullName"
         ],
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "description": "名称"
+            "type": "string"
           },
           "fullName": {
-            "type": "string",
-            "description": "路径"
+            "type": "string"
           },
           "content": {
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false,
-        "description": "模型文件项"
-      },
-      "ModelInfo": {
-        "required": [
-          "filePath",
-          "md5Hash",
-          "name",
-          "namespaceName"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
-          "md5Hash": {
-            "maxLength": 32,
-            "type": "string"
-          },
-          "moduleName": {
-            "type": "string",
-            "nullable": true
-          },
-          "filePath": {
-            "maxLength": 200,
-            "type": "string"
-          },
-          "name": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "namespaceName": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "assemblyName": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "comment": {
-            "maxLength": 300,
-            "type": "string",
-            "nullable": true
-          },
-          "summary": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "keyType": {
-            "$ref": "#/components/schemas/EntityKeyType"
-          },
-          "isEnum": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isList": {
-            "type": "boolean"
-          },
-          "project": {
-            "$ref": "#/components/schemas/Project"
-          },
-          "projectId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "propertyInfos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ModelProperty"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "ModelProperty": {
-        "required": [
-          "name",
-          "type"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
-          "type": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "name": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "displayName": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "isList": {
-            "type": "boolean"
-          },
-          "isPublic": {
-            "type": "boolean"
-          },
-          "isNavigation": {
-            "type": "boolean"
-          },
-          "isJsonIgnore": {
-            "type": "boolean"
-          },
-          "navigationName": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "isComplexType": {
-            "type": "boolean"
-          },
-          "hasMany": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "isEnum": {
-            "type": "boolean"
-          },
-          "hasSet": {
-            "type": "boolean"
-          },
-          "attributeText": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "commentXml": {
-            "maxLength": 500,
-            "type": "string",
-            "nullable": true
-          },
-          "commentSummary": {
-            "maxLength": 200,
-            "type": "string",
-            "nullable": true
-          },
-          "isRequired": {
-            "type": "boolean"
-          },
-          "isNullable": {
-            "type": "boolean"
-          },
-          "minLength": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxLength": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "isDecimal": {
-            "type": "boolean"
-          },
-          "suffixContent": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "defaultValue": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "entityInfo": {
-            "$ref": "#/components/schemas/ModelInfo"
-          },
-          "modelInfoId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
+        }
       },
       "ModuleInfo": {
         "required": [
-          "description",
           "name",
-          "value"
+          "value",
+          "description"
         ],
         "type": "object",
         "properties": {
@@ -3326,88 +2880,84 @@
           "description": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
+      },
+      "NullableOfActionStatus": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfGenSourceType": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfGenStepType": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfSolutionType": {
+        "type": "integer",
+        "nullable": true
       },
       "OperationType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7
-        ],
         "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "Get",
-            "value": 0,
-            "description": "get"
+        "x-enumNames": [
+          "Get",
+          "Put",
+          "Post",
+          "Delete",
+          "Options",
+          "Head",
+          "Patch",
+          "Trace"
+        ],
+        "x-enumData": [ ]
+      },
+      "PageListOfGenActionItemDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
           },
-          {
-            "name": "Put",
-            "value": 1,
-            "description": "put"
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenActionItemDto"
+            }
           },
-          {
-            "name": "Post",
-            "value": 2,
-            "description": "post"
-          },
-          {
-            "name": "Delete",
-            "value": 3,
-            "description": "delete"
-          },
-          {
-            "name": "Options",
-            "value": 4,
-            "description": "options"
-          },
-          {
-            "name": "Head",
-            "value": 5,
-            "description": "head"
-          },
-          {
-            "name": "Patch",
-            "value": 6,
-            "description": "patch"
-          },
-          {
-            "name": "Trace",
-            "value": 7,
-            "description": "trace"
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
           }
-        ]
+        }
+      },
+      "PageListOfGenStepItemDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenStepItemDto"
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "Project": {
         "required": [
-          "displayName",
           "name",
+          "displayName",
           "path"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
           "name": {
             "maxLength": 100,
             "type": "string"
@@ -3426,16 +2976,10 @@
             "nullable": true
           },
           "solutionType": {
-            "$ref": "#/components/schemas/SolutionType"
+            "$ref": "#/components/schemas/NullableOfSolutionType"
           },
           "config": {
             "$ref": "#/components/schemas/ProjectConfig"
-          },
-          "modelInfos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ModelInfo"
-            }
           },
           "apiDocInfos": {
             "type": "array",
@@ -3451,12 +2995,24 @@
           },
           "genSteps": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GenStep"
-            }
+            "items": { }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectConfig": {
         "type": "object",
@@ -3482,7 +3038,7 @@
           "entityFrameworkPath": {
             "type": "string"
           },
-          "applicationPath": {
+          "commonModPath": {
             "type": "string"
           },
           "apiPath": {
@@ -3495,8 +3051,7 @@
             "type": "string"
           },
           "isLight": {
-            "type": "boolean",
-            "readOnly": true
+            "type": "boolean"
           },
           "controllerType": {
             "$ref": "#/components/schemas/ControllerType"
@@ -3505,20 +3060,18 @@
             "type": "boolean",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
         "type": "integer",
-        "format": "int32",
+        "x-enumNames": [
+          "Web",
+          "Console",
+          "Lib",
+          "Module",
+          "WebAPI",
+          "GRPC"
+        ],
         "x-enumData": [
           {
             "name": "Web",
@@ -3554,8 +3107,8 @@
       },
       "PropertyInfo": {
         "required": [
-          "name",
-          "type"
+          "type",
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -3645,28 +3198,7 @@
             "maxLength": 100,
             "type": "string"
           }
-        },
-        "additionalProperties": false
-      },
-      "RequestLibType": {
-        "enum": [
-          0,
-          1
-        ],
-        "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "NgHttp",
-            "value": 0,
-            "description": "angular http"
-          },
-          {
-            "name": "Axios",
-            "value": 1,
-            "description": "axios"
-          }
-        ]
+        }
       },
       "RestApiGroup": {
         "required": [
@@ -3687,14 +3219,12 @@
               "$ref": "#/components/schemas/RestApiInfo"
             }
           }
-        },
-        "additionalProperties": false,
-        "description": "接口分组信息"
+        }
       },
       "RestApiInfo": {
         "required": [
-          "operationId",
-          "router"
+          "router",
+          "operationId"
         ],
         "type": "object",
         "properties": {
@@ -3702,12 +3232,10 @@
             "$ref": "#/components/schemas/OperationType"
           },
           "router": {
-            "type": "string",
-            "description": "路由"
+            "type": "string"
           },
           "summary": {
             "type": "string",
-            "description": "说明",
             "nullable": true
           },
           "tag": {
@@ -3722,7 +3250,6 @@
             "items": {
               "$ref": "#/components/schemas/PropertyInfo"
             },
-            "description": "请求查询参数",
             "nullable": true
           },
           "requestInfo": {
@@ -3731,73 +3258,31 @@
           "responseInfo": {
             "$ref": "#/components/schemas/TypeMeta"
           }
-        },
-        "additionalProperties": false,
-        "description": "接口信息"
+        }
       },
-      "SolutionType": {
-        "enum": [
-          0,
-          1,
-          2
-        ],
-        "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "DotNet",
-            "value": 0,
-            "description": "DotNet"
+      "StringSegment": {
+        "type": "object",
+        "properties": {
+          "buffer": {
+            "type": "string",
+            "nullable": true
           },
-          {
-            "name": "Node",
-            "value": 1,
-            "description": "Node"
+          "offset": {
+            "type": "integer",
+            "format": "int32"
           },
-          {
-            "name": "Else",
-            "value": 2,
-            "description": "Empty"
+          "length": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasValue": {
+            "type": "boolean"
           }
-        ]
-      },
-      "StringConvertType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ],
-        "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "Guid",
-            "value": 0,
-            "description": "Guid"
-          },
-          {
-            "name": "NamePolicy",
-            "value": 1,
-            "description": "命名转换"
-          },
-          {
-            "name": "Encode",
-            "value": 2,
-            "description": "编码"
-          },
-          {
-            "name": "Decode",
-            "value": 3,
-            "description": "解码"
-          },
-          {
-            "name": "EnCrypt",
-            "value": 4,
-            "description": "加密"
-          }
-        ]
+        }
       },
       "SubProjectInfo": {
         "required": [
@@ -3815,8 +3300,7 @@
           "projectType": {
             "$ref": "#/components/schemas/ProjectType"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TypeMeta": {
         "required": [
@@ -3826,19 +3310,16 @@
         "properties": {
           "name": {
             "maxLength": 100,
-            "type": "string",
-            "description": "类名"
+            "type": "string"
           },
           "comment": {
             "maxLength": 300,
             "type": "string",
-            "description": "类注释",
             "nullable": true
           },
           "summary": {
             "maxLength": 100,
             "type": "string",
-            "description": "类注释",
             "nullable": true
           },
           "keyType": {
@@ -3846,7 +3327,6 @@
           },
           "isEnum": {
             "type": "boolean",
-            "description": "是否为枚举类",
             "nullable": true
           },
           "isList": {
@@ -3854,19 +3334,51 @@
           },
           "propertyInfos": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PropertyInfo"
-            },
-            "description": "属性"
+            "items": { }
           }
         },
-        "additionalProperties": false,
-        "description": "模型信息"
+        "nullable": true
+      },
+      "TypeMeta2": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "comment": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "keyType": {
+            "$ref": "#/components/schemas/EntityKeyType"
+          },
+          "isEnum": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isList": {
+            "type": "boolean"
+          },
+          "propertyInfos": {
+            "type": "array",
+            "items": { }
+          }
+        }
       },
       "UpdateDtoDto": {
         "required": [
-          "content",
-          "fileName"
+          "fileName",
+          "content"
         ],
         "type": "object",
         "properties": {
@@ -3877,46 +3389,18 @@
           "content": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ValueType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ],
         "type": "integer",
-        "format": "int32",
-        "x-enumData": [
-          {
-            "name": "Integer",
-            "value": 0,
-            "description": ""
-          },
-          {
-            "name": "Double",
-            "value": 1,
-            "description": ""
-          },
-          {
-            "name": "String",
-            "value": 2,
-            "description": ""
-          },
-          {
-            "name": "Boolean",
-            "value": 3,
-            "description": ""
-          },
-          {
-            "name": "Encrypt",
-            "value": 4,
-            "description": ""
-          }
-        ]
+        "x-enumNames": [
+          "Integer",
+          "Double",
+          "String",
+          "Boolean",
+          "Encrypt"
+        ],
+        "x-enumData": [ ]
       },
       "Variable": {
         "required": [
@@ -3933,43 +3417,34 @@
             "maxLength": 1000,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       }
     }
   },
   "tags": [
     {
-      "name": "Advance",
-      "description": "高级功能"
+      "name": "Advance"
     },
     {
-      "name": "ApiDocInfo",
-      "description": "api文档"
+      "name": "ApiDocInfo"
     },
     {
-      "name": "EntityInfo",
-      "description": "实体"
+      "name": "EntityInfo"
     },
     {
-      "name": "GenAction",
-      "description": "生成操作"
+      "name": "GenAction"
     },
     {
-      "name": "GenStep",
-      "description": "task step"
+      "name": "GenStep"
     },
     {
-      "name": "Project",
-      "description": "项目"
+      "name": "Project"
     },
     {
-      "name": "Solution",
-      "description": "功能模块"
+      "name": "Solution"
     },
     {
-      "name": "Tools",
-      "description": "Tools"
+      "name": "Tools"
     }
   ]
 }

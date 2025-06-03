@@ -23,7 +23,7 @@
     "clipboard": "^2.0.11",
     "marked": "^15.0.0",
     "monaco-editor": "^0.52.2",
-    "ngx-markdown": "^19.1.1",
+    "ngx-markdown": "^20.0.0",
     "ngx-monaco-editor-v2": "^19.0.2",
     "prismjs": "^1.29.0",
     "rxjs": "~7.8.1",
