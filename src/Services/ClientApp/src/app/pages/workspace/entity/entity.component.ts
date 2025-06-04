@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Location, NgIf } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AdvanceService } from 'src/app/services/advance/advance.service';
@@ -18,9 +18,15 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
     selector: 'app-entity',
     templateUrl: './entity.component.html',
     styleUrls: ['./entity.component.css'],
-    imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, NgIf, MatProgressSpinner, EditorComponent]
+    imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, MatProgressSpinner, EditorComponent]
 })
 export class EntityComponent {
+  snb = inject(MatSnackBar);
+  router = inject(Router);
+  service = inject(AdvanceService);
+  projectState = inject(ProjectStateService);
+  private location = inject(Location);
+
   isProcessing = false;
   name: string | null = null;
   description: string | null = null;
@@ -34,13 +40,9 @@ export class EntityComponent {
       enabled: false
     }
   };
-  constructor(
-    public snb: MatSnackBar,
-    public router: Router,
-    public service: AdvanceService,
-    public projectState: ProjectStateService,
-    private location: Location
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+
     if (projectState.project)
       this.projectId = projectState.project?.id;
   }

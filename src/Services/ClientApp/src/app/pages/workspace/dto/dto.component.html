@@ -11,19 +11,27 @@
   </button>
 </mat-toolbar>
 
-<div class="" *ngIf="!isLoading">
-  <section class="noContent" *ngIf="dtos.length<=0">
-    未找到相关DTO
-  </section>
-  <section class="content" *ngIf="dtos.length>0">
-    <div class="d-flex flex-column p-1">
-      <mat-tab-group class="w-100" (selectedTabChange)="tabChange($event)">
-        <mat-tab [label]="dto.name!" *ngFor="let dto of dtos"></mat-tab>
-      </mat-tab-group>
-      <div class="d-flex w-100">
-        <ngx-monaco-editor class="editor" [options]="editorOptions" [(ngModel)]="code"
-          (onInit)="onInit($event)"></ngx-monaco-editor>
-      </div>
-    </div>
-  </section>
-</div>
+@if (!isLoading) {
+  <div class="">
+    @if (dtos.length<=0) {
+      <section class="noContent">
+        未找到相关DTO
+      </section>
+    }
+    @if (dtos.length>0) {
+      <section class="content">
+        <div class="d-flex flex-column p-1">
+          <mat-tab-group class="w-100" (selectedTabChange)="tabChange($event)">
+            @for (dto of dtos; track dto) {
+              <mat-tab [label]="dto.name!"></mat-tab>
+            }
+          </mat-tab-group>
+          <div class="d-flex w-100">
+            <ngx-monaco-editor class="editor" [options]="editorOptions" [(ngModel)]="code"
+            (onInit)="onInit($event)"></ngx-monaco-editor>
+          </div>
+        </div>
+      </section>
+    }
+  </div>
+}

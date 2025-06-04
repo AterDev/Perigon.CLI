@@ -1,8 +1,7 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
 
-@include mat.elevation-classes();
-@include mat.app-background();
+
 
 $dark-theme: mat.define-theme((color: (theme-type: dark,
         primary: mat.$violet-palette,

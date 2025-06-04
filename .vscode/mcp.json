@@ -1,6 +1,6 @@
 {
     "servers": {
-        "ater": {
+        "ater.copilot": {
             "url": "http://localhost:5278/mcp"
         }
     }

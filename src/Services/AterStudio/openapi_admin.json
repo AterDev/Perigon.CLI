@@ -1,0 +1,3450 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "AterStudio | admin",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/admin/Advance/config": {
+      "get": {
+        "tags": [
+          "Advance"
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigData"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Advance"
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ApiDocInfo": {
+      "get": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiDocInfoItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocInfoAddDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocInfoAddDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocInfoAddDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ApiDocInfo/{id}": {
+      "get": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "isFresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiDocContent"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocInfoUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocInfoUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocInfoUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ApiDocInfo/export/{id}": {
+      "get": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ApiDocInfo/generateRequest/{id}": {
+      "get": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "webPath",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "x-enumNames": [
+                "NgHttp",
+                "Axios"
+              ],
+              "x-enumData": [
+                {
+                  "name": "NgHttp",
+                  "value": 0,
+                  "description": "angular http"
+                },
+                {
+                  "name": "Axios",
+                  "value": 1,
+                  "description": "axios"
+                }
+              ]
+            }
+          },
+          {
+            "name": "swaggerPath",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ApiDocInfo/generateCsharpRequest/{id}": {
+      "get": {
+        "tags": [
+          "ApiDocInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "webPath",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "swaggerPath",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/EntityInfo/{id}": {
+      "get": {
+        "tags": [
+          "EntityInfo"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntityFile"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/EntityInfo/dtos": {
+      "get": {
+        "tags": [
+          "EntityInfo"
+        ],
+        "parameters": [
+          {
+            "name": "entityFilePath",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntityFile"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/EntityInfo": {
+      "delete": {
+        "tags": [
+          "EntityInfo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/EntityInfo/fileContent": {
+      "get": {
+        "tags": [
+          "EntityInfo"
+        ],
+        "parameters": [
+          {
+            "name": "entityName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isManager",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "moduleName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityFile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/EntityInfo/dto": {
+      "put": {
+        "tags": [
+          "EntityInfo"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDtoDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDtoDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDtoDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/EntityInfo/generate": {
+      "post": {
+        "tags": [
+          "EntityInfo"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/filter": {
+      "post": {
+        "tags": [
+          "GenAction"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionFilterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionFilterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionFilterDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageListOfGenActionItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/steps/{id}": {
+      "get": {
+        "tags": [
+          "GenAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenStepItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "GenAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/modelFile": {
+      "get": {
+        "tags": [
+          "GenAction"
+        ],
+        "parameters": [
+          {
+            "name": "sourceType",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "x-enumNames": [
+                "EntityCLass",
+                "DtoModel",
+                "OpenAPI"
+              ],
+              "x-enumData": [
+                {
+                  "name": "EntityCLass",
+                  "value": 0,
+                  "description": "实体类"
+                },
+                {
+                  "name": "DtoModel",
+                  "value": 1,
+                  "description": "Dto模型"
+                },
+                {
+                  "name": "OpenAPI",
+                  "value": 2,
+                  "description": "OpenAPI"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModelFileItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction": {
+      "post": {
+        "tags": [
+          "GenAction"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionAddDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionAddDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionAddDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/{id}": {
+      "patch": {
+        "tags": [
+          "GenAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "GenAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenActionDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "GenAction"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/execute": {
+      "post": {
+        "tags": [
+          "GenAction"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionRunDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionRunDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenActionRunDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenActionResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/syncTemplate": {
+      "get": {
+        "tags": [
+          "GenAction"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenAction/saveTemplate": {
+      "get": {
+        "tags": [
+          "GenAction"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenStep/filter": {
+      "post": {
+        "tags": [
+          "GenStep"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepFilterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepFilterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepFilterDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageListOfGenStepItemDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenStep": {
+      "post": {
+        "tags": [
+          "GenStep"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepAddDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepAddDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepAddDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/GenStep/{id}": {
+      "patch": {
+        "tags": [
+          "GenStep"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenStepUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "GenStep"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenStepDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "GenStep"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project/version": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project/{id}": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project/service": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project/solution": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project/open": {
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/Project/setting/{id}": {
+      "put": {
+        "tags": [
+          "Project"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectConfig"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectConfig"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Solution/newSolution": {
+      "post": {
+        "tags": [
+          "Solution"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSolutionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSolutionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSolutionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Solution/modules": {
+      "get": {
+        "tags": [
+          "Solution"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubProjectInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Solution/defaultModules": {
+      "get": {
+        "tags": [
+          "Solution"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Solution/createModule": {
+      "post": {
+        "tags": [
+          "Solution"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Tools/classModel": {
+      "post": {
+        "tags": [
+          "Tools"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Tools/string": {
+      "get": {
+        "tags": [
+          "Tools"
+        ],
+        "parameters": [
+          {
+            "name": "content",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "x-enumNames": [
+                "Guid",
+                "NamePolicy",
+                "Encode",
+                "Decode",
+                "EnCrypt"
+              ],
+              "x-enumData": [
+                {
+                  "name": "Guid",
+                  "value": 0,
+                  "description": "Guid"
+                },
+                {
+                  "name": "NamePolicy",
+                  "value": 1,
+                  "description": "命名转换"
+                },
+                {
+                  "name": "Encode",
+                  "value": 2,
+                  "description": "编码"
+                },
+                {
+                  "name": "Decode",
+                  "value": 3,
+                  "description": "解码"
+                },
+                {
+                  "name": "EnCrypt",
+                  "value": 4,
+                  "description": "加密"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionStatus": {
+        "type": "integer",
+        "x-enumNames": [
+          "NotStarted",
+          "InProgress",
+          "Success",
+          "Failed"
+        ],
+        "x-enumData": [
+          {
+            "name": "NotStarted",
+            "value": 0,
+            "description": "未执行"
+          },
+          {
+            "name": "InProgress",
+            "value": 1,
+            "description": "执行中"
+          },
+          {
+            "name": "Success",
+            "value": 2,
+            "description": "成功"
+          },
+          {
+            "name": "Failed",
+            "value": 3,
+            "description": "失败"
+          }
+        ]
+      },
+      "ApiDocContent": {
+        "type": "object",
+        "properties": {
+          "restApiGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestApiGroup"
+            }
+          },
+          "typeMeta": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TypeMeta2"
+            }
+          },
+          "openApiTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiDocTag"
+            }
+          }
+        }
+      },
+      "ApiDocInfo": {
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 10000,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "localPath": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiDocInfoAddDto": {
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "localPath": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiDocInfoItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "localPath": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ApiDocInfoUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "localPath": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiDocTag": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CacheType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Redis",
+          "Memory",
+          "Hybrid"
+        ],
+        "x-enumData": [
+          {
+            "name": "Redis",
+            "value": 0,
+            "description": "Redis"
+          },
+          {
+            "name": "Memory",
+            "value": 1,
+            "description": "Memory"
+          },
+          {
+            "name": "Hybrid",
+            "value": 2,
+            "description": "Hybrid"
+          }
+        ]
+      },
+      "CommandType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Dto",
+          "Manager",
+          "API",
+          "Protobuf",
+          "Clear"
+        ],
+        "x-enumData": [
+          {
+            "name": "Dto",
+            "value": 0,
+            "description": "dto"
+          },
+          {
+            "name": "Manager",
+            "value": 1,
+            "description": "manager"
+          },
+          {
+            "name": "API",
+            "value": 2,
+            "description": "api"
+          },
+          {
+            "name": "Protobuf",
+            "value": 3,
+            "description": "protobuf"
+          },
+          {
+            "name": "Clear",
+            "value": 4,
+            "description": "clear"
+          }
+        ]
+      },
+      "ConfigData": {
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "valueType": {
+            "$ref": "#/components/schemas/ValueType"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ControllerType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Client",
+          "Admin",
+          "Both"
+        ],
+        "x-enumData": [
+          {
+            "name": "Client",
+            "value": 0,
+            "description": "用户端"
+          },
+          {
+            "name": "Admin",
+            "value": 1,
+            "description": "管理端"
+          },
+          {
+            "name": "Both",
+            "value": 2,
+            "description": "用户端和管理端"
+          }
+        ]
+      },
+      "ConvertDto": {
+        "required": [
+          "content"
+        ],
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateSolutionDto": {
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 50,
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "isLight": {
+            "type": "boolean"
+          },
+          "dbType": {
+            "$ref": "#/components/schemas/DBType"
+          },
+          "cacheType": {
+            "$ref": "#/components/schemas/CacheType"
+          },
+          "frontType": {
+            "$ref": "#/components/schemas/FrontType"
+          },
+          "hasTenant": {
+            "type": "boolean"
+          },
+          "hasIdentityServer": {
+            "type": "boolean"
+          },
+          "hasTaskManager": {
+            "type": "boolean"
+          },
+          "commandDbConnStrings": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "queryDbConnStrings": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "cacheConnStrings": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "cacheInstanceName": {
+            "maxLength": 60,
+            "type": "string",
+            "nullable": true
+          },
+          "defaultPassword": {
+            "maxLength": 60,
+            "type": "string",
+            "nullable": true
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DBType": {
+        "type": "integer",
+        "x-enumNames": [
+          "PostgreSQL",
+          "SQLServer"
+        ],
+        "x-enumData": [
+          {
+            "name": "PostgreSQL",
+            "value": 0,
+            "description": "PostgreSQL"
+          },
+          {
+            "name": "SQLServer",
+            "value": 1,
+            "description": "SQLServer"
+          }
+        ]
+      },
+      "EntityFile": {
+        "required": [
+          "name",
+          "fullName"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "baseDirPath": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "moduleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasDto": {
+            "type": "boolean"
+          },
+          "hasManager": {
+            "type": "boolean"
+          },
+          "hasAPI": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntityKeyType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Guid",
+          "Int",
+          "String"
+        ],
+        "x-enumData": [ ]
+      },
+      "EntityTagHeaderValue": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/StringSegment"
+          },
+          "isWeak": {
+            "type": "boolean"
+          }
+        },
+        "nullable": true
+      },
+      "FileContentResult": {
+        "type": "object",
+        "properties": {
+          "fileContents": {
+            "type": "string",
+            "format": "byte"
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileDownloadName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entityTag": {
+            "$ref": "#/components/schemas/EntityTagHeaderValue"
+          },
+          "enableRangeProcessing": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FrontType": {
+        "type": "integer",
+        "x-enumNames": [
+          "None",
+          "Angular",
+          "Blazor"
+        ],
+        "x-enumData": [
+          {
+            "name": "Angular",
+            "value": 1,
+            "description": "Angular"
+          },
+          {
+            "name": "Blazor",
+            "value": 2,
+            "description": "Blazor"
+          }
+        ]
+      },
+      "GenAction": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "entityPath": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "openApiPath": {
+            "maxLength": 1024,
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "array",
+            "items": { }
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "genSteps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenStep"
+            }
+          },
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/ActionStatus"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GenActionAddDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "entityPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "openApiPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variable"
+            }
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/ActionStatus"
+          }
+        }
+      },
+      "GenActionDetailDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "entityPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "openApiPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variable"
+            }
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/ActionStatus"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GenActionFilterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string",
+            "nullable": true
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/NullableOfActionStatus"
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderBy": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "GenActionItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "entityPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "openApiPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/ActionStatus"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variable"
+            }
+          }
+        }
+      },
+      "GenActionResultDto": {
+        "type": "object",
+        "properties": {
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "errorMsg": {
+            "type": "string",
+            "nullable": true
+          },
+          "outputFiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelFileItemDto"
+            }
+          }
+        }
+      },
+      "GenActionRunDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceFilePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "onlyOutput": {
+            "type": "boolean"
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variable"
+            },
+            "nullable": true
+          },
+          "modelInfo": {
+            "$ref": "#/components/schemas/TypeMeta"
+          }
+        }
+      },
+      "GenActionUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 40,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "entityPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "openApiPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variable"
+            },
+            "nullable": true
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/NullableOfGenSourceType"
+          },
+          "actionStatus": {
+            "$ref": "#/components/schemas/NullableOfActionStatus"
+          }
+        }
+      },
+      "GenerateDto": {
+        "required": [
+          "entityPath"
+        ],
+        "type": "object",
+        "properties": {
+          "entityPath": {
+            "type": "string"
+          },
+          "commandType": {
+            "$ref": "#/components/schemas/CommandType"
+          },
+          "force": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GenStep": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "outputContent": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "outputPath": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/GenStepType"
+          },
+          "fileType": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "genActions": {
+            "type": "array",
+            "items": { }
+          },
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GenStepAddDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "outputContent": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "outputPath": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/GenStepType"
+          }
+        }
+      },
+      "GenStepDetailDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "outputContent": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "outputPath": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/GenStepType"
+          },
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GenStepFilterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/NullableOfGenStepType"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "fileType": {
+            "type": "string",
+            "nullable": true
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderBy": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "GenStepItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "outputPath": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/GenStepType"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GenStepType": {
+        "type": "integer",
+        "x-enumNames": [
+          "File",
+          "Command",
+          "Script"
+        ],
+        "x-enumData": [
+          {
+            "name": "File",
+            "value": 0,
+            "description": "模板生成"
+          },
+          {
+            "name": "Command",
+            "value": 1,
+            "description": "执行命令"
+          },
+          {
+            "name": "Script",
+            "value": 2,
+            "description": "执行脚本"
+          }
+        ]
+      },
+      "GenStepUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "outputContent": {
+            "maxLength": 100000,
+            "type": "string",
+            "nullable": true
+          },
+          "path": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "outputPath": {
+            "maxLength": 400,
+            "type": "string",
+            "nullable": true
+          },
+          "genStepType": {
+            "$ref": "#/components/schemas/NullableOfGenStepType"
+          }
+        }
+      },
+      "ModelFileItemDto": {
+        "required": [
+          "name",
+          "fullName"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ModuleInfo": {
+        "required": [
+          "name",
+          "value",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "NullableOfActionStatus": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfGenSourceType": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfGenStepType": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfSolutionType": {
+        "type": "integer",
+        "nullable": true
+      },
+      "OperationType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Get",
+          "Put",
+          "Post",
+          "Delete",
+          "Options",
+          "Head",
+          "Patch",
+          "Trace"
+        ],
+        "x-enumData": [ ]
+      },
+      "PageListOfGenActionItemDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenActionItemDto"
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PageListOfGenStepItemDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenStepItemDto"
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Project": {
+        "required": [
+          "name",
+          "displayName",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "version": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "solutionType": {
+            "$ref": "#/components/schemas/NullableOfSolutionType"
+          },
+          "config": {
+            "$ref": "#/components/schemas/ProjectConfig"
+          },
+          "apiDocInfos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiDocInfo"
+            }
+          },
+          "genActions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenAction"
+            }
+          },
+          "genSteps": {
+            "type": "array",
+            "items": { }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ProjectConfig": {
+        "type": "object",
+        "properties": {
+          "idType": {
+            "type": "string"
+          },
+          "createdTimeName": {
+            "type": "string"
+          },
+          "updatedTimeName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "sharePath": {
+            "type": "string"
+          },
+          "entityPath": {
+            "type": "string"
+          },
+          "entityFrameworkPath": {
+            "type": "string"
+          },
+          "commonModPath": {
+            "type": "string"
+          },
+          "apiPath": {
+            "type": "string"
+          },
+          "microservicePath": {
+            "type": "string"
+          },
+          "solutionPath": {
+            "type": "string"
+          },
+          "isLight": {
+            "type": "boolean"
+          },
+          "controllerType": {
+            "$ref": "#/components/schemas/ControllerType"
+          },
+          "isSplitController": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Web",
+          "Console",
+          "Lib",
+          "Module",
+          "WebAPI",
+          "GRPC"
+        ],
+        "x-enumData": [
+          {
+            "name": "Web",
+            "value": 0,
+            "description": "web服务"
+          },
+          {
+            "name": "Console",
+            "value": 1,
+            "description": "控制台应用"
+          },
+          {
+            "name": "Lib",
+            "value": 2,
+            "description": "类库"
+          },
+          {
+            "name": "Module",
+            "value": 3,
+            "description": "模块"
+          },
+          {
+            "name": "WebAPI",
+            "value": 4,
+            "description": "接口服务"
+          },
+          {
+            "name": "GRPC",
+            "value": 5,
+            "description": "gPRC服务"
+          }
+        ]
+      },
+      "PropertyInfo": {
+        "required": [
+          "type",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "isList": {
+            "type": "boolean"
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "isNavigation": {
+            "type": "boolean"
+          },
+          "isJsonIgnore": {
+            "type": "boolean"
+          },
+          "navigationName": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "isComplexType": {
+            "type": "boolean"
+          },
+          "hasMany": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isEnum": {
+            "type": "boolean"
+          },
+          "hasSet": {
+            "type": "boolean"
+          },
+          "attributeText": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "commentXml": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "commentSummary": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isNullable": {
+            "type": "boolean"
+          },
+          "minLength": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxLength": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isDecimal": {
+            "type": "boolean"
+          },
+          "suffixContent": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "defaultValue": {
+            "maxLength": 100,
+            "type": "string"
+          }
+        }
+      },
+      "RestApiGroup": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "apiInfos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestApiInfo"
+            }
+          }
+        }
+      },
+      "RestApiInfo": {
+        "required": [
+          "router",
+          "operationId"
+        ],
+        "type": "object",
+        "properties": {
+          "operationType": {
+            "$ref": "#/components/schemas/OperationType"
+          },
+          "router": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "tag": {
+            "type": "string",
+            "nullable": true
+          },
+          "operationId": {
+            "type": "string"
+          },
+          "queryParameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyInfo"
+            },
+            "nullable": true
+          },
+          "requestInfo": {
+            "$ref": "#/components/schemas/TypeMeta"
+          },
+          "responseInfo": {
+            "$ref": "#/components/schemas/TypeMeta"
+          }
+        }
+      },
+      "StringSegment": {
+        "type": "object",
+        "properties": {
+          "buffer": {
+            "type": "string",
+            "nullable": true
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "length": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasValue": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SubProjectInfo": {
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "projectType": {
+            "$ref": "#/components/schemas/ProjectType"
+          }
+        }
+      },
+      "TypeMeta": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "comment": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "keyType": {
+            "$ref": "#/components/schemas/EntityKeyType"
+          },
+          "isEnum": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isList": {
+            "type": "boolean"
+          },
+          "propertyInfos": {
+            "type": "array",
+            "items": { }
+          }
+        },
+        "nullable": true
+      },
+      "TypeMeta2": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "comment": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "keyType": {
+            "$ref": "#/components/schemas/EntityKeyType"
+          },
+          "isEnum": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isList": {
+            "type": "boolean"
+          },
+          "propertyInfos": {
+            "type": "array",
+            "items": { }
+          }
+        }
+      },
+      "UpdateDtoDto": {
+        "required": [
+          "fileName",
+          "content"
+        ],
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "ValueType": {
+        "type": "integer",
+        "x-enumNames": [
+          "Integer",
+          "Double",
+          "String",
+          "Boolean",
+          "Encrypt"
+        ],
+        "x-enumData": [ ]
+      },
+      "Variable": {
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 1000,
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Advance"
+    },
+    {
+      "name": "ApiDocInfo"
+    },
+    {
+      "name": "EntityInfo"
+    },
+    {
+      "name": "GenAction"
+    },
+    {
+      "name": "GenStep"
+    },
+    {
+      "name": "Project"
+    },
+    {
+      "name": "Solution"
+    },
+    {
+      "name": "Tools"
+    }
+  ]
+}

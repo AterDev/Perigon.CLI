@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatSelectionListChange, MatSelectionList, MatListOption } from '@angular/material/list';
@@ -23,7 +23,7 @@ import { ProjectService } from 'src/app/services/project/project.service';
 import { ProjectConfig } from 'src/app/services/project/models/project-config.model';
 import { ProgressDialogComponent } from 'src/app/components/progress-dialog/progress-dialog.component';
 import { SubProjectInfo } from 'src/app/services/solution/models/sub-project-info.model';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIconButton, MatButton } from '@angular/material/button';
@@ -42,9 +42,18 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
     selector: 'app-index',
     templateUrl: './index.component.html',
     styleUrls: ['./index.component.css'],
-    imports: [NgIf, MatProgressSpinner, MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, MatMenu, MatMenuItem, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, TypedCellDefDirective, MatCellDef, MatCell, MatButton, MatMenuTrigger, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, MatSlideToggle, MatDialogActions, MatDialogClose, MatSelectionList, NgFor, MatListOption, MatHint, EditorComponent]
+    imports: [MatProgressSpinner, MatToolbar, MatIconButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatInput, FormsModule, MatMenu, MatMenuItem, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, TypedCellDefDirective, MatCellDef, MatCell, MatButton, MatMenuTrigger, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, MatSlideToggle, MatDialogActions, MatDialogClose, MatSelectionList, MatListOption, MatHint, EditorComponent]
 })
 export class IndexComponent implements OnInit {
+  route = inject(ActivatedRoute);
+  router = inject(Router);
+  service = inject(EntityInfoService);
+  projectSrv = inject(ProjectService);
+  projectState = inject(ProjectStateService);
+  dialog = inject(MatDialog);
+  snb = inject(MatSnackBar);
+  private loginService = inject(LoginService);
+
   RequestLibType = RequestLibType;
   CommandType = CommandType;
   project = {} as Project;
@@ -99,16 +108,10 @@ export class IndexComponent implements OnInit {
   config: ProjectConfig | null = null;
 
   editor: any;
-  constructor(
-    public route: ActivatedRoute,
-    public router: Router,
-    public service: EntityInfoService,
-    public projectSrv: ProjectService,
-    public projectState: ProjectStateService,
-    public dialog: MatDialog,
-    public snb: MatSnackBar,
-    private loginService: LoginService
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+    const loginService = this.loginService;
+
     if (projectState.project) {
       this.project = projectState.project;
       this.projectId = projectState.project?.id;

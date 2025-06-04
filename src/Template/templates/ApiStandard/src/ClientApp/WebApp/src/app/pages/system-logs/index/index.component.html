@@ -1,4 +1,4 @@
-﻿<div class="d-flex">
+<div class="d-flex">
   <mat-toolbar class="box-shadow">
     <mat-toolbar-row style="font-size:16px">
       <div class="d-flex gap-1 align-items-center wrap">
@@ -8,52 +8,54 @@
           <mat-label>操作人名称</mat-label>
           <input matInput placeholder="" [(ngModel)]='filter.actionUserName'>
           @if (filter.actionUserName) {
-          <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.actionUserName = null">
-            <mat-icon>close</mat-icon>
-          </button>
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.actionUserName = null">
+              <mat-icon>close</mat-icon>
+            </button>
           }
         </mat-form-field>
-      
+
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>操作对象名称</mat-label>
           <input matInput placeholder="" [(ngModel)]='filter.targetName'>
           @if (filter.targetName) {
-          <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.targetName = null">
-            <mat-icon>close</mat-icon>
-          </button>
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.targetName = null">
+              <mat-icon>close</mat-icon>
+            </button>
           }
         </mat-form-field>
-      
+
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>操作类型</mat-label>
           <mat-select [(ngModel)]="filter.actionType" placeholder="">
             <mat-option [value]="null">全部</mat-option>
-            <mat-option *ngFor="let item of UserActionType | toKeyValue" [value]="item.value">
-              {{item.value| enumText:'UserActionType'}}
-            </mat-option>
+            @for (item of UserActionType | toKeyValue; track item) {
+              <mat-option [value]="item.value">
+                {{item.value| enumText:'UserActionType'}}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
-        
+
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>开始时间</mat-label>
           <input matInput placeholder="" [(ngModel)]='filter.startDate'>
           @if (filter.startDate) {
-          <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.startDate = null">
-            <mat-icon>close</mat-icon>
-          </button>
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.startDate = null">
+              <mat-icon>close</mat-icon>
+            </button>
           }
         </mat-form-field>
-      
+
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>结束时间</mat-label>
           <input matInput placeholder="" [(ngModel)]='filter.endDate'>
           @if (filter.endDate) {
-          <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.endDate = null">
-            <mat-icon>close</mat-icon>
-          </button>
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="filter.endDate = null">
+              <mat-icon>close</mat-icon>
+            </button>
           }
         </mat-form-field>
-      
+
         <div class="d-flex">
           <button mat-flat-button (click)="getList()" color="primary">搜索</button>
         </div>
@@ -65,39 +67,39 @@
 <!-- 加载框 -->
 <div class="d-flex text-center justify-content-center mt-2">
   @if(isLoading){
-  <mat-spinner mode="indeterminate"></mat-spinner>
+    <mat-spinner mode="indeterminate"></mat-spinner>
   }
 
 </div>
 
 @if(!isLoading){
-<div class="px-2">
-  <!-- 无数据时显示 -->
-  @if(data && data.length<=0){ <h4>
-    暂无数据！
+  <div class="px-2">
+    <!-- 无数据时显示 -->
+    @if(data && data.length<=0){ <h4>
+      暂无数据！
     </h4>
     }@else{
     <table class="default" mat-table [dataSource]="dataSource" style="width: 100%;" #table="matTable">
-          <ng-container matColumnDef="actionUserName">
-            <th mat-header-cell *matHeaderCellDef> 操作人名称 </th>
-            <td mat-cell *matCellDef="let element"> {{element.actionUserName}} </td>
-          </ng-container>
-          <ng-container matColumnDef="targetName">
-            <th mat-header-cell *matHeaderCellDef> 操作对象名称 </th>
-            <td mat-cell *matCellDef="let element"> {{element.targetName}} </td>
-          </ng-container>
-          <ng-container matColumnDef="actionType">
-            <th mat-header-cell *matHeaderCellDef> 操作类型 </th>
-            <td mat-cell *matCellDef="let element"> {{element.actionType | enumText:'UserActionType'}} </td>
-          </ng-container>
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef> Id </th>
-            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-          </ng-container>
-          <ng-container matColumnDef="createdTime">
-            <th mat-header-cell *matHeaderCellDef> CreatedTime </th>
-            <td mat-cell *matCellDef="let element"> {{element.createdTime | date: 'yyyy-MM-dd HH:mm:ss'}} </td>
-          </ng-container>
+      <ng-container matColumnDef="actionUserName">
+        <th mat-header-cell *matHeaderCellDef> 操作人名称 </th>
+        <td mat-cell *matCellDef="let element"> {{element.actionUserName}} </td>
+      </ng-container>
+      <ng-container matColumnDef="targetName">
+        <th mat-header-cell *matHeaderCellDef> 操作对象名称 </th>
+        <td mat-cell *matCellDef="let element"> {{element.targetName}} </td>
+      </ng-container>
+      <ng-container matColumnDef="actionType">
+        <th mat-header-cell *matHeaderCellDef> 操作类型 </th>
+        <td mat-cell *matCellDef="let element"> {{element.actionType | enumText:'UserActionType'}} </td>
+      </ng-container>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef> Id </th>
+        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+      </ng-container>
+      <ng-container matColumnDef="createdTime">
+        <th mat-header-cell *matHeaderCellDef> CreatedTime </th>
+        <td mat-cell *matCellDef="let element"> {{element.createdTime | date: 'yyyy-MM-dd HH:mm:ss'}} </td>
+      </ng-container>
 
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>操作</th>
@@ -119,7 +121,7 @@
         [length]="total" (page)="getList($event)" showFirstLastButtons>
       </mat-paginator>
     </div>
-    }
+  }
 </div>
 }
 

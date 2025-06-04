@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 // import { OAuthService, OAuthErrorEvent, UserInfo } from 'angular-oauth2-oidc';
 import { Router } from '@angular/router';
 import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,15 +18,12 @@ import { MatButton } from '@angular/material/button';
     imports: [MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, NgIf, MatError, MatButton]
 })
 export class LoginComponent implements OnInit {
-  public loginForm!: FormGroup;
-  constructor(
-    private advanceService: AdvanceService,
-    private loginService: LoginService,
-    private router: Router,
-    private snb: MatSnackBar
+  private advanceService = inject(AdvanceService);
+  private loginService = inject(LoginService);
+  private router = inject(Router);
+  private snb = inject(MatSnackBar);
 
-  ) {
-  }
+  public loginForm!: FormGroup;
   get username() { return this.loginForm.get('username'); }
   get password() { return this.loginForm.get('password'); }
 

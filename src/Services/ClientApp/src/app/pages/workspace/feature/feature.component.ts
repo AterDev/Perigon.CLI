@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialog, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -11,7 +11,7 @@ import { SolutionService } from 'src/app/services/solution/solution.service';
 import { SubProjectInfo } from 'src/app/services/solution/models/sub-project-info.model';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { MatButton } from '@angular/material/button';
-import { NgIf } from '@angular/common';
+
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { TypedCellDefDirective } from '../../../components/typed-cell-def.directive';
 import { CdkScrollable } from '@angular/cdk/scrolling';
@@ -22,9 +22,16 @@ import { MatInput } from '@angular/material/input';
     selector: 'app-feature',
     templateUrl: './feature.component.html',
     styleUrls: ['./feature.component.css'],
-    imports: [MatToolbar, MatToolbarRow, MatButton, NgIf, MatProgressSpinner, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatDialogActions, MatDialogClose]
+    imports: [MatToolbar, MatToolbarRow, MatButton, MatProgressSpinner, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, TypedCellDefDirective, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatDialogActions, MatDialogClose]
 })
 export class FeatureComponent {
+  private service = inject(SolutionService);
+  private projectSrv = inject(ProjectStateService);
+  private snb = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   isLoading = true;
   isProcessing = false;
@@ -39,14 +46,7 @@ export class FeatureComponent {
 
   project: Project | null = null;
   pageSizeOption = [12, 20, 50];
-  constructor(
-    private service: SolutionService,
-    private projectSrv: ProjectStateService,
-    private snb: MatSnackBar,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {
+  constructor() {
     this.project = this.projectSrv.project;
   }
 

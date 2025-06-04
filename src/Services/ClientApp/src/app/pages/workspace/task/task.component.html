@@ -34,14 +34,17 @@
 </div>
 <!-- 加载框 -->
 <div class="d-flex text-center justify-content-center mt-2">
-  <mat-spinner mode="indeterminate" *ngIf="isLoading">
-  </mat-spinner>
+  @if (isLoading) {
+    <mat-spinner mode="indeterminate">
+    </mat-spinner>
+  }
 </div>
 
-<div *ngIf="!isLoading" class="px-2">
-  <!-- 无数据时显示 -->
-  @if(data && data.length<=0){ <h4>
-    暂无数据！
+@if (!isLoading) {
+  <div class="px-2">
+    <!-- 无数据时显示 -->
+    @if(data && data.length<=0){ <h4>
+      暂无数据！
     </h4>
     }@else{
     <table class="default" mat-table [dataSource]="dataSource" #table="matTable">
@@ -61,27 +64,24 @@
         <th mat-header-cell *matHeaderCellDef>任务描述</th>
         <td mat-cell *matCellDef="let element">{{element.description}}</td>
       </ng-container>
-
       <ng-container matColumnDef="sourceType">
         <th mat-header-cell *matHeaderCellDef>项目数据</th>
         <td mat-cell *matCellDef="let element">
           @if(element.sourceType == GenSourceType.OpenAPI){
-          <span>OpenAPI</span>
-          }@else if(element.sourceType !=null){
-          <span>{{element.sourceType | enumText:'GenSourceType'}}</span>
-          }@else {
-          -
+            <span>OpenAPI</span>
+            }@else if(element.sourceType !=null){
+            <span>{{element.sourceType | enumText:'GenSourceType'}}</span>
+            }@else {
+            -
           }
         </td>
       </ng-container>
-
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>执行状态</th>
         <td mat-cell *matCellDef="let element;table:table">
           {{element.actionStatus| enumText:'ActionStatus'}}
         </td>
       </ng-container>
-
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>操作</th>
         <td mat-cell *matCellDef="let element;table:table" class="gap-1">
@@ -102,18 +102,19 @@
     </table>
     <mat-divider></mat-divider>
     @if(total>filter.pageSize){
-    <div class="d-flex justify-content-between paginator mt-1">
-      <mat-form-field subscriptSizing="dynamic">
-        <mat-label>跳转到</mat-label>
-        <input matInput type="number" [value]="filter.pageIndex" #pageJump (keyup.enter)="jumpTo(pageJump.value)">
-      </mat-form-field>
-      <mat-paginator [pageSizeOptions]="pageSizeOption" [pageIndex]="filter.pageIndex!-1" [pageSize]="filter.pageSize"
-        [length]="total" (page)="getList($event)" showFirstLastButtons>
-      </mat-paginator>
-    </div>
+      <div class="d-flex justify-content-between paginator mt-1">
+        <mat-form-field subscriptSizing="dynamic">
+          <mat-label>跳转到</mat-label>
+          <input matInput type="number" [value]="filter.pageIndex" #pageJump (keyup.enter)="jumpTo(pageJump.value)">
+        </mat-form-field>
+        <mat-paginator [pageSizeOptions]="pageSizeOption" [pageIndex]="filter.pageIndex!-1" [pageSize]="filter.pageSize"
+          [length]="total" (page)="getList($event)" showFirstLastButtons>
+        </mat-paginator>
+      </div>
     }
-    }
+  }
 </div>
+}
 
 <ng-template #addDialog>
   <h2 mat-dialog-title>
@@ -133,9 +134,11 @@
         <mat-label>项目数据类型</mat-label>
         <mat-select placeholder="选择要用到的项目数据" [formControl]="sourceType" name="item" matTooltip="运行项目时选择的项目数据来源">
           <mat-option [value]="null">无</mat-option>
-          <mat-option *ngFor="let item of GenSourceType | toKeyValue" [value]="item.value">
-            {{item.value | enumText:'GenSourceType'}}
-          </mat-option>
+          @for (item of GenSourceType | toKeyValue; track item) {
+            <mat-option [value]="item.value">
+              {{item.value | enumText:'GenSourceType'}}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
       <div class="d-flex justify-content-between align-items-center px-1">
@@ -153,17 +156,17 @@
       </div>
       <div formArrayName="variables" class="mt-2 d-flex flex-column gap-2">
         @for (item of variables.controls; track $index) {
-        <div [formGroupName]="$index" class="d-flex gap-1 align-items-center">
-          <mat-form-field subscriptSizing="dynamic">
-            <mat-label>变量名</mat-label>
-            <input matInput formControlName="key" placeholder="输入变量名称">
-          </mat-form-field>
-          <mat-form-field subscriptSizing="dynamic">
-            <mat-label>变量值</mat-label>
-            <input matInput formControlName="value" placeholder="变量值">
-          </mat-form-field>
-          <button mat-button (click)="removeVariable($index)">删除</button>
-        </div>
+          <div [formGroupName]="$index" class="d-flex gap-1 align-items-center">
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>变量名</mat-label>
+              <input matInput formControlName="key" placeholder="输入变量名称">
+            </mat-form-field>
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>变量值</mat-label>
+              <input matInput formControlName="value" placeholder="变量值">
+            </mat-form-field>
+            <button mat-button (click)="removeVariable($index)">删除</button>
+          </div>
         }
       </div>
     </form>
@@ -184,7 +187,7 @@
       <div cdkDropList #todoList="cdkDropList" [cdkDropListData]="remainSteps" [cdkDropListConnectedTo]="[doneList]"
         class="drag-list" (cdkDropListDropped)="drop($event)">
         @for (item of remainSteps; track item) {
-        <div class="drag-box" cdkDrag>{{item.name}}</div>
+          <div class="drag-box" cdkDrag>{{item.name}}</div>
         }
       </div>
     </div>
@@ -193,7 +196,7 @@
       <div cdkDropList #doneList="cdkDropList" [cdkDropListData]="selectedSteps" [cdkDropListConnectedTo]="[todoList]"
         class="drag-list" (cdkDropListDropped)="drop($event)">
         @for (item of selectedSteps; track item) {
-        <div class="drag-box" cdkDrag>{{item.name}}</div>
+          <div class="drag-box" cdkDrag>{{item.name}}</div>
         }
       </div>
     </div>
@@ -210,35 +213,35 @@
     <form class="d-flex p-2 flex-column">
       <div class="d-flex flex-column">
         @if(currentItem.sourceType == GenSourceType.OpenAPI){
-        <mat-form-field>
-          <mat-label>OpenAPI Url</mat-label>
-          <input matInput [(ngModel)]="runFilePath" placeholder="OpenAPI URL" required name="runFilePath">
+          <mat-form-field>
+            <mat-label>OpenAPI Url</mat-label>
+            <input matInput [(ngModel)]="runFilePath" placeholder="OpenAPI URL" required name="runFilePath">
 
-        </mat-form-field>
-        }@else if(currentItem.sourceType != null){
-        <mat-form-field>
-          <mat-label>选择模型</mat-label>
-          <input type="text" #input placeholder="选择模型" matInput [(ngModel)]="runFilePath" [matAutocomplete]="auto"
-            (input)="filterModels(input.value)" (focus)="filterModels(input.value)" name="runFilePath">
+          </mat-form-field>
+          }@else if(currentItem.sourceType != null){
+          <mat-form-field>
+            <mat-label>选择模型</mat-label>
+            <input type="text" #input placeholder="选择模型" matInput [(ngModel)]="runFilePath" [matAutocomplete]="auto"
+              (input)="filterModels(input.value)" (focus)="filterModels(input.value)" name="runFilePath">
 
-          @if(runFilePath){
-          <button mat-icon-button matSuffix (click)="runFilePath=null">
-            <mat-icon>clear</mat-icon>
-          </button>
+              @if(runFilePath){
+                <button mat-icon-button matSuffix (click)="runFilePath=null">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              }
+
+              <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" requireSelection>
+                @for (file of filteredModels; track file.name) {
+                  <mat-option [value]="file.name">{{file.name}}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
           }
-
-          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" requireSelection>
-            @for (file of filteredModels; track file.name) {
-            <mat-option [value]="file.name">{{file.name}}</mat-option>
-            }
-          </mat-autocomplete>
-        </mat-form-field>
-        }
-      </div>
-    </form>
-  </mat-dialog-content>
-  <mat-dialog-actions class="justify-content-end">
-    <button mat-button mat-dialog-close>取消</button>
-    <sync-button [isSync]="isProcessing" text="执行" (click)="execute()"></sync-button>
-  </mat-dialog-actions>
-</ng-template>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions class="justify-content-end">
+      <button mat-button mat-dialog-close>取消</button>
+      <sync-button [isSync]="isProcessing" text="执行" (click)="execute()"></sync-button>
+    </mat-dialog-actions>
+  </ng-template>

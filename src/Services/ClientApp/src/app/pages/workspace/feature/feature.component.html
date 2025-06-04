@@ -12,16 +12,44 @@
   </div>
   <!-- 加载框 -->
   <div class="d-flex text-center justify-content-center mt-2">
-    <mat-spinner mode="indeterminate" *ngIf="isLoading">
-    </mat-spinner>
+    @if (isLoading) {
+      <mat-spinner mode="indeterminate">
+      </mat-spinner>
+    }
   </div>
-  <div *ngIf="!isLoading">
-    <!-- 无数据时显示 -->
-    <ng-container *ngIf="data && data.length<=0; else elseTemplate">
-      <h4>
-        未找到模块
-      </h4>
-    </ng-container>
+  @if (!isLoading) {
+    <div>
+      <!-- 无数据时显示 -->
+      @if (data && data.length<=0) {
+        <h4>
+          未找到模块
+        </h4>
+      } @else {
+        <table mat-table [dataSource]="dataSource" style="width: 100%;" class="mat-elevation-z8">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>模块名</th>
+            <td mat-cell *matCellDef="let element">
+              {{element.name}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="path">
+            <th mat-header-cell *matHeaderCellDef>模块路径</th>
+            <td mat-cell *matCellDef="let element">
+              {{element.path}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>操作</th>
+            <td mat-cell *matCellDef="let element">
+              <!-- <button mat-icon-button color="link" [routerLink]="['../detail',element.id]" matTooltip="查看">
+              <mat-icon>pages</mat-icon>
+            </button> -->
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+      </table>
+    }
     <ng-template #elseTemplate>
       <table mat-table [dataSource]="dataSource" style="width: 100%;" class="mat-elevation-z8">
         <ng-container matColumnDef="name">
@@ -36,20 +64,20 @@
             {{element.path}}
           </td>
         </ng-container>
-
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>操作</th>
           <td mat-cell *matCellDef="let element">
             <!-- <button mat-icon-button color="link" [routerLink]="['../detail',element.id]" matTooltip="查看">
-              <mat-icon>pages</mat-icon>
-            </button> -->
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-      </table>
-    </ng-template>
-  </div>
+            <mat-icon>pages</mat-icon>
+          </button> -->
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+  </ng-template>
+</div>
+}
 </div>
 
 <ng-template #addModuleDialog>
@@ -61,12 +89,16 @@
         <mat-label>模块名称</mat-label>
         <input matInput placeholder="不超过40字符" formControlName="name" required>
         <mat-error>
-          <span *ngIf="name?.hasError('maxLength')">
-            长度不能超过40字符
-          </span>
-          <span *ngIf="name?.hasError('required')">
-            名称必填
-          </span>
+          @if (name?.hasError('maxLength')) {
+            <span>
+              长度不能超过40字符
+            </span>
+          }
+          @if (name?.hasError('required')) {
+            <span>
+              名称必填
+            </span>
+          }
         </mat-error>
       </mat-form-field>
     </form>

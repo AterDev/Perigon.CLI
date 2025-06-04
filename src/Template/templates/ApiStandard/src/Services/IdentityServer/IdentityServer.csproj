@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
@@ -17,7 +17,7 @@
 
     <ItemGroup>
 
-        <ProjectReference Include="..\..\Framework\Ater.Common\Ater.Common.csproj" />
+        <ProjectReference Include="..\..\Ater\Ater.Common\Ater.Common.csproj" />
         <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>
 

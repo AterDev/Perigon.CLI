@@ -109,10 +109,11 @@ public class TplContent
 
             @Model.Comment
             public class @(Model.EntityName)Controller(
+                Localizer localizer,
                 IUserContext user,
                 ILogger<@(Model.EntityName)Controller> logger,
                 @(Model.EntityName)Manager manager
-                ) : {{baseClass}}<@(Model.EntityName)Manager>(manager, user, logger)
+                ) : {{baseClass}}<@(Model.EntityName)Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
                 /// 分页数据 🛑
@@ -134,7 +135,7 @@ public class TplContent
                 public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
                     // 冲突验证
-                    // if(await _manager.IsUniqueAsync(dto.xxx)) { return Conflict(ErrorMsg.ConflictResource); }
+                    // if(await _manager.IsUniqueAsync(dto.xxx)) { return Conflict(ErrorKeys.ConflictResource); }
                     var id = await _manager.CreateNewEntityAsync(dto);
                     return id == null ? Problem(ErrorMsg.AddFailed) : id;
                 }
@@ -149,7 +150,7 @@ public class TplContent
                 public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
                     var entity = await _manager.GetOwnedAsync(id);
-                    if (entity == null) { return NotFound(ErrorMsg.NotFoundResource); }
+                    if (entity == null) { return NotFound(ErrorKeys.NotFoundResource); }
                     // 冲突验证
                     return await _manager.UpdateAsync(entity, dto);
                 }
@@ -196,7 +197,7 @@ export class EnumTextPipeModule { }
 """ : "";
         return $$"""
             // 该文件自动生成，会被覆盖更新
-            import { Injectable, Pipe, PipeTransform } from '@@angular/core';
+            import { {{(IsNgModule ? "NgModule, " : "")}}Injectable, Pipe, PipeTransform } from '@@angular/core';
 
             @@Pipe({
               name: 'enumText'
@@ -234,14 +235,11 @@ export class EnumTextPipeModule { }
             global using System.ComponentModel.DataAnnotations;
             global using System.Diagnostics;
             global using System.Linq.Expressions;
-            global using Application.Const;
-            global using Application;
-            global using Application.Implement;
             global using ${Module}.Manager;
-            global using Ater.Web.Abstraction;
-            global using Ater.Web.Core.Models;
-            global using Ater.Web.Core.Utils;
-            global using Ater.Web.Extension;
+            global using {{ConstVal.ConventionLibName}};
+            global using {{ConstVal.CoreLibName}}.Models;
+            global using {{ConstVal.CoreLibName}}.Utils;
+            global using {{ConstVal.ExtensionLibName}};
             global using {{definition}}Entity;
             global using {{definition}}Entity.{{moduleName}};
             global using {{definition}}EntityFramework;
@@ -251,7 +249,6 @@ export class EnumTextPipeModule { }
             global using Microsoft.AspNetCore.Mvc;
             global using Microsoft.EntityFrameworkCore;
             global using Microsoft.Extensions.Logging;
-            
             """;
     }
 
@@ -272,8 +269,8 @@ export class EnumTextPipeModule { }
                     <NoWarn>1701;1702;1591</NoWarn>
                 </PropertyGroup>
                 <ItemGroup>
-                    <ProjectReference Include="..\..\Application\Application.csproj" />
-                    <ProjectReference Include="..\..\Infrastructure\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+                    <ProjectReference Include="..\..\CommonMod\CommonMod.csproj" />
+                    <ProjectReference Include="..\..\Framework\Ater.Web.Extension\Ater.Web.Extension.csproj" />
                 </ItemGroup>
             </Project>
             """;

@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router, RouterLinkActive, RouterLink, RouterOutlet } from '@angular/router';
 import { LoginService } from 'src/app/auth/login.service';
 import { Project } from 'src/app/services/project/models/project.model';
@@ -13,7 +13,7 @@ import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatAutocomplete }
 import { StringComponent } from 'src/app/pages/tools/string/string.component';
 import { MatDrawerContainer, MatDrawer, MatDrawerContent } from '@angular/material/sidenav';
 import { ChatBotComponent } from '../chatbot/chatbot.component';
-import { NgIf } from '@angular/common';
+
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
@@ -29,9 +29,19 @@ import { MatOption } from '@angular/material/core';
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css'],
-  imports: [MatDrawerContainer, MatDrawer, ChatBotComponent, NgIf, MatDrawerContent, MatToolbar, MatButton, RouterLinkActive, RouterLink, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem, MatIconButton, MatTooltip, RouterOutlet, QuickNavComponent, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatAutocompleteTrigger, MatAutocomplete, MatOption]
+  imports: [MatDrawerContainer, MatDrawer, ChatBotComponent, MatDrawerContent, MatToolbar, MatButton, RouterLinkActive, RouterLink, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem, MatIconButton, MatTooltip, RouterOutlet, QuickNavComponent, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatAutocompleteTrigger, MatAutocomplete, MatOption]
 })
 export class LayoutComponent implements OnInit {
+  private auth = inject(LoginService);
+  private service = inject(ProjectService);
+  private projectState = inject(ProjectStateService);
+  private bottomSheet = inject(MatBottomSheet);
+  private dialog = inject(MatDialog);
+  private advance = inject(AdvanceService);
+  snb = inject(MatSnackBar);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   isLogin = false;
   isAdmin = false;
   isDarkTheme = true;
@@ -51,17 +61,9 @@ export class LayoutComponent implements OnInit {
 
   keyboardSubscription: Subscription | null = null;
 
-  constructor(
-    private auth: LoginService,
-    private service: ProjectService,
-    private projectState: ProjectStateService,
-    private bottomSheet: MatBottomSheet,
-    private dialog: MatDialog,
-    private advance: AdvanceService,
-    public snb: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
+  constructor() {
+    const router = this.router;
+
     // this layout is out of router-outlet, so we need to listen router event and change isLogin status
     router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {

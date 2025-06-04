@@ -1,75 +1,89 @@
-﻿<mat-toolbar class="d-flex gap-1">
+<mat-toolbar class="d-flex gap-1">
   <!-- <mat-icon class="clickable" matTooltip="返回" (click)="back()">arrow_back</mat-icon> -->
   <span>添加</span>
 </mat-toolbar>
-<form class="d-flex p-2" *ngIf="!isLoading" [formGroup]="formGroup">
-  <div class="d-flex flex-column w-100">
-        <mat-form-field class="w-100" appearance="fill">
-          <mat-label>用户名</mat-label>
-          <input matInput formControlName="userName" placeholder=""/>
-          @if (userName.value) {
+@if (!isLoading) {
+  <form class="d-flex p-2" [formGroup]="formGroup">
+    <div class="d-flex flex-column w-100">
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>用户名</mat-label>
+        <input matInput formControlName="userName" placeholder=""/>
+        @if (userName.value) {
           <button matSuffix mat-icon-button aria-label="Clear" (click)="userName.setValue(null)">
             <mat-icon>close</mat-icon>
           </button>
-          }
-          <mat-error *ngIf="formGroup.get('userName')?.invalid">
+        }
+        @if (formGroup.get('userName')?.invalid) {
+          <mat-error>
             {{getValidatorMessage('userName')}}
           </mat-error>
-        </mat-form-field>
-        <mat-form-field class="w-100" appearance="fill">
-          <mat-label>团队类型</mat-label>
-          <mat-select formControlName="teamType" placeholder="请选择">
-            <mat-option *ngFor="let item of TeamType | toKeyValue" [value]="item.value">
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>团队类型</mat-label>
+        <mat-select formControlName="teamType" placeholder="请选择">
+          @for (item of TeamType | toKeyValue; track item) {
+            <mat-option [value]="item.value">
               {{item.key}}
             </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field class="w-100" appearance="fill">
-          <mat-label>密码</mat-label>
-          <input matInput formControlName="password" placeholder=""/>
-          @if (password.value) {
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>密码</mat-label>
+        <input matInput formControlName="password" placeholder=""/>
+        @if (password.value) {
           <button matSuffix mat-icon-button aria-label="Clear" (click)="password.setValue(null)">
             <mat-icon>close</mat-icon>
           </button>
-          }
-          <mat-error *ngIf="formGroup.get('password')?.invalid">
+        }
+        @if (formGroup.get('password')?.invalid) {
+          <mat-error>
             {{getValidatorMessage('password')}}
           </mat-error>
-        </mat-form-field>
-        <mat-form-field class="w-100" appearance="fill">
-          <mat-label>性别</mat-label>
-          <mat-select formControlName="genderType" placeholder="请选择">
-            <mat-option *ngFor="let item of GenderType | toKeyValue" [value]="item.value">
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>性别</mat-label>
+        <mat-select formControlName="genderType" placeholder="请选择">
+          @for (item of GenderType | toKeyValue; track item) {
+            <mat-option [value]="item.value">
               {{item.key}}
             </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field class="w-100" appearance="fill">
-          <mat-label>说明备注</mat-label>
-          <input matInput formControlName="remark" placeholder=""/>
-          @if (remark.value) {
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>说明备注</mat-label>
+        <input matInput formControlName="remark" placeholder=""/>
+        @if (remark.value) {
           <button matSuffix mat-icon-button aria-label="Clear" (click)="remark.setValue(null)">
             <mat-icon>close</mat-icon>
           </button>
-          }
-          <mat-error *ngIf="formGroup.get('remark')?.invalid">
+        }
+        @if (formGroup.get('remark')?.invalid) {
+          <mat-error>
             {{getValidatorMessage('remark')}}
           </mat-error>
-        </mat-form-field>
-        <mat-form-field class="w-100" appearance="fill">
-          <mat-label>团队id</mat-label>
-          <input matInput formControlName="teamId" placeholder=""/>
-          @if (teamId.value) {
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>团队id</mat-label>
+        <input matInput formControlName="teamId" placeholder=""/>
+        @if (teamId.value) {
           <button matSuffix mat-icon-button aria-label="Clear" (click)="teamId.setValue(null)">
             <mat-icon>close</mat-icon>
           </button>
-          }
-          <mat-error *ngIf="formGroup.get('teamId')?.invalid">
+        }
+        @if (formGroup.get('teamId')?.invalid) {
+          <mat-error>
             {{getValidatorMessage('teamId')}}
           </mat-error>
-        </mat-form-field>
-    <div class="d-flex mt-1 justify-content-end">
-      <button class="d-flex flex-column" mat-flat-button color="primary" (click)="add()">添加</button>
+        }
+      </mat-form-field>
+      <div class="d-flex mt-1 justify-content-end">
+        <button class="d-flex flex-column" mat-flat-button color="primary" (click)="add()">添加</button>
+      </div>
     </div>
-  </div>
-</form>
+  </form>
+}

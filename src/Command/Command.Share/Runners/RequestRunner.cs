@@ -11,7 +11,7 @@ public class RequestRunner : RunnerBase
     /// </summary>
     public string DocUrl { get; set; }
     /// <summary>
-    /// 文档名称 swagger/{documentName}/swagger.json
+    /// 文档名称 
     /// </summary>
     public string DocName { get; set; }
 

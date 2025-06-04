@@ -1,16 +1,19 @@
-<div *ngIf="isLoading" class="d-flex mt-2 justify-content-center align-items-center">
-  <mat-spinner [value]="100">
-  </mat-spinner>
-</div>
-<div class="container-fluid p-0" *ngIf="!isLoading">
-  <mat-toolbar>
-    <span>{{project.displayName}}
-      <small>
-        ({{project.path}})
-      </small>
-    </span>
-    <div class="d-flex flex-grow-1"></div>
-    <!-- <button mat-icon-button matTooltip="添加独立服务" color="primary" (click)="openAddService()">
+@if (isLoading) {
+  <div class="d-flex mt-2 justify-content-center align-items-center">
+    <mat-spinner [value]="100">
+    </mat-spinner>
+  </div>
+}
+@if (!isLoading) {
+  <div class="container-fluid p-0">
+    <mat-toolbar>
+      <span>{{project.displayName}}
+        <small>
+          ({{project.path}})
+        </small>
+      </span>
+      <div class="d-flex flex-grow-1"></div>
+      <!-- <button mat-icon-button matTooltip="添加独立服务" color="primary" (click)="openAddService()">
       <mat-icon class="text-primary">add_link</mat-icon>
     </button> -->
   </mat-toolbar>
@@ -24,12 +27,12 @@
     <button mat-icon-button [matTooltip]="showModuleEntity?'隐藏模块实体':'显示模块实体'" (click)="toggleModule()">
       <mat-icon [color]="showModuleEntity?'primary':''">visibility_off</mat-icon>
     </button>
-
     <div class="d-flex flex-grow-1"></div>
-    <button mat-icon-button matTooltip="添加实体" (click)="openAddEntity()" *ngIf="isLogin">
-      <mat-icon class="text-primary">add_circle_outline</mat-icon>
-    </button>
-
+    @if (isLogin) {
+      <button mat-icon-button matTooltip="添加实体" (click)="openAddEntity()">
+        <mat-icon class="text-primary">add_circle_outline</mat-icon>
+      </button>
+    }
     <button mat-icon-button matTooltip="清理项目bin/obj,以让分析器可检测到代码修改.如果失败,请尝试关闭占用程序." [disabled]="isSync"
       (click)="clean()">
       <mat-icon class="text-primary">cleaning_services</mat-icon>
@@ -37,99 +40,95 @@
     <button mat-icon-button matTooltip="刷新" (click)="getEntity()">
       <mat-icon class="text-primary">refresh</mat-icon>
     </button>
-
     <!-- <button mat-icon-button color="primary" [matMenuTriggerFor]="menu" matTooltip="批量操作">
-      <mat-icon class="text-primary">library_add_check</mat-icon>
-    </button> -->
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="openGenerateDialog(CommandType.Dto,null)" matTooltip="生成dto,不会覆盖原内容"
-        matTooltipPosition="right">生成Dto</button>
-      <button mat-menu-item (click)="openGenerateDialog(CommandType.Manager,null)"
-        matTooltip="生成dto/dataStore/manager,不会覆盖原内容" matTooltipPosition="right">生成Manager</button>
-      <button mat-menu-item (click)="openSelectProjectDialog(CommandType.API,null)"
-        matTooltip="生成dto/dataStore/manager/api,不会覆盖原内容" matTooltipPosition="right">生成APIControler</button>
-      <!-- <button mat-menu-item (click)="openSelectProjectDialog(CommandType.Protobuf,null)" matTooltip="生成proto协议文件"
-        matTooltipPosition="right">生成Protobuf</button> -->
-      <button mat-menu-item (click)="clearCodesDialog()" matTooltip="清理实体相关的生成代码"
-        matTooltipPosition="right">清理生成代码</button>
-    </mat-menu>
-  </div>
-
-  <table mat-table [dataSource]="dataSource" class="w-100">
-    <!-- Checkbox Column -->
-    <ng-container matColumnDef="select">
-      <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()">
-        </mat-checkbox>
-      </th>
-      <td mat-cell *matCellDef="let row">
-        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-          [checked]="selection.isSelected(row)">
-        </mat-checkbox>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>实体文件</th>
-      <td mat-cell *matCellDef="let element" (contextmenu)="displayContextMenu($event,element);false">
-        <span *ngIf="element.moduleName" matTooltip="模块标识">({{element.moduleName }})</span>
-        <button mat-button color="primary" (click)="openPreviewDialog(element,false)">
-          {{element.name}}
-        </button>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef>说明</th>
-      <td mat-cell *matCellDef="let element">
-        {{element.comment}}
-      </td>
-    </ng-container>
-
-    <!-- <ng-container matColumnDef="path">
-      <th mat-header-cell *matHeaderCellDef>路径 {{baseEntityPath}}</th>
-      <td mat-cell *matCellDef="let element">
-        {{element.path}}
-      </td>
-    </ng-container> -->
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>操作</th>
-      <td mat-cell *matCellDef="let element">
-        <button mat-icon-button color="accent" matTooltip="代码生成" [matMenuTriggerFor]="menu">
-          <mat-icon class="text-accent">add_box</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="openGenerateDialog(CommandType.Dto,element)" matTooltip="生成dto"
-            matTooltipPosition="right">生成Dto</button>
-          <button mat-menu-item (click)="openGenerateDialog(CommandType.Manager,element)" matTooltip="生成dto/manager"
-            matTooltipPosition="right">生成Manager</button>
-          <button mat-menu-item (click)="openGenerateDialog(CommandType.API,element)" matTooltip="生成dto/manager/webapi"
-            matTooltipPosition="right">生成APIControler</button>
-          <!-- <button mat-menu-item (click)="openNgPagesDialog(element)" matTooltip="生成angular curd组件模块"
-            matTooltipPosition="right">生成NG组件模块</button> -->
-          <!-- <button mat-menu-item (click)="openSelectProjectDialog(CommandType.Protobuf,element)"
-            matTooltip="生成proto协议文件">生成Protobuf</button> -->
-        </mat-menu>
-        <button mat-icon-button matTooltip="编辑DTO" matTooltipPosition="below" (click)="goToDto(element)"
-          [disabled]="!element.hasDto">
-          <mat-icon [class]="element.hasDto?'text-primary':''">data_object</mat-icon>
-        </button>
-
-        <button mat-icon-button [disabled]="!element.hasManager" matTooltip="已生成Manager"
-          (click)="openPreviewDialog(element,true)">
-          <mat-icon [class]="element.hasManager?'text-primary':''">code_blocks</mat-icon>
-        </button>
-        <button mat-icon-button [disabled]="!element.hasAPI" matTooltip="已生成API" class="cursor-none">
-          <mat-icon [class]="element.hasAPI?'text-primary':''">api</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-  </table>
+    <mat-icon class="text-primary">library_add_check</mat-icon>
+  </button> -->
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="openGenerateDialog(CommandType.Dto,null)" matTooltip="生成dto,不会覆盖原内容"
+    matTooltipPosition="right">生成Dto</button>
+    <button mat-menu-item (click)="openGenerateDialog(CommandType.Manager,null)"
+    matTooltip="生成dto/dataStore/manager,不会覆盖原内容" matTooltipPosition="right">生成Manager</button>
+    <button mat-menu-item (click)="openSelectProjectDialog(CommandType.API,null)"
+    matTooltip="生成dto/dataStore/manager/api,不会覆盖原内容" matTooltipPosition="right">生成APIControler</button>
+    <!-- <button mat-menu-item (click)="openSelectProjectDialog(CommandType.Protobuf,null)" matTooltip="生成proto协议文件"
+  matTooltipPosition="right">生成Protobuf</button> -->
+  <button mat-menu-item (click)="clearCodesDialog()" matTooltip="清理实体相关的生成代码"
+  matTooltipPosition="right">清理生成代码</button>
+</mat-menu>
 </div>
+<table mat-table [dataSource]="dataSource" class="w-100">
+  <!-- Checkbox Column -->
+  <ng-container matColumnDef="select">
+    <th mat-header-cell *matHeaderCellDef>
+      <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+        [indeterminate]="selection.hasValue() && !isAllSelected()">
+      </mat-checkbox>
+    </th>
+    <td mat-cell *matCellDef="let row">
+      <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+        [checked]="selection.isSelected(row)">
+      </mat-checkbox>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>实体文件</th>
+    <td mat-cell *matCellDef="let element" (contextmenu)="displayContextMenu($event,element);false">
+      @if (element.moduleName) {
+        <span matTooltip="模块标识">({{element.moduleName }})</span>
+      }
+      <button mat-button color="primary" (click)="openPreviewDialog(element,false)">
+        {{element.name}}
+      </button>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="description">
+    <th mat-header-cell *matHeaderCellDef>说明</th>
+    <td mat-cell *matCellDef="let element">
+      {{element.comment}}
+    </td>
+  </ng-container>
+  <!-- <ng-container matColumnDef="path">
+  <th mat-header-cell *matHeaderCellDef>路径 {{baseEntityPath}}</th>
+  <td mat-cell *matCellDef="let element">
+    {{element.path}}
+  </td>
+</ng-container> -->
+<ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef>操作</th>
+  <td mat-cell *matCellDef="let element">
+    <button mat-icon-button color="accent" matTooltip="代码生成" [matMenuTriggerFor]="menu">
+      <mat-icon class="text-accent">add_box</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="openGenerateDialog(CommandType.Dto,element)" matTooltip="生成dto"
+      matTooltipPosition="right">生成Dto</button>
+      <button mat-menu-item (click)="openGenerateDialog(CommandType.Manager,element)" matTooltip="生成dto/manager"
+      matTooltipPosition="right">生成Manager</button>
+      <button mat-menu-item (click)="openGenerateDialog(CommandType.API,element)" matTooltip="生成dto/manager/webapi"
+      matTooltipPosition="right">生成APIControler</button>
+      <!-- <button mat-menu-item (click)="openNgPagesDialog(element)" matTooltip="生成angular curd组件模块"
+    matTooltipPosition="right">生成NG组件模块</button> -->
+    <!-- <button mat-menu-item (click)="openSelectProjectDialog(CommandType.Protobuf,element)"
+  matTooltip="生成proto协议文件">生成Protobuf</button> -->
+</mat-menu>
+<button mat-icon-button matTooltip="编辑DTO" matTooltipPosition="below" (click)="goToDto(element)"
+  [disabled]="!element.hasDto">
+  <mat-icon [class]="element.hasDto?'text-primary':''">data_object</mat-icon>
+</button>
+<button mat-icon-button [disabled]="!element.hasManager" matTooltip="已生成Manager"
+  (click)="openPreviewDialog(element,true)">
+  <mat-icon [class]="element.hasManager?'text-primary':''">code_blocks</mat-icon>
+</button>
+<button mat-icon-button [disabled]="!element.hasAPI" matTooltip="已生成API" class="cursor-none">
+  <mat-icon [class]="element.hasAPI?'text-primary':''">api</mat-icon>
+</button>
+</td>
+</ng-container>
+<tr mat-header-row *matHeaderRowDef="columns"></tr>
+<tr mat-row *matRowDef="let row; columns: columns;"></tr>
+</table>
+</div>
+}
 
 <ng-template #generateDialog>
   <h2 mat-dialog-title>
@@ -142,7 +141,9 @@
     <button mat-button mat-dialog-close>取消</button>
     <div class="d-flex align-items-center">
       <button mat-button (click)="generate()" color="primary" [disabled]="isSync">生成</button>
-      <mat-spinner *ngIf="isSync" [diameter]="26"></mat-spinner>
+      @if (isSync) {
+        <mat-spinner [diameter]="26"></mat-spinner>
+      }
     </div>
   </mat-dialog-actions>
 </ng-template>
@@ -152,9 +153,11 @@
   <mat-dialog-content>
     <p>请选择项目</p>
     <mat-selection-list (selectionChange)="selectProject($event)">
-      <mat-list-option *ngFor="let project of webProjects" [value]="project.path">
-        {{project.name}}
-      </mat-list-option>
+      @for (project of webProjects; track project) {
+        <mat-list-option [value]="project.path">
+          {{project.name}}
+        </mat-list-option>
+      }
     </mat-selection-list>
   </mat-dialog-content>
   <mat-dialog-actions class="justify-content-end">
@@ -167,7 +170,7 @@
   <h2 mat-dialog-title class="d-flex align-items-center">
     创建微服务项目
     <mat-icon class="clickable" matTooltip="微服务说明"
-      (click)="openInfo('https://docs.dusi.dev/zh/ater.web/%E6%95%99%E7%A8%8B/%E7%BB%84%E7%BB%87%E4%BB%A3%E7%A0%81.html#%E6%AF%8F%E4%B8%AA%E6%9C%8D%E5%8A%A1%E7%8B%AC%E7%AB%8B%E9%A1%B9%E7%9B%AE')">info</mat-icon>
+    (click)="openInfo('https://docs.dusi.dev/zh/ater.web/%E6%95%99%E7%A8%8B/%E7%BB%84%E7%BB%87%E4%BB%A3%E7%A0%81.html#%E6%AF%8F%E4%B8%AA%E6%9C%8D%E5%8A%A1%E7%8B%AC%E7%AB%8B%E9%A1%B9%E7%9B%AE')">info</mat-icon>
   </h2>
   <mat-dialog-content>
     <form class="d-flex p-2 flex-column">
@@ -192,7 +195,7 @@
   </h2>
   <mat-dialog-content>
     <ngx-monaco-editor class="editor" [options]="editorOptions" [(ngModel)]="previewItem!.content"
-      (onInit)="initEditor($event)"></ngx-monaco-editor>
+    (onInit)="initEditor($event)"></ngx-monaco-editor>
   </mat-dialog-content>
   <mat-dialog-actions class="justify-content-end">
     <button mat-button [mat-dialog-close]="true">取消</button>

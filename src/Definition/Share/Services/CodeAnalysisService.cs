@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using CodeGenerator.Helper;
 using CodeGenerator.Models;
+using Entity;
 
 
 namespace Share.Services;
@@ -89,7 +90,7 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
             .Where(f => !(f.EndsWith(".g.cs")
                     || f.EndsWith(".AssemblyAttributes.cs")
                     || f.EndsWith(".AssemblyInfo.cs")
-                    || f.EndsWith("GlobalUsings.cs")
+                    || f.EndsWith(ConstVal.GlobalUsingsFile)
                     || f.EndsWith("EntityBase.cs")
                     || f.EndsWith("Modules.cs"))
                     ).ToList();

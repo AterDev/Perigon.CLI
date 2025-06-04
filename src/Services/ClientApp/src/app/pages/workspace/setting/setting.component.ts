@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProjectService } from 'src/app/services/project/project.service';
 import { ProjectStateService } from 'src/app/share/project-state.service';
@@ -9,6 +9,10 @@ import { ProjectStateService } from 'src/app/share/project-state.service';
     styleUrls: ['./setting.component.css']
 })
 export class SettingComponent implements OnInit {
+  private service = inject(ProjectService);
+  private projectState = inject(ProjectStateService);
+  private snb = inject(MatSnackBar);
+
   isLoading = true;
   projectId: string;
   editorOptions = {
@@ -17,11 +21,9 @@ export class SettingComponent implements OnInit {
     }
   };
 
-  constructor(
-    private service: ProjectService,
-    private projectState: ProjectStateService,
-    private snb: MatSnackBar
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+
     this.projectId = projectState.project!.id;
   }
 

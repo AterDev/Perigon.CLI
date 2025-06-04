@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ViewChild, TemplateRef, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
 import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';

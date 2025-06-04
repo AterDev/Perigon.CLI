@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,7 +15,7 @@ import 'prismjs/components/prism-csharp.min.js';
 import { AdvanceService } from 'src/app/services/advance/advance.service';
 import { ControllerType } from 'src/app/services/enum/models/controller-type.model';
 import { ProjectConfig } from 'src/app/services/project/models/project-config.model';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatButton, MatMiniFabAnchor, MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
@@ -33,9 +33,17 @@ import { ToKeyValuePipe } from '../../../share/pipe/to-key-value.pipe';
   selector: 'app-index',
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.css'],
-  imports: [NgIf, MatButton, MatTooltip, MatMiniFabAnchor, RouterLink, MatIcon, NgFor, MatCard, MatCardHeader, MatCardTitle, MatIconButton, MatCardSubtitle, MatCardContent, MatCardActions, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatDialogClose, MatHint, MatRadioGroup, MatRadioButton, MatProgressBar, MarkdownComponent, EnumTextPipe, ToKeyValuePipe]
+  imports: [MatButton, MatTooltip, MatMiniFabAnchor, RouterLink, MatIcon, MatCard, MatCardHeader, MatCardTitle, MatIconButton, MatCardSubtitle, MatCardContent, MatCardActions, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatDialogClose, MatHint, MatRadioGroup, MatRadioButton, MatProgressBar, MarkdownComponent, EnumTextPipe, ToKeyValuePipe]
 })
 export class IndexComponent implements OnInit {
+  private service = inject(ProjectService);
+  private projectState = inject(ProjectStateService);
+  private advance = inject(AdvanceService);
+  dialog = inject(MatDialog);
+  snb = inject(MatSnackBar);
+  router = inject(Router);
+  route = inject(ActivatedRoute);
+
   @ViewChild("addDialog", { static: true }) dialogTmpRef!: TemplateRef<{}>;
   @ViewChild("settingDialog", { static: true }) settingTmpRef!: TemplateRef<{}>;
   @ViewChild("updateProjectDialog", { static: true }) updateTmpRef!: TemplateRef<{}>;
@@ -57,15 +65,9 @@ export class IndexComponent implements OnInit {
   version: string | null;
   deepSeekApiKey: string | null = null;
 
-  constructor(
-    private service: ProjectService,
-    private projectState: ProjectStateService,
-    private advance: AdvanceService,
-    public dialog: MatDialog,
-    public snb: MatSnackBar,
-    public router: Router,
-    public route: ActivatedRoute
-  ) {
+  constructor() {
+    const projectState = this.projectState;
+
     this.type = localStorage.getItem('type');
     this.version = projectState.version;
   }

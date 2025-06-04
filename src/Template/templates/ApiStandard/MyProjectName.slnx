@@ -20,19 +20,19 @@
     <Project Path="src/Definition/ServiceDefaults/ServiceDefaults.csproj" />
     <Project Path="src/Definition/Share/Share.csproj" />
   </Folder>
-  <Folder Name="/src/Framework/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
-    <Project Path="src/Framework/Ater.Common/Ater.Common.csproj" Id="6dc54fab-dd8b-9dc2-0bda-1d394ca66e08" />
-    <Project Path="src/Framework/Ater.Web.Analyzers/Ater.Web.Analyzers.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
-    <Project Path="src/Framework/Ater.Web.Convention/Ater.Web.Convention.csproj" />
-    <Project Path="src/Framework/Ater.Web.Extension/Ater.Web.Extension.csproj" />
+  <Folder Name="/src/Ater/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
+    <Project Path="src/Ater/Ater.Common/Ater.Common.csproj" Id="6dc54fab-dd8b-9dc2-0bda-1d394ca66e08" />
+    <Project Path="src/Ater/Ater.Web.Analyzers/Ater.Web.Analyzers.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
+    <Project Path="src/Ater/Ater.Web.Convention/Ater.Web.Convention.csproj" />
+    <Project Path="src/Ater/Ater.Web.Extension/Ater.Web.Extension.csproj" />
   </Folder>
-  <Folder Name="/src/Implement/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">
-    <Project Path="src/Implement/CMSMod/CMSMod.csproj" />
-    <Project Path="src/Implement/CommonMod/CommonMod.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
-    <Project Path="src/Implement/CustomerMod/CustomerMod.csproj" />
-    <Project Path="src/Implement/FileManagerMod/FileManagerMod.csproj" />
-    <Project Path="src/Implement/OrderMod/OrderMod.csproj" />
-    <Project Path="src/Implement/SystemMod/SystemMod.csproj" />
+  <Folder Name="/src/Modules/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">
+    <Project Path="src/Modules/CMSMod/CMSMod.csproj" />
+    <Project Path="src/Modules/CommonMod/CommonMod.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
+    <Project Path="src/Modules/CustomerMod/CustomerMod.csproj" />
+    <Project Path="src/Modules/FileManagerMod/FileManagerMod.csproj" />
+    <Project Path="src/Modules/OrderMod/OrderMod.csproj" />
+    <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
   </Folder>
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <Project Path="src/Services/Http.API/Http.API.csproj" />

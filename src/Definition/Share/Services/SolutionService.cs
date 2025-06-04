@@ -15,15 +15,12 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
     private readonly ILogger<SolutionService> _logger = logger;
     private readonly CommandDbContext _context = context;
 
-
-    public string SolutionPath { get; set; } = projectContext.SolutionPath ?? string.Empty;
-
     /// <summary>
     /// 创建模块
     /// </summary>
     public async Task CreateModuleAsync(string moduleName)
     {
-        string moduleDir = Path.Combine(SolutionPath, PathConst.ModulesPath);
+        string moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
         if (!Directory.Exists(moduleDir))
         {
             Directory.CreateDirectory(moduleDir);
@@ -36,7 +33,7 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
 
         // 基础类
         string projectPath = Path.Combine(moduleDir, moduleName);
-        await Console.Out.WriteLineAsync($"🚀 create module:{moduleName} ➡️ {projectPath}");
+        _logger.LogInformation("🚀 create module:{moduleName} ➡️ {projectPath}", moduleName, projectPath);
 
         // global usings
         string usingsContent = TplContent.ModuleGlobalUsings(moduleName);
@@ -44,7 +41,7 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         await AssemblyHelper.GenerateFileAsync(projectPath, ConstVal.GlobalUsingsFile, usingsContent, true);
 
         // project file
-        string targetVersion = ConstVal.Version;
+        string targetVersion = ConstVal.NetVersion;
         var csprojFiles = Directory.GetFiles(_projectContext.ApiPath!, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
         if (csprojFiles != null)
         {
@@ -57,9 +54,8 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ModelsDir));
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ManagersDir));
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ControllersDir));
-        // 模块文件
-        await AssemblyHelper.GenerateFileAsync(projectPath, "InitModule.cs", GetInitModuleContent(moduleName));
-        await AssemblyHelper.GenerateFileAsync(projectPath, ConstVal.ServiceExtensionsFile, TplContent.ModuleServiceCollection(moduleName));
+
+        //await AssemblyHelper.GenerateFileAsync(projectPath, "InitModule.cs", GetInitModuleContent(moduleName));
 
         await AddModuleConstFieldAsync(moduleName);
         // update solution file
@@ -74,9 +70,7 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         string moduleConstPath = Path.Combine(_projectContext.EntityPath!, "Modules.cs");
         if (File.Exists(moduleConstPath))
         {
-            var entityPath = _projectContext.Project!.Config.IsLight
-                ? PathConst.DefinitionPath
-                : _projectContext.EntityPath;
+            var entityPath = _projectContext.EntityPath;
             if (entityPath != null)
             {
                 CompilationHelper analyzer = new(entityPath);
@@ -106,7 +100,7 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
             // 从解决方案移除项目
             var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
             var moduleProjectFilePath = Path.Combine(modulePath, $"{moduleName}{ConstVal.CSharpProjectExtension}");
-            ProcessHelper.RunCommand("dotnet", $"sln {SolutionPath} remove {moduleProjectFilePath}", out string error);
+            ProcessHelper.RunCommand("dotnet", $"sln {_projectContext.SolutionPath} remove {moduleProjectFilePath}", out string error);
             Directory.Delete(modulePath, true);
         }
     }
@@ -226,46 +220,13 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         List<string> files = [.. Directory.GetFiles(modulesPath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.AllDirectories)];
         return files.Count != 0 ? files : default;
     }
-
-    private static string GetInitModuleContent(string moduleName)
-    {
-        return $$"""
-            using Microsoft.Extensions.Configuration;
-            namespace {{moduleName}};
-            public class InitModule
-            {
-                /// <summary>
-                /// 模块初始化方法
-                /// </summary>
-                /// <param name="provider"></param>
-                /// <returns></returns>
-                public static async Task InitializeAsync(IServiceProvider provider)
-                {
-                    ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-                    CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
-                    ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
-                    IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
-                    try
-                    {
-                       // TODO:初始化逻辑
-                        await Task.CompletedTask;
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError("初始化{{moduleName}}失败！{message}", ex.Message);
-                    }
-                }
-            }
-            """;
-    }
-
     /// <summary>
     /// 使用 dotnet sln add
     /// </summary>
     /// <param name="projectPath"></param>
     private void UpdateSolutionFile(string projectPath)
     {
-        FileInfo? slnFile = AssemblyHelper.GetSlnFile(new DirectoryInfo(SolutionPath));
+        FileInfo? slnFile = AssemblyHelper.GetSlnFile(new DirectoryInfo(_projectContext.SolutionPath!));
         if (slnFile != null)
         {
             // 添加到解决方案

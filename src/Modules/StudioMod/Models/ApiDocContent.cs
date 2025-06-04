@@ -1,4 +1,4 @@
-using Share.Models.ApiDocInfoDtos;
+using StudioMod.Models.ApiDocInfoDtos;
 
 namespace StudioMod.Models;
 

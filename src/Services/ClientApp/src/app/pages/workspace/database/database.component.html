@@ -1,11 +1,15 @@
-<div class="d-flex justify-content-center mt-2" *ngIf="isLoding">
-  <mat-spinner mode="indeterminate">
-  </mat-spinner>
-</div>
+@if (isLoding) {
+  <div class="d-flex justify-content-center mt-2">
+    <mat-spinner mode="indeterminate">
+    </mat-spinner>
+  </div>
+}
 
-<div class="p-2" style="width:800px" *ngIf="!isLoding">
-  @if(content){
-  <markdown [data]="content"></markdown>
-  <!-- <pre style="font-size: 16px;font-family: 'Courier New', Courier, monospace;">{{content}}</pre> -->
-  }
-</div>
+@if (!isLoding) {
+  <div class="p-2" style="width:800px">
+    @if(content){
+      <markdown [data]="content"></markdown>
+      <!-- <pre style="font-size: 16px;font-family: 'Courier New', Courier, monospace;">{{content}}</pre> -->
+    }
+  </div>
+}

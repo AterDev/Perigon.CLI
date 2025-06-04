@@ -57,7 +57,10 @@ public static class ServiceCollectionExtension
     /// <returns></returns>
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddOpenApi("admin");
+        services.AddOpenApi("admin", options =>
+        {
+            options.AddSchemaTransformer<EnumOpenApiTransformer>();
+        });
         services.AddLocalizer();
 
         return services;
@@ -81,6 +84,8 @@ public static class ServiceCollectionExtension
             options.FallBackToParentUICultures = true;
             options.ApplyCurrentCultureToResponseHeaders = true;
         });
+
+        services.AddSingleton<Localizer>();
         return services;
     }
 }

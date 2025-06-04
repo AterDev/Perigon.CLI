@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { ProjectType } from 'src/app/services/enum/models/project-type.model';
 import { CreateSolutionDto } from 'src/app/services/solution/models/create-solution-dto.model';
 import { ModuleInfo } from 'src/app/services/solution/models/module-info.model';
 import { SolutionService } from 'src/app/services/solution/solution.service';
-import { NgIf, NgFor } from '@angular/common';
+
 import { MatFormField, MatLabel, MatError, MatHint } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -26,9 +26,13 @@ import { ToKeyValuePipe } from '../../../share/pipe/to-key-value.pipe';
     selector: 'app-create',
     templateUrl: './create.component.html',
     styleUrls: ['./create.component.css'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatSlideToggle, MatIcon, MatTooltip, MatSelect, NgFor, MatOption, MatHint, MatSelectionList, MatListOption, MatButton, MatProgressSpinner, ToKeyValuePipe]
+    imports: [FormsModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatSlideToggle, MatIcon, MatTooltip, MatSelect, MatOption, MatHint, MatSelectionList, MatListOption, MatButton, MatProgressSpinner, ToKeyValuePipe]
 })
 export class CreateComponent {
+  private service = inject(SolutionService);
+  private snb = inject(MatSnackBar);
+  private router = inject(Router);
+
   addForm!: FormGroup;
   data = {} as CreateSolutionDto;
   isProcess = false;
@@ -37,14 +41,6 @@ export class CreateComponent {
   CacheType = CacheType;
   ProjectType = ProjectType;
   defaultModules: ModuleInfo[] = [];
-
-  constructor(
-    private service: SolutionService,
-    private snb: MatSnackBar,
-    private router: Router
-  ) {
-
-  }
 
   get name() { return this.addForm.get('name'); }
   get path() { return this.addForm.get('path'); }

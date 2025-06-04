@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -19,15 +19,13 @@ import { ToKeyValuePipe } from '../../../share/pipe/to-key-value.pipe';
   styleUrl: './string.component.css'
 })
 export class StringComponent {
+  private dialogRef = inject<MatDialogRef<{}, any>>(MatDialogRef);
+  private snb = inject(MatSnackBar);
+  private service = inject(ToolsService);
+
   StringConvertType = StringConvertType;
   content: string | null = null;
   result: Map<string, string> | null = null;
-  constructor(
-    private dialogRef: MatDialogRef<{}, any>,
-    private snb: MatSnackBar,
-    private service: ToolsService
-  ) {
-  }
   convertString(type: StringConvertType): void {
     if (type !== StringConvertType.Guid && this.content === null) {
       this.snb.open('请输入字符串！');

@@ -1,5 +1,5 @@
 using Microsoft.OpenApi.Readers;
-using Share.Models.ApiDocInfoDtos;
+using StudioMod.Models.ApiDocInfoDtos;
 
 namespace StudioMod.Managers;
 /// <summary>
@@ -223,7 +223,7 @@ public class ApiDocInfoManager(
         doc.LocalPath = webPath;
         await SaveChangesAsync();
 
-        swaggerPath ??= Path.Combine(_project.ApiPath!, "swagger.json");
+        swaggerPath ??= Path.Combine(_project.ApiPath!, "openapi.json");
         var files = await _codeGenService.GenerateWebRequestAsync(swaggerPath, webPath, type);
         _codeGenService.GenerateFiles(files);
     }
@@ -237,7 +237,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task GenerateCsharpRequestAsync(string webPath, string? swaggerPath = null)
     {
-        swaggerPath ??= Path.Combine(_project.ApiPath!, "swagger.json");
+        swaggerPath ??= Path.Combine(_project.ApiPath!, "openapi.json");
         var files = await _codeGenService.GenerateCsharpApiClientAsync(swaggerPath, webPath);
         _codeGenService.GenerateFiles(files);
     }

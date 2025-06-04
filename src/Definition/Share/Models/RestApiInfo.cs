@@ -1,5 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
-using Share.Models.ApiDocInfoDtos;
+using Microsoft.OpenApi.Models;
 namespace Share.Models;
 
 /// <summary>

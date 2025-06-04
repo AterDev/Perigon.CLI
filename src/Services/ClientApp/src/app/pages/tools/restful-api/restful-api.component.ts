@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+
 import { ToolsService } from 'src/app/services/tools/tools.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
@@ -16,18 +16,15 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
     imports: [MatButton, FormsModule, MatFormField, MatLabel, MatInput, MatSlideToggle, EditorComponent]
 })
 export class RestfulAPIComponent {
+  private service = inject(ToolsService);
+  private snb = inject(MatSnackBar);
+
   editorOptions = { theme: 'vs-dark', language: 'csharp', minimap: { enabled: false } };
   classCode: string | null = null;
   editor: any;
   modelName: string | null = null;
   description: string | null = null;
   useDto = false;
-
-  constructor(
-    private service: ToolsService,
-    private snb: MatSnackBar
-  ) {
-  }
 
   onInit(editor: any) {
     this.editor = editor;

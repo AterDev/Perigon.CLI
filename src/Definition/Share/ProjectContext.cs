@@ -36,7 +36,7 @@ public class ProjectContext : IProjectContext
                     SolutionPath = Project.Path;
                     var config = Project.Config;
                     SharePath = Path.Combine(SolutionPath, config.SharePath);
-                    CommonModPath = Path.Combine(SolutionPath, config.ApplicationPath);
+                    CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);
                     EntityPath = Path.Combine(SolutionPath, config.EntityPath);
                     ApiPath = Path.Combine(SolutionPath, config.ApiPath);
                     EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
@@ -56,7 +56,7 @@ public class ProjectContext : IProjectContext
         var project = await _context.Projects.Where(p => p.Path.Equals(solutionPath)).FirstOrDefaultAsync();
         var config = project?.Config;
         SharePath = Path.Combine(SolutionPath, config?.SharePath ?? PathConst.SharePath);
-        CommonModPath = Path.Combine(SolutionPath, config?.ApplicationPath ?? PathConst.CommonModPath);
+        CommonModPath = Path.Combine(SolutionPath, config?.CommonModPath ?? PathConst.CommonModPath);
         EntityPath = Path.Combine(SolutionPath, config?.EntityPath ?? PathConst.EntityPath);
         ApiPath = Path.Combine(SolutionPath, config?.ApiPath ?? PathConst.APIPath);
         EntityFrameworkPath = Path.Combine(SolutionPath, config?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath);
@@ -78,10 +78,10 @@ public class ProjectContext : IProjectContext
     }
 
 
-    public string GetSharePath(string? moduleName = null)
+    public string GetModulePath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(SharePath ?? PathConst.SharePath)
+            ? Path.Combine(CommonModPath ?? PathConst.CommonModPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
     }
 
@@ -97,13 +97,6 @@ public class ProjectContext : IProjectContext
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName, ConstVal.ManagersDir);
     }
 
-    public string GetApplicationPath(string? moduleName = null)
-    {
-        return moduleName.IsEmpty()
-            ? Path.Combine(CommonModPath ?? PathConst.CommonModPath)
-            : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
-    }
-
     /// <summary>
     /// controller Path
     /// </summary>
@@ -111,7 +104,7 @@ public class ProjectContext : IProjectContext
     public string GetControllerPath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(ApiPath ?? PathConst.APIPath, ConstVal.ControllersDir)
+            ? Path.Combine(ModulesPath ?? PathConst.ModulesPath, ConstVal.CommonMod, ConstVal.ControllersDir)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName, ConstVal.ControllersDir);
     }
 
@@ -120,5 +113,10 @@ public class ProjectContext : IProjectContext
         return moduleName.IsEmpty()
             ? Path.Combine(ApiPath ?? PathConst.APIPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
+    }
+
+    public string GetApplicationPath(string? moduleName = null)
+    {
+        throw new NotImplementedException();
     }
 }

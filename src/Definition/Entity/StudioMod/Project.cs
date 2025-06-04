@@ -55,7 +55,7 @@ public class ProjectConfig
     public string SharePath { get; set; } = PathConst.SharePath;
     public string EntityPath { get; set; } = PathConst.EntityPath;
     public string EntityFrameworkPath { get; set; } = PathConst.EntityFrameworkPath;
-    public string ApplicationPath { get; set; } = PathConst.CommonModPath;
+    public string CommonModPath { get; set; } = PathConst.CommonModPath;
     public string ApiPath { get; set; } = PathConst.APIPath;
     public string MicroservicePath { get; set; } = PathConst.MicroservicePath;
     public string SolutionPath { get; set; } = "";

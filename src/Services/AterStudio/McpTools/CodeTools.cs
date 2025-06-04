@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Text;
+using Ater.Common.Utils;
 using ModelContextProtocol.Server;
+using Share.Services;
 
 namespace AterStudio.McpTools;
 
@@ -11,6 +13,8 @@ namespace AterStudio.McpTools;
 public class CodeTools(
     ILogger<CodeTools> logger,
     EntityInfoManager manager,
+    SolutionService solutionService,
+    CodeGenService codeGenService,
     IProjectContext projectContext)
 {
     [McpServerTool, Description("创建实体模型类")]
@@ -42,20 +46,57 @@ public class CodeTools(
         return await GenerateAsync(server, entityPath, CommandType.Manager);
     }
 
-    [McpServerTool, Description("根据实体模型生成Controller")]
+    [McpServerTool, Description("根据实体模型生成Controller/API接口")]
     public async Task<string?> GenerateControllerAsync([Description("实体模型文件的绝对路径")] string entityPath, IMcpServer server)
     {
         return await GenerateAsync(server, entityPath, CommandType.API);
     }
 
+    [McpServerTool, Description("创建或添加新的模块")]
+    public async Task<string> CreateModuleAsync([Description("模块名称")] string moduleName, IMcpServer server)
+    {
+        try
+        {
+            await SetProjectContextAsync(server);
+
+            moduleName = moduleName.EndsWith("Mod") ? moduleName : moduleName + "Mod";
+            await solutionService.CreateModuleAsync(moduleName);
+            return "创建成功";
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Create Module: {ex}", ex);
+            return ex.Message;
+        }
+    }
+
     [McpServerTool, Description("生成前端请求服务")]
-    public string? GenerateService(
+    public async Task<string?> GenerateServiceAsync(
         [Description("openapi的url地址或本地路径")] string openApiPath,
-        [Description("生成的目标根目录")] string outputPath,
+        [Description("代码生成的输出路径")] string outputPath,
         [Description("前端请求类型,NgHttp或Axios")] RequestLibType clientType)
     {
-        logger.LogInformation(openApiPath, outputPath, clientType.ToString());
-        return "Service Generation Completed";
+
+        try
+        {
+            var genFiles = await codeGenService.GenerateWebRequestAsync(openApiPath, outputPath, clientType);
+
+            codeGenService.GenerateFiles(genFiles);
+
+
+            var resDes = new StringBuilder();
+            resDes.AppendLine("生成的文件如下:");
+            foreach (var file in genFiles)
+            {
+                resDes.AppendLine(file.FullName);
+            }
+            resDes.AppendLine("");
+            return resDes.ToString();
+        }
+        catch (Exception ex)
+        {
+            return ex.Message + ex.StackTrace;
+        }
     }
 
     /// <summary>
@@ -64,33 +105,9 @@ public class CodeTools(
     /// <returns></returns>
     private async Task<string> GenerateAsync(IMcpServer server, string entityPath, CommandType type)
     {
-        var roots = await server.RequestRootsAsync(new ModelContextProtocol.Protocol.ListRootsRequestParams
-        {
-            Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata
-            {
-                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools")
-            }
-        });
-
+        await SetProjectContextAsync(server);
         try
         {
-            var uri = roots.Roots.FirstOrDefault()?.Uri;
-            if (string.IsNullOrEmpty(uri))
-            {
-                logger.LogError("未找到有效的根目录路径。");
-                return "Not get client roots";
-            }
-
-            var solutionPath = new Uri(uri).LocalPath;
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                if (solutionPath.StartsWith('/'))
-                {
-                    solutionPath = solutionPath[1..];
-                }
-            }
-
-            await projectContext.SetProjectAsync(solutionPath);
             var dto = new GenerateDto
             {
                 EntityPath = entityPath,
@@ -105,8 +122,16 @@ public class CodeTools(
             {
                 resDes.AppendLine(file.FullName);
             }
-            resDes.Append("</result>");
             resDes.AppendLine("在对话中列出以上文件，标记出新增或修改的文件");
+            resDes.AppendLine("</result>");
+
+            if (manager.ModuleName.NotEmpty())
+            {
+                resDes.AppendLine("生成后的操作：");
+                resDes.AppendLine("<prompt>");
+                resDes.AppendLine($"检查src/Modules目录下是否包含{manager.ModuleName}/{manager.ModuleName}.csproj 程序集，如果不包含 则调用 添加新模块工具");
+                resDes.AppendLine("</prompt>");
+            }
             return resDes.ToString();
         }
         catch (Exception ex)
@@ -114,5 +139,35 @@ public class CodeTools(
             logger.LogError("{ex}", ex);
             return "工具出错：" + ex.Message;
         }
+    }
+
+    private async Task SetProjectContextAsync(IMcpServer server)
+    {
+        var roots = await server.RequestRootsAsync(new ModelContextProtocol.Protocol.ListRootsRequestParams
+        {
+            Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata
+            {
+                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools")
+            }
+        });
+
+        var uri = roots.Roots.FirstOrDefault()?.Uri;
+        if (string.IsNullOrEmpty(uri))
+        {
+            logger.LogError("未找到有效的根目录路径。");
+            return;
+        }
+
+        var solutionPath = new Uri(uri).LocalPath;
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            if (solutionPath.StartsWith('/'))
+            {
+                solutionPath = solutionPath[1..];
+            }
+        }
+
+        logger.LogInformation("SetProjectContextAsync: {solutionPath}", solutionPath);
+        await projectContext.SetProjectAsync(solutionPath);
     }
 }

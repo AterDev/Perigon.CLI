@@ -2,7 +2,10 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Ater.Common.Converters;
+using Ater.Common.Utils;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.IdentityModel.Tokens;
 
@@ -42,6 +45,8 @@ public static class WebExtensions
     public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddJwtAuthentication(configuration);
+        services.AddThirdAuthentication(configuration);
+
         services.AddAuthorize();
         services.AddCORS();
         services.AddRateLimiter();
@@ -51,8 +56,14 @@ public static class WebExtensions
             options.AddPolicy("openapi", policy => policy.Expire(TimeSpan.FromMinutes(10)));
         });
 
-        services.AddOpenApi("admin");
-        services.AddOpenApi("client");
+        services.AddOpenApi("admin", options =>
+        {
+            options.AddSchemaTransformer<EnumOpenApiTransformer>();
+        });
+        services.AddOpenApi("client", options =>
+        {
+            options.AddSchemaTransformer<EnumOpenApiTransformer>();
+        });
         services.AddLocalizer();
         return services;
     }
@@ -201,9 +212,56 @@ public static class WebExtensions
                 RequireExpirationTime = true,
                 ValidateIssuerSigningKey = true
             };
-        });
+        })
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
         return services;
     }
+
+    /// <summary>
+    /// 添加第三方认证（如微软）
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddThirdAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var section = configuration.GetSection("Authentication");
+        var msClientId = section.GetValue<string>("Microsoft:ClientId");
+        var msClientSecret = section.GetValue<string>("Microsoft:ClientSecret");
+        var msCallBackUrl = section.GetValue<string>("Microsoft:CallbackUrl");
+
+        if (Utils.NoEmptyItem(msClientId, msClientSecret, msCallBackUrl))
+        {
+            services.AddAuthentication()
+                .AddMicrosoftAccount(MicrosoftAccountDefaults.AuthenticationScheme, options =>
+                {
+                    options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
+                    options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
+                    options.ClientId = msClientId!;
+                    options.ClientSecret = msClientSecret!;
+                    options.CallbackPath = msCallBackUrl;
+                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                });
+        }
+
+        var googleClientId = section.GetValue<string>("Google:ClientId");
+        var googleClientSecret = section.GetValue<string>("Google:ClientSecret");
+        var googleCallBackUrl = section.GetValue<string>("Google:CallbackUrl");
+        if (Utils.NoEmptyItem(googleClientId, googleClientSecret, googleCallBackUrl))
+        {
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = googleClientId!;
+                    options.ClientSecret = googleClientSecret!;
+                    options.CallbackPath = googleCallBackUrl;
+                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                });
+        }
+
+        return services;
+    }
+
 
     public static IServiceCollection AddCORS(this IServiceCollection services)
     {

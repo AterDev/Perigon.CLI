@@ -1,12 +1,16 @@
 <mat-drawer-container class="sidenav-container" autosize="">
   <mat-drawer #sidenav mode="side" opened="true">
     <div class="d-flex justify-content-end" style="overflow: hidden;">
-      <button mat-icon-button *ngIf="opened" (click)="toggle()">
-        <mat-icon>keyboard_double_arrow_left</mat-icon>
-      </button>
-      <button mat-icon-button *ngIf="!opened" (click)="toggle()">
-        <mat-icon>keyboard_double_arrow_right</mat-icon>
-      </button>
+      @if (opened) {
+        <button mat-icon-button (click)="toggle()">
+          <mat-icon>keyboard_double_arrow_left</mat-icon>
+        </button>
+      }
+      @if (!opened) {
+        <button mat-icon-button (click)="toggle()">
+          <mat-icon>keyboard_double_arrow_right</mat-icon>
+        </button>
+      }
     </div>
 
     <mat-accordion multi style="width: auto;">
@@ -16,7 +20,9 @@
           <mat-panel-title>
             <div class="nav-title" [matTooltip]="opened?'': '工作台'" matTooltipPosition="right">
               <mat-icon>grid_view</mat-icon>
-              <span *ngIf="opened">工作台</span>
+              @if (opened) {
+                <span>工作台</span>
+              }
             </div>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -24,68 +30,80 @@
           <a mat-list-item [matTooltip]="opened?'': '实体管理'" matTooltipPosition="right" routerLink="/workspace/index"
             routerLinkActive="active">
             <mat-icon color="link">integration_instructions</mat-icon>
-            <span *ngIf="opened">实体管理</span>
+            @if (opened) {
+              <span>实体管理</span>
+            }
           </a>
         </mat-nav-list>
         <mat-nav-list>
           <a mat-list-item [matTooltip]="opened?'': 'Swagger'" matTooltipPosition="right" routerLink="/workspace/docs"
             routerLinkActive="active">
             <mat-icon color="link">api</mat-icon>
-            <span *ngIf="opened">OpenAPI</span>
+            @if (opened) {
+              <span>OpenAPI</span>
+            }
           </a>
         </mat-nav-list>
         @if(!isNodeJs){
-        <mat-nav-list>
-          <a mat-list-item [matTooltip]="opened?'': '模块管理'" matTooltipPosition="right" routerLink="/workspace/feature"
-            routerLinkActive="active">
-            <mat-icon color="link">hive</mat-icon>
-            <span *ngIf="opened">模块管理</span>
-          </a>
-        </mat-nav-list>
-        <!-- 
-        <mat-nav-list>
-          <a mat-list-item [matTooltip]="opened?'': '实体表结构'" matTooltipPosition="right" routerLink="/workspace/database"
-            routerLinkActive="active">
-            <mat-icon color="link">table_view</mat-icon>
-            <span *ngIf="opened">实体表结构</span>
-          </a>
-        </mat-nav-list> -->
+          <mat-nav-list>
+            <a mat-list-item [matTooltip]="opened?'': '模块管理'" matTooltipPosition="right" routerLink="/workspace/feature"
+              routerLinkActive="active">
+              <mat-icon color="link">hive</mat-icon>
+              @if (opened) {
+                <span>模块管理</span>
+              }
+            </a>
+          </mat-nav-list>
+          <!--
+          <mat-nav-list>
+            <a mat-list-item [matTooltip]="opened?'': '实体表结构'" matTooltipPosition="right" routerLink="/workspace/database"
+              routerLinkActive="active">
+              <mat-icon color="link">table_view</mat-icon>
+              <span *ngIf="opened">实体表结构</span>
+            </a>
+          </mat-nav-list> -->
         }
 
         <!-- <mat-nav-list>
-          <a mat-list-item [matTooltip]="opened?'': '模板配置'" matTooltipPosition="right" routerLink="/workspace/setting"
-            routerLinkActive="active">
-            <mat-icon color="link">settings</mat-icon>
-            <span *ngIf="opened">模板配置</span>
-          </a>
-        </mat-nav-list> -->
-      </mat-expansion-panel>
+        <a mat-list-item [matTooltip]="opened?'': '模板配置'" matTooltipPosition="right" routerLink="/workspace/setting"
+          routerLinkActive="active">
+          <mat-icon color="link">settings</mat-icon>
+          <span *ngIf="opened">模板配置</span>
+        </a>
+      </mat-nav-list> -->
+    </mat-expansion-panel>
 
-      <mat-expansion-panel hideToggle [expanded]="expanded">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <div class="nav-title" [matTooltip]="opened?'': '自定义代码生成'" matTooltipPosition="right">
-              <mat-icon>code_blocks</mat-icon>
-              <span *ngIf="opened">代码生成</span>
-            </div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-nav-list>
-          <a mat-list-item [matTooltip]="opened?'': '生成操作管理'" matTooltipPosition="right" routerLink="/workspace/task"
-            routerLinkActive="active">
-            <mat-icon color="link">fact_check</mat-icon>
-            <span *ngIf="opened">生成操作</span>
-          </a>
-          <a mat-list-item [matTooltip]="opened?'': '生成步骤管理'" matTooltipPosition="right" routerLink="/workspace/step"
-            routerLinkActive="active">
-            <mat-icon color="link">format_list_numbered</mat-icon>
-            <span *ngIf="opened">生成步骤</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
-    </mat-accordion>
-  </mat-drawer>
-  <mat-drawer-content class="px-1">
-    <router-outlet></router-outlet>
-  </mat-drawer-content>
+    <mat-expansion-panel hideToggle [expanded]="expanded">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <div class="nav-title" [matTooltip]="opened?'': '自定义代码生成'" matTooltipPosition="right">
+            <mat-icon>code_blocks</mat-icon>
+            @if (opened) {
+              <span>代码生成</span>
+            }
+          </div>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-nav-list>
+        <a mat-list-item [matTooltip]="opened?'': '生成操作管理'" matTooltipPosition="right" routerLink="/workspace/task"
+          routerLinkActive="active">
+          <mat-icon color="link">fact_check</mat-icon>
+          @if (opened) {
+            <span>生成操作</span>
+          }
+        </a>
+        <a mat-list-item [matTooltip]="opened?'': '生成步骤管理'" matTooltipPosition="right" routerLink="/workspace/step"
+          routerLinkActive="active">
+          <mat-icon color="link">format_list_numbered</mat-icon>
+          @if (opened) {
+            <span>生成步骤</span>
+          }
+        </a>
+      </mat-nav-list>
+    </mat-expansion-panel>
+  </mat-accordion>
+</mat-drawer>
+<mat-drawer-content class="px-1">
+  <router-outlet></router-outlet>
+</mat-drawer-content>
 </mat-drawer-container>

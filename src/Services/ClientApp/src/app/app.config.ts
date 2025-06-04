@@ -52,7 +52,7 @@ export const appConfig: ApplicationConfig = {
 
 export function markedOptionsFactory(): MarkedOptions {
   const renderer = new MarkedRenderer();
-  renderer.blockquote = (text: string) => {
+  renderer.blockquote = ({ text }: { text: string }) => {
     return '<blockquote class="blockquote"><p>' + text + '</p></blockquote>';
   };
   // renderer.code = (code: string) => {

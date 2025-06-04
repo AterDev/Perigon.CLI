@@ -19,4 +19,3 @@ global using Share.Implement;
 global using Share.Models;
 global using Share.Services;
 global using StudioMod.Models;
-global using StudioMod.Managers;

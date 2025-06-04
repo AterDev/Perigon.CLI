@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+
 import { MatCardModule, MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from '@angular/material/card';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -10,12 +10,8 @@ import { ActivatedRoute, Router } from '@angular/router';
     imports: [MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent]
 })
 export class IndexComponent {
-  constructor(
-    private router: Router,
+  private router = inject(Router);
 
-  ) {
-
-  }
   goTo(toolName: string): void {
     this.router.navigateByUrl('/tools/' + toolName)
   }
