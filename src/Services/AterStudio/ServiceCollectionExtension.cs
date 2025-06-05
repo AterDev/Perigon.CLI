@@ -44,9 +44,10 @@ public static class ServiceCollectionExtension
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
 
+        app.UseAntiforgery();
         app.MapStaticAssets();
+        app.MapControllers();
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
