@@ -15,6 +15,8 @@ builder.Logging.AddSimpleConsole(options =>
 builder.AddFrameworkServices();
 builder.AddMiddlewareServices();
 
+builder.AddBlazorServices();
+
 builder.Services.AddManagers();
 
 // services 

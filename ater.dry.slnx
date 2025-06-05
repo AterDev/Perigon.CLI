@@ -10,6 +10,7 @@
     <File Path="scripts/SyncInfrastructure.ps1" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path=".github/copilot-instructions.md" />
     <File Path=".mcp.json" />
   </Folder>
   <Folder Name="/src/">

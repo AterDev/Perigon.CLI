@@ -1,6 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
+using AterStudio.Components;
 
 namespace AterStudio;
 
@@ -44,8 +45,12 @@ public static class ServiceCollectionExtension
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
-        app.MapFallbackToFile("index.html");
 
+        app.MapStaticAssets();
+        app.MapRazorComponents<App>()
+            .AddInteractiveServerRenderMode();
+
+        app.MapFallbackToFile("index.html");
         return app;
     }
 
@@ -87,5 +92,16 @@ public static class ServiceCollectionExtension
 
         services.AddSingleton<Localizer>();
         return services;
+    }
+
+    /// <summary>
+    /// 添加blazor服务组件
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddBlazorServices(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+        return builder.Services;
     }
 }
