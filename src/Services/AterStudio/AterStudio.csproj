@@ -32,6 +32,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.9" />
         <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
     </ItemGroup>
     <ItemGroup>
