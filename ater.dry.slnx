@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/scripts/" Id="6dec682d-5f0d-1973-951c-0b9630672490">
     <File Path="scripts/CheckSharedDlls.cs" />
+    <File Path="scripts/CheckSharedDlls.ps1" />
     <File Path="scripts/installTemplate.ps1" />
     <File Path="scripts/PackFramework.ps1" />
     <File Path="scripts/PackTemplate.ps1" />
