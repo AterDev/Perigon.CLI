@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text;
 using CommandLine;
 using CommandLine.Commands;
-using EntityFramework.DBProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
@@ -17,9 +16,10 @@ OutputHelper.ShowLogo();
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
-
 builder.Services.AddScoped<Localizer>();
-builder.Services.AddScoped<CommandDbContext>();
+
+builder.AddFrameworkServices();
+
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
