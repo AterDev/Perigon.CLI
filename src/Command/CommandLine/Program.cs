@@ -52,9 +52,6 @@ app.Configure(config =>
     config.AddCommand<StudioCommand>(SubCommand.Studio)
         .WithDescription(localizer.Get(TipConst.StudioDes));
 
-    config.AddCommand<UpdateCommand>(SubCommand.Update)
-        .WithDescription(localizer.Get(TipConst.UpdateDes));
-
     config.AddBranch(SubCommand.Generate, config =>
     {
         config.SetDescription(localizer.Get(TipConst.GenerateDes));
