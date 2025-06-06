@@ -2,7 +2,7 @@
 [CmdletBinding()]
 
 # 模块名称
-$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "SystemMod", "CustomerMod")
+$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "SystemMod", "CustomerMod","UserMod")
 
 # 路径定义
 $deployPath = Get-Location
@@ -12,7 +12,7 @@ $entityPath = Join-Path $templatePath "templates" "ApiStandard" "src" "Definitio
 $commandLinePath = Join-Path $rootPath "src" "Command" "CommandLine"
 $destPath = Join-Path $commandLinePath "template"
 $destModulesPath = Join-Path $destPath "Modules" 
-$destInfrastructure = Join-Path $destPath "Infrastructure"
+$destInfrastructure = Join-Path $destPath "Ater"
 
 # 移动模块到临时目录
 function CopyModule([string]$solutionPath, [string]$moduleName, [string]$destModulesPath) {
@@ -62,7 +62,7 @@ if (Test-Path "$entityFrameworkPath/ModuleContextBase.cs") {
 }
 
 # copy Infrastructure
-$infrastructurePath = Join-Path $templatePath "templates" "ApiStandard" "src" "Infrastructure"
+$infrastructurePath = Join-Path $templatePath "templates" "ApiStandard" "src" "Ater"
 Copy-Item $infrastructurePath $destInfrastructure -Recurse -Force
 Remove-Item "$destInfrastructure/**/obj" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "$destInfrastructure/**/bin" -Recurse -Force -ErrorAction SilentlyContinue
