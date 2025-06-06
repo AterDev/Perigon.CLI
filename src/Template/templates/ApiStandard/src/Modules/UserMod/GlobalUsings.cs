@@ -1,0 +1,14 @@
+global using Ater.Common.Models;
+global using Ater.Common.Utils;
+global using Ater.Web.Convention;
+global using Ater.Web.Convention.Services;
+global using CommonMod.Managers;
+global using EntityFramework;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Logging;
+global using Share;
+global using Share.Constants;
+global using Share.Implement;
+global using UserMod.Managers;

@@ -5,6 +5,6 @@ This library is part of the `Ater.web.templates` project. It contains some servi
 - [x] ImageHelper
 - [x] SmtpService
 - [ ] ExcelExportHelper
-- [ ] OssService
+- [ ] AWSS3Service
 
 

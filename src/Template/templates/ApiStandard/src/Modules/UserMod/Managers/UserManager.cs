@@ -1,7 +1,7 @@
 using Entity.UserMod;
 using Share.Models.UserDtos;
 
-namespace CommonMod.Managers;
+namespace UserMod.Managers;
 /// <summary>
 /// 用户账户
 /// </summary>
@@ -127,7 +127,5 @@ public class UserManager(
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
-
 
 }

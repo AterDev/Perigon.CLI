@@ -1,10 +1,11 @@
-﻿namespace Entity.UserMod;
+namespace Entity.UserMod;
 /// <summary>
 /// 用户配置
 /// </summary>
 [Index(nameof(Key))]
 [Index(nameof(Valid))]
 [Index(nameof(GroupName))]
+[Module(Modules.User)]
 public class UserConfig : EntityBase
 {
     [MaxLength(100)]

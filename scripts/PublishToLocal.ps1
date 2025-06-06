@@ -8,7 +8,7 @@ $location = Get-Location
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
-$studioPath = Join-Path $location "../src/Studio/AterStudio";
+$studioPath = Join-Path $location "../src/Services/AterStudio";
 $dotnetVersion = "net9.0"
 
 try {

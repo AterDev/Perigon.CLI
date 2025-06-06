@@ -453,8 +453,6 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
             return;
         }
         var userContext = userContextScope.Instance;
-        // 日志入库代码示例：
-        await Task.CompletedTask; // 实现记录逻辑时 请删除此行
         var route = userContext.HttpContext?.Request.Path.Value;
         if (userContext.IsAdmin)
         {

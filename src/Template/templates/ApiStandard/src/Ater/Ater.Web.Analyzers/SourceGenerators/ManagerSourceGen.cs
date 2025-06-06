@@ -46,8 +46,10 @@ public class ManagerSourceGen : IIncrementalGenerator
 
                     if (!assemblies.Contains(assemblySymbol.Name))
                     {
-                        assemblies.Add(assemblySymbol.Name);
+                        // 查看该程序集下是否包含 AddMod 扩展方法
 
+
+                        assemblies.Add(assemblySymbol.Name);
                     }
 
                     foreach (var type in GetAllTypes(assemblySymbol.GlobalNamespace))
@@ -130,6 +132,12 @@ public class ManagerSourceGen : IIncrementalGenerator
         }
         return false;
     }
+
+    /// <summary>
+    /// 生成添加Manager的扩展
+    /// </summary>
+    /// <param name="symbols"></param>
+    /// <returns></returns>
     private static string? GenerateExtensions(IEnumerable<INamedTypeSymbol?> symbols)
     {
         // Order the classes by name
@@ -167,6 +175,12 @@ public class ManagerSourceGen : IIncrementalGenerator
             """;
     }
 
+    /// <summary>
+    /// 生成引用并添加Mod扩展方法
+    /// </summary>
+    /// <param name="compilation"></param>
+    /// <param name="modAssemblies"></param>
+    /// <returns></returns>
     private static string? GenerateModExtensions(Compilation compilation, HashSet<string> modAssemblies)
     {
         var validAssemblies = new List<string>();

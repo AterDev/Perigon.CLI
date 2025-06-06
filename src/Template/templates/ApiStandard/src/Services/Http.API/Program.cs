@@ -1,4 +1,3 @@
-using Http.API.Extension;
 using Http.API.Worker;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

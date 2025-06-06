@@ -2,7 +2,6 @@
 
 本仓库是一个使用.NET 开发的命令行工具。请在生成代码时遵循以下指导：
 
-
 **最重要的原则：当给出代码示例时，只给出确切的可验证的代码，不要按概率生成代码。**
 
 **技术栈和语言偏好:**
@@ -23,6 +22,3 @@
 **代码生成工具:**
 
 以下是在使用 github copilot chat agent 时要遵循的内容：
-
-* 本项目配置了MCP Server `ater.copilot`，提供代码生成功能
-* 当要生成前端请求代码时，若没有提供url路径，默认使用`http://localhost:5002/openapi/admin.json`作为openapi url路径，使用`NgHttp`作为前端请求类型，输出路径是项目根目录下的`/src/Services/ClientApp/src/app`，作为参数时传递完整的绝对路径。
