@@ -2,7 +2,16 @@
 
 <FluentLayout>
     <FluentHeader>
-        FluentApp
+        <FluentLabel Typo="Typography.H3">Ater Studio</FluentLabel>
+        <FluentSpacer />
+
+        <FluentToolbar Style="background-color: transparent;">
+            <FluentNavLink Href="/" Match="NavLinkMatch.All">
+                首页
+            </FluentNavLink>
+            <FluentButton>快捷工具</FluentButton>
+        </FluentToolbar>
+        <FluentSpacer />
     </FluentHeader>
     <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
         <NavMenu />
