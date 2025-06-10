@@ -1,4 +1,5 @@
-using AterStudio.Components;
+﻿using AterStudio.Components;
+using Microsoft.FluentUI.AspNetCore.Components;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
@@ -103,6 +104,7 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddBlazorServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+        builder.Services.AddFluentUIComponents();
         return builder.Services;
     }
 }
