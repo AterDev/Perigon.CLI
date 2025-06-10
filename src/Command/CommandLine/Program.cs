@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using CommandLine;
 using CommandLine.Commands;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Helper;
 using Share.Services;
+using System.Globalization;
+using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -41,8 +41,8 @@ app.Configure(config =>
     config.PropagateExceptions();
     config.ValidateExamples();
 #endif
-    config.SetApplicationName("dry");
-    config.SetApplicationVersion("1.0.0");
+    config.SetApplicationName("ater");
+    config.SetApplicationVersion("10.0.0");
     config.SetApplicationCulture(systemCulture);
 
     config.AddCommand<NewCommand>(SubCommand.New)
