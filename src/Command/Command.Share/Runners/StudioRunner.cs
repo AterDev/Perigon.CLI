@@ -84,55 +84,70 @@ public class StudioRunner
         string[] copyFiles =
         [
             "Ater.Common",
-            "CodeGenerator",
-            "Entity",
-            "Humanizer",
-            "Mapster.Core",
-            "Mapster",
-            "Microsoft.AspNetCore.Razor.Language",
-            "Microsoft.Build",
-            "Microsoft.Build.Framework",
-            "Microsoft.Build.Locator",
-            "Microsoft.Build.Tasks.Core",
-            "Microsoft.Build.Utilities.Core",
-            "Microsoft.CodeAnalysis.CSharp",
-            "Microsoft.CodeAnalysis.CSharp.Workspaces",
-            "Microsoft.CodeAnalysis",
-            "Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler",
-            "Microsoft.CodeAnalysis.Workspaces",
-            "Microsoft.CodeAnalysis.Workspaces.MSBuild",
-            "Microsoft.EntityFrameworkCore.Abstractions",
-            "Microsoft.Extensions.Configuration.Abstractions",
-            "Microsoft.Extensions.DependencyInjection.Abstractions",
-            "Microsoft.Extensions.DependencyInjection",
-            "Microsoft.Extensions.Logging.Abstractions",
-            "Microsoft.Extensions.Logging",
-            "Microsoft.Extensions.Options",
-            "Microsoft.Extensions.Primitives",
-            "Microsoft.NET.StringTools",
-            "Microsoft.OpenApi",
-            "Microsoft.OpenApi.Readers",
-            "Microsoft.VisualStudio.Setup.Configuration.Interop",
-            "Newtonsoft.Json",
-            "RazorEngineCore",
-            "Share",
-            "SharpYaml",
-            "System.CodeDom",
-            "System.Composition.AttributedModel",
-            "System.Composition.Convention",
-            "System.Composition.Hosting",
-            "System.Composition.Runtime",
-            "System.Composition.TypedParts",
-            "System.Configuration.ConfigurationManager",
-            "System.Diagnostics.DiagnosticSource",
-            "System.IO.Pipelines",
-            "System.Reflection.MetadataLoadContext",
-            "System.Resources.Extensions",
-            "System.Security.Cryptography.ProtectedData",
-            "System.Security.Permissions",
-            "System.Text.Encodings.Web",
-            "System.Text.Json",
-            "System.Windows.Extensions",
+"Ater.Web.Convention",
+"CodeGenerator",
+"Entity",
+"EntityFramework",
+"Humanizer",
+"Mapster.Core",
+"Mapster",
+"Microsoft.AspNetCore.Razor.Language",
+"Microsoft.Build",
+"Microsoft.Build.Framework",
+"Microsoft.Build.Locator",
+"Microsoft.Build.Tasks.Core",
+"Microsoft.Build.Utilities.Core",
+"Microsoft.CodeAnalysis.CSharp",
+"Microsoft.CodeAnalysis.CSharp.Workspaces",
+"Microsoft.CodeAnalysis",
+"Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler",
+"Microsoft.CodeAnalysis.Workspaces",
+"Microsoft.CodeAnalysis.Workspaces.MSBuild",
+"Microsoft.Data.Sqlite",
+"Microsoft.EntityFrameworkCore.Abstractions",
+"Microsoft.EntityFrameworkCore",
+"Microsoft.EntityFrameworkCore.Relational",
+"Microsoft.EntityFrameworkCore.Sqlite",
+"Microsoft.Extensions.DependencyModel",
+"Microsoft.IdentityModel.Abstractions",
+"Microsoft.IdentityModel.JsonWebTokens",
+"Microsoft.IdentityModel.Logging",
+"Microsoft.IdentityModel.Tokens",
+"Microsoft.NET.StringTools",
+"Microsoft.OpenApi",
+"Microsoft.OpenApi.Readers",
+"Microsoft.VisualStudio.Setup.Configuration.Interop",
+"Newtonsoft.Json",
+"RazorEngineCore",
+"Share",
+"SharpYaml",
+"Spectre.Console",
+"SQLitePCLRaw.batteries_v2",
+"SQLitePCLRaw.core",
+"SQLitePCLRaw.provider.e_sqlite3",
+"System.CodeDom",
+"System.Composition.AttributedModel",
+"System.Composition.Convention",
+"System.Composition.Hosting",
+"System.Composition.Runtime",
+"System.Composition.TypedParts",
+"System.Configuration.ConfigurationManager",
+"System.IdentityModel.Tokens.Jwt",
+"System.Reflection.MetadataLoadContext",
+"System.Resources.Extensions",
+"System.Security.Cryptography.ProtectedData",
+"System.Security.Permissions",
+"System.Windows.Extensions",
+"Microsoft.IO.Redist",
+"System.Buffers",
+"System.Collections.Immutable",
+"System.CommandLine",
+"System.Memory",
+"System.Numerics.Vectors",
+"System.Runtime.CompilerServices.Unsafe",
+"System.Threading.Tasks.Extensions",
+"Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost",
+"Share.resources"
         ];
 
         string version = AssemblyHelper.GetCurrentToolVersion();
@@ -151,75 +166,87 @@ public class StudioRunner
 
         AnsiConsole.Status()
             .Spinner(Spinner.Known.Aesthetic).Start("Updating...", ctx =>
-        {
-            // 删除旧文件
-            if (Directory.Exists(studioPath))
             {
-                ctx.Status("delete old files");
-                if (File.Exists(dbFile))
+                // 删除旧文件
+                if (Directory.Exists(studioPath))
                 {
-                    File.Copy(dbFile, tempDbFile, true);
+                    ctx.Status("delete old files");
+                    if (File.Exists(dbFile))
+                    {
+                        File.Copy(dbFile, tempDbFile, true);
+                    }
+                    Directory.Delete(studioPath, true);
+                    OutputHelper.Info($"delete {studioPath}");
                 }
-                Directory.Delete(studioPath, true);
-                OutputHelper.Info($"delete {studioPath}");
-            }
 
-            // 解压
-            ctx.Status("copy new files");
-            if (File.Exists(templatePath))
-            {
-                ZipFile.ExtractToDirectory(templatePath, studioPath, true);
-            }
-            ZipFile.ExtractToDirectory(zipPath, studioPath, true);
-            OutputHelper.Info($"extract {zipPath} to {studioPath}");
-
-            if (File.Exists(tempDbFile))
-            {
-                OutputHelper.Info($"recover db file");
-                File.Copy(tempDbFile, dbFile, true);
-            }
-
-            // copy其他文件
-            OutputHelper.Info($"start copy {copyFiles.Length} files to {studioPath}");
-            copyFiles.ToList().ForEach(file =>
-            {
-                string sourceFile = Path.Combine(toolRootPath, file + ".dll");
-                if (File.Exists(sourceFile))
+                // 解压
+                ctx.Status("copy new files");
+                if (File.Exists(templatePath))
                 {
-                    File.Copy(sourceFile, Path.Combine(studioPath, file + ".dll"), true);
+                    ZipFile.ExtractToDirectory(templatePath, studioPath, true);
                 }
-                else
+                ZipFile.ExtractToDirectory(zipPath, studioPath, true);
+                OutputHelper.Info($"extract {zipPath} to {studioPath}");
+
+                if (File.Exists(tempDbFile))
                 {
-                    OutputHelper.Info($"{sourceFile} file not exist!");
+                    OutputHelper.Info($"recover db file");
+                    File.Copy(tempDbFile, dbFile, true);
                 }
+
+                // copy其他文件
+                OutputHelper.Info($"start copy {copyFiles.Length} files to {studioPath}");
+                copyFiles.ToList().ForEach(file =>
+                {
+                    string sourceFile = Path.Combine(toolRootPath, file + ".dll");
+                    if (File.Exists(sourceFile))
+                    {
+                        File.Copy(sourceFile, Path.Combine(studioPath, file + ".dll"), true);
+                    }
+                    else
+                    {
+                        OutputHelper.Info($"{sourceFile} file not exist!");
+                    }
+                });
+
+                string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
+                CreateSymbolicLink(studioPath, runtimesDir);
+                runtimesDir = Path.Combine(toolRootPath, "runtimes");
+                CreateSymbolicLink(studioPath, runtimesDir);
+
+                // create version file
+                File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
+                ctx.Status("update template");
+                UpdateTemplate();
+                OutputHelper.Success($"update to {version} completed!");
+                ctx.Status("Done!");
+                ctx.Refresh();
             });
+    }
 
-            string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
-            if (Directory.Exists(runtimesDir))
+    /// <summary>
+    /// 创建软链接
+    /// </summary>
+    /// <param name="studioPath"></param>
+    /// <param name="runtimesDir"></param>
+    private static void CreateSymbolicLink(string studioPath, string runtimesDir)
+    {
+        if (Directory.Exists(runtimesDir))
+        {
+            string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
+            if (Directory.Exists(targetDir))
             {
-                string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
-                if (Directory.Exists(targetDir))
-                {
-                    Directory.Delete(targetDir, true);
-                }
-                try
-                {
-                    Directory.CreateSymbolicLink(targetDir, runtimesDir);
-                }
-                catch (Exception)
-                {
-                    IOHelper.CopyDirectory(runtimesDir, targetDir);
-                }
+                Directory.Delete(targetDir, true);
             }
-
-            // create version file
-            File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
-            ctx.Status("update template");
-            UpdateTemplate();
-            OutputHelper.Success($"update to {version} completed!");
-            ctx.Status("Done!");
-            ctx.Refresh();
-        });
+            try
+            {
+                Directory.CreateSymbolicLink(targetDir, runtimesDir);
+            }
+            catch (Exception)
+            {
+                IOHelper.CopyDirectory(runtimesDir, targetDir);
+            }
+        }
     }
 
     /// <summary>

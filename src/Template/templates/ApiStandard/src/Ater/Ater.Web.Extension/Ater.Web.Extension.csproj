@@ -1,41 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <PackageId>Ater.Web.Extension</PackageId>
-    <Title>Ater.Web.Extension</Title>
-    <Authors>niltor</Authors>
-    <Version>1.0.0-beta3</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>extension;webapi;framework;ater;aspnetcore;cache</PackageTags>
-    <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
-    <PackageIcon>logo.jpg</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/AterDev/ater.dry.cli</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>
-    </PackageReleaseNotes>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="4.0.0.1" />
-    <PackageReference Include="MailKit" Version="4.12.0" />
-    <PackageReference Include="MiniExcel" Version="1.41.1" />
-    <PackageReference Include="SkiaSharp" Version="3.119.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Ater.Web.Convention\Ater.Web.Convention.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\logo.jpg">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="README.md">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net9.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>Ater.Web.Extension</PackageId>
+        <Title>Ater.Web.Extension</Title>
+        <Authors>niltor</Authors>
+        <Version>1.0.0-beta3</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>extension;webapi;framework;ater;aspnetcore;cache</PackageTags>
+        <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
+        <PackageIcon>logo.jpg</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/AterDev/ater.dry.cli</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>
+        </PackageReleaseNotes>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="AWSSDK.S3" Version="4.0.1.3" />
+        <PackageReference Include="MailKit" Version="4.12.1" />
+        <PackageReference Include="MiniExcel" Version="1.41.2" />
+        <PackageReference Include="EPPlus" Version="8.0.5" />
+        <PackageReference Include="SkiaSharp" Version="3.119.0" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Ater.Web.Convention\Ater.Web.Convention.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\..\..\..\logo.jpg">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 using Share.Models.UserDtos;
-namespace Http.API.Controllers.AdminControllers;
+namespace UserMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 用户账户
@@ -64,7 +64,7 @@ public class UserController(
     public async Task<ActionResult<UserDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.GetDetailAsync(id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 
     /// <summary>

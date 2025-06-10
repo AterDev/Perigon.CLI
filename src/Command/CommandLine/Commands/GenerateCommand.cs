@@ -32,12 +32,12 @@ public sealed class RequestSettings : CommandSettings
     public string Path { get; set; } = string.Empty;
 
     [CommandArgument(1, "<outputPath>")]
-    [Description("you client project path")]
+    [Description("your client project path")]
     public required string OutputPath { get; set; }
 
     [CommandOption("-t|--type")]
     [DefaultValue("axios")]
-    [Description("only support: axios, csharp, angular, default: axios")]
+    [Description("support types: axios, csharp, angular, default: axios")]
     public string Type { get; set; } = "axios";
 }
 public enum RequestType

@@ -11,7 +11,7 @@
 **重要的文件和目录:**
 
 * `src/Command/CommandLine`: 是命令行程序。
-* `src/Definition/CodeGenerator`: 是使用目roslyn等具体的代码生成逻辑
+* `src/Definition/CodeGenerator`: 使用roslyn解析和实现代码生成逻辑
 * `src/Definition/Entity`: 实体模型项目
 * `src/Services/AterStudio`: 是 AterStudio 的服务项目，基于ASP.NET Core。
 * `src/Modules/StudioMod`: 是业务实现的主要模块，AterStudio直接引用该项目。

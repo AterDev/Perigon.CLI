@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Entity.UserMod;
 /// <summary>
@@ -9,6 +9,7 @@ namespace Entity.UserMod;
 [Index(nameof(PhoneNumber), IsUnique = true)]
 [Index(nameof(CreatedTime))]
 [Index(nameof(IsDeleted))]
+[Module(Modules.User)]
 public class User : EntityBase
 {
     /// <summary>
@@ -16,7 +17,7 @@ public class User : EntityBase
     /// </summary>
     [MaxLength(40)]
     [Length(2, 40)]
-    
+
     public required string UserName { get; set; }
 
     /// <summary>

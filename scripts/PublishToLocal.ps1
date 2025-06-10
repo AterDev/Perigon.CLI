@@ -8,7 +8,7 @@ $location = Get-Location
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
-$studioPath = Join-Path $location "../src/Studio/AterStudio";
+$studioPath = Join-Path $location "../src/Services/AterStudio";
 $dotnetVersion = "net9.0"
 
 try {
@@ -62,74 +62,82 @@ try {
         $pathsToRemove = @(
             ".\publish\BuildHost-net472",
             ".\publish\BuildHost-netcore",
-            ".\publish\Ater.Web.Core.dll",
-            ".\publish\CodeGenerator.dll",
-            ".\publish\Entity.dll",
-            ".\publish\Humanizer.dll",
-            ".\publish\Mapster.Core.dll",
-            ".\publish\Mapster.dll",
-            ".\publish\Microsoft.AspNetCore.Razor.Language.dll",
-            ".\publish\Microsoft.Build.dll",
-            ".\publish\Microsoft.Build.Framework.dll",
-            ".\publish\Microsoft.Build.Locator.dll",
-            ".\publish\Microsoft.Build.Tasks.Core.dll",
-            ".\publish\Microsoft.Build.Utilities.Core.dll",
-            ".\publish\Microsoft.CodeAnalysis.CSharp.dll",
-            ".\publish\Microsoft.CodeAnalysis.CSharp.Workspaces.dll",
-            ".\publish\Microsoft.CodeAnalysis.dll",
-            ".\publish\Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll",
-            ".\publish\Microsoft.CodeAnalysis.Workspaces.dll",
-            ".\publish\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll",
-            ".\publish\Microsoft.EntityFrameworkCore.Abstractions.dll",
-            ".\publish\Microsoft.Extensions.Configuration.Abstractions.dll",
-            ".\publish\Microsoft.Extensions.DependencyInjection.Abstractions.dll",
-            ".\publish\Microsoft.Extensions.DependencyInjection.dll",
-            ".\publish\Microsoft.Extensions.Logging.Abstractions.dll",
-            ".\publish\Microsoft.Extensions.Logging.dll",
-            ".\publish\Microsoft.Extensions.Options.dll",
-            ".\publish\Microsoft.Extensions.Primitives.dll",
-            ".\publish\Microsoft.NET.StringTools.dll",
-            ".\publish\Microsoft.OpenApi.dll",
-            ".\publish\Microsoft.OpenApi.Readers.dll",
-            ".\publish\Microsoft.VisualStudio.Setup.Configuration.Interop.dll",
-            ".\publish\Newtonsoft.Json.dll",
-            ".\publish\RazorEngineCore.dll",
-            ".\publish\Share.dll",
-            ".\publish\SharpYaml.dll",
-            ".\publish\System.CodeDom.dll",
-            ".\publish\System.Composition.AttributedModel.dll",
-            ".\publish\System.Composition.Convention.dll",
-            ".\publish\System.Composition.Hosting.dll",
-            ".\publish\System.Composition.Runtime.dll",
-            ".\publish\System.Composition.TypedParts.dll",
-            ".\publish\System.Configuration.ConfigurationManager.dll",
-            ".\publish\System.Diagnostics.DiagnosticSource.dll",
-            ".\publish\System.Formats.Asn1.dll",
-            ".\publish\System.IO.Pipelines.dll",
-            ".\publish\System.Reflection.MetadataLoadContext.dll",
-            ".\publish\System.Resources.Extensions.dll",
-            ".\publish\System.Security.Cryptography.ProtectedData.dll",
-            ".\publish\System.Security.Permissions.dll",
-            ".\publish\System.Text.Encodings.Web.dll",
-            ".\publish\System.Text.Json.dll",
+            ".\publish\runtimes",
+
+            ".\publish\Ater.Common.dll"
+            ".\publish\Ater.Web.Convention.dll"
+            ".\publish\CodeGenerator.dll"
+            ".\publish\Entity.dll"
+            ".\publish\EntityFramework.dll"
+            ".\publish\Humanizer.dll"
+            ".\publish\Mapster.Core.dll"
+            ".\publish\Mapster.dll"
+            ".\publish\Microsoft.AspNetCore.Razor.Language.dll"
+            ".\publish\Microsoft.Build.dll"
+            ".\publish\Microsoft.Build.Framework.dll"
+            ".\publish\Microsoft.Build.Locator.dll"
+            ".\publish\Microsoft.Build.Tasks.Core.dll"
+            ".\publish\Microsoft.Build.Utilities.Core.dll"
+            ".\publish\Microsoft.CodeAnalysis.CSharp.dll"
+            ".\publish\Microsoft.CodeAnalysis.CSharp.Workspaces.dll"
+            ".\publish\Microsoft.CodeAnalysis.dll"
+            ".\publish\Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll"
+            ".\publish\Microsoft.CodeAnalysis.Workspaces.dll"
+            ".\publish\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll"
+            ".\publish\Microsoft.Data.Sqlite.dll"
+            ".\publish\Microsoft.EntityFrameworkCore.Abstractions.dll"
+            ".\publish\Microsoft.EntityFrameworkCore.dll"
+            ".\publish\Microsoft.EntityFrameworkCore.Relational.dll"
+            ".\publish\Microsoft.EntityFrameworkCore.Sqlite.dll"
+            ".\publish\Microsoft.Extensions.DependencyModel.dll"
+            ".\publish\Microsoft.IdentityModel.Abstractions.dll"
+            ".\publish\Microsoft.IdentityModel.JsonWebTokens.dll"
+            ".\publish\Microsoft.IdentityModel.Logging.dll"
+            ".\publish\Microsoft.IdentityModel.Tokens.dll"
+            ".\publish\Microsoft.NET.StringTools.dll"
+            ".\publish\Microsoft.OpenApi.dll"
+            ".\publish\Microsoft.OpenApi.Readers.dll"
+            ".\publish\Microsoft.VisualStudio.Setup.Configuration.Interop.dll"
+            ".\publish\Newtonsoft.Json.dll"
+            ".\publish\RazorEngineCore.dll"
+            ".\publish\Share.dll"
+            ".\publish\SharpYaml.dll"
+            ".\publish\Spectre.Console.dll"
+            ".\publish\SQLitePCLRaw.batteries_v2.dll"
+            ".\publish\SQLitePCLRaw.core.dll"
+            ".\publish\SQLitePCLRaw.provider.e_sqlite3.dll"
+            ".\publish\System.CodeDom.dll"
+            ".\publish\System.Composition.AttributedModel.dll"
+            ".\publish\System.Composition.Convention.dll"
+            ".\publish\System.Composition.Hosting.dll"
+            ".\publish\System.Composition.Runtime.dll"
+            ".\publish\System.Composition.TypedParts.dll"
+            ".\publish\System.Configuration.ConfigurationManager.dll"
+            ".\publish\System.IdentityModel.Tokens.Jwt.dll"
+            ".\publish\System.Reflection.MetadataLoadContext.dll"
+            ".\publish\System.Resources.Extensions.dll"
+            ".\publish\System.Security.Cryptography.ProtectedData.dll"
+            ".\publish\System.Security.Permissions.dll"
             ".\publish\System.Windows.Extensions.dll"
+            ".\publish\Microsoft.IO.Redist.dll"
+            ".\publish\System.Buffers.dll"
+            ".\publish\System.Collections.Immutable.dll"
+            ".\publish\System.CommandLine.dll"
+            ".\publish\System.Memory.dll"
+            ".\publish\System.Numerics.Vectors.dll"
+            ".\publish\System.Runtime.CompilerServices.Unsafe.dll"
+            ".\publish\System.Threading.Tasks.Extensions.dll"
+            ".\publish\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll"
+            ".\publish\Share.resources.dll" 
             ".\publish\AterStudio.exe",
-            ".\publish\swagger.json"
+            ".\publish\openapi_admin.json"
         );
         foreach ($path in $pathsToRemove) {
             if (Test-Path $path) {
                 Remove-Item $path -Recurse -Force
             }
         }
-        # remove some sqlite runtimes
-        if (Test-Path -Path "./publish/runtimes") {
-            $runtimes = Get-ChildItem -Path "./publish/runtimes" -Directory
-            foreach ($runtime in $runtimes) {
-                if ($supportRuntimes -notcontains $runtime.Name) {
-                    Remove-Item -Path $runtime.FullName -Recurse -Force
-                }
-            }
-        }
+
         # remove pdb and xml files
         $files = Get-ChildItem -Path .\publish -Recurse -Include *.pdb, *.xml
         foreach ($file in $files) {
@@ -155,6 +163,16 @@ try {
     $zipPackName = $newPackName.Replace(".nupkg", ".zip")
     Rename-Item -Path "./nupkg/$newPackName" -NewName "$zipPackName"
     Expand-Archive -Path "./nupkg/$zipPackName" -DestinationPath "./nupkg/$Version"
+
+    # remove some runtimes
+    if (Test-Path -Path "./nupkg/$Version/tools/$dotnetVersion/any/runtimes") {
+        $runtimes = Get-ChildItem -Path "./nupkg/$Version/tools/$dotnetVersion/any/runtimes" -Directory
+        foreach ($runtime in $runtimes) {
+            if ($supportRuntimes -notcontains $runtime.Name) {
+                Remove-Item -Path $runtime.FullName -Recurse -Force
+            }
+        }
+    }
 
     ## 移除pdb文件
     $files = Get-ChildItem -Path "./nupkg/$Version/tools/$dotnetVersion/any" -Recurse -Include *.pdb

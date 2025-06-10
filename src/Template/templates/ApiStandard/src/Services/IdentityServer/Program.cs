@@ -1,5 +1,5 @@
+using IdentityServer.Components;
 using IdentityServer.Definition.EntityFramework;
-using Microsoft.EntityFrameworkCore;
 using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,18 +48,25 @@ builder.Services.AddOpenIddict()
 
     });
 
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-// Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseAntiforgery();
+app.MapStaticAssets();
 app.MapControllers();
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

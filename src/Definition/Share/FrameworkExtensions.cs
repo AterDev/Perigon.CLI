@@ -1,9 +1,9 @@
 using CodeGenerator.Helper;
-using Microsoft.EntityFrameworkCore;
+using Entity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace StudioMod;
+namespace Share;
 
 /// <summary>
 /// 服务注册扩展

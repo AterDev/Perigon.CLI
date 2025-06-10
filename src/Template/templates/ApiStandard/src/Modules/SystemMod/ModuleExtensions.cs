@@ -1,4 +1,3 @@
-// 本文件由 ater.dry工具自动生成.
 using Microsoft.Extensions.Hosting;
 using SystemMod.Services;
 using SystemMod.Worker;
@@ -22,4 +21,3 @@ public static class ModuleExtensions
         return builder;
     }
 }
-

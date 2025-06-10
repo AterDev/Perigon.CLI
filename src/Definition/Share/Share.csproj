@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Spectre.Console" Version="0.50.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
     </ItemGroup>
 
     <ItemGroup>

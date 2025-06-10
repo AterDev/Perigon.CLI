@@ -1,8 +1,9 @@
 using Entity.UserMod;
+using Microsoft.Extensions.Configuration;
 using Share.Models.Auth;
 using Share.Models.UserDtos;
 
-namespace Http.API.Controllers;
+namespace UserMod.Controllers;
 
 /// <summary>
 /// 用户账户
@@ -260,7 +261,7 @@ public class UserController(
     public async Task<ActionResult<bool?>> GetDetailAsync()
     {
         User? res = await _manager.FindAsync(_user.UserId);
-        return (res == null) ? NotFound(ErrorKeys.NotFoundResource)
+        return res == null ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.DeleteAsync([_user.UserId], true);
     }
 }

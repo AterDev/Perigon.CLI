@@ -26,13 +26,14 @@
     <Project Path="src/Ater/Ater.Web.Convention/Ater.Web.Convention.csproj" />
     <Project Path="src/Ater/Ater.Web.Extension/Ater.Web.Extension.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/" Id="ec447dcf-abfa-6e24-52a5-d7fd48a5c558">
+  <Folder Name="/src/Modules/">
     <Project Path="src/Modules/CMSMod/CMSMod.csproj" />
     <Project Path="src/Modules/CommonMod/CommonMod.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
     <Project Path="src/Modules/CustomerMod/CustomerMod.csproj" />
     <Project Path="src/Modules/FileManagerMod/FileManagerMod.csproj" />
     <Project Path="src/Modules/OrderMod/OrderMod.csproj" />
     <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
+    <Project Path="src/Modules/UserMod/UserMod.csproj" Id="8c4fb758-f362-4671-bf72-6ee9e9e482d2" />
   </Folder>
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <Project Path="src/Services/Http.API/Http.API.csproj" />

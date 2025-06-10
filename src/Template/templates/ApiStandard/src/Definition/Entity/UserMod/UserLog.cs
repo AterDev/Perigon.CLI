@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Ater.Common.Models;
 
 namespace Entity.UserMod;
 /// <summary>
@@ -8,6 +7,7 @@ namespace Entity.UserMod;
 [Index(nameof(ActionType))]
 [Index(nameof(ActionUserName))]
 [Index(nameof(CreatedTime))]
+[Module(Modules.User)]
 public class UserLog : EntityBase
 {
     /// <summary>

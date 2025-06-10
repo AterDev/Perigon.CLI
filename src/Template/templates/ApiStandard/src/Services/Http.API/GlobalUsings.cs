@@ -1,11 +1,6 @@
-global using Ater.Common.Models;
 global using Ater.Common.Utils;
-global using Ater.Web.Convention;
 global using Ater.Web.Convention.Abstraction;
-global using Ater.Web.Convention.Services;
-global using CommonMod.Managers;
 global using Http.API.Extension;
-global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using ServiceDefaults;

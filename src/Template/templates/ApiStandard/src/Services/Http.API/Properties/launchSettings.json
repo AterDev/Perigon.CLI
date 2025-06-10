@@ -12,7 +12,7 @@
     "Http.API": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "openapi",
+      "launchUrl": "openapi/admin.json",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

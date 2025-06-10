@@ -1,13 +1,12 @@
-using System.Globalization;
-using System.Text;
 using CommandLine;
 using CommandLine.Commands;
-using EntityFramework.DBProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Helper;
 using Share.Services;
+using System.Globalization;
+using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -17,9 +16,10 @@ OutputHelper.ShowLogo();
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
-
 builder.Services.AddScoped<Localizer>();
-builder.Services.AddScoped<CommandDbContext>();
+
+builder.AddFrameworkServices();
+
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
@@ -41,8 +41,8 @@ app.Configure(config =>
     config.PropagateExceptions();
     config.ValidateExamples();
 #endif
-    config.SetApplicationName("dry");
-    config.SetApplicationVersion("1.0.0");
+    config.SetApplicationName("ater");
+    config.SetApplicationVersion("10.0.0");
     config.SetApplicationCulture(systemCulture);
 
     config.AddCommand<NewCommand>(SubCommand.New)
@@ -51,9 +51,6 @@ app.Configure(config =>
 
     config.AddCommand<StudioCommand>(SubCommand.Studio)
         .WithDescription(localizer.Get(TipConst.StudioDes));
-
-    config.AddCommand<UpdateCommand>(SubCommand.Update)
-        .WithDescription(localizer.Get(TipConst.UpdateDes));
 
     config.AddBranch(SubCommand.Generate, config =>
     {

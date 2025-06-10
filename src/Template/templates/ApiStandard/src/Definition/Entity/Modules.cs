@@ -1,4 +1,4 @@
-﻿namespace Entity;
+namespace Entity;
 /// <summary>
 /// 定义模块名称
 /// </summary>
@@ -28,4 +28,8 @@ public class Modules
     /// 系统管理
     /// </summary>
     public const string System = "SystemMod";
+    /// <summary>
+    /// 用户模块
+    /// </summary>
+    public const string User = "UserMod";
 }

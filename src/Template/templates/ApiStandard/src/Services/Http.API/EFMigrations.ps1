@@ -10,9 +10,9 @@ if ([string]::IsNullOrWhiteSpace($Name)) {
 }
 dotnet build
 if ($Name -eq "Remove") {
-    dotnet ef migrations remove -c CommandDbContext --no-build --project ../Definition/EntityFramework/EntityFramework.csproj    
+    dotnet ef migrations remove -c CommandDbContext --no-build --project ../../Definition/EntityFramework/EntityFramework.csproj    
 }
 else {
-    dotnet ef migrations add $Name -c CommandDbContext --no-build --project ../Definition/EntityFramework/EntityFramework.csproj
+    dotnet ef migrations add $Name -c CommandDbContext --no-build --project ../../Definition/EntityFramework/EntityFramework.csproj
 }
 
