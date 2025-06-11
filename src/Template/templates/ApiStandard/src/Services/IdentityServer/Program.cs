@@ -25,6 +25,8 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("/connect/authorize")
             .SetTokenEndpointUris("/connect/token")
             .SetUserInfoEndpointUris("/connect/userinfo")
+            .SetDeviceAuthorizationEndpointUris("/connect/device")
+            // .SetVerificationEndpointUris("/connect/verify") // 移除此行，因方法不存在
             .AllowAuthorizationCodeFlow()
             .AllowClientCredentialsFlow()
             .AllowDeviceAuthorizationFlow()

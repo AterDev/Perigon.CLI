@@ -8,7 +8,14 @@
 
 * 主要语言是:C# 13，前端是TypeScript，在代码提示时使用最新语法
 * 项目基于ASP.NET Core 9.0
-* 前端使用Angular 20
+* 前端使用blaozr和fluentui-blazor
+
+**代码风格偏好**
+
+* 必须使用可空类型
+* 使用[]来表示数据集合的默认值
+* if for 等语句必须使用大括号
+* 优先使用模式匹配
 
 **重要的文件和目录:**
 
@@ -19,6 +26,12 @@
 * `src/Modules/SystemMod`: 系统模块的业务逻辑实现
 * `src/Services/Http.API`: 是接口服务项目，基于ASP.NET Core Web API。
 
-**代码生成工具:**
+**Agent及代码生成**
 
-以下是在使用 github copilot chat agent 时要遵循的内容：
+当使用代码生成或Agent模式时，如果是fluentui-blazor相关问题，可参考:
+* 官方文档: https://www.fluentui-blazor.net/
+* github: https://github.com/microsoft/fluentui-blazor
+
+
+如果是`OpenIdDict`相关问题，可参考:
+* https://documentation.openiddict.com/integrations/aspnet-core
