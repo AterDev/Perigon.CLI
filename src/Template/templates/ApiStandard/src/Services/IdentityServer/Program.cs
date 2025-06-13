@@ -1,6 +1,7 @@
 using IdentityServer.Components;
 using IdentityServer.Definition.EntityFramework;
 using ServiceDefaults;
+using Microsoft.FluentUI.AspNetCore.Components; // 添加 FluentUI using
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,7 @@ builder.Services.AddOpenIddict()
             .SetTokenEndpointUris("/connect/token")
             .SetUserInfoEndpointUris("/connect/userinfo")
             .SetDeviceAuthorizationEndpointUris("/connect/device")
-            // .SetVerificationEndpointUris("/connect/verify") // 移除此行，因方法不存在
+            .SetEndUserVerificationEndpointUris("/connect/verify")
             .AllowAuthorizationCodeFlow()
             .AllowClientCredentialsFlow()
             .AllowDeviceAuthorizationFlow()
@@ -52,6 +53,8 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddFluentUIComponents(); // 注册 FluentUI 组件服务
 
 builder.Services.AddControllers();
 

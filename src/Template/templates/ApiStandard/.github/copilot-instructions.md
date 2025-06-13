@@ -25,6 +25,7 @@
 * `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文
 * `src/Modules/SystemMod`: 系统模块的业务逻辑实现
 * `src/Services/Http.API`: 是接口服务项目，基于ASP.NET Core Web API。
+* `src/Services/IdentityServer`: 是使用OpenIdDict实现的OAuth统一验证和用户角色权限管理项目。
 
 **Agent及代码生成**
 
