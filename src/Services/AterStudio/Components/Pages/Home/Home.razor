@@ -1,0 +1,40 @@
+@page "/"
+@inject IDialogService DialogService
+@inject ProjectManager ProjectManager
+
+<PageTitle>解决方案</PageTitle>
+
+<FluentStack HorizontalAlignment="HorizontalAlignment.Center" Orientation="Orientation.Vertical" Style="height: 100%"
+             VerticalAlignment="VerticalAlignment.Center" VerticalGap="25">
+    <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
+        <FluentButton Appearance="Appearance.Accent" OnClick="AddLocalProject">添加本地项目</FluentButton>
+        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size24.AddSquare())" />
+    </FluentStack>
+    <FluentLabel Typo="Typography.H6">暂无任何项目，请添加已存在的本地项目或点击 + 创建新解决方案！</FluentLabel>
+</FluentStack>
+
+@code {
+    private async Task AddLocalProject(MouseEventArgs arg)
+    {
+        DialogParameters parameters = new()
+        {
+            Title = "添加本地项目或解决方案",
+            PrimaryAction = "确定",
+            SecondaryAction = "取消",
+            Width = "360px",
+            Modal = false,
+            ShowDismiss = false,
+        };
+
+        var dto = new AddProjectDto();
+        var dialog = await DialogService.ShowDialogAsync<AddProjectDialog>(dto, parameters);
+
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            await ProjectManager.AddAsync(dto.ProjectName, dto.ProjectDirectory);
+            Console.WriteLine(JsonSerializer.Serialize(dto));
+        }
+    }
+
+}
