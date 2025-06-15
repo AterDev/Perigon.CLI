@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @using Microsoft.FluentUI.AspNetCore.Components
+@inject IJSRuntime JSRuntime
 
 <div style="display: flex; min-height: 100vh;">
     <nav style="width: 260px; background: var(--neutral-lighter); min-height: 100vh; padding: 16px 0;">
@@ -16,7 +17,7 @@
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    <span>An unhandled error has occurred.</span>
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
 </div>

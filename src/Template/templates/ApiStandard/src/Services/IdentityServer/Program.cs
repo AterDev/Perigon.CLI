@@ -1,7 +1,8 @@
 using IdentityServer.Components;
 using IdentityServer.Definition.EntityFramework;
+using IdentityServer.Managers; // 添加 FluentUI using
+using Microsoft.FluentUI.AspNetCore.Components;
 using ServiceDefaults;
-using Microsoft.FluentUI.AspNetCore.Components; // 添加 FluentUI using
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ builder.AddServiceDefaults();
 
 builder.Services.AddDbContext<IdentityServerContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityServerContext"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityServer"));
     options.UseOpenIddict();
 });
 
@@ -56,7 +57,11 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddFluentUIComponents(); // 注册 FluentUI 组件服务
 
-builder.Services.AddControllers();
+// 注册 ApplicationManager
+builder.Services.AddScoped<ApplicationManager>();
+
+
+// builder.Services.AddControllers(); // 移除 API 控制器注册
 
 var app = builder.Build();
 
@@ -69,7 +74,6 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 app.MapStaticAssets();
-app.MapControllers();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
