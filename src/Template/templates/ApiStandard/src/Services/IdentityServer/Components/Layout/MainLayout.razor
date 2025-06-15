@@ -1,23 +1,23 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject IJSRuntime JSRuntime
 
-<div class="page">
-    <div class="sidebar">
+<div style="display: flex; min-height: 100vh;">
+    <nav style="width: 260px; background: var(--neutral-lighter); min-height: 100vh; padding: 16px 0;">
         <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    </nav>
+    <main style="flex: 1; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: flex-end; padding: 16px 32px 0 0;">
+            <FluentButton Href="https://learn.microsoft.com/aspnet/core/" Target="_blank">About</FluentButton>
         </div>
-
-        <article class="content px-4">
+        <FluentCard style="margin: 24px; padding: 24px; min-height: 80vh; flex: 1;">
             @Body
-        </article>
+        </FluentCard>
     </main>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    <span>An unhandled error has occurred.</span>
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
 </div>

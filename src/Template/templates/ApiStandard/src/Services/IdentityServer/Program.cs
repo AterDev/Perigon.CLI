@@ -1,5 +1,7 @@
 using IdentityServer.Components;
 using IdentityServer.Definition.EntityFramework;
+using IdentityServer.Managers; // 添加 FluentUI using
+using Microsoft.FluentUI.AspNetCore.Components;
 using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,7 @@ builder.AddServiceDefaults();
 
 builder.Services.AddDbContext<IdentityServerContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityServerContext"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityServer"));
     options.UseOpenIddict();
 });
 
@@ -26,7 +28,7 @@ builder.Services.AddOpenIddict()
             .SetTokenEndpointUris("/connect/token")
             .SetUserInfoEndpointUris("/connect/userinfo")
             .SetDeviceAuthorizationEndpointUris("/connect/device")
-            // .SetVerificationEndpointUris("/connect/verify") // 移除此行，因方法不存在
+            .SetEndUserVerificationEndpointUris("/connect/verify")
             .AllowAuthorizationCodeFlow()
             .AllowClientCredentialsFlow()
             .AllowDeviceAuthorizationFlow()
@@ -53,7 +55,13 @@ builder.Services.AddOpenIddict()
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddControllers();
+builder.Services.AddFluentUIComponents(); // 注册 FluentUI 组件服务
+
+// 注册 ApplicationManager
+builder.Services.AddScoped<ApplicationManager>();
+
+
+// builder.Services.AddControllers(); // 移除 API 控制器注册
 
 var app = builder.Build();
 
@@ -66,7 +74,6 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 app.MapStaticAssets();
-app.MapControllers();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

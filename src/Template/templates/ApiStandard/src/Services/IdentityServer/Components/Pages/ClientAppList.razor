@@ -1,15 +1,16 @@
 @page "/client-apps"
-@using System.Net.Http.Json
+@using IdentityServer.Managers
 @using Microsoft.FluentUI.AspNetCore.Components
+@inject IdentityServer.Managers.ApplicationManager AppManager
 
 <PageTitle>客户端管理</PageTitle>
 
 <FluentButton @onclick="ShowAddDialog">新增客户端</FluentButton>
 
-<FluentDataGrid TItem="ClientAppDto" Items="@apps.AsQueryable()">
-    <PropertyColumn TItem="ClientAppDto" Property="@(x => x.ClientId)" Title="ClientId" />
-    <PropertyColumn TItem="ClientAppDto" Property="@(x => x.DisplayName)" Title="显示名称" />
-    <TemplateColumn TItem="ClientAppDto" Title="重定向URI">
+<FluentDataGrid Items="@apps.AsQueryable()">
+    <PropertyColumn Property="@(x => x.ClientId)" Title="ClientId" />
+    <PropertyColumn Property="@(x => x.DisplayName)" Title="显示名称" />
+    <TemplateColumn Title="重定向URI">
         <ChildContent Context="app">
             @foreach (var uri in app.RedirectUris)
             {
@@ -17,7 +18,7 @@
             }
         </ChildContent>
     </TemplateColumn>
-    <TemplateColumn TItem="ClientAppDto" Title="操作">
+    <TemplateColumn Title="操作">
         <ChildContent Context="app">
             <FluentButton Size="Small" @onclick="() => Edit(app)">编辑</FluentButton>
             <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">删除</FluentButton>
@@ -43,7 +44,6 @@
     private List<ClientAppDto> apps = [];
     private bool dialogOpen;
     private ClientAppEditModel editModel = new();
-    [Inject] public HttpClient Http { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,7 +52,7 @@
 
     private async Task LoadData()
     {
-        apps = await Http.GetFromJsonAsync<List<ClientAppDto>>("/api/application") ?? [];
+        apps = await AppManager.ListAsync() ?? [];
     }
 
     private void ShowAddDialog()
@@ -81,11 +81,11 @@
         }
         if (apps.Any(x => x.ClientId == editModel.ClientId))
         {
-            await Http.PutAsJsonAsync($"/api/application/{editModel.ClientId}", editModel);
+            await AppManager.UpdateAsync(editModel.ClientId!, editModel);
         }
         else
         {
-            await Http.PostAsJsonAsync("/api/application", editModel);
+            await AppManager.CreateAsync(editModel);
         }
         dialogOpen = false;
         await LoadData();
@@ -93,21 +93,7 @@
 
     private async Task Delete(string clientId)
     {
-        await Http.DeleteAsync($"/api/application/{clientId}");
+        await AppManager.DeleteAsync(clientId);
         await LoadData();
-    }
-
-    public class ClientAppDto
-    {
-        public string ClientId { get; set; } = string.Empty;
-        public string DisplayName { get; set; } = string.Empty;
-        public List<string> RedirectUris { get; set; } = [];
-    }
-    public class ClientAppEditModel
-    {
-        public string? ClientId { get; set; }
-        public string? DisplayName { get; set; }
-        public string? ClientSecret { get; set; }
-        public string? RedirectUri { get; set; }
     }
 }
