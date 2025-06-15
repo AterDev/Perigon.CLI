@@ -24,6 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Components\Pages\CleintAppList\Models\" />
 		<Folder Include="Migrations\" />
 		<Folder Include="Share\" />
 	</ItemGroup>

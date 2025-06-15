@@ -2,6 +2,7 @@
 @using IdentityServer.Managers
 @using Microsoft.FluentUI.AspNetCore.Components
 @inject IdentityServer.Managers.ApplicationManager AppManager
+@inject IDialogService DialogService
 
 <PageTitle>客户端管理</PageTitle>
 
@@ -26,23 +27,10 @@
     </TemplateColumn>
 </FluentDataGrid>
 
-<FluentDialog @bind-Open="dialogOpen">
-    <div class="fluent-dialog-title">@(editModel.ClientId == null ? "新增客户端" : "编辑客户端")</div>
-    <div class="fluent-dialog-content">
-        <FluentTextField @bind-Value="editModel.ClientId" Placeholder="ClientId" />
-        <FluentTextField @bind-Value="editModel.DisplayName" Placeholder="显示名称" />
-        <FluentTextField @bind-Value="editModel.ClientSecret" Placeholder="ClientSecret" />
-        <FluentTextField @bind-Value="editModel.RedirectUri" Placeholder="重定向URI" />
-    </div>
-    <div class="fluent-dialog-actions">
-        <FluentButton @onclick="Save">保存</FluentButton>
-        <FluentButton @onclick="() => dialogOpen = false">取消</FluentButton>
-    </div>
-</FluentDialog>
 
 @code {
     private List<ClientAppDto> apps = [];
-    private bool dialogOpen;
+    private bool dialogOpen = false;
     private ClientAppEditModel editModel = new();
 
     protected override async Task OnInitializedAsync()
@@ -55,10 +43,30 @@
         apps = await AppManager.ListAsync() ?? [];
     }
 
-    private void ShowAddDialog()
+    private async Task ShowAddDialog()
     {
-        editModel = new();
-        dialogOpen = true;
+        DialogParameters parameters = new()
+        {
+            Title = $"Add ClientApp",
+            PrimaryAction = "Yes",
+            PrimaryActionEnabled = false,
+            SecondaryAction = "No",
+            Width = "400px",
+            PreventScroll = true
+        };
+
+        var dialog = await DialogService.ShowDialogAsync<AddAppDialog>(parameters);
+
+        DialogResult? result = await dialog.Result;
+
+
+        if (result.Data is not null)
+        {
+            
+        }
+        else
+        {
+        }
     }
 
     private void Edit(ClientAppDto app)

@@ -1,1 +1,15 @@
-<Routes />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/IdentityServer.styles.css" />
+    <link rel="icon" type="image/png" href="~/favicon.png" />
+    <HeadOutlet @rendermode="InteractiveServer"></HeadOutlet>
+</head>
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>
