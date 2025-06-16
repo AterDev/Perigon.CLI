@@ -1,17 +1,23 @@
 @page "/client-apps"
+@inherits PageBase
 @using IdentityServer.Managers
 @using Microsoft.FluentUI.AspNetCore.Components
 @inject IdentityServer.Managers.ApplicationManager AppManager
 @inject IDialogService DialogService
 
-<PageTitle>客户端管理</PageTitle>
+<PageTitle>
+    @Localizer.Get(LanguageKey.ClientApp) @Localizer.Get(LanguageKey.Management)
 
-<FluentButton @onclick="ShowAddDialog">新增客户端</FluentButton>
+</PageTitle>
+
+<FluentButton @onclick="ShowAddDialog">
+    @Localizer.Get(LanguageKey.Add) @Localizer.Get(LanguageKey.ClientApp)
+</FluentButton>
 
 <FluentDataGrid Items="@apps.AsQueryable()">
-    <PropertyColumn Property="@(x => x.ClientId)" Title="ClientId" />
-    <PropertyColumn Property="@(x => x.DisplayName)" Title="显示名称" />
-    <TemplateColumn Title="重定向URI">
+    <PropertyColumn Property="@(x => x.ClientId)" Title="@Localizer.Get(LanguageKey.ClientId)" />
+    <PropertyColumn Property="@(x => x.ClientName)" Title="@Localizer.Get(LanguageKey.ClientName)" />
+    <TemplateColumn Title="@Localizer.Get(LanguageKey.RedirectUris)">
         <ChildContent Context="app">
             @foreach (var uri in app.RedirectUris)
             {
@@ -19,10 +25,10 @@
             }
         </ChildContent>
     </TemplateColumn>
-    <TemplateColumn Title="操作">
+    <TemplateColumn Title="@Localizer.Get(LanguageKey.Actions)">
         <ChildContent Context="app">
-            <FluentButton Size="Small" @onclick="() => Edit(app)">编辑</FluentButton>
-            <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">删除</FluentButton>
+            <FluentButton Size="Small" @onclick="() => Edit(app)">@Localizer.Get(LanguageKey.Edit)</FluentButton>
+            <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">@Localizer.Get(LanguageKey.Delete)</FluentButton>
         </ChildContent>
     </TemplateColumn>
 </FluentDataGrid>
@@ -30,7 +36,6 @@
 
 @code {
     private List<ClientAppDto> apps = [];
-    private bool dialogOpen = false;
     private ClientAppEditModel editModel = new();
 
     protected override async Task OnInitializedAsync()
@@ -47,7 +52,7 @@
     {
         DialogParameters parameters = new()
         {
-            Title = $"Add ClientApp",
+            Title = Localizer.Get(LanguageKey.AddClientApp),
             PrimaryAction = "Yes",
             PrimaryActionEnabled = false,
             SecondaryAction = "No",
@@ -55,10 +60,9 @@
             PreventScroll = true
         };
 
-        var dialog = await DialogService.ShowDialogAsync<AddAppDialog>(parameters);
+        var dialog = await DialogService.ShowDialogAsync<AddClientAppDialog>(parameters);
 
         DialogResult? result = await dialog.Result;
-
 
         if (result.Data is not null)
         {
@@ -74,17 +78,15 @@
         editModel = new ClientAppEditModel
         {
             ClientId = app.ClientId,
-            DisplayName = app.DisplayName,
+            ClientName = app.ClientName,
             RedirectUri = app.RedirectUris.FirstOrDefault() ?? string.Empty
         };
-        dialogOpen = true;
     }
 
     private async Task Save()
     {
         if (string.IsNullOrWhiteSpace(editModel.ClientId))
         {
-            dialogOpen = false;
             return;
         }
         if (apps.Any(x => x.ClientId == editModel.ClientId))
@@ -95,7 +97,6 @@
         {
             await AppManager.CreateAsync(editModel);
         }
-        dialogOpen = false;
         await LoadData();
     }
 

@@ -22,7 +22,7 @@ public class ApplicationManager
             applications.Add(new ClientAppDto
             {
                 ClientId = clientId!,
-                DisplayName = displayName!,
+                ClientName = displayName!,
                 RedirectUris = redirectUris.Select(u => u.ToString()!).ToList()
             });
         }
@@ -35,7 +35,7 @@ public class ApplicationManager
         {
             ClientId = dto.ClientId!,
             ClientSecret = dto.ClientSecret!,
-            DisplayName = dto.DisplayName!,
+            DisplayName = dto.ClientName!,
         };
         if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
         {
@@ -55,7 +55,7 @@ public class ApplicationManager
         {
             ClientId = dto.ClientId ?? clientId,
             ClientSecret = dto.ClientSecret!,
-            DisplayName = dto.DisplayName!,
+            DisplayName = dto.ClientName!,
         };
         if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
         {
@@ -78,14 +78,14 @@ public class ApplicationManager
 public class ClientAppDto
 {
     public string ClientId { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
+    public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
 }
 
 public class ClientAppEditModel
 {
     public string? ClientId { get; set; }
-    public string? DisplayName { get; set; }
+    public string? ClientName { get; set; }
     public string? ClientSecret { get; set; }
     public string? RedirectUri { get; set; }
 }

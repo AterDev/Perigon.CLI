@@ -1,14 +1,21 @@
+@inject Localizer Localizer
 @using Microsoft.FluentUI.AspNetCore.Components
 <nav>
     <ul style="list-style:none; padding:0; margin:0;">
         <li style="margin-bottom:8px;">
-            <NavLink href="/" class="fluent-nav-link" style="width:100%; display:flex; align-items:center; color: #333; text-decoration: none; padding: 8px 12px; border-radius: 4px;" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true" style="margin-right: 8px; color: #333;"></span> 首页
+            <NavLink href="/" class="fluent-nav-link" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true">
+                    @Localizer.Get(LanguageKey.Home)
+                </span>
             </NavLink>
         </li>
         <li>
-            <NavLink href="/client-apps" class="fluent-nav-link" style="width:100%; display:flex; align-items:center; color: #333; text-decoration: none; padding: 8px 12px; border-radius: 4px;">
-                <span class="bi bi-app-indicator-nav-menu" aria-hidden="true" style="margin-right: 8px; color: #333;"></span> 客户端管理
+            <NavLink href="/client-apps" class="fluent-nav-link">
+                <span class="bi bi-app-indicator-nav-menu" aria-hidden="true" style="margin-right: 8px; color: #333;">
+                    @Localizer.Get(LanguageKey.ClientApp)@Localizer.Get(LanguageKey.Management)
+
+
+                </span> 
             </NavLink>
         </li>
     </ul>

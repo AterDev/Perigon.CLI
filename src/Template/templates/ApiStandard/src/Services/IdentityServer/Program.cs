@@ -1,4 +1,5 @@
 using IdentityServer.Components;
+using IdentityServer.Definition;
 using IdentityServer.Definition.EntityFramework;
 using IdentityServer.Managers; // 添加 FluentUI using
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -52,22 +53,33 @@ builder.Services.AddOpenIddict()
 
     });
 
+builder.Services.AddLocalization();
+builder.Services.AddRequestLocalization(options =>
+{
+    // 添加更多语言支持
+    var supportedCultures = new[] { "zh-CN", "en-US" };
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+    options.FallBackToParentCultures = true;
+    options.FallBackToParentUICultures = true;
+    options.ApplyCurrentCultureToResponseHeaders = true;
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddFluentUIComponents(); // 注册 FluentUI 组件服务
+builder.Services.AddHttpClient();
+builder.Services.AddFluentUIComponents()
+    .AddDataGridEntityFrameworkAdapter();
 
-// 注册 ApplicationManager
 builder.Services.AddScoped<ApplicationManager>();
-
-
-// builder.Services.AddControllers(); // 移除 API 控制器注册
+builder.Services.AddScoped<Localizer>();
 
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
-
 app.UseHttpsRedirection();
+app.UseRequestLocalization();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -75,6 +87,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
+app.MapDefaultEndpoints();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

@@ -1,27 +1,48 @@
 @inherits LayoutComponentBase
 @using Microsoft.FluentUI.AspNetCore.Components
-@inject IJSRuntime JSRuntime
+@inject Localizer Localizer
 
-<div style="display: flex; min-height: 100vh;">
-    <nav style="width: 260px; background: var(--neutral-lighter); min-height: 100vh; padding: 16px 0;">
-        <NavMenu />
-    </nav>
-    <main style="flex: 1; display: flex; flex-direction: column;">
-        <div style="display: flex; justify-content: flex-end; padding: 16px 32px 0 0;">
-            <FluentButton Href="https://learn.microsoft.com/aspnet/core/" Target="_blank">About</FluentButton>
-        </div>
-        <FluentCard style="margin: 24px; padding: 24px; min-height: 80vh; flex: 1;">
+<FluentLayout>
+    <FluentHeader Style="height:64px">
+        IdentityServer
+        <FluentSpacer />
+        <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" />
+    </FluentHeader>
+
+    <FluentStack Orientation="Orientation.Horizontal" Width="100%">
+        <FluentNavMenu Width="260" Class="nav-menu-side">
+            <FluentNavLink Icon="@(new Icons.Regular.Size24.Apps())">
+                @Localizer.Get(LanguageKey.ClientApp)
+            </FluentNavLink>
+        </FluentNavMenu>
+        <FluentBodyContent>
             @Body
-        </FluentCard>
+        </FluentBodyContent>
+    </FluentStack>
 
-        <FluentDialogProvider />
-        <FluentToastProvider/>
-        <FluentTooltipProvider/>
-    </main>
-</div>
-
+    <FluentFooter Class="footer">
+        <FluentStack VerticalAlignment="VerticalAlignment.Center">
+            Ater.dry
+            <FluentSpacer />
+            ...
+        </FluentStack>
+        
+    </FluentFooter>
+</FluentLayout>
+<FluentToastProvider />
+<FluentDialogProvider />
+<FluentTooltipProvider />
+<FluentMessageBarProvider />
+<FluentMenuProvider />
 <div id="blazor-error-ui" data-nosnippet>
     <span>An unhandled error has occurred.</span>
-    <a href="" class="reload">Reload</a>
+    <NavLink href="/" class="reload">Reload</NavLink>
     <a class="dismiss">🗙</a>
 </div>
+
+<FluentDesignTheme @bind-Mode="@Mode" StorageName="theme" />
+
+@code
+{
+    public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
+}

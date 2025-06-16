@@ -1,0 +1,53 @@
+@inherits PageBase
+@implements IDialogContentComponent
+
+<FluentDialogHeader ShowDismiss="false">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentLabel Typo="Typography.PaneHeader">
+            @Dialog.Instance.Parameters.Title
+        </FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+    <FluentTextField @bind-Value="AddDto.ClientId" Placeholder="@Localizer.Get(LanguageKey.ClientId)" class="w-100"/>
+    <FluentTextField @bind-Value="AddDto.ClientName" Placeholder="@Localizer.Get(LanguageKey.ClientName)" class="w-100" />
+    <FluentTextField @bind-Value="RedirectUris" Placeholder="@Localizer.Get(LanguageKey.RedirectUris)" Class="w-100"/>
+
+</FluentDialogBody>
+
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@SaveAsync">
+        @Localizer.Get(LanguageKey.Save)
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">
+        @Localizer.Get(LanguageKey.Cancel)
+    </FluentButton>
+</FluentDialogFooter>
+
+
+@code {
+
+    public ClientAppDto AddDto { get; set; } = new();
+
+    public string RedirectUris { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = default!;
+
+    private async Task SaveAsync()
+    {
+        if (!string.IsNullOrEmpty(RedirectUris))
+        {
+            AddDto.RedirectUris = RedirectUris.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+
+        await Dialog.CloseAsync();
+    }
+
+    private async Task CancelAsync()
+    {
+        await Dialog.CancelAsync();
+    }
+
+}
