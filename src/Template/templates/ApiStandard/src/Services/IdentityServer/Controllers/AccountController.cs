@@ -8,29 +8,21 @@ namespace IdentityServer.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AccountController : ControllerBase
+public class AccountController(IdentityServerContext db, LoginManager loginManager) : ControllerBase
 {
-    private readonly IdentityServerContext _db;
-    private readonly LoginManager _loginManager;
-    public AccountController(IdentityServerContext db, LoginManager loginManager)
-    {
-        _db = db;
-        _loginManager = loginManager;
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Account>>> GetAll()
-        => await _db.Accounts.Include(a => a.AccountRoles).ToListAsync();
+        => await db.Accounts.Include(a => a.AccountRoles).ToListAsync();
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Account?>> GetById(Guid id)
-        => await _db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id) is { } acc ? acc : NotFound();
+        => await db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id) is { } acc ? acc : NotFound();
 
     [HttpPost]
     public async Task<ActionResult<Account>> Create(Account account)
     {
-        _db.Accounts.Add(account);
-        await _db.SaveChangesAsync();
+        db.Accounts.Add(account);
+        await db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
     }
 
@@ -42,29 +34,29 @@ public class AccountController : ControllerBase
             return BadRequest();
         }
 
-        _db.Entry(account).State = EntityState.Modified;
-        await _db.SaveChangesAsync();
+        db.Entry(account).State = EntityState.Modified;
+        await db.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var acc = await _db.Accounts.FindAsync(id);
+        var acc = await db.Accounts.FindAsync(id);
         if (acc == null)
         {
             return NotFound();
         }
 
-        _db.Accounts.Remove(acc);
-        await _db.SaveChangesAsync();
+        db.Accounts.Remove(acc);
+        await db.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpPost("{id}/roles")]
     public async Task<IActionResult> SetRoles(Guid id, List<Guid> roleIds)
     {
-        var acc = await _db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id);
+        var acc = await db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id);
         if (acc == null)
         {
             return NotFound();
@@ -75,19 +67,19 @@ public class AccountController : ControllerBase
         {
             acc.AccountRoles.Add(new AccountRole { AccountId = id, RoleId = rid });
         }
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<Managers.LoginResult>> Login([FromBody] LoginRequest request)
     {
-        var user = await _db.Accounts
+        var user = await db.Accounts
             .Include(a => a.AccountRoles)
                 .ThenInclude(ar => ar.Role)
             .FirstOrDefaultAsync(a => a.UserName == request.UserName);
 
-        var result = _loginManager.ValidateLogin(user, request.Password);
+        var result = loginManager.ValidateLogin(user, request.Password);
         if (!result.IsSuccess)
         {
             return result;
@@ -97,8 +89,8 @@ public class AccountController : ControllerBase
         var claims = new List<Claim>
         {
             new("sub", user!.Id.ToString()),
-            new("name", user.UserName),
-            new("role", ConstVal.SuperAdmin)
+            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Role, ConstVal.SuperAdmin)
         };
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);

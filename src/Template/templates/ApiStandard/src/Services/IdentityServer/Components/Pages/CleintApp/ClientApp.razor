@@ -1,10 +1,10 @@
 @page "/client-apps"
 @inherits PageBase
+@attribute [Authorize]
 @using IdentityServer.Managers
 @using Microsoft.FluentUI.AspNetCore.Components
 @inject IdentityServer.Managers.ApplicationManager AppManager
 @inject IDialogService DialogService
-@attribute [AllowAnonymous]
 
 <PageTitle>
     @Localizer.Get(LanguageKey.ClientApp) @Localizer.Get(LanguageKey.Management)

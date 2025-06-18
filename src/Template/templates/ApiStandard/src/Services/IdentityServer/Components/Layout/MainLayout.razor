@@ -1,35 +1,44 @@
 @inherits LayoutComponentBase
 @inject Localizer Localizer
+@using Microsoft.AspNetCore.Components.Authorization
 
-<FluentLayout>
-    <FluentHeader Style="height:64px">
-        <FluentNavLink Href="/">
-            IdentityServer
-        </FluentNavLink>
-        <FluentSpacer />
-        <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" Color="Color.Neutral" />
-    </FluentHeader>
-
-    <FluentStack Orientation="Orientation.Horizontal" Width="100%">
-        <FluentNavMenu Width="260" Class="nav-menu-side">
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.Apps())" Href="/client-apps" Match="NavLinkMatch.All">
-                @Localizer.Get(LanguageKey.ClientApp)
+<CascadingAuthenticationState>
+    <FluentLayout>
+        <FluentHeader Style="height:64px">
+            <FluentNavLink Href="/">
+                IdentityServer
             </FluentNavLink>
-        </FluentNavMenu>
-        <FluentBodyContent Style="padding:4px">
-            @Body
-        </FluentBodyContent>
-    </FluentStack>
-
-    <FluentFooter Class="footer">
-        <FluentStack VerticalAlignment="VerticalAlignment.Center">
-            Ater.dry
             <FluentSpacer />
-            ...
+            <AuthorizeView>
+                <Authorized>
+                    <span>@context.User.Identity?.Name</span>
+                </Authorized>
+            </AuthorizeView>
+            <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" Color="Color.Neutral" />
+        </FluentHeader>
+
+        <FluentStack Orientation="Orientation.Horizontal" Width="100%">
+            <FluentNavMenu Width="260" Class="nav-menu-side">
+                <FluentNavLink Icon="@(new Icons.Regular.Size24.Apps())" Href="/client-apps" Match="NavLinkMatch.All" ForceLoad="true">
+                    @Localizer.Get(LanguageKey.ClientApp)
+                </FluentNavLink>
+            </FluentNavMenu>
+            <FluentBodyContent Style="padding:4px">
+                @Body
+            </FluentBodyContent>
         </FluentStack>
 
-    </FluentFooter>
-</FluentLayout>
+        <FluentFooter Class="footer">
+            <FluentStack VerticalAlignment="VerticalAlignment.Center">
+                Ater.dry
+                <FluentSpacer />
+                ...
+            </FluentStack>
+
+        </FluentFooter>
+    </FluentLayout>
+</CascadingAuthenticationState>
+
 <FluentToastProvider />
 <FluentDialogProvider />
 <FluentTooltipProvider />
