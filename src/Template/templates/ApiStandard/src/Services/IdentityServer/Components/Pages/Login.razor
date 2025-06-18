@@ -1,0 +1,51 @@
+@page "/login"
+@inherits PageBase
+@attribute [AllowAnonymous]
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>登录</PageTitle>
+
+<FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Center">
+    <FluentCard Style="width:350px; padding:32px;">
+        <FluentStack Orientation="Orientation.Vertical" Gap="16">
+            <FluentTextField @bind-Value="UserName" Placeholder="用户名" Required />
+            <FluentTextField @bind-Value="Password" Placeholder="密码" Type="password" Required />
+            <FluentButton Appearance="Appearance.Accent" OnClick="LoginAsync" Disabled="IsLoading">登录</FluentButton>
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <FluentMessageBar MessageBarType="MessageBarType.Error">@ErrorMessage</FluentMessageBar>
+            }
+        </FluentStack>
+    </FluentCard>
+</FluentStack>
+
+@code {
+    private string UserName { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private string? ErrorMessage { get; set; }
+    private bool IsLoading { get; set; }
+
+    private async Task LoginAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+        var response = await Http.PostAsJsonAsync("/api/account/login", new { UserName, Password });
+        var result = await response.Content.ReadFromJsonAsync<LoginResult>();
+        if (result?.IsSuccess == true)
+        {
+            Navigation.NavigateTo("/", true); // 强制刷新页面，让 Cookie 生效
+        }
+        else
+        {
+            ErrorMessage = result?.ErrorMessage ?? "登录失败";
+        }
+        IsLoading = false;
+    }
+
+    public class LoginResult
+    {
+        public bool IsSuccess { get; set; }
+        public string? ErrorMessage { get; set; }
+    }
+}

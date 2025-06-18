@@ -96,13 +96,3 @@ main {
         right: 0.75rem;
         top: 0.5rem;
     }
-
-.nav-menu-side {
-    height: calc(100vh - 112px);
-    overflow-y: auto;
-}
-
-.footer {
-    height: 48px;
-    background: var(--neutral-fill-layer-rest);
-}

@@ -1,4 +1,5 @@
 using OpenIddict.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityServer.Managers;
 
@@ -77,7 +78,12 @@ public class ApplicationManager
 
 public class ClientAppDto
 {
+    [MaxLength(50)]
     public string ClientId { get; set; } = string.Empty;
+
+
+    public string ClientSecret { get; set; } = string.Empty;
+    [MaxLength(50, ErrorMessage = "maxlength 50")]
     public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
 }

@@ -1,8 +1,9 @@
-using IdentityServer.Definition;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 
 namespace IdentityServer.Components.Pages;
 
+[Authorize]
 public class PageBase : ComponentBase
 {
     [Inject]

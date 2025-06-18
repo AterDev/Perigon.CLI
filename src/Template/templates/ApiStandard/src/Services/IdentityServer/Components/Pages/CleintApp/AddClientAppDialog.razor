@@ -10,10 +10,18 @@
 </FluentDialogHeader>
 
 <FluentDialogBody>
-    <FluentTextField @bind-Value="AddDto.ClientId" Placeholder="@Localizer.Get(LanguageKey.ClientId)" class="w-100"/>
-    <FluentTextField @bind-Value="AddDto.ClientName" Placeholder="@Localizer.Get(LanguageKey.ClientName)" class="w-100" />
-    <FluentTextField @bind-Value="RedirectUris" Placeholder="@Localizer.Get(LanguageKey.RedirectUris)" Class="w-100"/>
+    <EditForm Model="@AddDto">
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentTextField @bind-Value="AddDto.ClientName" Placeholder="@Localizer.Get(LanguageKey.ClientName)" class="w-100" Required />
+            <FluentValidationMessage For="() => AddDto.ClientName"></FluentValidationMessage>
 
+            <FluentTextArea Rows="3" @bind-Value="RedirectUris" Placeholder="@Localizer.Get(LanguageKey.RedirectUris)" Class="w-100" Required />
+            <FluentLabel Typo="Typography.Body" Color="Color.Info">
+                @Localizer.Get(LanguageKey.RowValueTip)
+            </FluentLabel>
+            <FluentValidationMessage For="() => AddDto.RedirectUris"></FluentValidationMessage>
+        </FluentStack>
+    </EditForm>
 </FluentDialogBody>
 
 <FluentDialogFooter>
@@ -24,7 +32,6 @@
         @Localizer.Get(LanguageKey.Cancel)
     </FluentButton>
 </FluentDialogFooter>
-
 
 @code {
 

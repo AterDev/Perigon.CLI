@@ -157,6 +157,9 @@
   <data name="RedirectUris" xml:space="preserve">
     <value>回调地址</value>
   </data>
+  <data name="RowValueTip" xml:space="preserve">
+    <value>每行一个值</value>
+  </data>
   <data name="Save" xml:space="preserve">
     <value>保存</value>
   </data>

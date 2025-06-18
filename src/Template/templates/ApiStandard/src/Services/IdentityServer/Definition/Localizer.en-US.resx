@@ -157,6 +157,9 @@
   <data name="RedirectUris" xml:space="preserve">
     <value>RedirectUris</value>
   </data>
+  <data name="RowValueTip" xml:space="preserve">
+    <value>One value per line</value>
+  </data>
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>

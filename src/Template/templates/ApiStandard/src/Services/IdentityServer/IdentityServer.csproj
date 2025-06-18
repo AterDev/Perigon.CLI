@@ -4,6 +4,12 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="Components\Pages\CleintApp\Models\**" />
+	  <Content Remove="Components\Pages\CleintApp\Models\**" />
+	  <EmbeddedResource Remove="Components\Pages\CleintApp\Models\**" />
+	  <None Remove="Components\Pages\CleintApp\Models\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
@@ -25,7 +31,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Components\Pages\CleintApp\Models\" />
 		<Folder Include="Migrations\" />
 		<Folder Include="Share\" />
 	</ItemGroup>

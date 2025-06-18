@@ -1,5 +1,8 @@
 @page "/"
 @inherits PageBase
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
 @using Microsoft.FluentUI.AspNetCore.Components
 <PageTitle>IdentityServer</PageTitle>
 

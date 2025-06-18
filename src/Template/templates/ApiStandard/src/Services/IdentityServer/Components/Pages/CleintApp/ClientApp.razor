@@ -4,13 +4,14 @@
 @using Microsoft.FluentUI.AspNetCore.Components
 @inject IdentityServer.Managers.ApplicationManager AppManager
 @inject IDialogService DialogService
+@attribute [AllowAnonymous]
 
 <PageTitle>
     @Localizer.Get(LanguageKey.ClientApp) @Localizer.Get(LanguageKey.Management)
 
 </PageTitle>
 
-<FluentButton @onclick="ShowAddDialog">
+<FluentButton @onclick="ShowAddDialog" Appearance="Appearance.Accent">
     @Localizer.Get(LanguageKey.Add) @Localizer.Get(LanguageKey.ClientApp)
 </FluentButton>
 

@@ -1,18 +1,21 @@
 using IdentityServer.Definition.Entity;
-using IdentityServer.Definition.EntityFramework;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
-namespace IdentityServer.Controllers.Admin;
+namespace IdentityServer.Controllers;
 
 [ApiController]
-[Route("api/admin/account")]
+[Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly IdentityServerContext _db;
-    public AccountController(IdentityServerContext db)
+    private readonly LoginManager _loginManager;
+    public AccountController(IdentityServerContext db, LoginManager loginManager)
     {
         _db = db;
+        _loginManager = loginManager;
     }
 
     [HttpGet]
@@ -74,5 +77,44 @@ public class AccountController : ControllerBase
         }
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<Managers.LoginResult>> Login([FromBody] LoginRequest request)
+    {
+        var user = await _db.Accounts
+            .Include(a => a.AccountRoles)
+                .ThenInclude(ar => ar.Role)
+            .FirstOrDefaultAsync(a => a.UserName == request.UserName);
+
+        var result = _loginManager.ValidateLogin(user, request.Password);
+        if (!result.IsSuccess)
+        {
+            return result;
+        }
+
+        // 登录成功，写 Cookie
+        var claims = new List<Claim>
+        {
+            new("sub", user!.Id.ToString()),
+            new("name", user.UserName),
+            new("role", ConstVal.SuperAdmin)
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        return result;
+    }
+
+    public class LoginRequest
+    {
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+    public class LoginResult
+    {
+        public bool IsSuccess { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

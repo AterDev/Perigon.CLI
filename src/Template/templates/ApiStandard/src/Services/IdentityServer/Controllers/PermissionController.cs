@@ -1,11 +1,10 @@
 using IdentityServer.Definition.Entity;
-using IdentityServer.Definition.EntityFramework;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IdentityServer.Controllers.Admin;
+namespace IdentityServer.Controllers;
 
 [ApiController]
-[Route("api/admin/permission")]
+[Route("api/[controller]")]
 public class PermissionController : ControllerBase
 {
     private readonly IdentityServerContext _db;

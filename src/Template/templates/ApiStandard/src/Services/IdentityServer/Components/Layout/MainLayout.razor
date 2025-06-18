@@ -1,21 +1,22 @@
 @inherits LayoutComponentBase
-@using Microsoft.FluentUI.AspNetCore.Components
 @inject Localizer Localizer
 
 <FluentLayout>
     <FluentHeader Style="height:64px">
-        IdentityServer
+        <FluentNavLink Href="/">
+            IdentityServer
+        </FluentNavLink>
         <FluentSpacer />
-        <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" />
+        <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" Color="Color.Neutral" />
     </FluentHeader>
 
     <FluentStack Orientation="Orientation.Horizontal" Width="100%">
         <FluentNavMenu Width="260" Class="nav-menu-side">
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.Apps())">
+            <FluentNavLink Icon="@(new Icons.Regular.Size24.Apps())" Href="/client-apps" Match="NavLinkMatch.All">
                 @Localizer.Get(LanguageKey.ClientApp)
             </FluentNavLink>
         </FluentNavMenu>
-        <FluentBodyContent>
+        <FluentBodyContent Style="padding:4px">
             @Body
         </FluentBodyContent>
     </FluentStack>
@@ -26,7 +27,7 @@
             <FluentSpacer />
             ...
         </FluentStack>
-        
+
     </FluentFooter>
 </FluentLayout>
 <FluentToastProvider />

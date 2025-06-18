@@ -2,6 +2,8 @@ namespace IdentityServer.Definition;
 
 public class ConstVal
 {
+    public const string SuperAdmin = "SuperAdmin";
+    public const string DefaultAdminUserName = "admin";
 }
 
 public static class LanguageKey
@@ -21,4 +23,5 @@ public static class LanguageKey
     public const string Actions = "Actions";
     public const string Management = "Management";
     public const string Cancel = "Cancel";
+    public const string RowValueTip = "RowValueTip";
 }
