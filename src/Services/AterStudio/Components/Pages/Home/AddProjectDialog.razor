@@ -2,12 +2,14 @@
 @implements IDialogContentComponent<AddProjectDto>
 
 <p>仅支持.NET或Node类型项目</p>
-<FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
-    <FluentTextField @bind-Value="Content.ProjectName" Placeholder="项目名称" Style="width: 100%"/>
-    <FluentTextField @bind-Value="Content.ProjectDirectory" Placeholder="项目目录" Style="width: 100%"/>
-</FluentStack>
+<FluentEditForm Model="Content">
+    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center">
+        <FluentTextField @bind-Value="Content.ProjectName" Placeholder="项目名称" Style="width: 100%"/>
+        <FluentTextField @bind-Value="Content.ProjectDirectory" Placeholder="项目目录" Style="width: 100%"/>
+    </FluentStack>
+</FluentEditForm>
+
 
 @code {
-    [Parameter]
-    public AddProjectDto Content { get; set; } = null!;
+    [Parameter] public AddProjectDto Content { get; set; } = null!;
 }

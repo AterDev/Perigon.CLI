@@ -1,7 +1,9 @@
-﻿namespace AterStudio.Components;
+﻿using Microsoft.Build.Framework;
+
+namespace AterStudio.Components;
 
 public class AddProjectDto
 {
-    public string? ProjectName { get; set; }
-    public string? ProjectDirectory { get; set; }
+    [Required] public string? ProjectName { get; set; }
+    [Required] public string? ProjectDirectory { get; set; }
 }
