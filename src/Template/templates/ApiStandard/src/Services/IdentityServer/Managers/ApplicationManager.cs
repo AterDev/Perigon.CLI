@@ -1,4 +1,5 @@
 using OpenIddict.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityServer.Managers;
 
@@ -11,18 +12,18 @@ public class ApplicationManager
         _applicationManager = applicationManager;
     }
 
-    public async Task<List<ClientAppDto>> ListAsync()
+    public async Task<List<ClientAppItemDto>> ListAsync()
     {
-        var applications = new List<ClientAppDto>();
+        var applications = new List<ClientAppItemDto>();
         await foreach (var app in _applicationManager.ListAsync())
         {
             var clientId = await _applicationManager.GetClientIdAsync(app);
             var displayName = await _applicationManager.GetDisplayNameAsync(app);
             var redirectUris = await _applicationManager.GetRedirectUrisAsync(app);
-            applications.Add(new ClientAppDto
+            applications.Add(new ClientAppItemDto
             {
                 ClientId = clientId!,
-                DisplayName = displayName!,
+                ClientName = displayName!,
                 RedirectUris = redirectUris.Select(u => u.ToString()!).ToList()
             });
         }
@@ -35,7 +36,7 @@ public class ApplicationManager
         {
             ClientId = dto.ClientId!,
             ClientSecret = dto.ClientSecret!,
-            DisplayName = dto.DisplayName!,
+            DisplayName = dto.ClientName!,
         };
         if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
         {
@@ -55,7 +56,7 @@ public class ApplicationManager
         {
             ClientId = dto.ClientId ?? clientId,
             ClientSecret = dto.ClientSecret!,
-            DisplayName = dto.DisplayName!,
+            DisplayName = dto.ClientName!,
         };
         if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
         {
@@ -75,17 +76,31 @@ public class ApplicationManager
     }
 }
 
-public class ClientAppDto
+
+public class ClientAppItemDto
 {
+    [MaxLength(50)]
     public string ClientId { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    [MaxLength(50, ErrorMessage = "")]
+    public string ClientName { get; set; } = string.Empty;
+    public List<string> RedirectUris { get; set; } = [];
+}
+
+public class ClientAppAddDto
+{
+    [MaxLength(50)]
+    public string ClientId { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    [MaxLength(50, ErrorMessage = "The max length is 50")]
+    public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
 }
 
 public class ClientAppEditModel
 {
     public string? ClientId { get; set; }
-    public string? DisplayName { get; set; }
+    public string? ClientName { get; set; }
     public string? ClientSecret { get; set; }
     public string? RedirectUri { get; set; }
 }

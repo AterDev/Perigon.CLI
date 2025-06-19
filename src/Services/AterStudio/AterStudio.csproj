@@ -5,7 +5,6 @@
     <IsPackable>false</IsPackable>
     <SpaRoot>../ClientApp/</SpaRoot>
     <SpaProxyServerUrl>http://localhost:9160</SpaProxyServerUrl>
-    <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Version>10.0.0-beta1</Version>
@@ -40,21 +39,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\StudioMod\StudioMod.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Components\Shared\Models\" />
-  </ItemGroup>
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -c production" />
-    <!-- Include the newly-built files in the publish output -->
-    <ItemGroup>
-      <DistFiles Include="$(SpaRoot)dist\browser\**" />
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-        <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-  </Target>
+
 </Project>

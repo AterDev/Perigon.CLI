@@ -8,7 +8,7 @@
 
 * 主要语言是:C# 13，前端是TypeScript，在代码提示时使用最新语法
 * 项目基于ASP.NET Core 9.0
-* 前端使用blaozr和fluentui-blazor
+* 前端使用**blazor server**(.NET9)和fluentui-blazor(4.x)
 
 **代码风格偏好**
 
@@ -16,6 +16,9 @@
 * 使用[]来表示数据集合的默认值
 * if for 等语句必须使用大括号
 * 优先使用模式匹配
+* 业务逻辑代码通常封装在`Manager`类中实现，而不是直接在控制器中实现
+* 模型定义通常在`Definition\Entity`中定义
+* 要注意多语言支持，`Localizer`是封装的方法，以支持多语言输出，键通常会在`ConstVal.cs`中定义成常量。
 
 **重要的文件和目录:**
 
@@ -29,10 +32,4 @@
 
 **Agent及代码生成**
 
-当使用代码生成或Agent模式时，如果是fluentui-blazor相关问题，可参考:
-* 官方文档: https://www.fluentui-blazor.net/
-* github: https://github.com/microsoft/fluentui-blazor
-
-
-如果是`OpenIdDict`相关问题，可参考:
-* https://documentation.openiddict.com/integrations/aspnet-core
+对于Agent模式下 生成.NET项目的代码，请先在错误列表/输出日志/编辑器报错中检查报错，并尝试修复，而不是通过build获取错误信息进行修复。

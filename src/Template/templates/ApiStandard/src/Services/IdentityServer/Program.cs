@@ -1,6 +1,5 @@
-using IdentityServer.Components;
-using IdentityServer.Definition.EntityFramework;
-using IdentityServer.Managers; // 添加 FluentUI using
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using ServiceDefaults;
 
@@ -52,30 +51,69 @@ builder.Services.AddOpenIddict()
 
     });
 
+builder.Services.AddLocalization();
+builder.Services.AddRequestLocalization(options =>
+{
+    // 添加更多语言支持
+    var supportedCultures = new[] { "zh-CN", "en-US" };
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+    options.FallBackToParentCultures = true;
+    options.FallBackToParentUICultures = true;
+    options.ApplyCurrentCultureToResponseHeaders = true;
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddFluentUIComponents(); // 注册 FluentUI 组件服务
+builder.Services.AddScoped<HttpClient>(sp =>
+{
+    var nav = sp.GetRequiredService<NavigationManager>();
+    return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+});
 
-// 注册 ApplicationManager
+builder.Services.AddFluentUIComponents()
+    .AddDataGridEntityFrameworkAdapter();
+
 builder.Services.AddScoped<ApplicationManager>();
+builder.Services.AddScoped<LoginManager>();
+builder.Services.AddScoped<Localizer>();
+builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.Name = ".AspNetCore.IdentityServerCookie";
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.LoginPath = "/login";
+        options.AccessDeniedPath = "/login";
+    });
 
-// builder.Services.AddControllers(); // 移除 API 控制器注册
+builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
-
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+
+app.UseRouting();
+app.UseRequestLocalization();
 
 app.UseAntiforgery();
 app.MapStaticAssets();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.MapDefaultEndpoints();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// initialize user & SuperAdmin role
+await IdentityServer.Init.EnsureAdminAndSuperAdminAsync(app.Services);
 
 app.Run();

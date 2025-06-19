@@ -25,9 +25,9 @@ builder.AddProject<Projects.Http_API>("http-api")
     .WithReference(cache)
     .WaitFor(cache);
 
-builder.AddProject<Projects.IdentityServer>("identityserver")
-    .WaitFor(devDb)
-    .WithReference(devDb);
+//builder.AddProject<Projects.IdentityServer>("identityserver")
+//    .WaitFor(devDb)
+//    .WithReference(devDb);
 
 builder.AddProject<Projects.MigrationService>("migrationservice")
     .WaitFor(devDb)

@@ -1,12 +1,11 @@
 @page "/"
+@inherits PageBase
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
 @using Microsoft.FluentUI.AspNetCore.Components
 <PageTitle>IdentityServer</PageTitle>
 
-<FluentStack Style="max-width: 600px; margin: 0 auto; padding-top: 48px;" Gap="16">
-    <FluentCard>
-        <FluentText Typography="TitleLarge">欢迎使用 IdentityServer</FluentText>
-        <FluentText Typography="Body">本系统基于 OpenIddict，支持 OAuth2 统一认证与客户端管理。</FluentText>
-        <FluentButton Href="client-apps" Style="margin-top: 16px;">管理客户端</FluentButton>
-    </FluentCard>
-</FluentStack>
-
+<h1>
+    Home
+</h1>
