@@ -15,7 +15,7 @@
     @Localizer.Get(LanguageKey.Add) @Localizer.Get(LanguageKey.ClientApp)
 </FluentButton>
 
-<FluentDataGrid Items="@apps.AsQueryable()">
+<FluentDataGrid Items="@apps.AsQueryable()" Style="height:auto">
     <PropertyColumn Property="@(x => x.ClientId)" Title="@Localizer.Get(LanguageKey.ClientId)" />
     <PropertyColumn Property="@(x => x.ClientName)" Title="@Localizer.Get(LanguageKey.ClientName)" />
     <TemplateColumn Title="@Localizer.Get(LanguageKey.RedirectUris)">

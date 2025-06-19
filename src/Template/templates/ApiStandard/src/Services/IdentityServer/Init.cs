@@ -35,7 +35,7 @@ public static class Init
                     UserName = ConstVal.DefaultAdminUserName,
                     HashPassword = hash,
                     HashSalt = salt,
-                    Email = "admin@local.dev",
+                    Email = "ater@dusi.dev",
                     AccountRoles = new List<AccountRole>()
                 };
                 db.Accounts.Add(adminUser);
@@ -51,7 +51,7 @@ public static class Init
                 });
                 await db.SaveChangesAsync();
             }
-            logger.LogInformation("已初始化 admin 用户和 SuperAdmin 角色，默认密码：admin");
+            logger.LogInformation("Initialized user: admin, default password: admin");
         }
     }
 }

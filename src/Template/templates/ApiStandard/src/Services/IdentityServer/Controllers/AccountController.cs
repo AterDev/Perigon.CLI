@@ -72,7 +72,7 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<Managers.LoginResult>> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromForm] LoginRequest request)
     {
         var user = await db.Accounts
             .Include(a => a.AccountRoles)
@@ -82,7 +82,8 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
         var result = loginManager.ValidateLogin(user, request.Password);
         if (!result.IsSuccess)
         {
-            return result;
+            // 登录失败，重定向回登录页并附带错误信息
+            return Redirect($"/login?error={Uri.EscapeDataString(result.ErrorMessage ?? "登录失败")}");
         }
 
         // 登录成功，写 Cookie
@@ -96,7 +97,8 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
         var principal = new ClaimsPrincipal(identity);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        return result;
+        // 重定向到首页
+        return Redirect("/");
     }
 
     public class LoginRequest

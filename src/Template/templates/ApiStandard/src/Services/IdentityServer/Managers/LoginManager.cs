@@ -5,17 +5,6 @@ namespace IdentityServer.Managers;
 
 public class LoginManager
 {
-    private readonly IdentityServerContext _db;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILogger<LoginManager> _logger;
-    public LoginManager(IdentityServerContext db, IHttpContextAccessor httpContextAccessor, ILogger<LoginManager> logger)
-    {
-        _db = db;
-        _httpContextAccessor = httpContextAccessor;
-        _logger = logger;
-    }
-
-
     public LoginResult ValidateLogin(Account? user, string password)
     {
         if (user is null)

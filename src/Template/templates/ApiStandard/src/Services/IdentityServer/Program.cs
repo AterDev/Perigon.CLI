@@ -84,6 +84,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
+        options.Cookie.Name = ".AspNetCore.IdentityServerCookie";
+        options.Cookie.SameSite = SameSiteMode.Lax;
         options.LoginPath = "/login";
         options.AccessDeniedPath = "/login";
     });
@@ -111,7 +113,7 @@ app.MapDefaultEndpoints();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// 初始化 admin 用户和 SuperAdmin 角色
+// initialize user & SuperAdmin role
 await IdentityServer.Init.EnsureAdminAndSuperAdminAsync(app.Services);
 
 app.Run();

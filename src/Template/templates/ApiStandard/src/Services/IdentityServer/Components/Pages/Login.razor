@@ -8,15 +8,18 @@
 
 <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Center">
     <FluentCard Style="width:350px; padding:32px;">
-        <FluentStack Orientation="Orientation.Vertical" Gap="16">
-            <FluentTextField @bind-Value="UserName" Placeholder="用户名" Required />
-            <FluentTextField @bind-Value="Password" Placeholder="密码" Type="password" Required />
-            <FluentButton Appearance="Appearance.Accent" OnClick="LoginAsync" Disabled="IsLoading">登录</FluentButton>
-            @if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                <FluentMessageBar MessageBarType="MessageBarType.Error">@ErrorMessage</FluentMessageBar>
-            }
-        </FluentStack>
+
+        <form action="/api/account/login" method="post">
+            <FluentStack Orientation="Orientation.Vertical" Gap="16">
+                <FluentTextField @bind-Value="UserName" Placeholder="用户名" Required  Name="UserName"/>
+                <FluentTextField @bind-Value="Password" Placeholder="密码" Type="password" Required  Name="Password"/>
+                <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" Disabled="IsLoading">登录</FluentButton>
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <FluentMessageBar MessageBarType="MessageBarType.Error">@ErrorMessage</FluentMessageBar>
+                }
+            </FluentStack>
+        </form>
     </FluentCard>
 </FluentStack>
 
@@ -34,11 +37,12 @@
         var result = await response.Content.ReadFromJsonAsync<LoginResult>();
         if (result?.IsSuccess == true)
         {
-            Navigation.NavigateTo("/", true); // 强制刷新页面，让 Cookie 生效
+            Console.WriteLine("login success");
+            // Navigation.NavigateTo("/", true); // 强制刷新页面，让 Cookie 生效
         }
         else
         {
-            ErrorMessage = result?.ErrorMessage ?? "登录失败";
+            ErrorMessage = result?.ErrorMessage ?? "Login failed";
         }
         IsLoading = false;
     }
