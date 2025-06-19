@@ -8,36 +8,55 @@
 
 <PageTitle>
     @Localizer.Get(LanguageKey.ClientApp) @Localizer.Get(LanguageKey.Management)
-
 </PageTitle>
 
-<FluentButton @onclick="ShowAddDialog" Appearance="Appearance.Accent">
-    @Localizer.Get(LanguageKey.Add) @Localizer.Get(LanguageKey.ClientApp)
-</FluentButton>
+<FluentStack Orientation="Orientation.Horizontal">
+    <FluentButton @onclick="ShowAddDialog" Appearance="Appearance.Accent">
+        @Localizer.Get(LanguageKey.Add) @Localizer.Get(LanguageKey.ClientApp)
+    </FluentButton>
+    <FluentSpacer />
+    <FluentPaginator State="@pagination" SummaryTemplate="@template" />
+</FluentStack>
 
-<FluentDataGrid Items="@apps.AsQueryable()" Style="height:auto">
-    <PropertyColumn Property="@(x => x.ClientId)" Title="@Localizer.Get(LanguageKey.ClientId)" />
-    <PropertyColumn Property="@(x => x.ClientName)" Title="@Localizer.Get(LanguageKey.ClientName)" />
-    <TemplateColumn Title="@Localizer.Get(LanguageKey.RedirectUris)">
-        <ChildContent Context="app">
-            @foreach (var uri in app.RedirectUris)
-            {
-                <div>@uri</div>
-            }
-        </ChildContent>
-    </TemplateColumn>
-    <TemplateColumn Title="@Localizer.Get(LanguageKey.Actions)">
-        <ChildContent Context="app">
-            <FluentButton Size="Small" @onclick="() => Edit(app)">@Localizer.Get(LanguageKey.Edit)</FluentButton>
-            <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">@Localizer.Get(LanguageKey.Delete)</FluentButton>
-        </ChildContent>
-    </TemplateColumn>
+<FluentDataGrid Items="@apps.AsQueryable()"
+                @ref="grid"
+                AutoFit="true"
+                ResizableColumns="true"
+                Style="height:auto">
+    <ChildContent>
+        <PropertyColumn Property="@(x => x.ClientId)" Title="@Localizer.Get(LanguageKey.ClientId)" />
+        <PropertyColumn Property="@(x => x.ClientName)" Title="@Localizer.Get(LanguageKey.ClientName)" Sortable="true" />
+        <TemplateColumn Title="@Localizer.Get(LanguageKey.RedirectUris)">
+            <ChildContent Context="app">
+                @foreach (var uri in app.RedirectUris)
+                {
+                    <div>@uri</div>
+                }
+            </ChildContent>
+        </TemplateColumn>
+        <TemplateColumn Title="@Localizer.Get(LanguageKey.Actions)">
+            <ChildContent Context="app">
+                <FluentButton Size="Small" @onclick="() => Edit(app)">@Localizer.Get(LanguageKey.Edit)</FluentButton>
+                <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">@Localizer.Get(LanguageKey.Delete)</FluentButton>
+            </ChildContent>
+        </TemplateColumn>
+    </ChildContent>
+    <EmptyContent>
+        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="10">
+            <FluentIcon Value="@(new Icons.Filled.Size24.Crown())" Color="@Color.Accent" />
+            <div>Nothing to see here. Carry on!</div>
+        </FluentStack>
+    </EmptyContent>
 </FluentDataGrid>
 
 
 @code {
-    private List<ClientAppDto> apps = [];
+    FluentDataGrid<ClientAppItemDto>? grid;
+    private List<ClientAppItemDto> apps = [];
     private ClientAppEditModel editModel = new();
+    private RenderFragment template = @<span />;
+
+    PaginationState pagination = new PaginationState() { ItemsPerPage = 12 };
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,7 +65,9 @@
 
     private async Task LoadData()
     {
+        grid?.SetLoadingState(true);
         apps = await AppManager.ListAsync() ?? [];
+        grid?.SetLoadingState(false);
     }
 
     private async Task ShowAddDialog()
@@ -67,14 +88,14 @@
 
         if (result.Data is not null)
         {
-            
+
         }
         else
         {
         }
     }
 
-    private void Edit(ClientAppDto app)
+    private void Edit(ClientAppItemDto app)
     {
         editModel = new ClientAppEditModel
         {

@@ -12,15 +12,15 @@ public class ApplicationManager
         _applicationManager = applicationManager;
     }
 
-    public async Task<List<ClientAppDto>> ListAsync()
+    public async Task<List<ClientAppItemDto>> ListAsync()
     {
-        var applications = new List<ClientAppDto>();
+        var applications = new List<ClientAppItemDto>();
         await foreach (var app in _applicationManager.ListAsync())
         {
             var clientId = await _applicationManager.GetClientIdAsync(app);
             var displayName = await _applicationManager.GetDisplayNameAsync(app);
             var redirectUris = await _applicationManager.GetRedirectUrisAsync(app);
-            applications.Add(new ClientAppDto
+            applications.Add(new ClientAppItemDto
             {
                 ClientId = clientId!,
                 ClientName = displayName!,
@@ -76,14 +76,23 @@ public class ApplicationManager
     }
 }
 
-public class ClientAppDto
+
+public class ClientAppItemDto
 {
     [MaxLength(50)]
     public string ClientId { get; set; } = string.Empty;
-
-
     public string ClientSecret { get; set; } = string.Empty;
-    [MaxLength(50, ErrorMessage = "maxlength 50")]
+    [MaxLength(50, ErrorMessage = "")]
+    public string ClientName { get; set; } = string.Empty;
+    public List<string> RedirectUris { get; set; } = [];
+}
+
+public class ClientAppAddDto
+{
+    [MaxLength(50)]
+    public string ClientId { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    [MaxLength(50, ErrorMessage = "The max length is 50")]
     public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
 }
