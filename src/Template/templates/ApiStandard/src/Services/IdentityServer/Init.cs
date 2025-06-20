@@ -11,6 +11,12 @@ public static class Init
         var db = scope.ServiceProvider.GetRequiredService<IdentityServerContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Init");
 
+        if (!await db.Database.CanConnectAsync())
+        {
+            logger.LogWarning("Database connection failed, skipping admin initialization.");
+            return;
+        }
+
         var adminUser = await db.Accounts.FirstOrDefaultAsync(a => a.UserName == ConstVal.DefaultAdminUserName);
         var superAdminRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == ConstVal.SuperAdmin);
 
@@ -41,7 +47,7 @@ public static class Init
                 db.Accounts.Add(adminUser);
                 await db.SaveChangesAsync();
             }
-            // 关联 admin 用户和 SuperAdmin 角色
+
             if (!db.AccountRoles.Any(ar => ar.AccountId == adminUser.Id && ar.RoleId == superAdminRole.Id))
             {
                 db.AccountRoles.Add(new AccountRole

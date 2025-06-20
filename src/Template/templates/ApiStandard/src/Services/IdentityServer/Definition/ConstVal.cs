@@ -24,4 +24,6 @@ public static class LanguageKey
     public const string Management = "Management";
     public const string Cancel = "Cancel";
     public const string RowValueTip = "RowValueTip";
+    public const string Success = "Success";
+    public const string Failed = "Failed";
 }

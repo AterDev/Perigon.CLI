@@ -151,6 +151,9 @@
   <data name="Export" xml:space="preserve">
     <value>导出</value>
   </data>
+  <data name="Failed" xml:space="preserve">
+    <value>失败</value>
+  </data>
   <data name="Management" xml:space="preserve">
     <value>管理</value>
   </data>
@@ -162,5 +165,8 @@
   </data>
   <data name="Save" xml:space="preserve">
     <value>保存</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>成功</value>
   </data>
 </root>

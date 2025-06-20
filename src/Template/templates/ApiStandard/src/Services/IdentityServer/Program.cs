@@ -76,6 +76,8 @@ builder.Services.AddScoped<HttpClient>(sp =>
 builder.Services.AddFluentUIComponents()
     .AddDataGridEntityFrameworkAdapter();
 
+builder.Services.AddSingleton<ToastService>();
+
 builder.Services.AddScoped<ApplicationManager>();
 builder.Services.AddScoped<LoginManager>();
 builder.Services.AddScoped<Localizer>();
@@ -88,6 +90,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.LoginPath = "/login";
         options.AccessDeniedPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
     });
 
 builder.Services.AddCascadingAuthenticationState();
@@ -97,7 +101,6 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-
 
 app.UseRouting();
 app.UseRequestLocalization();
