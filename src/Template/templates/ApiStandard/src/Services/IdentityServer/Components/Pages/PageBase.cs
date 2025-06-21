@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using Microsoft.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace IdentityServer.Components.Pages;
 
@@ -7,8 +10,36 @@ public class PageBase : ComponentBase
     [Inject]
     protected Localizer Localizer { get; set; } = default!;
 
-    protected void ShowMessage(string message)
+    [Inject]
+    protected IToastService ToastService { get; set; } = default!;
+
+    public JsonSerializerOptions IndentedJsonOptions { get; } = new()
     {
-        // 实现通用消息显示逻辑
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    /// <summary>
+    /// 用于展示多个语言键对应的文本
+    /// </summary>
+    /// <param name="key1"></param>
+    /// <param name="key2"></param>
+    /// <param name="separator"></param>
+    /// <returns></returns>
+    public string Lang(string key1, string key2, string? separator = "")
+    {
+        var value1 = Localizer.Get(key1);
+        var value2 = Localizer.Get(key2);
+        return string.IsNullOrEmpty(separator) ? $"{value1}{value2}" : $"{value1}{separator}{value2}";
+    }
+
+    public string Lang(string key)
+    {
+        return Localizer.Get(key);
+    }
+
+    public string ToJson(object obj)
+    {
+        return JsonSerializer.Serialize(obj, IndentedJsonOptions);
     }
 }

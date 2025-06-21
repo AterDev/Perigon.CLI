@@ -7,12 +7,12 @@
 @inject IDialogService DialogService
 
 <PageTitle>
-    @Localizer.Get(LanguageKey.ClientApp) @Localizer.Get(LanguageKey.Management)
+    @Lang(LanguageKey.ClientApp, LanguageKey.Management, " ")
 </PageTitle>
 
 <FluentStack Orientation="Orientation.Horizontal">
     <FluentButton @onclick="ShowAddDialog" Appearance="Appearance.Accent">
-        @Localizer.Get(LanguageKey.Add) @Localizer.Get(LanguageKey.ClientApp)
+        @Lang(LanguageKey.Add, LanguageKey.ClientApp, " ")
     </FluentButton>
     <FluentSpacer />
     <FluentPaginator State="@pagination" SummaryTemplate="@template" />
@@ -24,9 +24,9 @@
                 ResizableColumns="true"
                 Style="height:auto">
     <ChildContent>
-        <PropertyColumn Property="@(x => x.ClientId)" Title="@Localizer.Get(LanguageKey.ClientId)" />
-        <PropertyColumn Property="@(x => x.ClientName)" Title="@Localizer.Get(LanguageKey.ClientName)" Sortable="true" />
-        <TemplateColumn Title="@Localizer.Get(LanguageKey.RedirectUris)">
+        <PropertyColumn Property="@(x => x.ClientId)" Title="@Lang(LanguageKey.ClientId)" />
+        <PropertyColumn Property="@(x => x.ClientName)" Title="@Lang(LanguageKey.ClientName)" Sortable="true" />
+        <TemplateColumn Title="@Lang(LanguageKey.RedirectUris)">
             <ChildContent Context="app">
                 @foreach (var uri in app.RedirectUris)
                 {
@@ -34,10 +34,10 @@
                 }
             </ChildContent>
         </TemplateColumn>
-        <TemplateColumn Title="@Localizer.Get(LanguageKey.Actions)">
+        <TemplateColumn Title="@Lang(LanguageKey.Actions)">
             <ChildContent Context="app">
-                <FluentButton Size="Small" @onclick="() => Edit(app)">@Localizer.Get(LanguageKey.Edit)</FluentButton>
-                <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">@Localizer.Get(LanguageKey.Delete)</FluentButton>
+                <FluentButton Size="Small" @onclick="() => Edit(app)">@Lang(LanguageKey.Edit)</FluentButton>
+                <FluentButton Size="Small" @onclick="() => Delete(app.ClientId)">@Lang(LanguageKey.Delete)</FluentButton>
             </ChildContent>
         </TemplateColumn>
     </ChildContent>
@@ -53,7 +53,7 @@
 @code {
     FluentDataGrid<ClientAppItemDto>? grid;
     private List<ClientAppItemDto> apps = [];
-    private ClientAppEditModel editModel = new();
+    private ClientAppEditDto editModel = new();
     private RenderFragment template = @<span />;
 
     PaginationState pagination = new PaginationState() { ItemsPerPage = 12 };
@@ -82,44 +82,28 @@
             PreventScroll = true
         };
 
-        var dialog = await DialogService.ShowDialogAsync<AddClientAppDialog>(parameters);
+        var dialog = await DialogService.ShowDialogAsync<AddClientApp>(parameters);
 
         DialogResult? result = await dialog.Result;
-
         if (result.Data is not null)
         {
-
+            ToastService.ShowError(Lang(LanguageKey.Add, LanguageKey.Failed));
         }
         else
         {
+            ToastService.ShowSuccess(Lang(LanguageKey.Add, LanguageKey.Success));
+            await LoadData();
         }
     }
 
     private void Edit(ClientAppItemDto app)
     {
-        editModel = new ClientAppEditModel
+        editModel = new ClientAppEditDto
         {
             ClientId = app.ClientId,
             ClientName = app.ClientName,
             RedirectUri = app.RedirectUris.FirstOrDefault() ?? string.Empty
         };
-    }
-
-    private async Task Save()
-    {
-        if (string.IsNullOrWhiteSpace(editModel.ClientId))
-        {
-            return;
-        }
-        if (apps.Any(x => x.ClientId == editModel.ClientId))
-        {
-            await AppManager.UpdateAsync(editModel.ClientId!, editModel);
-        }
-        else
-        {
-            await AppManager.CreateAsync(editModel);
-        }
-        await LoadData();
     }
 
     private async Task Delete(string clientId)

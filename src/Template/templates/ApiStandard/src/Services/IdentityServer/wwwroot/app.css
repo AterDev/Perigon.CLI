@@ -15,8 +15,12 @@ body {
     width: 100% !important;
 }
 
+.header {
+    height: 56px;
+}
+
 .nav-menu-side {
-    height: calc(100vh - 112px);
+    height: calc(100vh - 104px);
     overflow-y: auto;
 }
 

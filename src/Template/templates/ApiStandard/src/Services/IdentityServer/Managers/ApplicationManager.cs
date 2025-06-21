@@ -1,25 +1,23 @@
-using OpenIddict.Abstractions;
 using System.ComponentModel.DataAnnotations;
+
+using Ater.Common.Utils;
+
+using OpenIddict.Abstractions;
 
 namespace IdentityServer.Managers;
 
-public class ApplicationManager
+public class ApplicationManager(
+    IOpenIddictApplicationManager applicationManager,
+    ILogger<ApplicationManager> logger) : ManagerBase(logger)
 {
-    private readonly IOpenIddictApplicationManager _applicationManager;
-
-    public ApplicationManager(IOpenIddictApplicationManager applicationManager)
-    {
-        _applicationManager = applicationManager;
-    }
-
     public async Task<List<ClientAppItemDto>> ListAsync()
     {
         var applications = new List<ClientAppItemDto>();
-        await foreach (var app in _applicationManager.ListAsync())
+        await foreach (var app in applicationManager.ListAsync())
         {
-            var clientId = await _applicationManager.GetClientIdAsync(app);
-            var displayName = await _applicationManager.GetDisplayNameAsync(app);
-            var redirectUris = await _applicationManager.GetRedirectUrisAsync(app);
+            var clientId = await applicationManager.GetClientIdAsync(app);
+            var displayName = await applicationManager.GetDisplayNameAsync(app);
+            var redirectUris = await applicationManager.GetRedirectUrisAsync(app);
             applications.Add(new ClientAppItemDto
             {
                 ClientId = clientId!,
@@ -30,24 +28,40 @@ public class ApplicationManager
         return applications;
     }
 
-    public async Task CreateAsync(ClientAppEditModel dto)
+    public async Task<object> CreateAsync(ClientAppAddDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.ClientId))
+        {
+            dto.ClientId = Guid.NewGuid().ToString("N").Substring(0, 32);
+        }
+        if (string.IsNullOrWhiteSpace(dto.ClientSecret))
+        {
+            dto.ClientSecret = "Ater-" + HashCrypto.GetRnd(40, useLow: true, useSpe: true);
+        }
+
         var descriptor = new OpenIddictApplicationDescriptor
         {
-            ClientId = dto.ClientId!,
-            ClientSecret = dto.ClientSecret!,
-            DisplayName = dto.ClientName!,
+            ClientId = dto.ClientId,
+            ClientSecret = dto.ClientSecret,
+            DisplayName = dto.ClientName,
         };
-        if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
+
+        if (dto.RedirectUris.Count > 0)
         {
-            descriptor.RedirectUris.Add(new Uri(dto.RedirectUri!));
+            foreach (var uri in dto.RedirectUris)
+            {
+                if (Uri.TryCreate(uri, UriKind.Absolute, out var redirectUri))
+                {
+                    descriptor.RedirectUris.Add(redirectUri);
+                }
+            }
         }
-        await _applicationManager.CreateAsync(descriptor);
+        return await applicationManager.CreateAsync(descriptor);
     }
 
-    public async Task UpdateAsync(string clientId, ClientAppEditModel dto)
+    public async Task UpdateAsync(string clientId, ClientAppEditDto dto)
     {
-        var application = await _applicationManager.FindByClientIdAsync(clientId);
+        var application = await applicationManager.FindByClientIdAsync(clientId);
         if (application is null)
         {
             throw new InvalidOperationException("Application not found");
@@ -62,17 +76,17 @@ public class ApplicationManager
         {
             descriptor.RedirectUris.Add(new Uri(dto.RedirectUri!));
         }
-        await _applicationManager.UpdateAsync(application, descriptor);
+        await applicationManager.UpdateAsync(application, descriptor);
     }
 
     public async Task DeleteAsync(string clientId)
     {
-        var application = await _applicationManager.FindByClientIdAsync(clientId);
+        var application = await applicationManager.FindByClientIdAsync(clientId);
         if (application is null)
         {
             throw new InvalidOperationException("Application not found");
         }
-        await _applicationManager.DeleteAsync(application);
+        await applicationManager.DeleteAsync(application);
     }
 }
 
@@ -97,7 +111,7 @@ public class ClientAppAddDto
     public List<string> RedirectUris { get; set; } = [];
 }
 
-public class ClientAppEditModel
+public class ClientAppEditDto
 {
     public string? ClientId { get; set; }
     public string? ClientName { get; set; }

@@ -34,7 +34,6 @@
 </FluentDialogFooter>
 
 @code {
-
     public ClientAppAddDto AddDto { get; set; } = new();
 
     public string RedirectUris { get; set; } = string.Empty;
@@ -42,19 +41,37 @@
     [CascadingParameter]
     public FluentDialog Dialog { get; set; } = default!;
 
+    [Inject]
+    private ApplicationManager ApplicationManager { get; set; } = default!;
+
     private async Task SaveAsync()
     {
+        if (string.IsNullOrWhiteSpace(AddDto.ClientName) || string.IsNullOrWhiteSpace(RedirectUris))
+        {
+            return;
+        }
         if (!string.IsNullOrEmpty(RedirectUris))
         {
-            AddDto.RedirectUris = RedirectUris.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var separators = new[] { "\r\n", "\n" };
+            AddDto.RedirectUris = RedirectUris.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                              .ToList();
         }
 
-        await Dialog.CloseAsync();
+        var res = await ApplicationManager.CreateAsync(AddDto);
+        Console.WriteLine(ToJson(res));
+
+        if (res is not null)
+        {
+            await Dialog.CloseAsync(true);
+        }
+        else
+        {
+            ToastService.ShowError(Lang(LanguageKey.Add, LanguageKey.Failed));
+        }
     }
 
     private async Task CancelAsync()
     {
         await Dialog.CancelAsync();
     }
-
 }
