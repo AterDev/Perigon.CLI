@@ -1,7 +1,6 @@
-using System.Text.Json;
-
 using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
+using System.Text.Json;
 
 namespace IdentityServer.Components.Pages;
 
@@ -12,6 +11,12 @@ public class PageBase : ComponentBase
 
     [Inject]
     protected IToastService ToastService { get; set; } = default!;
+    [Inject]
+    protected IDialogService DialogService { get; set; } = default!;
+    [Inject]
+    protected IMessageService MessageService { get; set; } = default!;
+    [Inject]
+    protected ITooltipService TooltipService { get; set; } = default!;
 
     public JsonSerializerOptions IndentedJsonOptions { get; } = new()
     {

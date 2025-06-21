@@ -26,4 +26,8 @@ public static class LanguageKey
     public const string RowValueTip = "RowValueTip";
     public const string Success = "Success";
     public const string Failed = "Failed";
+    public const string Yes = "Yes";
+    public const string No = "No";
+    public const string ConfirmDeleteMessage = "ConfirmDeleteMessage";
+
 }

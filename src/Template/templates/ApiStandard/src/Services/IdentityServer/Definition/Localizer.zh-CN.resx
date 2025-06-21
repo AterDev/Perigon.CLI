@@ -139,6 +139,9 @@
   <data name="ClientName" xml:space="preserve">
     <value>客户端名称</value>
   </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>是否确认删除该对象？</value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>创建</value>
   </data>
@@ -157,6 +160,9 @@
   <data name="Management" xml:space="preserve">
     <value>管理</value>
   </data>
+  <data name="No" xml:space="preserve">
+    <value>否</value>
+  </data>
   <data name="RedirectUris" xml:space="preserve">
     <value>回调地址</value>
   </data>
@@ -168,5 +174,8 @@
   </data>
   <data name="Success" xml:space="preserve">
     <value>成功</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>是</value>
   </data>
 </root>

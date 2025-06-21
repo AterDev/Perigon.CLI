@@ -139,6 +139,9 @@
   <data name="ClientName" xml:space="preserve">
     <value>Client Name</value>
   </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>Do you confirm to delete the object?</value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
@@ -157,6 +160,9 @@
   <data name="Management" xml:space="preserve">
     <value>Management</value>
   </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
   <data name="RedirectUris" xml:space="preserve">
     <value>RedirectUris</value>
   </data>
@@ -168,5 +174,8 @@
   </data>
   <data name="Success" xml:space="preserve">
     <value>Success</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
   </data>
 </root>

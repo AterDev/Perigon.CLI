@@ -1,8 +1,6 @@
-using System.ComponentModel.DataAnnotations;
-
 using Ater.Common.Utils;
-
 using OpenIddict.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityServer.Managers;
 
@@ -32,17 +30,12 @@ public class ApplicationManager(
     {
         if (string.IsNullOrWhiteSpace(dto.ClientId))
         {
-            dto.ClientId = Guid.NewGuid().ToString("N").Substring(0, 32);
-        }
-        if (string.IsNullOrWhiteSpace(dto.ClientSecret))
-        {
-            dto.ClientSecret = "Ater-" + HashCrypto.GetRnd(40, useLow: true, useSpe: true);
+            dto.ClientId = Guid.NewGuid().ToString("N")[..32];
         }
 
         var descriptor = new OpenIddictApplicationDescriptor
         {
             ClientId = dto.ClientId,
-            ClientSecret = dto.ClientSecret,
             DisplayName = dto.ClientName,
         };
 
@@ -103,10 +96,10 @@ public class ClientAppItemDto
 
 public class ClientAppAddDto
 {
-    [MaxLength(50)]
     public string ClientId { get; set; } = string.Empty;
     public string ClientSecret { get; set; } = string.Empty;
     [MaxLength(50, ErrorMessage = "The max length is 50")]
+    [MinLength(3, ErrorMessage = "The min length is 3")]
     public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
 }
