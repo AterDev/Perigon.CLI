@@ -20,3 +20,11 @@
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
+
+<script>
+    window.preventEnterSubmit = function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+      }
+    }
+</script>

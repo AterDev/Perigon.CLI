@@ -56,14 +56,32 @@ public partial class ClientApp : PageBase
         }
     }
 
-    protected void Edit(ClientAppItemDto app)
+    protected async Task EditAsync(ClientAppItemDto app)
     {
-        editModel = new ClientAppEditDto
+        DialogParameters parameters = new()
         {
-            ClientId = app.ClientId,
-            ClientName = app.ClientName,
-            RedirectUri = app.RedirectUris.FirstOrDefault() ?? string.Empty
+            Title = Lang(LanguageKey.Edit, LanguageKey.ClientApp, " "),
+            PrimaryAction = "Yes",
+            PrimaryActionEnabled = false,
+            SecondaryAction = "No",
+            Width = "400px",
+            PreventScroll = true
         };
+        var dialog = await DialogService.ShowDialogAsync<EditClientApp>(app, parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            if (result.Data is null)
+            {
+                ToastService.ShowSuccess(Lang(LanguageKey.Edit, LanguageKey.Success));
+                await LoadData();
+            }
+            else
+            {
+                ToastService.ShowError(Lang(LanguageKey.Edit, LanguageKey.Failed));
+            }
+        }
     }
 
     protected async Task Delete(string clientId)

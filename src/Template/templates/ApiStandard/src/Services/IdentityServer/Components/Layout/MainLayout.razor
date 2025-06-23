@@ -12,9 +12,8 @@
             <AuthorizeView>
                 <Authorized>
                     <span>@context.User.Identity?.Name</span>
-                </Authorized>         
+                </Authorized>
                 <NotAuthorized>
-                    <span>Guest</span> 
                 </NotAuthorized>
             </AuthorizeView>
             <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" Color="Color.Neutral" />

@@ -1,6 +1,8 @@
-using Ater.Common.Utils;
-using OpenIddict.Abstractions;
 using System.ComponentModel.DataAnnotations;
+
+using Ater.Common.Utils;
+
+using OpenIddict.Abstractions;
 
 namespace IdentityServer.Managers;
 
@@ -61,13 +63,18 @@ public class ApplicationManager(
         }
         var descriptor = new OpenIddictApplicationDescriptor
         {
-            ClientId = dto.ClientId ?? clientId,
-            ClientSecret = dto.ClientSecret!,
-            DisplayName = dto.ClientName!,
+            ClientId = clientId,
         };
-        if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
+        if (dto.ClientName is not null)
         {
-            descriptor.RedirectUris.Add(new Uri(dto.RedirectUri!));
+            descriptor.DisplayName = dto.ClientName;
+        }
+        if (dto.RedirectUris != null)
+        {
+            foreach (var uri in dto.RedirectUris)
+            {
+                descriptor.RedirectUris.Add(new Uri(uri));
+            }
         }
         await applicationManager.UpdateAsync(application, descriptor);
     }
@@ -82,7 +89,6 @@ public class ApplicationManager(
         await applicationManager.DeleteAsync(application);
     }
 }
-
 
 public class ClientAppItemDto
 {
@@ -106,8 +112,8 @@ public class ClientAppAddDto
 
 public class ClientAppEditDto
 {
-    public string? ClientId { get; set; }
+    [MaxLength(50, ErrorMessage = "The max length is 50")]
+    [MinLength(3, ErrorMessage = "The min length is 3")]
     public string? ClientName { get; set; }
-    public string? ClientSecret { get; set; }
-    public string? RedirectUri { get; set; }
+    public List<string>? RedirectUris { get; set; }
 }

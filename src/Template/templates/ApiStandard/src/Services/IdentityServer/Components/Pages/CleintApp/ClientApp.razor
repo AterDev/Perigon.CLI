@@ -42,7 +42,7 @@
             <ChildContent Context="app">
                 <FluentButton Size="Small"
                               IconStart="@(new SmallRegularIcon.Edit())"
-                              Title="@Lang(LanguageKey.Edit)" @onclick="() => Edit(app)"></FluentButton>
+                              Title="@Lang(LanguageKey.Edit)" @onclick="() => EditAsync(app)"></FluentButton>
 
                 <FluentButton Size="Small"
                               Title="@Lang(LanguageKey.Delete)"

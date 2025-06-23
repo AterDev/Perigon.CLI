@@ -1,5 +1,5 @@
 @inherits PageBase
-@implements IDialogContentComponent
+@implements IDialogContentComponent<ClientAppItemDto>
 
 <FluentDialogHeader ShowDismiss="false">
     <FluentStack VerticalAlignment="VerticalAlignment.Center">
@@ -9,28 +9,26 @@
     </FluentStack>
 </FluentDialogHeader>
 
-
 <EditForm EditContext="editContext">
     <DataAnnotationsValidator />
     <FluentValidationSummary />
 
     <FluentDialogBody>
         <FluentStack Orientation="Orientation.Vertical">
-            <FluentTextField @bind-Value="AddDto!.ClientName"
+            <FluentTextField @bind-Value="EditDto!.ClientName"
                              Label="@Localizer.Get(LanguageKey.ClientName)"
                              Placeholder="@Localizer.Get(LanguageKey.ClientName)"
                              class="w-100" Required />
-            <FluentValidationMessage For="() => AddDto.ClientName"></FluentValidationMessage>
+            <FluentValidationMessage For="() => EditDto.ClientName"></FluentValidationMessage>
 
             <FluentTextArea Rows="3" @bind-Value="RedirectUris"
-                            @onkeydown:stopPropagation
                             Placeholder="@Localizer.Get(LanguageKey.RedirectUris)" Class="w-100"
                             Label="@Localizer.Get(LanguageKey.RedirectUris)"
                             Required />
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
                 @Localizer.Get(LanguageKey.RowValueTip)
             </FluentLabel>
-            <FluentValidationMessage For="() => AddDto.RedirectUris"></FluentValidationMessage>
+            <FluentValidationMessage For="() => EditDto.RedirectUris"></FluentValidationMessage>
 
         </FluentStack>
     </FluentDialogBody>
@@ -39,23 +37,25 @@
         <FluentButton Appearance="Appearance.Accent"
                       Type="ButtonType.Button"
                       Disabled="!formValid"
-                      OnClick="SaveAsync"
-                      >
+                      OnClick="SaveAsync">
             @Localizer.Get(LanguageKey.Save)
         </FluentButton>
         <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">
             @Localizer.Get(LanguageKey.Cancel)
         </FluentButton>
     </FluentDialogFooter>
+
 </EditForm>
 
 
 @code {
     private EditContext? editContext;
-    private ClientAppAddDto? AddDto;
+    private ClientAppEditDto? EditDto;
     private bool formValid = false;
+    public string RedirectUris { get; set; } = string.Empty;
 
-    public string RedirectUris { get; set; } = "http://localhost:5200";
+    [Parameter]
+    public ClientAppItemDto Content { get; set; } = default!;
 
     [CascadingParameter]
     public FluentDialog Dialog { get; set; } = default!;
@@ -65,8 +65,13 @@
 
     protected override void OnInitialized()
     {
-        AddDto ??= new();
-        editContext = new(AddDto);
+        EditDto ??= new ClientAppEditDto
+        {
+            ClientName = Content.ClientName,
+            RedirectUris = Content.RedirectUris
+        };
+        RedirectUris = string.Join(Environment.NewLine, Content.RedirectUris);
+        editContext = new(EditDto);
         editContext.OnFieldChanged += HandleFieldChanged;
 
     }
@@ -91,24 +96,26 @@
         if (!editContext!.Validate())
         {
             ToastService.ShowError(Lang(LanguageKey.FormValidFailed));
+
+            editContext.NotifyValidationStateChanged();
             return;
         }
-        if (!string.IsNullOrEmpty(RedirectUris))
+        if (EditDto is not null && Content.ClientId is not null)
         {
-            var separators = new[] { "\r\n", "\n" };
-            if (AddDto != null)
+            if (!string.IsNullOrWhiteSpace(RedirectUris))
             {
-
-                AddDto.RedirectUris = RedirectUris.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToList();
-                var res = await ApplicationManager.CreateAsync(AddDto);
-                if (res is not null)
-                {
-                    await Dialog.CloseAsync();
-                }
-                else
-                {
-                    ToastService.ShowError(Lang(LanguageKey.Add, LanguageKey.Failed));
-                }
+                var separators = new[] { "\r\n", "\n" };
+                EditDto.RedirectUris = RedirectUris.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToList();
+            }
+            try
+            {
+                await ApplicationManager.UpdateAsync(Content.ClientId, EditDto);
+                await Dialog.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowError(Lang(LanguageKey.Edit, LanguageKey.Failed) + $":{ex.Message}");
+                return;
             }
         }
     }

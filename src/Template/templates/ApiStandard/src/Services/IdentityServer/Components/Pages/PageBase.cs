@@ -1,6 +1,9 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
 using System.Text.Json;
+
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
+using Microsoft.JSInterop;
 
 namespace IdentityServer.Components.Pages;
 
@@ -17,6 +20,7 @@ public class PageBase : ComponentBase
     protected IMessageService MessageService { get; set; } = default!;
     [Inject]
     protected ITooltipService TooltipService { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     public JsonSerializerOptions IndentedJsonOptions { get; } = new()
     {
@@ -46,5 +50,13 @@ public class PageBase : ComponentBase
     public string ToJson(object obj)
     {
         return JsonSerializer.Serialize(obj, IndentedJsonOptions);
+    }
+
+    protected async Task PreventEnterSubmit(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await JS.InvokeVoidAsync("preventEnterSubmit", e);
+        }
     }
 }

@@ -29,5 +29,6 @@ public static class LanguageKey
     public const string Yes = "Yes";
     public const string No = "No";
     public const string ConfirmDeleteMessage = "ConfirmDeleteMessage";
+    public const string FormValidFailed = "FormValidFailed";
 
 }
