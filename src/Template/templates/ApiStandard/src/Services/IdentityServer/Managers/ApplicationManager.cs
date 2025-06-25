@@ -18,11 +18,13 @@ public class ApplicationManager(
             var clientId = await applicationManager.GetClientIdAsync(app);
             var displayName = await applicationManager.GetDisplayNameAsync(app);
             var redirectUris = await applicationManager.GetRedirectUrisAsync(app);
+            var grantTypes = await applicationManager.GetClientTypeAsync(app) is string type ? new List<string> { type } : new List<string>();
             applications.Add(new ClientAppItemDto
             {
                 ClientId = clientId!,
                 ClientName = displayName!,
-                RedirectUris = redirectUris.Select(u => u.ToString()!).ToList()
+                RedirectUris = redirectUris.Select(u => u.ToString()!).ToList(),
+                GrantTypes = grantTypes
             });
         }
         return applications;
@@ -51,6 +53,14 @@ public class ApplicationManager(
                 }
             }
         }
+        if (dto.GrantTypes.Count > 0)
+        {
+            foreach (var grant in dto.GrantTypes)
+            {
+                //descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+                descriptor.Permissions.Add(grant);
+            }
+        }
         return await applicationManager.CreateAsync(descriptor);
     }
 
@@ -76,6 +86,14 @@ public class ApplicationManager(
                 descriptor.RedirectUris.Add(new Uri(uri));
             }
         }
+        if (dto.GrantTypes is not null && dto.GrantTypes.Count > 0)
+        {
+            foreach (var grant in dto.GrantTypes)
+            {
+                descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+                // 可根据实际需要添加更多类型映射
+            }
+        }
         await applicationManager.UpdateAsync(application, descriptor);
     }
 
@@ -98,6 +116,10 @@ public class ClientAppItemDto
     [MaxLength(50, ErrorMessage = "")]
     public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
+    public List<string> GrantTypes { get; set; } = [];
+    public List<string> Scopes { get; set; } = [];
+    public List<string> PostLogoutRedirectUris { get; set; } = [];
+    public bool AllowOfflineAccess { get; set; }
 }
 
 public class ClientAppAddDto
@@ -108,6 +130,7 @@ public class ClientAppAddDto
     [MinLength(3, ErrorMessage = "The min length is 3")]
     public string ClientName { get; set; } = string.Empty;
     public List<string> RedirectUris { get; set; } = [];
+    public List<string> GrantTypes { get; set; } = [];
 }
 
 public class ClientAppEditDto
@@ -116,4 +139,8 @@ public class ClientAppEditDto
     [MinLength(3, ErrorMessage = "The min length is 3")]
     public string? ClientName { get; set; }
     public List<string>? RedirectUris { get; set; }
+    public List<string>? GrantTypes { get; set; }
+    public List<string>? Scopes { get; set; }
+    public List<string>? PostLogoutRedirectUris { get; set; }
+    public bool? AllowOfflineAccess { get; set; }
 }

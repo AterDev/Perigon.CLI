@@ -1,5 +1,4 @@
 using System.Text.Json;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
@@ -14,19 +13,21 @@ public class PageBase : ComponentBase
 
     [Inject]
     protected IToastService ToastService { get; set; } = default!;
+
     [Inject]
     protected IDialogService DialogService { get; set; } = default!;
+
     [Inject]
     protected IMessageService MessageService { get; set; } = default!;
+
     [Inject]
     protected ITooltipService TooltipService { get; set; } = default!;
-    [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    public JsonSerializerOptions IndentedJsonOptions { get; } = new()
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    public JsonSerializerOptions IndentedJsonOptions { get; } =
+        new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>
     /// 用于展示多个语言键对应的文本
@@ -39,7 +40,9 @@ public class PageBase : ComponentBase
     {
         var value1 = Localizer.Get(key1);
         var value2 = Localizer.Get(key2);
-        return string.IsNullOrEmpty(separator) ? $"{value1}{value2}" : $"{value1}{separator}{value2}";
+        return string.IsNullOrEmpty(separator)
+            ? $"{value1}{value2}"
+            : $"{value1}{separator}{value2}";
     }
 
     public string Lang(string key)

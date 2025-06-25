@@ -32,6 +32,7 @@
             </FluentLabel>
             <FluentValidationMessage For="() => AddDto.RedirectUris"></FluentValidationMessage>
 
+
         </FluentStack>
     </FluentDialogBody>
 
@@ -39,8 +40,7 @@
         <FluentButton Appearance="Appearance.Accent"
                       Type="ButtonType.Button"
                       Disabled="!formValid"
-                      OnClick="SaveAsync"
-                      >
+                      OnClick="SaveAsync">
             @Localizer.Get(LanguageKey.Save)
         </FluentButton>
         <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">
@@ -56,6 +56,7 @@
     private bool formValid = false;
 
     public string RedirectUris { get; set; } = "http://localhost:5200";
+    private List<string> grantTypeOptions = new() { "authorization_code", "client_credentials", "password", "refresh_token", "implicit", "device_code" };
 
     [CascadingParameter]
     public FluentDialog Dialog { get; set; } = default!;
@@ -78,6 +79,25 @@
             StateHasChanged();
         }
     }
+
+    private void OnGrantTypeChanged(string grant, object? checkedValue)
+    {
+        if (checkedValue is bool isChecked)
+        {
+            if (isChecked)
+            {
+                if (!AddDto!.GrantTypes.Contains(grant))
+                {
+                    AddDto.GrantTypes.Add(grant);
+                }
+            }
+            else
+            {
+                AddDto!.GrantTypes.Remove(grant);
+            }
+        }
+    }
+
     public void Dispose()
     {
         if (editContext is not null)
