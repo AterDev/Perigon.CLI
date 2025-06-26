@@ -10,6 +10,7 @@ public static class LanguageKey
 {
     public const string ClientApp = "ClientApp";
     public const string ClientId = "ClientId";
+    public const string ClientSecret = "ClientSecret";
     public const string ClientName = "ClientName";
     public const string RedirectUris = "RedirectUris";
     public const string AddClientApp = "AddClientApp";
@@ -31,5 +32,7 @@ public static class LanguageKey
     public const string ConfirmDeleteMessage = "ConfirmDeleteMessage";
     public const string FormValidFailed = "FormValidFailed";
     public const string ClientTypeDescription = "ClientTypeDescription";
-
+    public const string Close = "Close";
+    public const string Copy = "Copy";
+    public const string ClientSecretSaveTip = "ClientSecretSaveTip";
 }

@@ -1,8 +1,6 @@
-using System.ComponentModel.DataAnnotations;
-
 using Ater.Common.Utils;
-
 using OpenIddict.Abstractions;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityServer.Managers;
 
@@ -16,7 +14,6 @@ public class ApplicationManager(
 
         await foreach (var app in applicationManager.ListAsync())
         {
-
             var clientId = await applicationManager.GetClientIdAsync(app);
             var displayName = await applicationManager.GetDisplayNameAsync(app);
             var redirectUris = await applicationManager.GetRedirectUrisAsync(app);
@@ -38,6 +35,7 @@ public class ApplicationManager(
         if (string.IsNullOrWhiteSpace(dto.ClientId))
         {
             dto.ClientId = Guid.NewGuid().ToString("N")[..32];
+            dto.ClientSecret = Guid.CreateVersion7().ToString("N")[..16];
         }
 
         var descriptor = new OpenIddictApplicationDescriptor
@@ -45,9 +43,10 @@ public class ApplicationManager(
             ClientId = dto.ClientId,
             DisplayName = dto.ClientName,
             ApplicationType = dto.ApplicationType,
-            ClientType = dto.ClientType
-        };
+            ClientType = dto.ClientType,
+            ClientSecret = dto.ClientSecret,
 
+        };
         return await applicationManager.CreateAsync(descriptor);
     }
 

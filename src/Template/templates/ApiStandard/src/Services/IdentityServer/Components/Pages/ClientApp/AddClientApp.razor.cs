@@ -69,7 +69,7 @@ public partial class AddClientApp
             var res = await ApplicationManager.CreateAsync(AddDto);
             if (res is not null)
             {
-                await Dialog.CloseAsync();
+                await Dialog.CloseAsync(res);
             }
             else
             {

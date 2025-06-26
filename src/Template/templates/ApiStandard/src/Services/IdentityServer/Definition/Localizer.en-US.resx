@@ -139,12 +139,24 @@
   <data name="ClientName" xml:space="preserve">
     <value>Client Name</value>
   </data>
+  <data name="ClientSecret" xml:space="preserve">
+    <value>ClientSecret</value>
+  </data>
+  <data name="ClientSecretSaveTip" xml:space="preserve">
+    <value>Please make sure to save the Client Secret, it will only be displayed once at this moment</value>
+  </data>
   <data name="ClientTypeDescription" xml:space="preserve">
     <value>Server: web and confidential;
 Client: native with public</value>
   </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
   <data name="ConfirmDeleteMessage" xml:space="preserve">
     <value>Do you confirm to delete the object?</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
   </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>

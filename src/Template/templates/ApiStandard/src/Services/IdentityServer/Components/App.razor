@@ -22,9 +22,17 @@
 </html>
 
 <script>
-    window.preventEnterSubmit = function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-      }
+    window.copyTextToClipboard = function (text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text);
+        } else {
+            // fallback for older browsers
+            var textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+        }
     }
 </script>

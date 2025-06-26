@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using OpenIddict.EntityFrameworkCore.Models;
 
 namespace IdentityServer.Components.Pages.ClientApp;
 
@@ -43,16 +44,34 @@ public partial class ClientApp : PageBase
 
         if (!result.Cancelled)
         {
-            if (result.Data is null)
+            if (result.Data is OpenIddictEntityFrameworkCoreApplication app)
             {
                 ToastService.ShowSuccess(Lang(LanguageKey.Add, LanguageKey.Success));
                 await LoadData();
-
+                await ShowResultDialog(app);
             }
             else
             {
                 ToastService.ShowError(Lang(LanguageKey.Add, LanguageKey.Failed));
             }
+        }
+    }
+
+    protected async Task ShowResultDialog(OpenIddictEntityFrameworkCoreApplication descriptor)
+    {
+        DialogParameters parameters = new()
+        {
+            Title = Lang(LanguageKey.Add, LanguageKey.Success, " "),
+            PrimaryAction = "Yes",
+            PrimaryActionEnabled = false,
+            SecondaryAction = "No",
+            PreventScroll = true,
+            Modal = false,
+        };
+        var dialog = await DialogService.ShowDialogAsync<AddResultDialog>(descriptor, parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
         }
     }
 

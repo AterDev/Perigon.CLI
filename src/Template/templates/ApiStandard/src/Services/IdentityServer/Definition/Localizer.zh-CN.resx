@@ -139,12 +139,24 @@
   <data name="ClientName" xml:space="preserve">
     <value>客户端名称</value>
   </data>
+  <data name="ClientSecret" xml:space="preserve">
+    <value>客户端秘钥</value>
+  </data>
+  <data name="ClientSecretSaveTip" xml:space="preserve">
+    <value>请务必保存ClientSecret，它只会在此刻显示一次</value>
+  </data>
   <data name="ClientTypeDescription" xml:space="preserve">
     <value>服务端选择web和confidential;
 客户端选择native和public</value>
   </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
   <data name="ConfirmDeleteMessage" xml:space="preserve">
     <value>是否确认删除该对象？</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
   </data>
   <data name="Create" xml:space="preserve">
     <value>创建</value>
