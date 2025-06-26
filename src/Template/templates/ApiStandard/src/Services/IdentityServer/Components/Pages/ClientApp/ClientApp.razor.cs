@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace IdentityServer.Components.Pages.CleintApp;
+namespace IdentityServer.Components.Pages.ClientApp;
 
 public partial class ClientApp : PageBase
 {

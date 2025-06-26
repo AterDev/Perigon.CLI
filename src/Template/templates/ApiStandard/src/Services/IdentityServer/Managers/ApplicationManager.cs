@@ -13,18 +13,21 @@ public class ApplicationManager(
     public async Task<List<ClientAppItemDto>> ListAsync()
     {
         var applications = new List<ClientAppItemDto>();
+
         await foreach (var app in applicationManager.ListAsync())
         {
+
             var clientId = await applicationManager.GetClientIdAsync(app);
             var displayName = await applicationManager.GetDisplayNameAsync(app);
             var redirectUris = await applicationManager.GetRedirectUrisAsync(app);
-            var grantTypes = await applicationManager.GetClientTypeAsync(app) is string type ? new List<string> { type } : new List<string>();
+            var grantTypes = await applicationManager.GetClientTypeAsync(app) is string type ? new List<string> { type } : [];
             applications.Add(new ClientAppItemDto
             {
                 ClientId = clientId!,
                 ClientName = displayName!,
                 RedirectUris = redirectUris.Select(u => u.ToString()!).ToList(),
-                GrantTypes = grantTypes
+                GrantTypes = grantTypes,
+
             });
         }
         return applications;
@@ -41,26 +44,10 @@ public class ApplicationManager(
         {
             ClientId = dto.ClientId,
             DisplayName = dto.ClientName,
+            ApplicationType = dto.ApplicationType,
+            ClientType = dto.ClientType
         };
 
-        if (dto.RedirectUris.Count > 0)
-        {
-            foreach (var uri in dto.RedirectUris)
-            {
-                if (Uri.TryCreate(uri, UriKind.Absolute, out var redirectUri))
-                {
-                    descriptor.RedirectUris.Add(redirectUri);
-                }
-            }
-        }
-        if (dto.GrantTypes.Count > 0)
-        {
-            foreach (var grant in dto.GrantTypes)
-            {
-                //descriptor.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
-                descriptor.Permissions.Add(grant);
-            }
-        }
         return await applicationManager.CreateAsync(descriptor);
     }
 
@@ -115,6 +102,8 @@ public class ClientAppItemDto
     public string ClientSecret { get; set; } = string.Empty;
     [MaxLength(50, ErrorMessage = "")]
     public string ClientName { get; set; } = string.Empty;
+    public string ApplicationType { get; set; } = default!;
+    public string ClientType { get; set; } = default!;
     public List<string> RedirectUris { get; set; } = [];
     public List<string> GrantTypes { get; set; } = [];
     public List<string> Scopes { get; set; } = [];
@@ -129,8 +118,8 @@ public class ClientAppAddDto
     [MaxLength(50, ErrorMessage = "The max length is 50")]
     [MinLength(3, ErrorMessage = "The min length is 3")]
     public string ClientName { get; set; } = string.Empty;
-    public List<string> RedirectUris { get; set; } = [];
-    public List<string> GrantTypes { get; set; } = [];
+    public string ApplicationType { get; set; } = OpenIddictConstants.ApplicationTypes.Web;
+    public string ClientType { get; set; } = OpenIddictConstants.ClientTypes.Confidential;
 }
 
 public class ClientAppEditDto

@@ -139,6 +139,10 @@
   <data name="ClientName" xml:space="preserve">
     <value>Client Name</value>
   </data>
+  <data name="ClientTypeDescription" xml:space="preserve">
+    <value>Server: web and confidential;
+Client: native with public</value>
+  </data>
   <data name="ConfirmDeleteMessage" xml:space="preserve">
     <value>Do you confirm to delete the object?</value>
   </data>

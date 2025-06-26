@@ -5,10 +5,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Components\Pages\CleintApp\Models\**" />
-	  <Content Remove="Components\Pages\CleintApp\Models\**" />
-	  <EmbeddedResource Remove="Components\Pages\CleintApp\Models\**" />
-	  <None Remove="Components\Pages\CleintApp\Models\**" />
+		<Compile Remove="Components\Pages\ClientApp\Models\**" />
+		<Content Remove="Components\Pages\ClientApp\Models\**" />
+		<EmbeddedResource Remove="Components\Pages\ClientApp\Models\**" />
+		<None Remove="Components\Pages\ClientApp\Models\**" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -30,5 +30,6 @@ public static class LanguageKey
     public const string No = "No";
     public const string ConfirmDeleteMessage = "ConfirmDeleteMessage";
     public const string FormValidFailed = "FormValidFailed";
+    public const string ClientTypeDescription = "ClientTypeDescription";
 
 }

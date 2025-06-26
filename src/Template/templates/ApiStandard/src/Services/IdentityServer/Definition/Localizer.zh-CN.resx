@@ -139,6 +139,10 @@
   <data name="ClientName" xml:space="preserve">
     <value>客户端名称</value>
   </data>
+  <data name="ClientTypeDescription" xml:space="preserve">
+    <value>服务端选择web和confidential;
+客户端选择native和public</value>
+  </data>
   <data name="ConfirmDeleteMessage" xml:space="preserve">
     <value>是否确认删除该对象？</value>
   </data>
