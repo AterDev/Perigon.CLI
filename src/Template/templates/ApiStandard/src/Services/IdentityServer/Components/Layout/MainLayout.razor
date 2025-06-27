@@ -1,22 +1,52 @@
 @inherits LayoutComponentBase
 @inject Localizer Localizer
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
 @using Microsoft.AspNetCore.Components.Authorization
 
 <CascadingAuthenticationState>
     <FluentLayout>
         <FluentHeader class="header">
-            <FluentNavLink Href="/">
-                IdentityServer
-            </FluentNavLink>
-            <FluentSpacer />
-            <AuthorizeView>
-                <Authorized>
-                    <span>@context.User.Identity?.Name</span>
-                </Authorized>
-                <NotAuthorized>
-                </NotAuthorized>
-            </AuthorizeView>
-            <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())" Color="Color.Neutral" />
+            <FluentStack Orientation="Orientation.Horizontal"
+                         HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                         VerticalAlignment="VerticalAlignment.Center">
+                <FluentNavLink Href="/">
+                    IdentityServer
+                </FluentNavLink>
+
+                <FluentStack Orientation="Orientation.Horizontal"
+                             HorizontalAlignment="HorizontalAlignment.Right"
+                             VerticalAlignment="VerticalAlignment.Center">
+                    <AuthorizeView>
+                        <Authorized>
+                            <FluentPersona Initials="@context.User.Identity?.Name?[..1].ToUpper()"
+                                           ImageSize="36px"
+                                           onclick="()=>open = !open"
+                                           Id="menu">
+                            </FluentPersona>
+
+                            <FluentMenu Anchor="menu" @bind-Open="open" VerticalThreshold="170">
+                                <FluentMenuItem>
+                                    <FluentIcon Value="@(new Icons.Regular.Size20.Person())" />
+                                    Settings
+                                </FluentMenuItem>
+                                <FluentDivider />
+                                <FluentMenuItem onclick="Logout">
+                                    <FluentIcon Value="@(new Icons.Regular.Size20.SignOut())" />
+                                    @Localizer.Get(LanguageKey.Logout)
+                                </FluentMenuItem>
+                            </FluentMenu>
+                        </Authorized>
+                        <NotAuthorized>
+                        </NotAuthorized>
+                    </AuthorizeView>
+
+                    @*                     <FluentIcon Value="@(new Icons.Regular.Size20.DarkTheme())"
+                                Color="Color.Neutral" /> *@
+                </FluentStack>
+
+            </FluentStack>
+
         </FluentHeader>
 
         <FluentStack Orientation="Orientation.Horizontal" Width="100%">
@@ -57,4 +87,10 @@
 @code
 {
     public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
+    bool open = false;
+
+    public void Logout()
+    {
+        NavigationManager.NavigateTo("/api/account/logout", true);
+    }
 }

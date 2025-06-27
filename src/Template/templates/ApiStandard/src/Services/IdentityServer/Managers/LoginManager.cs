@@ -1,5 +1,6 @@
 using Ater.Common.Utils;
 using IdentityServer.Definition.Entity;
+using IdentityServer.Definition.Share.AccountDtos;
 
 namespace IdentityServer.Managers;
 
@@ -13,7 +14,11 @@ public class LoginManager
         }
         if (!user.AccountRoles.Any(ar => ar.Role.Name == ConstVal.SuperAdmin))
         {
-            return new LoginResult { IsSuccess = false, ErrorMessage = "无权限，仅超级管理员可登录" };
+            return new LoginResult
+            {
+                IsSuccess = false,
+                ErrorMessage = "无权限，仅超级管理员可登录",
+            };
         }
         var hash = HashCrypto.GeneratePwd(password, user.HashSalt);
         if (user.HashPassword != hash)
@@ -22,10 +27,4 @@ public class LoginManager
         }
         return new LoginResult { IsSuccess = true };
     }
-}
-
-public class LoginResult
-{
-    public bool IsSuccess { get; set; }
-    public string? ErrorMessage { get; set; }
 }

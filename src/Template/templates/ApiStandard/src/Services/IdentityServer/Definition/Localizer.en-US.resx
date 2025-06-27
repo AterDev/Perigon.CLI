@@ -143,11 +143,11 @@
     <value>ClientSecret</value>
   </data>
   <data name="ClientSecretSaveTip" xml:space="preserve">
-    <value>Please make sure to save the Client Secret, it will only be displayed once at this moment</value>
+    <value>Please make sure to save the Client Secret, it will only be displayed once at this moment!</value>
   </data>
   <data name="ClientTypeDescription" xml:space="preserve">
-    <value>Server: web and confidential;
-Client: native with public</value>
+    <value>chose web and confidential for Server.
+chose native &amp; public for Client.</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -164,6 +164,9 @@ Client: native with public</value>
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Detail" xml:space="preserve">
+    <value>Detail</value>
+  </data>
   <data name="Edit" xml:space="preserve">
     <value>Edit</value>
   </data>
@@ -175,6 +178,12 @@ Client: native with public</value>
   </data>
   <data name="FormValidFailed" xml:space="preserve">
     <value>Form validation error, please check your input</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
   </data>
   <data name="Management" xml:space="preserve">
     <value>Management</value>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+
 using OpenIddict.EntityFrameworkCore.Models;
 
 namespace IdentityServer.Components.Pages.ClientApp;
@@ -46,7 +47,6 @@ public partial class ClientApp : PageBase
         {
             if (result.Data is OpenIddictEntityFrameworkCoreApplication app)
             {
-                ToastService.ShowSuccess(Lang(LanguageKey.Add, LanguageKey.Success));
                 await LoadData();
                 await ShowResultDialog(app);
             }
@@ -66,6 +66,7 @@ public partial class ClientApp : PageBase
             PrimaryActionEnabled = false,
             SecondaryAction = "No",
             PreventScroll = true,
+            Width = "auto",
             Modal = false,
         };
         var dialog = await DialogService.ShowDialogAsync<AddResultDialog>(descriptor, parameters);
@@ -75,32 +76,9 @@ public partial class ClientApp : PageBase
         }
     }
 
-    protected async Task EditAsync(ClientAppItemDto app)
+    protected void ToDetailPage(ClientAppItemDto app)
     {
-        DialogParameters parameters = new()
-        {
-            Title = Lang(LanguageKey.Edit, LanguageKey.ClientApp, " "),
-            PrimaryAction = "Yes",
-            PrimaryActionEnabled = false,
-            SecondaryAction = "No",
-            Width = "400px",
-            PreventScroll = true
-        };
-        var dialog = await DialogService.ShowDialogAsync<EditClientApp>(app, parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
-        {
-            if (result.Data is null)
-            {
-                ToastService.ShowSuccess(Lang(LanguageKey.Edit, LanguageKey.Success));
-                await LoadData();
-            }
-            else
-            {
-                ToastService.ShowError(Lang(LanguageKey.Edit, LanguageKey.Failed));
-            }
-        }
+        NavigationManager.NavigateTo($"/client-app/{app.ClientId}", true);
     }
 
     protected async Task Delete(string clientId)

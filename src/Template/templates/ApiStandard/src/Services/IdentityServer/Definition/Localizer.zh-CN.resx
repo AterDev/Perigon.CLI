@@ -143,7 +143,7 @@
     <value>客户端秘钥</value>
   </data>
   <data name="ClientSecretSaveTip" xml:space="preserve">
-    <value>请务必保存ClientSecret，它只会在此刻显示一次</value>
+    <value>请务必保存ClientSecret，它只会在此刻显示一次!</value>
   </data>
   <data name="ClientTypeDescription" xml:space="preserve">
     <value>服务端选择web和confidential;
@@ -164,6 +164,9 @@
   <data name="Delete" xml:space="preserve">
     <value>删除</value>
   </data>
+  <data name="Detail" xml:space="preserve">
+    <value>详情</value>
+  </data>
   <data name="Edit" xml:space="preserve">
     <value>编辑</value>
   </data>
@@ -175,6 +178,12 @@
   </data>
   <data name="FormValidFailed" xml:space="preserve">
     <value>表单验证错误，请检查您的输入</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>登出</value>
   </data>
   <data name="Management" xml:space="preserve">
     <value>管理</value>

@@ -23,7 +23,13 @@
                 MultiLine="true"
                 Style="height:auto;width:100%">
     <ChildContent>
-        <PropertyColumn Property="@(x => x.ClientName)" Title="@Lang(LanguageKey.ClientName)" Sortable="true" />
+        <TemplateColumn Title="@Lang(LanguageKey.ClientName)" Sortable="true">
+            <ChildContent Context="app">
+                <FluentNavLink Href="@($"/client-app/{app.ClientId}")">
+                    <FluentLabel Color="Color.Accent">@app.ClientName</FluentLabel>
+                </FluentNavLink>
+            </ChildContent>
+        </TemplateColumn>
 
         <TemplateColumn Title="@Lang(LanguageKey.ClientId)">
             <ChildContent Context="app">
@@ -42,7 +48,7 @@
             <ChildContent Context="app">
                 <FluentButton Size="Small"
                               IconStart="@(new SmallRegularIcon.Edit())"
-                              Title="@Lang(LanguageKey.Edit)" @onclick="() => EditAsync(app)"></FluentButton>
+                              Title="@Lang(LanguageKey.Edit)" @onclick="() => ToDetailPage(app)"></FluentButton>
 
                 <FluentButton Size="Small"
                               Title="@Lang(LanguageKey.Delete)"

@@ -1,8 +1,8 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
 using Microsoft.JSInterop;
-using System.Text.Json;
 
 namespace IdentityServer.Components.Pages;
 
@@ -22,6 +22,9 @@ public class PageBase : ComponentBase
 
     [Inject]
     protected ITooltipService TooltipService { get; set; } = default!;
+
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
     [Inject]
     private IJSRuntime JS { get; set; } = default!;

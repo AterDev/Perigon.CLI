@@ -1,6 +1,9 @@
-using Ater.Common.Utils;
-using OpenIddict.Abstractions;
 using System.ComponentModel.DataAnnotations;
+
+using Ater.Common.Utils;
+
+using OpenIddict.Abstractions;
+using OpenIddict.EntityFrameworkCore.Models;
 
 namespace IdentityServer.Managers;
 
@@ -30,7 +33,17 @@ public class ApplicationManager(
         return applications;
     }
 
-    public async Task<object> CreateAsync(ClientAppAddDto dto)
+    public async Task<OpenIddictEntityFrameworkCoreApplication?> GetClientAppAsync(string clientId)
+    {
+        var application = await applicationManager.FindByClientIdAsync(clientId);
+        if (application is null)
+        {
+            return null;
+        }
+        return application as OpenIddictEntityFrameworkCoreApplication;
+    }
+
+    public async Task<OpenIddictEntityFrameworkCoreApplication?> CreateAsync(ClientAppAddDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.ClientId))
         {
@@ -47,7 +60,8 @@ public class ApplicationManager(
             ClientSecret = dto.ClientSecret,
 
         };
-        return await applicationManager.CreateAsync(descriptor);
+        var res = await applicationManager.CreateAsync(descriptor);
+        return res as OpenIddictEntityFrameworkCoreApplication;
     }
 
     public async Task UpdateAsync(string clientId, ClientAppEditDto dto)
@@ -131,4 +145,6 @@ public class ClientAppEditDto
     public List<string>? Scopes { get; set; }
     public List<string>? PostLogoutRedirectUris { get; set; }
     public bool? AllowOfflineAccess { get; set; }
+    public string? ApplicationType { get; set; }
+    public string? ClientType { get; set; }
 }

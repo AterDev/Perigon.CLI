@@ -19,6 +19,7 @@ public static class LanguageKey
     public const string Add = "Add";
     public const string Create = "Create";
     public const string Delete = "Delete";
+    public const string Detail = "Detail";
     public const string Export = "Export";
     public const string Home = "Home";
     public const string Actions = "Actions";
@@ -35,4 +36,7 @@ public static class LanguageKey
     public const string Close = "Close";
     public const string Copy = "Copy";
     public const string ClientSecretSaveTip = "ClientSecretSaveTip";
+
+    public const string Login = "Login";
+    public const string Logout = "Logout";
 }

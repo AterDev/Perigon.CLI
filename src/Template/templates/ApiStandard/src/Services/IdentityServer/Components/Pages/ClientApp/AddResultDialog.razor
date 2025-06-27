@@ -9,7 +9,7 @@
     </FluentLabel>
 </FluentDialogHeader>
 
-<FluentDialogBody Style="width:auto">
+<FluentDialogBody>
     <FluentStack Orientation="Orientation.Vertical">
         <FluentLabel Typo="Typography.Subject" Color="Color.Neutral">
             @Localizer.Get(LanguageKey.ClientSecretSaveTip)
@@ -17,22 +17,22 @@
 
         <FluentStack Orientation="Orientation.Horizontal">
             <FluentLabel Typo="Typography.Body" Color="Color.Neutral">
-                @Localizer.Get(LanguageKey.ClientId)
+                @Localizer.Get(LanguageKey.ClientId):
             </FluentLabel>
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
                 <strong>@ClientId</strong>
             </FluentLabel>
             <FluentIcon Value="@(new SmallRegularIcon.Copy())"
-                        OnClick="@(() => CopyToClipboardAsync(ClientSecret))"
+                        OnClick="@(() => CopyToClipboardAsync(ClientId))"
                         Title="@Localizer.Get(LanguageKey.Copy)" />
         </FluentStack>
         <FluentStack Orientation="Orientation.Horizontal">
             <FluentLabel Typo="Typography.Body" Color="Color.Neutral">
-                @Localizer.Get(LanguageKey.ClientSecret)
+                @Localizer.Get(LanguageKey.ClientSecret):
             </FluentLabel>
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
                 <strong>
-                    @ClientSecret[..32]
+                    @ClientSecret
                 </strong>
             </FluentLabel>
             <FluentIcon Value="@(new SmallRegularIcon.Copy())"

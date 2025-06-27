@@ -1,33 +1,41 @@
+using System.Security.Claims;
 using IdentityServer.Definition.Entity;
+using IdentityServer.Definition.Share.AccountDtos;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace IdentityServer.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AccountController(IdentityServerContext db, LoginManager loginManager) : ControllerBase
+public class AccountController(
+    IdentityServerContext db,
+    LoginManager loginManager,
+    Localizer localizer
+) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Account>>> GetAll()
-        => await db.Accounts.Include(a => a.AccountRoles).ToListAsync();
+    public async Task<ActionResult<IEnumerable<Account>>> GetAllAsync() =>
+        await db.Accounts.Include(a => a.AccountRoles).ToListAsync();
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Account?>> GetById(Guid id)
-        => await db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id) is { } acc ? acc : NotFound();
+    public async Task<ActionResult<Account?>> GetByIdAsync(Guid id) =>
+        await db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id)
+            is { } acc
+            ? acc
+            : NotFound();
 
     [HttpPost]
-    public async Task<ActionResult<Account>> Create(Account account)
+    public async Task<ActionResult<Account>> CreateAsync(Account account)
     {
         db.Accounts.Add(account);
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = account.Id }, account);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, Account account)
+    public async Task<IActionResult> UpdateAsync(Guid id, Account account)
     {
         if (id != account.Id)
         {
@@ -40,7 +48,7 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         var acc = await db.Accounts.FindAsync(id);
         if (acc == null)
@@ -54,9 +62,11 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
     }
 
     [HttpPost("{id}/roles")]
-    public async Task<IActionResult> SetRoles(Guid id, List<Guid> roleIds)
+    public async Task<IActionResult> SetRolesAsync(Guid id, List<Guid> roleIds)
     {
-        var acc = await db.Accounts.Include(a => a.AccountRoles).FirstOrDefaultAsync(a => a.Id == id);
+        var acc = await db
+            .Accounts.Include(a => a.AccountRoles)
+            .FirstOrDefaultAsync(a => a.Id == id);
         if (acc == null)
         {
             return NotFound();
@@ -72,18 +82,20 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromForm] LoginRequest request)
+    public async Task<IActionResult> LoginAsync([FromForm] LoginRequest request)
     {
-        var user = await db.Accounts
-            .Include(a => a.AccountRoles)
-                .ThenInclude(ar => ar.Role)
+        var user = await db
+            .Accounts.Include(a => a.AccountRoles)
+            .ThenInclude(ar => ar.Role)
             .FirstOrDefaultAsync(a => a.UserName == request.UserName);
 
         var result = loginManager.ValidateLogin(user, request.Password);
         if (!result.IsSuccess)
         {
             // 登录失败，重定向回登录页并附带错误信息
-            return Redirect($"/login?error={Uri.EscapeDataString(result.ErrorMessage ?? "登录失败")}");
+            return Redirect(
+                $"/login?error={Uri.EscapeDataString(result.ErrorMessage ?? localizer.Get(LanguageKey.Login) + localizer.Get(LanguageKey.Failed))}"
+            );
         }
 
         // 登录成功，写 Cookie
@@ -91,24 +103,25 @@ public class AccountController(IdentityServerContext db, LoginManager loginManag
         {
             new("sub", user!.Id.ToString()),
             new(ClaimTypes.Name, user.UserName),
-            new(ClaimTypes.Role, ConstVal.SuperAdmin)
+            new(ClaimTypes.Role, ConstVal.SuperAdmin),
         };
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
         var principal = new ClaimsPrincipal(identity);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-        // 重定向到首页
         return Redirect("/");
     }
 
-    public class LoginRequest
+    /// <summary>
+    /// logout
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("logout")]
+    public async Task<IActionResult> LogoutAsync()
     {
-        public string UserName { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-    public class LoginResult
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Redirect("/login");
     }
 }
