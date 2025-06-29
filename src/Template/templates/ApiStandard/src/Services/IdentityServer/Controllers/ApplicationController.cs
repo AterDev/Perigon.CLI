@@ -24,12 +24,15 @@ public class ApplicationController : ControllerBase
         var applications = new List<object>();
         await foreach (var app in _applicationManager.ListAsync())
         {
-            //applications.Add(new
-            //{
-            //    app.ClientId,
-            //    app.DisplayName,
-            //    RedirectUris = app.RedirectUris?.Select(uri => uri.ToString())
-            //});
+            var clientId = await _applicationManager.GetClientIdAsync(app);
+            var displayName = await _applicationManager.GetDisplayNameAsync(app);
+            var redirectUris = await _applicationManager.GetRedirectUrisAsync(app);
+            applications.Add(new
+            {
+                ClientId = clientId,
+                DisplayName = displayName,
+                RedirectUris = redirectUris.Select(u => u.ToString()).ToList()
+            });
         }
         return Ok(applications);
     }
@@ -47,14 +50,20 @@ public class ApplicationController : ControllerBase
             ClientId = dto.ClientId,
             ClientSecret = dto.ClientSecret,
             DisplayName = dto.DisplayName,
-            RedirectUris = { new Uri(dto.RedirectUri) },
-            Permissions =
-            {
-                OpenIddictConstants.Permissions.Endpoints.Token,
-                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                OpenIddictConstants.Permissions.Prefixes.Scope + "api"
-            }
         };
+        if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
+        {
+            descriptor.RedirectUris.Add(new Uri(dto.RedirectUri));
+        }
+
+        if (dto.Permissions != null)
+        {
+            foreach (var p in dto.Permissions)
+            {
+                descriptor.Permissions.Add(p);
+            }
+        }
+
         await _applicationManager.CreateAsync(descriptor);
         return Ok();
     }
@@ -73,14 +82,24 @@ public class ApplicationController : ControllerBase
         {
             return NotFound();
         }
-
         var descriptor = new OpenIddictApplicationDescriptor
         {
-            ClientId = dto.ClientId,
+            ClientId = dto.ClientId ?? clientId,
             ClientSecret = dto.ClientSecret,
             DisplayName = dto.DisplayName,
-            RedirectUris = { new Uri(dto.RedirectUri) },
         };
+        if (!string.IsNullOrWhiteSpace(dto.RedirectUri))
+        {
+            descriptor.RedirectUris.Add(new Uri(dto.RedirectUri));
+        }
+
+        if (dto.Permissions != null)
+        {
+            foreach (var p in dto.Permissions)
+            {
+                descriptor.Permissions.Add(p);
+            }
+        }
 
         await _applicationManager.UpdateAsync(application, descriptor);
         return Ok();
@@ -110,7 +129,8 @@ public class CreateApplicationDto
     public required string ClientId { get; set; }
     public required string ClientSecret { get; set; }
     public required string DisplayName { get; set; }
-    public required string RedirectUri { get; set; }
+    public string? RedirectUri { get; set; }
+    public List<string>? Permissions { get; set; }
 }
 
 public class UpdateApplicationDto

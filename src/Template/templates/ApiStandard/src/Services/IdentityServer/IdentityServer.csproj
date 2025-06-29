@@ -1,30 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Components\Pages\ClientApp\Models\**" />
+		<Content Remove="Components\Pages\ClientApp\Models\**" />
+		<EmbeddedResource Remove="Components\Pages\ClientApp\Models\**" />
+		<None Remove="Components\Pages\ClientApp\Models\**" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-        <PackageReference Include="OpenIddict.AspNetCore" Version="6.3.0" />
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="6.3.0" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.9" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.9" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.DataGrid.EntityFrameworkAdapter" Version="4.12.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+		<PackageReference Include="OpenIddict.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="OpenIddict.EntityFrameworkCore" Version="6.4.0" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.0" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.0" />
+	</ItemGroup>
 
-    <ItemGroup>
+	<ItemGroup>
 
-        <ProjectReference Include="..\..\Ater\Ater.Common\Ater.Common.csproj" />
-        <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-    </ItemGroup>
+		<ProjectReference Include="..\..\Ater\Ater.Common\Ater.Common.csproj" />
+		<ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Share\" />
-    </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Migrations\" />
+	</ItemGroup>
 
 </Project>

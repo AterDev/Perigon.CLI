@@ -8,6 +8,12 @@
     }
   },
   "profiles": {
+    "Watc Run": {
+      "commandName": "Executable",
+      "executablePath": "dotnet",
+      "commandLineArgs": "watch run",
+      "workingDirectory": "."
+    },
     "AterStudio": {
       "commandName": "Project",
       "launchBrowser": true,

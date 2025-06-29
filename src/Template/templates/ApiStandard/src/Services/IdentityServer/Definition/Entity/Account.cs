@@ -13,4 +13,9 @@ public class Account : EntityBase
     public required string HashPassword { get; set; }
     [MaxLength(100)]
     public required string HashSalt { get; set; }
+    [MaxLength(100)]
+    [EmailAddress]
+    public required string Email { get; set; }
+    // 用户与角色多对多关系
+    public ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
 }

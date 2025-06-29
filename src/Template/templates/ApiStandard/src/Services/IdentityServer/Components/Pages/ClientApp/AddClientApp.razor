@@ -1,0 +1,60 @@
+@inherits PageBase
+@implements IDialogContentComponent
+
+<FluentDialogHeader ShowDismiss="false">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentLabel Typo="Typography.PaneHeader">
+            @Dialog.Instance.Parameters.Title
+        </FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+
+<EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+
+    <FluentDialogBody>
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentTextField @bind-Value="AddDto!.ClientName"
+                             Label="@Localizer.Get(LanguageKey.ClientName)"
+                             Placeholder="@Localizer.Get(LanguageKey.ClientName)"
+                             class="w-100" Required />
+            <FluentValidationMessage For="() => AddDto.ClientName"></FluentValidationMessage>
+
+            <FluentRadioGroup @bind-Value=AddDto.ApplicationType
+                              Label="ApplicationType">
+                @foreach (var type in _applicationTypes)
+                {
+                    <FluentRadio Value="type">@type</FluentRadio>
+                }
+            </FluentRadioGroup>
+
+            <FluentRadioGroup @bind-Value=AddDto.ClientType Label="ClientType">
+                @foreach (var type in _clientTypes)
+                {
+                    <FluentRadio Value="type">@type</FluentRadio>
+                }
+            </FluentRadioGroup>
+
+            <FluentLabel Typo="Typography.Body" Color="Color.Info">
+                @Localizer.Get(LanguageKey.ClientTypeDescription)
+            </FluentLabel>
+        </FluentStack>
+    </FluentDialogBody>
+
+    <FluentDialogFooter>
+        <FluentButton Appearance="Appearance.Accent"
+                      Type="ButtonType.Button"
+                      Disabled="!formValid"
+                      OnClick="SaveAsync">
+            @Localizer.Get(LanguageKey.Save)
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">
+            @Localizer.Get(LanguageKey.Cancel)
+        </FluentButton>
+    </FluentDialogFooter>
+</EditForm>
+
+
+

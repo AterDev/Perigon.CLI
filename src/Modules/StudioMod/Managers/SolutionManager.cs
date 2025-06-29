@@ -1,6 +1,5 @@
-using System.Text.Json.Nodes;
-using Entity;
 using Share.Models.CommandDtos;
+using System.Text.Json.Nodes;
 
 namespace StudioMod.Managers;
 /// <summary>
@@ -12,11 +11,10 @@ public class SolutionManager(
     ILogger<SolutionManager> logger,
     CommandService commandService,
     SolutionService solution
-    )
+    ) : ManagerBase(logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly ProjectManager _projectManager = projectManager;
-    private readonly ILogger<SolutionManager> _logger = logger;
     private readonly SolutionService _solution = solution;
     private readonly CommandService _commandService = commandService;
 

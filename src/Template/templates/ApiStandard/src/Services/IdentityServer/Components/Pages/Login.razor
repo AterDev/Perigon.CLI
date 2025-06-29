@@ -1,0 +1,39 @@
+@page "/login"
+@using IdentityServer.Definition.Share.AccountDtos
+@inherits PageBase
+@attribute [AllowAnonymous]
+@inject HttpClient Http
+<PageTitle>@Lang(LanguageKey.Login)</PageTitle>
+
+
+<FluentStack Orientation="Orientation.Horizontal"
+             HorizontalAlignment="HorizontalAlignment.Center"
+             VerticalAlignment="VerticalAlignment.Center">
+    <FluentCard Style="width:350px; padding:24px;">
+        <form action="/api/account/login" method="post" style="width:auto">
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+                <FluentLabel Typo="Typography.PaneHeader">
+                    @Lang(LanguageKey.Login)
+                </FluentLabel>
+                <FluentTextField @bind-Value="UserName" Placeholder="UserName" Required Name="UserName"
+                                 Class="w-100" />
+                <FluentTextField @bind-Value="Password" Placeholder="Password" Type="password" Required Name="Password"
+                                 Class="w-100" />
+                <FluentButton Appearance="Appearance.Accent"
+                              Type="ButtonType.Submit" Class="w-100">
+                    @Lang(LanguageKey.Login)
+                </FluentButton>
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <FluentMessageBar MessageBarType="MessageBarType.Error">@ErrorMessage</FluentMessageBar>
+                }
+            </FluentStack>
+        </form>
+    </FluentCard>
+</FluentStack>
+
+@code {
+    private string UserName { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private string? ErrorMessage { get; set; }
+}

@@ -1,5 +1,6 @@
-using IdentityServer.Components;
-using IdentityServer.Definition.EntityFramework;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components;
+
 using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,7 @@ builder.AddServiceDefaults();
 
 builder.Services.AddDbContext<IdentityServerContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityServerContext"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityServer"));
     options.UseOpenIddict();
 });
 
@@ -25,6 +26,8 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("/connect/authorize")
             .SetTokenEndpointUris("/connect/token")
             .SetUserInfoEndpointUris("/connect/userinfo")
+            .SetDeviceAuthorizationEndpointUris("/connect/device")
+            .SetEndUserVerificationEndpointUris("/connect/verify")
             .AllowAuthorizationCodeFlow()
             .AllowClientCredentialsFlow()
             .AllowDeviceAuthorizationFlow()
@@ -48,25 +51,72 @@ builder.Services.AddOpenIddict()
 
     });
 
+builder.Services.AddLocalization();
+builder.Services.AddRequestLocalization(options =>
+{
+    // 添加更多语言支持
+    var supportedCultures = new[] { "zh-CN", "en-US" };
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+    options.FallBackToParentCultures = true;
+    options.FallBackToParentUICultures = true;
+    options.ApplyCurrentCultureToResponseHeaders = true;
+});
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<HttpClient>(sp =>
+{
+    var nav = sp.GetRequiredService<NavigationManager>();
+    return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+});
+
+builder.Services.AddFluentUIComponents()
+    .AddDataGridEntityFrameworkAdapter();
+
+builder.Services.AddSingleton<ToastService>();
+
+builder.Services.AddScoped<ApplicationManager>();
+builder.Services.AddScoped<LoginManager>();
+builder.Services.AddScoped<Localizer>();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.Name = ".AspNetCore.IdentityServerCookie";
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.LoginPath = "/login";
+        options.AccessDeniedPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
-
 app.UseHttpsRedirection();
+
+app.UseRouting();
+app.UseRequestLocalization();
+
+app.UseAntiforgery();
+app.MapStaticAssets();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseAntiforgery();
-app.MapStaticAssets();
 app.MapControllers();
-
+app.MapDefaultEndpoints();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// initialize user & SuperAdmin role
+await IdentityServer.Init.EnsureAdminAndSuperAdminAsync(app.Services);
 
 app.Run();

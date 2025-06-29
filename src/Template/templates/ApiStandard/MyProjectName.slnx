@@ -2,6 +2,7 @@
   <Folder Name="/config/">
     <File Path=".config/dotnet-tools.json" />
     <File Path=".editorconfig" />
+    <File Path=".github/copilot-instructions.md" />
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/docs.md" />

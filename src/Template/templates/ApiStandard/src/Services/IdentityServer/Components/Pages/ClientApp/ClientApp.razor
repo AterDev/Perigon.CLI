@@ -1,0 +1,67 @@
+@page "/client-apps"
+@inherits PageBase
+@attribute [Authorize]
+@using IdentityServer.Managers
+@using Microsoft.FluentUI.AspNetCore.Components
+
+<PageTitle>
+    @Lang(LanguageKey.ClientApp, LanguageKey.Management, " ")
+</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal">
+    <FluentButton @onclick="ShowAddDialog" Appearance="Appearance.Accent">
+        @Lang(LanguageKey.Add, LanguageKey.ClientApp, " ")
+    </FluentButton>
+    <FluentSpacer />
+    <FluentPaginator State="@pagination" SummaryTemplate="@template" />
+</FluentStack>
+
+<FluentDataGrid Items="@apps.AsQueryable()"
+                @ref="grid"
+                AutoFit="true"
+                ResizableColumns="true"
+                MultiLine="true"
+                Style="height:auto;width:100%">
+    <ChildContent>
+        <TemplateColumn Title="@Lang(LanguageKey.ClientName)" Sortable="true">
+            <ChildContent Context="app">
+                <FluentNavLink Href="@($"/client-app/{app.ClientId}")">
+                    <FluentLabel Color="Color.Accent">@app.ClientName</FluentLabel>
+                </FluentNavLink>
+            </ChildContent>
+        </TemplateColumn>
+
+        <TemplateColumn Title="@Lang(LanguageKey.ClientId)">
+            <ChildContent Context="app">
+                @app.ClientId
+            </ChildContent>
+        </TemplateColumn>
+        <TemplateColumn Title="@Lang(LanguageKey.RedirectUris)">
+            <ChildContent Context="app">
+                @foreach (var uri in app.RedirectUris)
+                {
+                    <div>@uri</div>
+                }
+            </ChildContent>
+        </TemplateColumn>
+        <TemplateColumn Title="@Lang(LanguageKey.Actions)">
+            <ChildContent Context="app">
+                <FluentButton Size="Small"
+                              IconStart="@(new SmallRegularIcon.Edit())"
+                              Title="@Lang(LanguageKey.Edit)" @onclick="() => ToDetailPage(app)"></FluentButton>
+
+                <FluentButton Size="Small"
+                              Title="@Lang(LanguageKey.Delete)"
+                              @onclick="() => Delete(app.ClientId)">
+                    <FluentIcon Value="@(new SmallRegularIcon.Delete())" Color="@Color.Error" />
+                </FluentButton>
+            </ChildContent>
+        </TemplateColumn>
+    </ChildContent>
+    <EmptyContent>
+        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="10">
+            <FluentIcon Value="@(new Icons.Filled.Size24.Crown())" Color="@Color.Accent" />
+            <div>Nothing to see here. Carry on!</div>
+        </FluentStack>
+    </EmptyContent>
+</FluentDataGrid>

@@ -1,7 +1,11 @@
 @page "/"
+@inherits PageBase
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
-<PageTitle>Home</PageTitle>
+@using Microsoft.FluentUI.AspNetCore.Components
+<PageTitle>IdentityServer</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<h1>
+    Home
+</h1>

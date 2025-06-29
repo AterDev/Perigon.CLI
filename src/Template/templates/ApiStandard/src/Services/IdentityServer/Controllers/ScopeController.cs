@@ -14,24 +14,31 @@ public class ScopeController : ControllerBase
         _scopeManager = scopeManager;
     }
 
-    // ��ѯ������ע���Scope
+    /// <summary>
+    /// 查询所有Scope
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> ListAsync()
     {
         var scopes = new List<object>();
         await foreach (var scope in _scopeManager.ListAsync())
         {
-            //scopes.Add(new
-            //{
-            //    scope.Name,
-            //    scope.DisplayName,
-            //    scope.Resources
-            //});
+            var name = await _scopeManager.GetNameAsync(scope);
+            var displayName = await _scopeManager.GetDisplayNameAsync(scope);
+            var resources = await _scopeManager.GetResourcesAsync(scope);
+            scopes.Add(new
+            {
+                Name = name,
+                DisplayName = displayName,
+                Resources = resources.ToList()
+            });
         }
         return Ok(scopes);
     }
 
-    // ����Scope
+    /// <summary>
+    /// 新增Scope
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> CreateAsync([FromBody] CreateScopeDto dto)
     {
@@ -39,13 +46,22 @@ public class ScopeController : ControllerBase
         {
             Name = dto.Name,
             DisplayName = dto.DisplayName,
-            //Resources = dto.Resources
         };
+        if (dto.Resources != null)
+        {
+            foreach (var r in dto.Resources)
+            {
+                descriptor.Resources.Add(r);
+            }
+        }
+
         await _scopeManager.CreateAsync(descriptor);
         return Ok();
     }
 
-    // ����Scope
+    /// <summary>
+    /// 更新Scope
+    /// </summary>
     [HttpPut("{name}")]
     public async Task<IActionResult> UpdateAsync(string name, [FromBody] UpdateScopeDto dto)
     {
@@ -54,19 +70,26 @@ public class ScopeController : ControllerBase
         {
             return NotFound();
         }
-
         var descriptor = new OpenIddictScopeDescriptor
         {
-            Name = dto.Name,
+            Name = dto.Name ?? name,
             DisplayName = dto.DisplayName,
-            //Resources = dto.Resources
         };
+        if (dto.Resources != null)
+        {
+            foreach (var r in dto.Resources)
+            {
+                descriptor.Resources.Add(r);
+            }
+        }
 
         await _scopeManager.UpdateAsync(scope, descriptor);
         return Ok();
     }
 
-    // ɾ��Scope
+    /// <summary>
+    /// 删除Scope
+    /// </summary>
     [HttpDelete("{name}")]
     public async Task<IActionResult> DeleteAsync(string name)
     {
@@ -75,7 +98,6 @@ public class ScopeController : ControllerBase
         {
             return NotFound();
         }
-
         await _scopeManager.DeleteAsync(scope);
         return Ok();
     }
@@ -85,7 +107,7 @@ public class CreateScopeDto
 {
     public required string Name { get; set; }
     public required string DisplayName { get; set; }
-    public List<string> Resources { get; set; } = [];
+    public List<string>? Resources { get; set; }
 }
 
 public class UpdateScopeDto

@@ -1,0 +1,69 @@
+@using OpenIddict.Abstractions
+@using OpenIddict.EntityFrameworkCore.Models
+@inherits PageBase
+@implements IDialogContentComponent<OpenIddictEntityFrameworkCoreApplication>
+
+<FluentDialogHeader>
+    <FluentLabel Typo="Typography.PaneHeader">
+        @Dialog.Instance.Parameters.Title
+    </FluentLabel>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentLabel Typo="Typography.Subject" Color="Color.Neutral">
+            @Localizer.Get(LanguageKey.ClientSecretSaveTip)
+        </FluentLabel>
+
+        <FluentStack Orientation="Orientation.Horizontal">
+            <FluentLabel Typo="Typography.Body" Color="Color.Neutral">
+                @Localizer.Get(LanguageKey.ClientId):
+            </FluentLabel>
+            <FluentLabel Typo="Typography.Body" Color="Color.Info">
+                <strong>@ClientId</strong>
+            </FluentLabel>
+            <FluentIcon Value="@(new SmallRegularIcon.Copy())"
+                        OnClick="@(() => CopyToClipboardAsync(ClientId))"
+                        Title="@Localizer.Get(LanguageKey.Copy)" />
+        </FluentStack>
+        <FluentStack Orientation="Orientation.Horizontal">
+            <FluentLabel Typo="Typography.Body" Color="Color.Neutral">
+                @Localizer.Get(LanguageKey.ClientSecret):
+            </FluentLabel>
+            <FluentLabel Typo="Typography.Body" Color="Color.Info">
+                <strong>
+                    @ClientSecret
+                </strong>
+            </FluentLabel>
+            <FluentIcon Value="@(new SmallRegularIcon.Copy())"
+                        OnClick="@(() => CopyToClipboardAsync(ClientSecret))"
+                        Title="@Localizer.Get(LanguageKey.Copy)" />
+        </FluentStack>
+    </FluentStack>
+</FluentDialogBody>
+
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@CloseAsync">
+        @Localizer.Get(LanguageKey.Close)
+    </FluentButton>
+</FluentDialogFooter>
+
+@code {
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = default!;
+
+    [Parameter]
+    public OpenIddictEntityFrameworkCoreApplication Content { get; set; } = default!;
+
+    public string ClientId => Content.ClientId ?? string.Empty;
+    public string ClientSecret => Content.ClientSecret ?? string.Empty;
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private async Task CloseAsync()
+    {
+        await Dialog.CloseAsync();
+    }
+}
