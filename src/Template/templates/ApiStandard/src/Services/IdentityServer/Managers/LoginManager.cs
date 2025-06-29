@@ -10,20 +10,16 @@ public class LoginManager
     {
         if (user is null)
         {
-            return new LoginResult { IsSuccess = false, ErrorMessage = "用户不存在" };
+            return new LoginResult { IsSuccess = false, ErrorMessage = "User not found" };
         }
         if (!user.AccountRoles.Any(ar => ar.Role.Name == ConstVal.SuperAdmin))
         {
-            return new LoginResult
-            {
-                IsSuccess = false,
-                ErrorMessage = "无权限，仅超级管理员可登录",
-            };
+            return new LoginResult { IsSuccess = false, ErrorMessage = "Forbidden, no access" };
         }
         var hash = HashCrypto.GeneratePwd(password, user.HashSalt);
         if (user.HashPassword != hash)
         {
-            return new LoginResult { IsSuccess = false, ErrorMessage = "密码错误" };
+            return new LoginResult { IsSuccess = false, ErrorMessage = "Password incorrect" };
         }
         return new LoginResult { IsSuccess = true };
     }

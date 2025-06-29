@@ -1,12 +1,12 @@
 # Ater.dry.copilot
 
-**[English](./README_en.md)**
+🌐 **[English](./README_en.md)**
 
-**ater** 是一个智能代码辅助工具，主要提供代码生成功能，它可以分析您的实体，智能的帮助您生成相关的数据传输对象、数据库读写操作以及API接口。
+**Ater.dry.copilot** 是一个智能代码辅助工具，帮助你快速构建基于Asp.Net Core 和EF Core的前后端服务的工具。它提供**命令行**，**WebUI**以及**MCP Server**多种方式,在经过实战的精心设计的项目架构中，通过代码生成和LLM技术，减少各种各样的模板化代码，智能生成简单的业务实现逻辑，极大的提高开发效率，改善开发体验！
 
-它作为`dotnet`命令行工具提供，同时支持`Web UI`操作界面。
+它作为`dotnet`命令行工具提供，同时支持`Web UI`操作界面以及`MCP Server`。
 
-## 特性
+## 🚀 特性
 
 - 针对ater.web.templates模板(ASP.NET Core项目)的无缝集成
   - 从创建新解决方案，或添加现有项目开始
@@ -23,7 +23,8 @@
 - 提供Web UI界面，可管理维护多个项目，提供更加全面的功能
   - 包含命令行工具的所有功能
   - 自定义的代码生成步骤和内容(通过Razor模板)，自定义生成内容
-- 提供MCP服务，以便在IDE中使用
+  
+- 提供MCP服务，以支持各类编辑器中的Agent模式
 
 ### 对ASP.NET Core的支持
 
@@ -52,27 +53,19 @@ dry 命令工具可以帮助开发者根据实体模型(.cs文件)生成常用�
 
 集成[ater.web.templates](https://www.nuget.org/packages/ater.web.templates)项目模板。
 
-## 安装前提
+## 安装
 
-- 安装[`.NET SDK 10+`](https://dotnet.microsoft.com/zh-cn/download)
+- 确保安装[`.NET SDK 10`](https://dotnet.microsoft.com/zh-cn/download)
 
-## 版本
-
-首先检查包版本，工具依赖.NET SDK,对应关系如下：
-
-| Package Version | .NET SDK Version | 支持     |
-| --------------- | ---------------- | -------- |
-| 10.0             | 10.0             | 当前版本 |
-
-## 安装工具
-
-使用`dotnet tool`命令安装：
+### 使用dotnet tool安装工具
 
 ```pwsh
 dotnet tool install --global ater.dry.copilot
 ```
-
 可到[nuget](https://www.nuget.org/packages/ater.dry.copilot)中查询最新版本！
+
+> [!NOTE]
+> 当前V10版本正在开发中，预计2025年底在前发布.
 
 ## 使用
 
@@ -84,12 +77,28 @@ dotnet tool install --global ater.dry.copilot
 ater studio
 ```
 
+该命令将自动开浏览器页面，端口为`19160`。
+
+> [!NOTE]
+> studio同时提供`MCP Server`，其地址为:`http://localhost:19160/mcp`.
+> 
+> 默认端口为19160，若被占用，会使用9160.
+
 ### 使用命令行
 
 你可以使用`ater --help` 查看命令帮助信息。
 
 或者使用`ater [command] --help` 查看具体命令帮助信息。
 
-## 文档
+## 📄 文档
+
+[进行中](https://www.dusi.dev/docs/Ater.Dry)
 
 
+## 🙏 致谢
+
+<p align="left">
+  <a href="https://www.jetbrains.com/?from=ater.dry.cli">
+    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo" width="100"/>
+  </a>
+</p>

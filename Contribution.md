@@ -21,12 +21,16 @@
 - .NET SDK 9.0 (正式版需要10.0)
 - Node.js 22.0+
 - Angular CLI 20.0
+- Visual Studio 2022 (推荐使用最新版本并使用**GitHub Copilot**)
 
 安装 ng cli
 
 ```powershell
 npm install -g @angular/cli@20
 ```
+
+> [!NOTE]
+> 后面将不再使用Angular 作为WebUI，而是使用Blazor Server和`fluentui-blazor`来实现。
 
 ## 项目结构说明
 
