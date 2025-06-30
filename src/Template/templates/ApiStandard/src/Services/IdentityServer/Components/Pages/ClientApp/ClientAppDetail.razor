@@ -7,17 +7,69 @@
     <EditForm EditContext="editContext" style="max-width:600px">
         <DataAnnotationsValidator />
 
-        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Start" VerticalGap="8">
+        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Start" VerticalGap="12">
             <FluentLabel Typo="Typography.PaneHeader">
                 @Lang(LanguageKey.ClientApp, LanguageKey.Detail)
             </FluentLabel>
+            <FluentLabel Typo="Typography.Subject">
+                @Lang(LanguageKey.ClientId): @ClientId
+            </FluentLabel>
 
-            <FluentTextField @bind-Value="EditDto!.ClientName"
+            <FluentTextField @bind-Value="EditDto.ClientName"
                              Label="@Localizer.Get(LanguageKey.ClientName)"
                              Placeholder="@Localizer.Get(LanguageKey.ClientName)"
                              class="w-100" Required />
             <FluentValidationMessage For="() => EditDto.ClientName"></FluentValidationMessage>
 
+            <FluentDivider Class="w-100" />
+
+            @* app Type & client Type *@
+            <FluentRadioGroup @bind-Value=EditDto.ApplicationType
+                              Label="ApplicationType">
+                @foreach (var type in _applicationTypes)
+                {
+                    <FluentRadio Value="type">@type</FluentRadio>
+                }
+            </FluentRadioGroup>
+
+            <FluentRadioGroup @bind-Value=EditDto.ClientType Label="ClientType">
+                @foreach (var type in _clientTypes)
+                {
+                    <FluentRadio Value="type">@type</FluentRadio>
+                }
+            </FluentRadioGroup>
+            <FluentLabel Typo="Typography.Body" Color="Color.Info">
+                @Localizer.Get(LanguageKey.ClientTypeDescription)
+            </FluentLabel>
+
+            @* scopes & grant type *@
+            <FluentAutocomplete TOption="string"
+                                Placeholder="scopes"
+                                MaximumSelectedOptions="scopeOptions.Count"
+                                OnOptionsSearch="@OnSearchScope"
+                                AutoComplete="off"
+                                Multiple="true"
+                                KeepOpen="true"
+                                @bind-SelectedOptions="@selectedScopes">
+
+                <LabelTemplate>Select Scopes</LabelTemplate>
+
+            </FluentAutocomplete>
+
+            <FluentAutocomplete TOption="string"
+                                Placeholder="grant types"
+                                MaximumSelectedOptions="grantTypeOptions.Count"
+                                OnOptionsSearch="@OnSearchGrantType"
+                                Multiple="true"
+                                KeepOpen="true"
+                                @bind-SelectedOptions="@selectedGrantTypes">
+
+                <LabelTemplate>Select GrantTypes</LabelTemplate>
+            </FluentAutocomplete>
+
+            <FluentDivider Class="w-100" />
+
+            @* 回调地址 *@
             <FluentTextArea Rows="3" @bind-Value="RedirectUris"
                             Placeholder="@Localizer.Get(LanguageKey.RedirectUris)" Class="w-100"
                             Label="@Localizer.Get(LanguageKey.RedirectUris)"
@@ -25,6 +77,7 @@
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
                 @Localizer.Get(LanguageKey.RowValueTip)
             </FluentLabel>
+
             <FluentValidationMessage For="() => EditDto.RedirectUris"></FluentValidationMessage>
 
 

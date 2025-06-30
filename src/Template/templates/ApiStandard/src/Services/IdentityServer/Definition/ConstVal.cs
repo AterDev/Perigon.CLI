@@ -39,4 +39,5 @@ public static class LanguageKey
 
     public const string Login = "Login";
     public const string Logout = "Logout";
+    public const string Setting = "Setting";
 }

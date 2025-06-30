@@ -200,6 +200,9 @@ chose native &amp; public for Client.</value>
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="Setting" xml:space="preserve">
+    <value>Setting</value>
+  </data>
   <data name="Success" xml:space="preserve">
     <value>Success</value>
   </data>

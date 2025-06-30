@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-
+using OpenIddict.Abstractions;
 using OpenIddict.EntityFrameworkCore.Models;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+
 namespace IdentityServer.Components.Pages.ClientApp;
 
 public partial class ClientAppDetail
@@ -16,12 +18,49 @@ public partial class ClientAppDetail
 
     private bool formValid;
     private EditContext? editContext;
-    private ClientAppEditDto? EditDto;
+    private ClientAppEditDto EditDto = default!;
+
+    /// <summary>
+    /// application types
+    /// </summary>
+    private readonly IReadOnlyList<string> _applicationTypes =
+    [
+        OpenIddictConstants.ApplicationTypes.Web,
+        OpenIddictConstants.ApplicationTypes.Native,
+    ];
+
+    /// <summary>
+    /// client types
+    /// </summary>
+    private readonly IReadOnlyList<string> _clientTypes =
+    [
+        OpenIddictConstants.ClientTypes.Public,
+        OpenIddictConstants.ClientTypes.Confidential,
+    ];
 
     public string RedirectUris { get; set; } = string.Empty;
     public string PostLogoutRedirectUris { get; set; } = string.Empty;
-    public List<string> grantTypeOptions = new() { "authorization_code", "client_credentials", "password", "refresh_token", "implicit", "device_code" };
-    public List<string> scopeOptions = new() { "openid", "profile", "email", "phone", "roles" };
+    public List<string> grantTypeOptions =
+    [
+        GrantTypes.AuthorizationCode,
+        GrantTypes.ClientCredentials,
+        GrantTypes.Password,
+        GrantTypes.RefreshToken,
+        GrantTypes.Implicit,
+    ];
+    public List<string> scopeOptions =
+    [
+        Scopes.Address,
+        Scopes.Email,
+        Scopes.OpenId,
+        Scopes.OfflineAccess,
+        Scopes.Phone,
+        Scopes.Profile,
+        Scopes.Roles,
+    ];
+
+    public IEnumerable<string>? selectedGrantTypes;
+    public IEnumerable<string>? selectedScopes;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,6 +88,7 @@ public partial class ClientAppDetail
             StateHasChanged();
         }
     }
+
     public void Dispose()
     {
         if (editContext is not null)
@@ -62,7 +102,6 @@ public partial class ClientAppDetail
         if (!editContext!.Validate())
         {
             ToastService.ShowError(Lang(LanguageKey.FormValidFailed));
-
             editContext.NotifyValidationStateChanged();
             return;
         }
@@ -71,7 +110,21 @@ public partial class ClientAppDetail
             if (!string.IsNullOrWhiteSpace(RedirectUris))
             {
                 var separators = new[] { "\r\n", "\n" };
-                EditDto.RedirectUris = RedirectUris.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToList();
+                EditDto.RedirectUris = RedirectUris
+                    .Split(
+                        separators,
+                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                    )
+                    .Distinct()
+                    .ToList();
+            }
+            if (selectedGrantTypes is not null)
+            {
+                EditDto.GrantTypes = selectedGrantTypes.ToList();
+            }
+            if (selectedScopes is not null)
+            {
+                EditDto.Scopes = selectedScopes.ToList();
             }
             try
             {
@@ -79,10 +132,26 @@ public partial class ClientAppDetail
             }
             catch (Exception ex)
             {
-                ToastService.ShowError(Lang(LanguageKey.Edit, LanguageKey.Failed) + $":{ex.Message}");
+                ToastService.ShowError(
+                    Lang(LanguageKey.Edit, LanguageKey.Failed) + $":{ex.Message}"
+                );
                 return;
             }
         }
+    }
+
+    private void OnSearchScope(OptionsSearchEventArgs<string> e)
+    {
+        e.Items = scopeOptions
+            .Where(s => s.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private void OnSearchGrantType(OptionsSearchEventArgs<string> e)
+    {
+        e.Items = grantTypeOptions
+            .Where(s => s.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
+            .ToList();
     }
 
     private void Cancel()

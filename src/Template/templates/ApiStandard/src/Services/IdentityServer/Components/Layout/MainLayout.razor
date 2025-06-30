@@ -27,13 +27,21 @@
 
                             <FluentMenu Anchor="menu" @bind-Open="open" VerticalThreshold="170">
                                 <FluentMenuItem>
-                                    <FluentIcon Value="@(new Icons.Regular.Size20.Person())" />
-                                    Settings
+                                    <FluentStack Orientation="Orientation.Horizontal"
+                                                 VerticalAlignment="VerticalAlignment.Center">
+                                        <FluentIcon Value="@(new Icons.Regular.Size20.Person())" />
+                                        @Localizer.Get(LanguageKey.Setting)
+                                        
+                                    </FluentStack>
                                 </FluentMenuItem>
                                 <FluentDivider />
                                 <FluentMenuItem onclick="Logout">
-                                    <FluentIcon Value="@(new Icons.Regular.Size20.SignOut())" />
-                                    @Localizer.Get(LanguageKey.Logout)
+                                    <FluentStack Orientation="Orientation.Horizontal"
+                                                 VerticalAlignment="VerticalAlignment.Center">
+                                        <FluentIcon Value="@(new Icons.Regular.Size20.SignOut())" />
+                                        @Localizer.Get(LanguageKey.Logout)
+                                    </FluentStack>
+
                                 </FluentMenuItem>
                             </FluentMenu>
                         </Authorized>

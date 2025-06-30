@@ -200,6 +200,9 @@
   <data name="Save" xml:space="preserve">
     <value>保存</value>
   </data>
+  <data name="Setting" xml:space="preserve">
+    <value>设置</value>
+  </data>
   <data name="Success" xml:space="preserve">
     <value>成功</value>
   </data>
