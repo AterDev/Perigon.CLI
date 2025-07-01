@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddNewSolution" xml:space="preserve">
+    <value>暂无任何项目，请添加本地解决方案或点击+创建新解决方案</value>
+  </data>
   <data name="CacheConnectionString" xml:space="preserve">
     <value>缓存连接字符串</value>
   </data>
@@ -162,6 +165,9 @@
   <data name="InputDirectory" xml:space="preserve">
     <value>👉 输入解决方案根目录</value>
   </data>
+  <data name="Local" xml:space="preserve">
+    <value>本地</value>
+  </data>
   <data name="Modules" xml:space="preserve">
     <value>模块</value>
   </data>
@@ -170,6 +176,9 @@
   </data>
   <data name="OrderModuleDes" xml:space="preserve">
     <value>订单管理模块</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>项目</value>
   </data>
   <data name="RequestDes" xml:space="preserve">
     <value>生成客户端请求服务及模型</value>
@@ -189,6 +198,9 @@
   <data name="SelectSolutionType" xml:space="preserve">
     <value>👇 选择解决方案模板类型，Light使用minimalApi，仅适用小型接口程序，推荐Standard（默认值）.</value>
   </data>
+  <data name="Solution" xml:space="preserve">
+    <value>解决方案</value>
+  </data>
   <data name="SolutionSummary" xml:space="preserve">
     <value>你的解决方案配置:</value>
   </data>
@@ -197,6 +209,9 @@
   </data>
   <data name="StudioDes" xml:space="preserve">
     <value>开启Dry Studio</value>
+  </data>
+  <data name="Tools" xml:space="preserve">
+    <value>工具</value>
   </data>
   <data name="UpdateDes" xml:space="preserve">
     <value>升级studio,project等</value>

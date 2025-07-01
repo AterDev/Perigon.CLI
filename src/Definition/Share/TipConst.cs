@@ -40,13 +40,47 @@ public class TipConst
     public const string RunSolutionCreate = "RunSolutionCreate";
     public const string CreateSolutionSuccess = "CreateSolutionSuccess";
 
-
     public const string CMSModuleDes = "CMSModuleDes";
     public const string CustomerModuleDes = "CustomerModuleDes";
     public const string FileManagerModuleDes = "FileManagerModuleDes";
     public const string OrderModuleDes = "OrderModuleDes";
-
     public const string CommandSelectTip = "CommandSelectTip";
+}
+
+public class StudioConst
+{
+    // menus
+    public const string Solution = "Solution";
+    public const string Project = "Project";
+    public const string Tools = "Tools";
+
+    // actions
+    public const string Edit = "Edit";
+    public const string Save = "Save";
+    public const string Add = "Add";
+    public const string Create = "Create";
+    public const string Delete = "Delete";
+    public const string Detail = "Detail";
+    public const string Export = "Export";
+    public const string Home = "Home";
+    public const string Actions = "Actions";
+    public const string Management = "Management";
+    public const string Cancel = "Cancel";
+    public const string Success = "Success";
+    public const string Failed = "Failed";
+    public const string Yes = "Yes";
+    public const string No = "No";
+    public const string ConfirmDeleteMessage = "ConfirmDeleteMessage";
+    public const string FormValidFailed = "FormValidFailed";
+    public const string Close = "Close";
+    public const string Copy = "Copy";
+    public const string Setting = "Setting";
+
+    // else
+    public const string Local = "Local";
+
+    // tips
+    public const string AddNewSolution = "AddNewSolution";
 }
 
 public class FieldConst

@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 <FluentLayout>
     <FluentHeader Class="header">
@@ -36,8 +36,16 @@
 
 </FluentTooltip>
 
+
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+<FluentDesignTheme @bind-Mode="@Mode" StorageName="theme" />
+@code
+{
+    public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
+    bool open = false;
+}
