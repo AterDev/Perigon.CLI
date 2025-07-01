@@ -28,18 +28,22 @@
         <FluentGrid AdaptiveRendering="true" Style="width: 100%;">
             @foreach (var project in projects)
             {
-                <FluentGridItem sm="12" md="6">
+                <FluentGridItem sm="6" md="3">
                     <FluentCard Width="100%">
                         <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
                         <FluentLabel Typo="Typography.Body">@project.Name</FluentLabel>
+
                         <FluentStack HorizontalAlignment="HorizontalAlignment.SpaceBetween" VerticalAlignment="VerticalAlignment.Center">
                             <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
                             <div>
-                                <FluentStack>
-                                    <FluentButton IconStart="@(new Icons.Filled.Size20.Delete().WithColor(Color.Error))" OnClick="() => DeleteProject(project)">
-                                        @Lang(StudioLangKey.Delete, StudioLangKey.Project)
+                                <FluentStack Orientation="Orientation.Horizontal"
+                                VerticalAlignment="VerticalAlignment.Center">
+                                    <FluentIcon Value="@(new Icons.Filled.Size20.Delete())"
+                                                Color="Color.Error" OnClick="() => DeleteProject(project)"></FluentIcon>
+
+                                    <FluentButton Appearance="Appearance.Lightweight">
+                                        @Lang(StudioLangKey.Enter, StudioLangKey.Workbench)
                                     </FluentButton>
-                                    <FluentButton Appearance="Appearance.Accent">@Lang(StudioLangKey.Enter, StudioLangKey.Workbench)</FluentButton>
                                 </FluentStack>
                             </div>
                         </FluentStack>
