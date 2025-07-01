@@ -1,23 +1,27 @@
 @page "/"
 @using System.Diagnostics
-@inject IDialogService DialogService
+@inherits PageBase
 @inject ProjectManager ProjectManager
 @inject SolutionManager SolutionManager
 
-<PageTitle>解决方案</PageTitle>
+<PageTitle>@Lang(StudioLangKey.Solution)</PageTitle>
 
 <FluentStack HorizontalAlignment="HorizontalAlignment.Center" Orientation="Orientation.Vertical"
              VerticalAlignment="VerticalAlignment.Center" Style="heigth: 100%;">
     <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
-        <FluentButton Appearance="Appearance.Accent" OnClick="AddLocalProject">添加本地项目</FluentButton>
+        <FluentButton Appearance="Appearance.Accent" OnClick="AddLocalProject">
+            @Lang(StudioLangKey.Add, StudioLangKey.Solution)
+        </FluentButton>
         <a href="create-project">
             <FluentButton Appearance="Appearance.Accent"
-                          IconStart="@(new Icons.Regular.Size24.AddSquare())" />
+                          IconStart="@(new Icons.Regular.Size24.Add())" />
         </a>
     </FluentStack>
     @if (projects.Count == 0)
     {
-        <FluentLabel Typo="Typography.H6">暂无任何项目，请添加已存在的本地项目或点击 + 创建新解决方案！</FluentLabel>
+        <FluentLabel Typo="Typography.H6">
+            @Lang(StudioLangKey.AddNewSolution)
+        </FluentLabel>
     }
     else
     {
@@ -32,8 +36,10 @@
                             <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
                             <div>
                                 <FluentStack>
-                                    <FluentButton IconStart="@(new Icons.Filled.Size20.Delete().WithColor(Color.Error))" OnClick="() => DeleteProject(project)">删除项目</FluentButton>
-                                    <FluentButton Appearance="Appearance.Accent">进入工作台</FluentButton>
+                                    <FluentButton IconStart="@(new Icons.Filled.Size20.Delete().WithColor(Color.Error))" OnClick="() => DeleteProject(project)">
+                                        @Lang(StudioLangKey.Delete, StudioLangKey.Project)
+                                    </FluentButton>
+                                    <FluentButton Appearance="Appearance.Accent">@Lang(StudioLangKey.Enter, StudioLangKey.Workbench)</FluentButton>
                                 </FluentStack>
                             </div>
                         </FluentStack>
@@ -51,9 +57,9 @@
     {
         DialogParameters parameters = new()
         {
-            Title = "添加本地项目或解决方案",
-            PrimaryAction = "确定",
-            SecondaryAction = "取消",
+            Title = Lang(StudioLangKey.Add, StudioLangKey.Solution),
+            PrimaryAction = Lang(StudioLangKey.Create),
+            SecondaryAction = Lang(StudioLangKey.Cancel),
             Width = "400px",
             Modal = false,
             ShowDismiss = false,
@@ -76,7 +82,11 @@
 
     private async Task DeleteProject(Project project)
     {
-        var dialog = await DialogService.ShowConfirmationAsync($"是否确定删除项目【<strong>{project.Name}</strong>】？", primaryText: "确定", secondaryText: "取消", title: "删除项目");
+        var dialog = await DialogService.ShowConfirmationAsync(
+            Lang(StudioLangKey.ConfirmDeleteMessage),
+            primaryText: Lang(StudioLangKey.Yes), secondaryText: Lang(StudioLangKey.No),
+            title: Lang(StudioLangKey.Delete, StudioLangKey.Project));
+
         var result = await dialog.Result;
         if (result.Cancelled) return;
         await ProjectManager.DeleteAsync([project.Id]);

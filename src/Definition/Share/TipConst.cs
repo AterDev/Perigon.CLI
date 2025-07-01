@@ -47,12 +47,14 @@ public class TipConst
     public const string CommandSelectTip = "CommandSelectTip";
 }
 
-public class StudioConst
+public class StudioLangKey
 {
     // menus
     public const string Solution = "Solution";
     public const string Project = "Project";
     public const string Tools = "Tools";
+    public const string Workbench = "Workbench";
+    public const string Enter = "Enter";
 
     // actions
     public const string Edit = "Edit";

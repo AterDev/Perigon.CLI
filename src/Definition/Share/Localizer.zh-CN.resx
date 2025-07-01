@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
   <data name="AddNewSolution" xml:space="preserve">
     <value>暂无任何项目，请添加本地解决方案或点击+创建新解决方案</value>
   </data>
@@ -218,5 +221,59 @@
   </data>
   <data name="Values" xml:space="preserve">
     <value>值</value>
+  </data>
+  <data name="Workbench" xml:space="preserve">
+    <value>工作台</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>是否确认删除该对象？</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>详情</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>失败</value>
+  </data>
+  <data name="FormValidFailed" xml:space="preserve">
+    <value>表单验证错误，请检查您的输入</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="RowValueTip" xml:space="preserve">
+    <value>每行一个值</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Setting" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="Enter" xml:space="preserve">
+    <value>进入</value>
   </data>
 </root>
