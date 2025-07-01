@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
 using Microsoft.JSInterop;
@@ -56,14 +55,6 @@ public class PageBase : ComponentBase
     public string ToJson(object obj)
     {
         return JsonSerializer.Serialize(obj, IndentedJsonOptions);
-    }
-
-    protected async Task PreventEnterSubmit(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            await JS.InvokeVoidAsync("preventEnterSubmit", e);
-        }
     }
 
     public async Task CopyToClipboardAsync(string text)

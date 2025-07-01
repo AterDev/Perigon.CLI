@@ -1,32 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<NoWarn>1701;1702;1591</NoWarn>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<UserSecretsId>1e75aae5-d684-4140-a34b-a1afb03ab13f</UserSecretsId>
-	</PropertyGroup>
-	<ItemGroup>
-
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.5" />
-
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.5">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\..\Ater\Ater.Web.Analyzers\Ater.Web.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
-		<ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Middleware\" />
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>1e75aae5-d684-4140-a34b-a1afb03ab13f</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\..\Ater\Ater.Web.Analyzers\Ater.Web.Analyzers.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
+    <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
+    <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Middleware\" />
+  </ItemGroup>
 </Project>

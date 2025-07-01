@@ -17,78 +17,101 @@ public class ManagerSourceGen : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Find candidate classes in the current assembly
-        var candidateClasses = context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: static (node, _) => HasBaseList(node),
-            transform: static (ctx, cancellationToken) =>
-            {
-                var classDecl = (ClassDeclarationSyntax)ctx.Node;
-                var symbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl, cancellationToken) as INamedTypeSymbol;
-
-                if (symbol != null && InheritsFromManagerBase(symbol))
+        var candidateClasses = context
+            .SyntaxProvider.CreateSyntaxProvider(
+                predicate: static (node, _) => HasBaseList(node),
+                transform: static (ctx, cancellationToken) =>
                 {
-                    return symbol;
-                }
-                return null;
-            }
-        ).Where(symbol => symbol != null);
+                    var classDecl = (ClassDeclarationSyntax)ctx.Node;
+                    var symbol =
+                        ctx.SemanticModel.GetDeclaredSymbol(classDecl, cancellationToken)
+                        as INamedTypeSymbol;
 
-        var referencedClasses = context.CompilationProvider.SelectMany((compilation, cancellationToken) =>
-        {
-            var managerClasses = new List<INamedTypeSymbol>();
-
-            foreach (var reference in compilation.References)
-            {
-                var assemblySymbol = compilation.GetAssemblyOrModuleSymbol(reference) as IAssemblySymbol;
-
-                if (assemblySymbol != null &&
-                    assemblySymbol.Name.EndsWith("Mod", StringComparison.OrdinalIgnoreCase))
-                {
-
-                    if (!assemblies.Contains(assemblySymbol.Name))
+                    if (symbol != null && InheritsFromManagerBase(symbol))
                     {
-                        // 查看该程序集下是否包含 AddMod 扩展方法
-
-
-                        assemblies.Add(assemblySymbol.Name);
+                        return symbol;
                     }
+                    return null;
+                }
+            )
+            .Where(symbol => symbol != null);
 
-                    foreach (var type in GetAllTypes(assemblySymbol.GlobalNamespace))
+        var referencedClasses = context.CompilationProvider.SelectMany(
+            (compilation, cancellationToken) =>
+            {
+                var managerClasses = new List<INamedTypeSymbol>();
+
+                foreach (var reference in compilation.References)
+                {
+                    var assemblySymbol =
+                        compilation.GetAssemblyOrModuleSymbol(reference) as IAssemblySymbol;
+
+                    if (
+                        assemblySymbol != null
+                        && assemblySymbol.Name.EndsWith("Mod", StringComparison.OrdinalIgnoreCase)
+                    )
                     {
-                        if (type is INamedTypeSymbol namedType && InheritsFromManagerBase(namedType))
+                        if (!assemblies.Contains(assemblySymbol.Name))
                         {
-                            managerClasses.Add(namedType);
+                            // 查看该程序集下是否包含 AddMod 扩展方法
+                            assemblies.Add(assemblySymbol.Name);
+                        }
+
+                        foreach (var type in GetAllTypes(assemblySymbol.GlobalNamespace))
+                        {
+                            if (
+                                type is INamedTypeSymbol namedType
+                                && InheritsFromManagerBase(namedType)
+                            )
+                            {
+                                managerClasses.Add(namedType);
+                            }
                         }
                     }
                 }
+                return managerClasses;
             }
-            return managerClasses;
-        });
+        );
 
         // Combine current and referenced classes into a single collection with explicit type arguments
-        var allManagerClasses = candidateClasses.Collect()
+        var allManagerClasses = candidateClasses
+            .Collect()
             .Combine(referencedClasses.Collect())
-            .Select((pair, token) => pair.Item1.Concat(pair.Item2)
-            );
+            .Select((pair, token) => pair.Item1.Concat(pair.Item2));
 
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(allManagerClasses), (spc, pair) =>
-        {
-            var compilation = pair.Left;
-            var classes = pair.Right;
-
-            var managerSource = GenerateExtensions(classes);
-            if (!string.IsNullOrWhiteSpace(managerSource))
+        context.RegisterSourceOutput(
+            context.CompilationProvider.Combine(allManagerClasses),
+            (spc, pair) =>
             {
-                spc.AddSource("__AterAutoGen__AppManagerServiceExtensions.g.cs", SourceText.From(managerSource!, System.Text.Encoding.UTF8));
-            }
+                var compilation = pair.Left;
+                var classes = pair.Right;
 
-            var modSource = GenerateModExtensions(compilation, assemblies);
-            if (!string.IsNullOrWhiteSpace(modSource))
-            {
-                spc.AddSource("__AterAutoGen__ModuleExtensions.g.cs", SourceText.From(modSource!, System.Text.Encoding.UTF8));
+                var managerSource = GenerateExtensions(classes);
+                if (!string.IsNullOrWhiteSpace(managerSource))
+                {
+                    spc.AddSource(
+                        "__AterAutoGen__AppManagerServiceExtensions.g.cs",
+                        SourceText.From(managerSource!, System.Text.Encoding.UTF8)
+                    );
+                }
+
+                var modSource = GenerateModExtensions(compilation, assemblies);
+                if (!string.IsNullOrWhiteSpace(modSource))
+                {
+                    spc.AddSource(
+                        "__AterAutoGen__ModuleExtensions.g.cs",
+                        SourceText.From(modSource!, System.Text.Encoding.UTF8)
+                    );
+                }
             }
-        });
+        );
     }
 
+    /// <summary>
+    /// 获取命名空间下的所有类型
+    /// </summary>
+    /// <param name="namespaceSymbol"></param>
+    /// <returns></returns>
     private static IEnumerable<INamedTypeSymbol> GetAllTypes(INamespaceSymbol namespaceSymbol)
     {
         foreach (var member in namespaceSymbol.GetMembers())
@@ -107,6 +130,11 @@ public class ManagerSourceGen : IIncrementalGenerator
         }
     }
 
+    /// <summary>
+    /// 判断节点是否包含基类列表
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
     private static bool HasBaseList(SyntaxNode node)
     {
         if (node is ClassDeclarationSyntax classDecl && classDecl.BaseList != null)
@@ -124,9 +152,13 @@ public class ManagerSourceGen : IIncrementalGenerator
     private static bool InheritsFromManagerBase(INamedTypeSymbol symbol)
     {
         var baseType = symbol.BaseType;
-        if ((baseType?.Name == BaseManagerName
-            || baseType?.OriginalDefinition.Name == BaseManagerName)
-            && symbol.OriginalDefinition.Name != BaseManagerName)
+        if (
+            (
+                baseType?.Name == BaseManagerName
+                || baseType?.OriginalDefinition.Name == BaseManagerName
+            )
+            && symbol.OriginalDefinition.Name != BaseManagerName
+        )
         {
             return true;
         }
@@ -181,19 +213,26 @@ public class ManagerSourceGen : IIncrementalGenerator
     /// <param name="compilation"></param>
     /// <param name="modAssemblies"></param>
     /// <returns></returns>
-    private static string? GenerateModExtensions(Compilation compilation, HashSet<string> modAssemblies)
+    private static string? GenerateModExtensions(
+        Compilation compilation,
+        HashSet<string> modAssemblies
+    )
     {
         var validAssemblies = new List<string>();
 
         foreach (var assemblyName in modAssemblies)
         {
-            var assemblySymbol = compilation.ReferencedAssemblyNames
-                .FirstOrDefault(a => a.Name.Equals(assemblyName, StringComparison.OrdinalIgnoreCase));
+            var assemblySymbol = compilation.ReferencedAssemblyNames.FirstOrDefault(a =>
+                a.Name.Equals(assemblyName, StringComparison.OrdinalIgnoreCase)
+            );
 
             if (assemblySymbol != null)
             {
                 var moduleExtensionsClass = GetModuleExtensionsClass(compilation, assemblyName);
-                if (moduleExtensionsClass != null && HasRequiredMethod(moduleExtensionsClass, $"Add{assemblyName}"))
+                if (
+                    moduleExtensionsClass != null
+                    && HasRequiredMethod(moduleExtensionsClass, $"Add{assemblyName}")
+                )
                 {
                     validAssemblies.Add(assemblyName);
                 }
@@ -214,29 +253,36 @@ public class ManagerSourceGen : IIncrementalGenerator
         }
 
         return $$"""
-        // <auto-generated/>
-        {{usingExpressions}}
-        using Microsoft.Extensions.DependencyInjection;
+            // <auto-generated/>
+            {{usingExpressions}}
+            using Microsoft.Extensions.DependencyInjection;
 
-        namespace Http.API.Extension;
-        public static partial class __AterAutoGen__ModuleExtensions
-        {
-            public static IHostApplicationBuilder AddModules(this IHostApplicationBuilder builder)
+            namespace Http.API.Extension;
+            public static partial class __AterAutoGen__ModuleExtensions
             {
-        {{registrations}}
-                return builder;
+                public static IHostApplicationBuilder AddModules(this IHostApplicationBuilder builder)
+                {
+            {{registrations}}
+                    return builder;
+                }
             }
-        }
-        """;
+            """;
     }
 
-    private static INamedTypeSymbol? GetModuleExtensionsClass(Compilation compilation, string assemblyName)
+    private static INamedTypeSymbol? GetModuleExtensionsClass(
+        Compilation compilation,
+        string assemblyName
+    )
     {
         // 获取目标程序集符号
-        var assemblySymbol = compilation.References
-            .Select(reference => compilation.GetAssemblyOrModuleSymbol(reference) as IAssemblySymbol)
-            .FirstOrDefault(assembly => assembly != null
-                && assembly.Name.Equals(assemblyName, StringComparison.OrdinalIgnoreCase));
+        var assemblySymbol = compilation
+            .References.Select(reference =>
+                compilation.GetAssemblyOrModuleSymbol(reference) as IAssemblySymbol
+            )
+            .FirstOrDefault(assembly =>
+                assembly != null
+                && assembly.Name.Equals(assemblyName, StringComparison.OrdinalIgnoreCase)
+            );
 
         if (assemblySymbol == null)
         {
@@ -246,15 +292,22 @@ public class ManagerSourceGen : IIncrementalGenerator
         // 查找 ModuleExtensions 类
         var test = GetAllTypes(assemblySymbol.GlobalNamespace).ToList();
         return GetAllTypes(assemblySymbol.GlobalNamespace)
-            .FirstOrDefault(t => t.Name == "ModuleExtensions" &&
-                                 t.DeclaredAccessibility == Accessibility.Public &&
-                                 t.IsStatic);
+            .FirstOrDefault(t =>
+                t.Name == "ModuleExtensions"
+                && t.DeclaredAccessibility == Accessibility.Public
+                && t.IsStatic
+            );
     }
 
     private static bool HasRequiredMethod(INamedTypeSymbol moduleExtensionsClass, string methodName)
     {
-        return moduleExtensionsClass.GetMembers()
+        return moduleExtensionsClass
+            .GetMembers()
             .OfType<IMethodSymbol>()
-            .Any(m => m.Name == methodName && m.DeclaredAccessibility == Accessibility.Public && m.IsStatic);
+            .Any(m =>
+                m.Name == methodName
+                && m.DeclaredAccessibility == Accessibility.Public
+                && m.IsStatic
+            );
     }
 }

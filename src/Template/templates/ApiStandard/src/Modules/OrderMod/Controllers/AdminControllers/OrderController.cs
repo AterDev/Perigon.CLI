@@ -1,5 +1,5 @@
 using OrderMod.Models.OrderDtos;
-using Share.Implement;
+
 namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>
@@ -11,9 +11,8 @@ public class OrderController(
     UserContext user,
     ILogger<OrderController> logger,
     OrderManager manager
-        ) : AdminControllerBase<OrderManager>(localizer, manager, user, logger)
+) : AdminControllerBase<OrderManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>
@@ -54,5 +53,4 @@ public class OrderController(
         var res = await _manager.FindAsync<OrderDetailDto>(d => d.Id == id);
         return (res == null) ? NotFound() : res;
     }
-
 }
