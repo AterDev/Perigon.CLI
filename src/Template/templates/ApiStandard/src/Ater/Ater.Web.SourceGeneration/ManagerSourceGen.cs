@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Ater.Web.Analyzers.SourceGenerators;
+namespace Ater.Web.SourceGeneration;
 
 [Generator(LanguageNames.CSharp)]
 public class ManagerSourceGen : IIncrementalGenerator
