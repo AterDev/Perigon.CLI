@@ -1,12 +1,31 @@
 @namespace AterStudio.Components
 @implements IDialogContentComponent<AddProjectDto>
 
-<p>仅支持.NET或Node类型项目</p>
 <FluentEditForm Model="Content">
-    <FluentTextField @bind-Value="Content.ProjectName" Label="项目名称" Required="true" Placeholder="显示名称" Style="width: 100%" />
-    <FluentTextField @bind-Value="Content.ProjectDirectory" Label="项目目录" Required="true" Placeholder="项目根目录路径，非文件路径" Style="width: 100%" />
+    <FluentDialogHeader ShowDismiss="false">
+        <h3>添加解决方案</h3>
+    </FluentDialogHeader>
+    <FluentBodyContent>
+        <FluentStack Orientation="Orientation.Vertical" VerticalGap="20">
+            <p>仅支持.NET或Node类型项目</p>
+            <FluentStack VerticalGap="1" Orientation="Orientation.Vertical">
+                <FluentTextField @bind-Value="Content.ProjectName" Label="项目名称" Required="true" Placeholder="显示名称" Style="width: 100%" />
+            </FluentStack>
+            <FluentStack VerticalGap="1" Orientation="Orientation.Vertical">
+                <FluentTextField @bind-Value="Content.ProjectDirectory" Label="项目目录" Required="true" Placeholder="项目根目录路径，非文件路径" Style="width: 100%" />
+            </FluentStack>
+        </FluentStack>
+    </FluentBodyContent>
+    <FluentFooter>
+        <FluentButton Appearance="Appearance.Accent"
+                      Type="ButtonType.Button">
+            保存
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Neutral">
+            取消
+        </FluentButton>
+    </FluentFooter>
 </FluentEditForm>
-
 
 @code {
     [Parameter] public AddProjectDto Content { get; set; } = null!;

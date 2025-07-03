@@ -37,7 +37,7 @@
                             <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
                             <div>
                                 <FluentStack Orientation="Orientation.Horizontal"
-                                VerticalAlignment="VerticalAlignment.Center">
+                                             VerticalAlignment="VerticalAlignment.Center">
                                     <FluentIcon Value="@(new Icons.Filled.Size20.Delete())"
                                                 Color="Color.Error" OnClick="() => DeleteProject(project)"></FluentIcon>
 
@@ -61,12 +61,8 @@
     {
         DialogParameters parameters = new()
         {
-            Title = Lang(StudioLangKey.Add, StudioLangKey.Solution),
-            PrimaryAction = Lang(StudioLangKey.Create),
-            SecondaryAction = Lang(StudioLangKey.Cancel),
             Width = "400px",
-            Modal = false,
-            ShowDismiss = false,
+            Height = "600px",
         };
 
         var dto = new AddProjectDto();
