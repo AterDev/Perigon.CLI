@@ -1,3 +1,3 @@
 //global using AdminService.Extension;
-global using AdminService;
+global using AdminService.Extension;
 global using ServiceDefaults;

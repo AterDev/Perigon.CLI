@@ -1,6 +1,7 @@
 using Entity;
 
 namespace CodeGenerator;
+
 /// <summary>
 /// 模板内容类
 /// </summary>
@@ -188,16 +189,19 @@ public class TplContent
 
     public static string EnumPipeTpl(bool IsNgModule = false)
     {
-
-        string ngModule = IsNgModule ? """
+        string ngModule = IsNgModule
+            ? """
 @NgModule({
   declarations: [EnumTextPipe], exports: [EnumTextPipe]
 })
 export class EnumTextPipeModule { }
-""" : "";
+"""
+            : "";
         return $$"""
             // 该文件自动生成，会被覆盖更新
-            import { {{(IsNgModule ? "NgModule, " : "")}}Injectable, Pipe, PipeTransform } from '@@angular/core';
+            import { {{(
+                IsNgModule ? "NgModule, " : ""
+            )}}Injectable, Pipe, PipeTransform } from '@@angular/core';
 
             @@Pipe({
               name: 'enumText'
@@ -276,37 +280,71 @@ export class EnumTextPipeModule { }
             """;
     }
 
-    public static string ModuleServiceCollection(string moduleName)
+    /// <summary>
+    /// api service's program template
+    /// </summary>
+    /// <returns></returns>
+    public static string ServiceProgramTpl()
     {
-        return $$"""
-            namespace {{moduleName}};
-            /// <summary>
-            /// 服务注入扩展
-            /// </summary>
-            public static class ServiceCollectionExtensions
-            {
-                /// <summary>
-                /// 添加模块服务
-                /// </summary>
-                /// <param name="services"></param>
-                /// <returns></returns>
-                public static IServiceCollection Add{{moduleName}}Services(this IServiceCollection services)
-                {
-                    services.Add{{moduleName}}Managers();
-                    // TODO:注入其他服务
-                    return services;
-                }
+        return """
+             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-                /// <summary>
-                /// 注入Manager服务
-                /// </summary>
-                /// <param name="services"></param>
-                public static IServiceCollection Add{{moduleName}}Managers(this IServiceCollection services)
-                {
-                    // TODO: 注入Manager服务
-                    return services;
-                }
-            }
+            // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
+            builder.AddServiceDefaults();
+
+            // 框架依赖服务:options, cache, dbContext
+            builder.AddFrameworkServices();
+
+            // Web中间件服务:route, openapi, jwt, cors, auth, rateLimiter etc.
+            builder.AddMiddlewareServices();
+
+            // add Managers, auto generate by source generator
+            builder.Services.AddManagers();
+
+            // add modules, auto generate by source generator
+            builder.AddModules();
+
+            WebApplication app = builder.Build();
+
+            app.MapDefaultEndpoints();
+
+            // 使用中间件
+            app.UseMiddlewareServices();
+            app.Run();
+
+            """;
+    }
+
+    /// <summary>
+    /// api service's global usings template
+    /// </summary>
+    /// <param name="namespaceName"></param>
+    /// <returns></returns>
+    public static string ServiceGlobalUsingsTpl(string namespaceName)
+    {
+        return $"""
+            global using {namespaceName}.Extension;
+            global using Ater.Common.Utils;
+            global using Ater.Web.Convention.Abstraction;
+            global using Microsoft.AspNetCore.Mvc;
+            global using Microsoft.EntityFrameworkCore;
+            global using ServiceDefaults;
+            global using Share;
+            global using Share.Constants;
+            global using Share.Implement;
+
+            """;
+    }
+
+    /// <summary>
+    /// api service 's http file template
+    /// </summary>
+    /// <param name="port"></param>
+    /// <returns></returns>
+    public static string ServiceHttpFileTpl(string port)
+    {
+        return $"""
+            @HostAddress = http://localhost:{port}
             """;
     }
 }

@@ -5,11 +5,15 @@ using Humanizer;
 using Share.Models.CommandDtos;
 
 namespace Share.Services;
+
 /// <summary>
 /// 解决方案相关功能
 /// </summary>
-public class SolutionService(IProjectContext projectContext, ILogger<SolutionService> logger,
-    CommandDbContext context)
+public class SolutionService(
+    IProjectContext projectContext,
+    ILogger<SolutionService> logger,
+    CommandDbContext context
+)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly ILogger<SolutionService> _logger = logger;
@@ -33,22 +37,41 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
 
         // 基础类
         string projectPath = Path.Combine(moduleDir, moduleName);
-        _logger.LogInformation("🚀 create module:{moduleName} ➡️ {projectPath}", moduleName, projectPath);
+        _logger.LogInformation(
+            "🚀 create module:{moduleName} ➡️ {projectPath}",
+            moduleName,
+            projectPath
+        );
 
         // global usings
         string usingsContent = TplContent.ModuleGlobalUsings(moduleName);
         usingsContent = usingsContent.Replace("${Module}", moduleName);
-        await AssemblyHelper.GenerateFileAsync(projectPath, ConstVal.GlobalUsingsFile, usingsContent, true);
+        await AssemblyHelper.GenerateFileAsync(
+            projectPath,
+            ConstVal.GlobalUsingsFile,
+            usingsContent,
+            true
+        );
 
         // project file
         string targetVersion = ConstVal.NetVersion;
-        var csprojFiles = Directory.GetFiles(_projectContext.ApiPath!, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        var csprojFiles = Directory
+            .GetFiles(
+                _projectContext.ApiPath!,
+                $"*{ConstVal.CSharpProjectExtension}",
+                SearchOption.TopDirectoryOnly
+            )
+            .FirstOrDefault();
         if (csprojFiles != null)
         {
             targetVersion = AssemblyHelper.GetTargetFramework(csprojFiles) ?? ConstVal.NetVersion;
         }
         string csprojContent = TplContent.DefaultModuleCSProject(targetVersion);
-        await AssemblyHelper.GenerateFileAsync(projectPath, $"{moduleName}{ConstVal.CSharpProjectExtension}", csprojContent);
+        await AssemblyHelper.GenerateFileAsync(
+            projectPath,
+            $"{moduleName}{ConstVal.CSharpProjectExtension}",
+            csprojContent
+        );
 
         // create dirs
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ModelsDir));
@@ -59,7 +82,9 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
 
         await AddModuleConstFieldAsync(moduleName);
         // update solution file
-        UpdateSolutionFile(Path.Combine(projectPath, $"{moduleName}{ConstVal.CSharpProjectExtension}"));
+        UpdateSolutionFile(
+            Path.Combine(projectPath, $"{moduleName}{ConstVal.CSharpProjectExtension}")
+        );
     }
 
     /// <summary>
@@ -99,8 +124,15 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
             Directory.Delete(entityPath, true);
             // 从解决方案移除项目
             var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
-            var moduleProjectFilePath = Path.Combine(modulePath, $"{moduleName}{ConstVal.CSharpProjectExtension}");
-            ProcessHelper.RunCommand("dotnet", $"sln {_projectContext.SolutionPath} remove {moduleProjectFilePath}", out string error);
+            var moduleProjectFilePath = Path.Combine(
+                modulePath,
+                $"{moduleName}{ConstVal.CSharpProjectExtension}"
+            );
+            ProcessHelper.RunCommand(
+                "dotnet",
+                $"sln {_projectContext.SolutionPath} remove {moduleProjectFilePath}",
+                out string error
+            );
             Directory.Delete(modulePath, true);
         }
     }
@@ -121,8 +153,8 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
             {
                 GenActions = actions,
                 GenSteps = steps,
-                GenActionGenSteps = relation
-            }
+                GenActionGenSteps = relation,
+            },
         };
 
         try
@@ -146,7 +178,11 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
 
     public async Task<(bool res, string? message)> SyncDataFromLocalAsync()
     {
-        var filePath = Path.Combine(_projectContext.SolutionPath!, ConstVal.TemplateDir, ConstVal.SyncJson);
+        var filePath = Path.Combine(
+            _projectContext.SolutionPath!,
+            ConstVal.TemplateDir,
+            ConstVal.SyncJson
+        );
         var projectId = _projectContext.ProjectId;
 
         if (!File.Exists(filePath))
@@ -163,8 +199,8 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
 
         try
         {
-
-            var actions = await _context.GenActions.Where(a => a.ProjectId == projectId)
+            var actions = await _context
+                .GenActions.Where(a => a.ProjectId == projectId)
                 .Include(a => a.GenSteps)
                 .ToListAsync();
 
@@ -197,7 +233,10 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
             }
             await _context.SaveChangesAsync();
             // 新增数量
-            return (true, $"新增数据：{newActions?.Count}个操作，{newSteps?.Count}个步骤，{newRelation?.Count}个关联");
+            return (
+                true,
+                $"新增数据：{newActions?.Count}个操作，{newSteps?.Count}个步骤，{newRelation?.Count}个关联"
+            );
         }
         catch (Exception ex)
         {
@@ -217,20 +256,36 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         {
             return default;
         }
-        List<string> files = [.. Directory.GetFiles(modulesPath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.AllDirectories)];
+        List<string> files =
+        [
+            .. Directory.GetFiles(
+                modulesPath,
+                $"*{ConstVal.CSharpProjectExtension}",
+                SearchOption.AllDirectories
+            ),
+        ];
         return files.Count != 0 ? files : default;
     }
+
     /// <summary>
     /// 使用 dotnet sln add
     /// </summary>
     /// <param name="projectPath"></param>
     private void UpdateSolutionFile(string projectPath)
     {
-        FileInfo? slnFile = AssemblyHelper.GetSlnFile(new DirectoryInfo(_projectContext.SolutionPath!));
+        FileInfo? slnFile = AssemblyHelper.GetSlnFile(
+            new DirectoryInfo(_projectContext.SolutionPath!)
+        );
         if (slnFile != null)
         {
             // 添加到解决方案
-            if (!ProcessHelper.RunCommand("dotnet", $"sln {slnFile.FullName} add {projectPath}", out string error))
+            if (
+                !ProcessHelper.RunCommand(
+                    "dotnet",
+                    $"sln {slnFile.FullName} add {projectPath}",
+                    out string error
+                )
+            )
             {
                 _logger.LogInformation("add project ➡️ solution failed:" + error);
             }
@@ -239,11 +294,23 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
                 _logger.LogInformation("✅ add project ➡️ solution!");
             }
         }
-        var csprojFiles = Directory.GetFiles(_projectContext.ApiPath!, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        var csprojFiles = Directory
+            .GetFiles(
+                _projectContext.ApiPath!,
+                $"*{ConstVal.CSharpProjectExtension}",
+                SearchOption.TopDirectoryOnly
+            )
+            .FirstOrDefault();
         if (File.Exists(csprojFiles))
         {
             // 添加到主服务
-            if (!ProcessHelper.RunCommand("dotnet", $"add {csprojFiles} reference {projectPath}", out string error))
+            if (
+                !ProcessHelper.RunCommand(
+                    "dotnet",
+                    $"add {csprojFiles} reference {projectPath}",
+                    out string error
+                )
+            )
             {
                 _logger.LogInformation("add project reference failed:" + error);
             }
@@ -308,7 +375,10 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
         string newLine = @$"global using Entity.{moduleName};";
         if (!globalUsingsContent.Contains(newLine))
         {
-            globalUsingsContent = globalUsingsContent.Replace("global using Entity;", $"global using Entity;{Environment.NewLine}{newLine}");
+            globalUsingsContent = globalUsingsContent.Replace(
+                "global using Entity;",
+                $"global using Entity;{Environment.NewLine}{newLine}"
+            );
             File.WriteAllText(globalUsingsFile, globalUsingsContent);
         }
     }
@@ -321,7 +391,10 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
     private static void CopyModuleFiles(string sourceDir, string destinationDir)
     {
         DirectoryInfo dir = new(sourceDir);
-        if (!dir.Exists) { return; }
+        if (!dir.Exists)
+        {
+            return;
+        }
 
         DirectoryInfo[] dirs = dir.GetDirectories();
         Directory.CreateDirectory(destinationDir);
@@ -344,4 +417,7 @@ public class SolutionService(IProjectContext projectContext, ILogger<SolutionSer
             CopyModuleFiles(subDir.FullName, newDestinationDir);
         }
     }
+
+    // TODO: 实现创建服务的逻辑
+    private static void CreateServiceAsync(string serviceName) { }
 }
