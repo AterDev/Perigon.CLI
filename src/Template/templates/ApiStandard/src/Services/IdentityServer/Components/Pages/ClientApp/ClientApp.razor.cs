@@ -62,7 +62,6 @@ public partial class ClientApp : PageBase
         {
             Title = Lang(Localizer.Add, Localizer.Success, " "),
             PrimaryAction = "Yes",
-            PrimaryActionEnabled = false,
             SecondaryAction = "No",
             PreventScroll = true,
             Width = "auto",
