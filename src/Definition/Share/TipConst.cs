@@ -83,6 +83,7 @@ public class StudioLangKey
 
     // tips
     public const string AddNewSolution = "AddNewSolution";
+    public const string DirectoryNotFound = "DirectoryNotFound";
 }
 
 public class FieldConst

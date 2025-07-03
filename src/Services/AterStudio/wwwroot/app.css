@@ -20,16 +20,16 @@ body {
 }
 
 .main-body-content {
-    align-self: stretch;
-    height: calc(100dvh - 50px) !important;
-    display: flex;
-}
-
-.content {
     padding: 0.5rem 1.5rem;
     align-self: stretch !important;
     width: 100%;
 }
+
+/*.content {
+    padding: 0.5rem 1.5rem;
+    align-self: stretch !important;
+    width: 100%;
+}*/
 
 #blazor-error-ui {
     background: lightyellow;

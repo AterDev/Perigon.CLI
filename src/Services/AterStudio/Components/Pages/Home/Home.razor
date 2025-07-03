@@ -1,4 +1,4 @@
-@page "/"
+﻿@page "/"
 @using System.Diagnostics
 @inherits PageBase
 @inject ProjectManager ProjectManager
@@ -41,7 +41,7 @@
                                     <FluentIcon Value="@(new Icons.Filled.Size20.Delete())"
                                                 Color="Color.Error" OnClick="() => DeleteProject(project)"></FluentIcon>
 
-                                    <FluentButton Appearance="Appearance.Lightweight">
+                                    <FluentButton Appearance="Appearance.Outline">
                                         @Lang(StudioLangKey.Enter, StudioLangKey.Workbench)
                                     </FluentButton>
                                 </FluentStack>
@@ -69,10 +69,20 @@
         var dto = new AddProjectDto();
         var dialog = await DialogService.ShowDialogAsync<AddProjectDialog>(dto, parameters);
 
+
         var result = await dialog.Result;
         if (result.Cancelled) return;
-        Debug.Assert(dto.ProjectName is not null);
-        await ProjectManager.AddAsync(dto.ProjectName, dto.ProjectDirectory);
+
+        if (!Directory.Exists(dto.ProjectDirectory))
+        {
+            await DialogService.ShowWarningAsync(
+                $"文件夹【{dto.ProjectDirectory}】不存在，请检查！",
+                title: "警告⚠️",
+                primaryText: "确定");
+            return;
+        }
+
+        await ProjectManager.AddAsync(dto.ProjectName!, dto.ProjectDirectory);
         await OnInitializedAsync();
     }
 

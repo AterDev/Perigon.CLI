@@ -276,4 +276,7 @@
   <data name="Enter" xml:space="preserve">
     <value>Enter</value>
   </data>
+  <data name="DirectoryNotFound" xml:space="preserve">
+    <value>directory not found,please check！</value>
+  </data>
 </root>
