@@ -84,6 +84,11 @@ public class ManagerSourceGen : IIncrementalGenerator
                 var compilation = pair.Left;
                 var classes = pair.Right;
 
+                if (compilation.Assembly.Name == "Share")
+                {
+                    return;
+                }
+
                 var managerSource = GenerateExtensions(compilation, classes);
                 if (!string.IsNullOrWhiteSpace(managerSource))
                 {
