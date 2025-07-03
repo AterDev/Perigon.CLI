@@ -3,7 +3,7 @@
 @inherits PageBase
 @attribute [AllowAnonymous]
 @inject HttpClient Http
-<PageTitle>@Lang(LanguageKey.Login)</PageTitle>
+<PageTitle>@Lang(Localizer.Login)</PageTitle>
 
 
 <FluentStack Orientation="Orientation.Horizontal"
@@ -13,7 +13,7 @@
         <form action="/api/account/login" method="post" style="width:auto">
             <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
                 <FluentLabel Typo="Typography.PaneHeader">
-                    @Lang(LanguageKey.Login)
+                    @Lang(Localizer.Login)
                 </FluentLabel>
                 <FluentTextField @bind-Value="UserName" Placeholder="UserName" Required Name="UserName"
                                  Class="w-100" />
@@ -21,7 +21,7 @@
                                  Class="w-100" />
                 <FluentButton Appearance="Appearance.Accent"
                               Type="ButtonType.Submit" Class="w-100">
-                    @Lang(LanguageKey.Login)
+                    @Lang(Localizer.Login)
                 </FluentButton>
                 @if (!string.IsNullOrEmpty(ErrorMessage))
                 {

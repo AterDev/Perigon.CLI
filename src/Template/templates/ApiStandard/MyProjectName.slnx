@@ -23,7 +23,7 @@
   </Folder>
   <Folder Name="/src/Ater/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
     <Project Path="src/Ater/Ater.Common/Ater.Common.csproj" Id="6dc54fab-dd8b-9dc2-0bda-1d394ca66e08" />
-    <Project Path="src/Ater/Ater.Web.Analyzers/Ater.Web.Analyzers.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
+    <Project Path="src/Ater/Ater.Web.SourceGeneration/Ater.Web.SourceGeneration.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
     <Project Path="src/Ater/Ater.Web.Convention/Ater.Web.Convention.csproj" />
     <Project Path="src/Ater/Ater.Web.Extension/Ater.Web.Extension.csproj" />
   </Folder>

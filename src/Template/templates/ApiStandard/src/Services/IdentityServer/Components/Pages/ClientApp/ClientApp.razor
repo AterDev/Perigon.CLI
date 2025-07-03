@@ -5,12 +5,12 @@
 @using Microsoft.FluentUI.AspNetCore.Components
 
 <PageTitle>
-    @Lang(LanguageKey.ClientApp, LanguageKey.Management, " ")
+    @Lang(Localizer.ClientApp, Localizer.Management, " ")
 </PageTitle>
 
 <FluentStack Orientation="Orientation.Horizontal">
     <FluentButton @onclick="ShowAddDialog" Appearance="Appearance.Accent">
-        @Lang(LanguageKey.Add, LanguageKey.ClientApp, " ")
+        @Lang(Localizer.Add, Localizer.ClientApp, " ")
     </FluentButton>
     <FluentSpacer />
     <FluentPaginator State="@pagination" SummaryTemplate="@template" />
@@ -23,7 +23,7 @@
                 MultiLine="true"
                 Style="height:auto;width:100%">
     <ChildContent>
-        <TemplateColumn Title="@Lang(LanguageKey.ClientName)" Sortable="true">
+        <TemplateColumn Title="@Lang(Localizer.ClientName)" Sortable="true">
             <ChildContent Context="app">
                 <FluentNavLink Href="@($"/client-app/{app.ClientId}")">
                     <FluentLabel Color="Color.Accent">@app.ClientName</FluentLabel>
@@ -31,12 +31,12 @@
             </ChildContent>
         </TemplateColumn>
 
-        <TemplateColumn Title="@Lang(LanguageKey.ClientId)">
+        <TemplateColumn Title="@Lang(Localizer.ClientId)">
             <ChildContent Context="app">
                 @app.ClientId
             </ChildContent>
         </TemplateColumn>
-        <TemplateColumn Title="@Lang(LanguageKey.RedirectUris)">
+        <TemplateColumn Title="@Lang(Localizer.RedirectUris)">
             <ChildContent Context="app">
                 @foreach (var uri in app.RedirectUris)
                 {
@@ -44,14 +44,14 @@
                 }
             </ChildContent>
         </TemplateColumn>
-        <TemplateColumn Title="@Lang(LanguageKey.Actions)">
+        <TemplateColumn Title="@Lang(Localizer.Actions)">
             <ChildContent Context="app">
                 <FluentButton Size="Small"
                               IconStart="@(new SmallRegularIcon.Edit())"
-                              Title="@Lang(LanguageKey.Edit)" @onclick="() => ToDetailPage(app)"></FluentButton>
+                              Title="@Lang(Localizer.Edit)" @onclick="() => ToDetailPage(app)"></FluentButton>
 
                 <FluentButton Size="Small"
-                              Title="@Lang(LanguageKey.Delete)"
+                              Title="@Lang(Localizer.Delete)"
                               @onclick="() => Delete(app.ClientId)">
                     <FluentIcon Value="@(new SmallRegularIcon.Delete())" Color="@Color.Error" />
                 </FluentButton>

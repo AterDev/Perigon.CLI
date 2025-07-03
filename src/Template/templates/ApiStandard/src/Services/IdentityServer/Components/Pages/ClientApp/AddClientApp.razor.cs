@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-
 using OpenIddict.Abstractions;
 
 namespace IdentityServer.Components.Pages.ClientApp;
+
 public partial class AddClientApp
 {
     private EditContext? editContext;
@@ -13,18 +13,20 @@ public partial class AddClientApp
     /// <summary>
     /// application types
     /// </summary>
-    private readonly IReadOnlyList<string> _applicationTypes = [
+    private readonly IReadOnlyList<string> _applicationTypes =
+    [
         OpenIddictConstants.ApplicationTypes.Web,
         OpenIddictConstants.ApplicationTypes.Native,
-        ];
+    ];
 
     /// <summary>
     /// client types
     /// </summary>
-    private readonly IReadOnlyList<string> _clientTypes = [
+    private readonly IReadOnlyList<string> _clientTypes =
+    [
         OpenIddictConstants.ClientTypes.Public,
-        OpenIddictConstants.ClientTypes.Confidential
-        ];
+        OpenIddictConstants.ClientTypes.Confidential,
+    ];
 
     [CascadingParameter]
     public FluentDialog Dialog { get; set; } = default!;
@@ -37,8 +39,8 @@ public partial class AddClientApp
         AddDto ??= new();
         editContext = new(AddDto);
         editContext.OnFieldChanged += HandleFieldChanged;
-
     }
+
     private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
     {
         if (editContext is not null)
@@ -60,7 +62,7 @@ public partial class AddClientApp
     {
         if (!editContext!.Validate())
         {
-            ToastService.ShowError(Lang(LanguageKey.FormValidFailed));
+            ToastService.ShowError(Lang(Localizer.FormValidFailed));
             return;
         }
 
@@ -73,7 +75,7 @@ public partial class AddClientApp
             }
             else
             {
-                ToastService.ShowError(Lang(LanguageKey.Add, LanguageKey.Failed));
+                ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
             }
         }
     }

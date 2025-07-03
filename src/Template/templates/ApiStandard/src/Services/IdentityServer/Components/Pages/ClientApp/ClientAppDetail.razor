@@ -9,15 +9,15 @@
 
         <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Start" VerticalGap="12">
             <FluentLabel Typo="Typography.PaneHeader">
-                @Lang(LanguageKey.ClientApp, LanguageKey.Detail)
+                @Lang(Localizer.ClientApp, Localizer.Detail)
             </FluentLabel>
             <FluentLabel Typo="Typography.Subject">
-                @Lang(LanguageKey.ClientId): @ClientId
+                @Lang(Localizer.ClientId): @ClientId
             </FluentLabel>
 
             <FluentTextField @bind-Value="EditDto.ClientName"
-                             Label="@Localizer.Get(LanguageKey.ClientName)"
-                             Placeholder="@Localizer.Get(LanguageKey.ClientName)"
+                             Label="@Localizer.Get(Localizer.ClientName)"
+                             Placeholder="@Localizer.Get(Localizer.ClientName)"
                              class="w-100" Required />
             <FluentValidationMessage For="() => EditDto.ClientName"></FluentValidationMessage>
 
@@ -39,7 +39,7 @@
                 }
             </FluentRadioGroup>
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
-                @Localizer.Get(LanguageKey.ClientTypeDescription)
+                @Localizer.Get(Localizer.ClientTypeDescription)
             </FluentLabel>
 
             @* scopes & grant type *@
@@ -71,11 +71,11 @@
 
             @* 回调地址 *@
             <FluentTextArea Rows="3" @bind-Value="RedirectUris"
-                            Placeholder="@Localizer.Get(LanguageKey.RedirectUris)" Class="w-100"
-                            Label="@Localizer.Get(LanguageKey.RedirectUris)"
+                            Placeholder="@Localizer.Get(Localizer.RedirectUris)" Class="w-100"
+                            Label="@Localizer.Get(Localizer.RedirectUris)"
                             Required />
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
-                @Localizer.Get(LanguageKey.RowValueTip)
+                @Localizer.Get(Localizer.RowValueTip)
             </FluentLabel>
 
             <FluentValidationMessage For="() => EditDto.RedirectUris"></FluentValidationMessage>
@@ -87,10 +87,10 @@
                               Type="ButtonType.Button"
                               Disabled="!formValid"
                               OnClick="SaveAsync">
-                    @Localizer.Get(LanguageKey.Save)
+                    @Localizer.Get(Localizer.Save)
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Neutral" OnClick="@Cancel">
-                    @Localizer.Get(LanguageKey.Cancel)
+                    @Localizer.Get(Localizer.Cancel)
                 </FluentButton>
             </FluentStack>
             <FluentValidationSummary />

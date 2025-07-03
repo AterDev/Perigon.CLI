@@ -101,7 +101,7 @@ public partial class ClientAppDetail
     {
         if (!editContext!.Validate())
         {
-            ToastService.ShowError(Lang(LanguageKey.FormValidFailed));
+            ToastService.ShowError(Lang(Localizer.FormValidFailed));
             editContext.NotifyValidationStateChanged();
             return;
         }
@@ -132,9 +132,7 @@ public partial class ClientAppDetail
             }
             catch (Exception ex)
             {
-                ToastService.ShowError(
-                    Lang(LanguageKey.Edit, LanguageKey.Failed) + $":{ex.Message}"
-                );
+                ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed) + $":{ex.Message}");
                 return;
             }
         }

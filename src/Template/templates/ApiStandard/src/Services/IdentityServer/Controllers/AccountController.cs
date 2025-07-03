@@ -94,7 +94,7 @@ public class AccountController(
         {
             // 登录失败，重定向回登录页并附带错误信息
             return Redirect(
-                $"/login?error={Uri.EscapeDataString(result.ErrorMessage ?? localizer.Get(LanguageKey.Login) + localizer.Get(LanguageKey.Failed))}"
+                $"/login?error={Uri.EscapeDataString(result.ErrorMessage ?? localizer.Get(Localizer.Login) + localizer.Get(Localizer.Failed))}"
             );
         }
 

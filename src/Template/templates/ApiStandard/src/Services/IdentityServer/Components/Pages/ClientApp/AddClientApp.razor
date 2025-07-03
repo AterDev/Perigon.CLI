@@ -17,8 +17,8 @@
     <FluentDialogBody>
         <FluentStack Orientation="Orientation.Vertical">
             <FluentTextField @bind-Value="AddDto!.ClientName"
-                             Label="@Localizer.Get(LanguageKey.ClientName)"
-                             Placeholder="@Localizer.Get(LanguageKey.ClientName)"
+                             Label="@Localizer.Get(Localizer.ClientName)"
+                             Placeholder="@Localizer.Get(Localizer.ClientName)"
                              class="w-100" Required />
             <FluentValidationMessage For="() => AddDto.ClientName"></FluentValidationMessage>
 
@@ -38,7 +38,7 @@
             </FluentRadioGroup>
 
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
-                @Localizer.Get(LanguageKey.ClientTypeDescription)
+                @Localizer.Get(Localizer.ClientTypeDescription)
             </FluentLabel>
         </FluentStack>
     </FluentDialogBody>
@@ -48,10 +48,10 @@
                       Type="ButtonType.Button"
                       Disabled="!formValid"
                       OnClick="SaveAsync">
-            @Localizer.Get(LanguageKey.Save)
+            @Localizer.Get(Localizer.Save)
         </FluentButton>
         <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">
-            @Localizer.Get(LanguageKey.Cancel)
+            @Localizer.Get(Localizer.Cancel)
         </FluentButton>
     </FluentDialogFooter>
 </EditForm>

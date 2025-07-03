@@ -13,7 +13,6 @@ public class ApplicationManager(
     public async Task<List<ClientAppItemDto>> ListAsync()
     {
         var applications = new List<ClientAppItemDto>();
-
         await foreach (var app in applicationManager.ListAsync())
         {
             var clientId = await applicationManager.GetClientIdAsync(app);

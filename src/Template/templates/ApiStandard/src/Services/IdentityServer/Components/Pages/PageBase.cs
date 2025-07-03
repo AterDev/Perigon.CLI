@@ -69,6 +69,6 @@ public class PageBase : ComponentBase
     public async Task CopyToClipboardAsync(string text)
     {
         await JS.InvokeVoidAsync("copyTextToClipboard", text);
-        ToastService.ShowSuccess(Lang(LanguageKey.Copy, LanguageKey.Success, " "));
+        ToastService.ShowSuccess(Lang(Localizer.Copy, Localizer.Success, " "));
     }
 }

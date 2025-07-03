@@ -12,23 +12,23 @@
 <FluentDialogBody>
     <FluentStack Orientation="Orientation.Vertical">
         <FluentLabel Typo="Typography.Subject" Color="Color.Neutral">
-            @Localizer.Get(LanguageKey.ClientSecretSaveTip)
+            @Localizer.Get(Localizer.ClientSecretSaveTip)
         </FluentLabel>
 
         <FluentStack Orientation="Orientation.Horizontal">
             <FluentLabel Typo="Typography.Body" Color="Color.Neutral">
-                @Localizer.Get(LanguageKey.ClientId):
+                @Localizer.Get(Localizer.ClientId):
             </FluentLabel>
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
                 <strong>@ClientId</strong>
             </FluentLabel>
             <FluentIcon Value="@(new SmallRegularIcon.Copy())"
                         OnClick="@(() => CopyToClipboardAsync(ClientId))"
-                        Title="@Localizer.Get(LanguageKey.Copy)" />
+                        Title="@Localizer.Get(Localizer.Copy)" />
         </FluentStack>
         <FluentStack Orientation="Orientation.Horizontal">
             <FluentLabel Typo="Typography.Body" Color="Color.Neutral">
-                @Localizer.Get(LanguageKey.ClientSecret):
+                @Localizer.Get(Localizer.ClientSecret):
             </FluentLabel>
             <FluentLabel Typo="Typography.Body" Color="Color.Info">
                 <strong>
@@ -37,14 +37,14 @@
             </FluentLabel>
             <FluentIcon Value="@(new SmallRegularIcon.Copy())"
                         OnClick="@(() => CopyToClipboardAsync(ClientSecret))"
-                        Title="@Localizer.Get(LanguageKey.Copy)" />
+                        Title="@Localizer.Get(Localizer.Copy)" />
         </FluentStack>
     </FluentStack>
 </FluentDialogBody>
 
 <FluentDialogFooter>
     <FluentButton Appearance="Appearance.Accent" OnClick="@CloseAsync">
-        @Localizer.Get(LanguageKey.Close)
+        @Localizer.Get(Localizer.Close)
     </FluentButton>
 </FluentDialogFooter>
 

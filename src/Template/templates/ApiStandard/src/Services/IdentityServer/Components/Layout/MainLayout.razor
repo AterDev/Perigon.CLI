@@ -30,7 +30,7 @@
                                     <FluentStack Orientation="Orientation.Horizontal"
                                                  VerticalAlignment="VerticalAlignment.Center">
                                         <FluentIcon Value="@(new Icons.Regular.Size20.Person())" />
-                                        @Localizer.Get(LanguageKey.Setting)
+                                        @Localizer.Get(Localizer.Setting)
                                         
                                     </FluentStack>
                                 </FluentMenuItem>
@@ -39,7 +39,7 @@
                                     <FluentStack Orientation="Orientation.Horizontal"
                                                  VerticalAlignment="VerticalAlignment.Center">
                                         <FluentIcon Value="@(new Icons.Regular.Size20.SignOut())" />
-                                        @Localizer.Get(LanguageKey.Logout)
+                                        @Localizer.Get(Localizer.Logout)
                                     </FluentStack>
 
                                 </FluentMenuItem>
@@ -60,7 +60,7 @@
         <FluentStack Orientation="Orientation.Horizontal" Width="100%">
             <FluentNavMenu Width="260" Class="nav-menu-side">
                 <FluentNavLink Icon="@(new Icons.Regular.Size24.Apps())" Href="/client-apps" Match="NavLinkMatch.All" ForceLoad="true">
-                    @Localizer.Get(LanguageKey.ClientApp)
+                    @Localizer.Get(Localizer.ClientApp)
                 </FluentNavLink>
             </FluentNavMenu>
             <FluentBodyContent Style="padding:4px">

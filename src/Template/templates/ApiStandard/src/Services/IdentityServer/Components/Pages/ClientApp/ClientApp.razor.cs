@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-
 using OpenIddict.EntityFrameworkCore.Models;
 
 namespace IdentityServer.Components.Pages.ClientApp;
@@ -32,12 +31,12 @@ public partial class ClientApp : PageBase
     {
         DialogParameters parameters = new()
         {
-            Title = Localizer.Get(LanguageKey.AddClientApp),
+            Title = Localizer.Get(Localizer.AddClientApp),
             PrimaryAction = "Yes",
             PrimaryActionEnabled = false,
             SecondaryAction = "No",
             Width = "400px",
-            PreventScroll = true
+            PreventScroll = true,
         };
 
         var dialog = await DialogService.ShowDialogAsync<AddClientApp>(parameters);
@@ -52,7 +51,7 @@ public partial class ClientApp : PageBase
             }
             else
             {
-                ToastService.ShowError(Lang(LanguageKey.Add, LanguageKey.Failed));
+                ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
             }
         }
     }
@@ -61,7 +60,7 @@ public partial class ClientApp : PageBase
     {
         DialogParameters parameters = new()
         {
-            Title = Lang(LanguageKey.Add, LanguageKey.Success, " "),
+            Title = Lang(Localizer.Add, Localizer.Success, " "),
             PrimaryAction = "Yes",
             PrimaryActionEnabled = false,
             SecondaryAction = "No",
@@ -71,9 +70,7 @@ public partial class ClientApp : PageBase
         };
         var dialog = await DialogService.ShowDialogAsync<AddResultDialog>(descriptor, parameters);
         var result = await dialog.Result;
-        if (!result.Cancelled)
-        {
-        }
+        if (!result.Cancelled) { }
     }
 
     protected void ToDetailPage(ClientAppItemDto app)
@@ -84,10 +81,11 @@ public partial class ClientApp : PageBase
     protected async Task Delete(string clientId)
     {
         var dialog = await DialogService.ShowConfirmationAsync(
-            Lang(LanguageKey.ConfirmDeleteMessage),
-            Lang(LanguageKey.Yes),
-            Lang(LanguageKey.No),
-            Lang(LanguageKey.Delete, LanguageKey.ClientApp, " "));
+            Lang(Localizer.ConfirmDeleteMessage),
+            Lang(Localizer.Yes),
+            Lang(Localizer.No),
+            Lang(Localizer.Delete, Localizer.ClientApp, " ")
+        );
         var result = await dialog.Result;
         if (result.Cancelled == false)
         {
