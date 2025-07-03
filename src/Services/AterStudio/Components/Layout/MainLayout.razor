@@ -3,32 +3,27 @@
 <FluentLayout>
     <FluentHeader Class="header">
         Ater Studio
-        <FluentSpacer/>
+        <FluentSpacer />
         <div class="nav-item">
             <NavLink Match="NavLinkMatch.All" href="/">解决方案</NavLink>
             <NavLink Match="NavLinkMatch.All" href="/tools">快捷工具</NavLink>
         </div>
-        <FluentSpacer/>
-        <div class="d-flex">
-            <FluentIcon Id="myFirstButton" Value="@(new Icons.Regular.Size24.Notepad())" Color="Color.Lightweight"/>
+        <FluentSpacer />
+        <div>
+            <FluentIcon Id="myFirstButton" Value="@(new Icons.Regular.Size24.Notepad())" Color="Color.Lightweight" />
             <a href="https://github.com/AterDev/ater.dry.cli">
-                <img src="assets/github-mark.svg" width="24" alt="github"/>
+                <img src="assets/github-mark.svg" width="24" alt="github" />
             </a>
         </div>
     </FluentHeader>
     <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
-        <FluentBodyContent Class="body-content">
-            <div class="content">
-                <FluentMessageBarProvider Section="MESSAGES_TOP"/>
+        <FluentBodyContent Class="main-content">
+            <div class="main-body-content">
+                <FluentMessageBarProvider Section="MESSAGES_TOP" />
                 @Body
             </div>
         </FluentBodyContent>
     </FluentStack>
-    <FluentFooter>
-        <a href="https://www.fluentui-blazor.net" target="_blank">Documentation and demos</a>
-        <FluentSpacer/>
-        <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor" target="_blank">About Blazor</a>
-    </FluentFooter>
 </FluentLayout>
 <FluentTooltipProvider />
 <FluentDialogProvider />
