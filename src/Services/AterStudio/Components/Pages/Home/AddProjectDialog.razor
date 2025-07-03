@@ -3,11 +3,15 @@
 
 <FluentEditForm Model="Content">
     <FluentDialogHeader ShowDismiss="false">
-        <h3>添加解决方案</h3>
+        <FluentLabel Typo="Typography.PaneHeader">
+            添加解决方案
+        </FluentLabel>
     </FluentDialogHeader>
     <FluentBodyContent>
-        <FluentStack Orientation="Orientation.Vertical" VerticalGap="20">
-            <p>仅支持.NET或Node类型项目</p>
+        <FluentLabel Typo="Typography.Subject">
+            仅支持.NET或Node类型项目
+        </FluentLabel>
+        <FluentStack Orientation="Orientation.Vertical" VerticalGap="16">
             <FluentStack VerticalGap="1" Orientation="Orientation.Vertical">
                 <FluentTextField @bind-Value="Content.ProjectName" Label="项目名称" Required="true" Placeholder="显示名称" Style="width: 100%" />
             </FluentStack>
@@ -16,7 +20,7 @@
             </FluentStack>
         </FluentStack>
     </FluentBodyContent>
-    <FluentFooter>
+    <FluentDialogFooter>
         <FluentButton Appearance="Appearance.Accent"
                       Type="ButtonType.Button">
             保存
@@ -24,7 +28,7 @@
         <FluentButton Appearance="Appearance.Neutral">
             取消
         </FluentButton>
-    </FluentFooter>
+    </FluentDialogFooter>
 </FluentEditForm>
 
 @code {
