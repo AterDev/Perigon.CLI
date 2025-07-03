@@ -1,5 +1,3 @@
-using Http.API.Worker;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
@@ -11,10 +9,10 @@ builder.AddFrameworkServices();
 // Web中间件服务:route, openapi, jwt, cors, auth, rateLimiter etc.
 builder.AddMiddlewareServices();
 
-// Managers, auto generate by source generator
+// 业务Managers
 builder.Services.AddManagers();
 
-// Modules, auto generate by source generator
+// 模块服务
 builder.AddModules();
 
 WebApplication app = builder.Build();
@@ -23,14 +21,4 @@ app.MapDefaultEndpoints();
 
 // 使用中间件
 app.UseMiddlewareServices();
-
-using (app)
-{
-    // 在启动前执行初始化操作
-    await using (var scope = app.Services.CreateAsyncScope())
-    {
-        IServiceProvider provider = scope.ServiceProvider;
-        await Initialize.InitAsync(provider);
-    }
-    app.Run();
-}
+app.Run();

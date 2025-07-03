@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
       <ProjectReference Include="..\Services\Http.API\Http.API.csproj" />
       <ProjectReference Include="..\Services\IdentityServer\IdentityServer.csproj" />
       <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />

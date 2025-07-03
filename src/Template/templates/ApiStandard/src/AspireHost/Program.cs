@@ -33,5 +33,7 @@ builder.AddProject<Projects.MigrationService>("migrationservice")
     .WaitFor(devDb)
     .WithReference(devDb);
 
+builder.AddProject<Projects.AdminService>("adminservice");
+
 builder.Build().Run();
 

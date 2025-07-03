@@ -23,9 +23,9 @@
   </Folder>
   <Folder Name="/src/Ater/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
     <Project Path="src/Ater/Ater.Common/Ater.Common.csproj" Id="6dc54fab-dd8b-9dc2-0bda-1d394ca66e08" />
-    <Project Path="src/Ater/Ater.Web.SourceGeneration/Ater.Web.SourceGeneration.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
     <Project Path="src/Ater/Ater.Web.Convention/Ater.Web.Convention.csproj" />
     <Project Path="src/Ater/Ater.Web.Extension/Ater.Web.Extension.csproj" />
+    <Project Path="src/Ater/Ater.Web.SourceGeneration/Ater.Web.SourceGeneration.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
   </Folder>
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/CMSMod/CMSMod.csproj" />
@@ -37,6 +37,7 @@
     <Project Path="src/Modules/UserMod/UserMod.csproj" Id="8c4fb758-f362-4671-bf72-6ee9e9e482d2" />
   </Folder>
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
+    <Project Path="src/Services/AdminService/AdminService.csproj" />
     <Project Path="src/Services/Http.API/Http.API.csproj" />
     <Project Path="src/Services/IdentityServer/IdentityServer.csproj" />
     <Project Path="src/Services/MigrationService/MigrationService.csproj" />
