@@ -7,7 +7,7 @@ namespace IdentityServer.Components.Pages.ClientApp;
 public partial class AddClientApp
 {
     private EditContext? editContext;
-    private ClientAppAddDto? AddDto;
+    private ClientAppAddDto AddDto = new();
     private bool formValid = false;
 
     /// <summary>
@@ -36,7 +36,6 @@ public partial class AddClientApp
 
     protected override void OnInitialized()
     {
-        AddDto ??= new();
         editContext = new(AddDto);
         editContext.OnFieldChanged += HandleFieldChanged;
     }
