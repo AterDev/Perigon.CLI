@@ -6,7 +6,7 @@
     <PackageId>Ater.Web.Extension</PackageId>
     <Title>Ater.Web.Extension</Title>
     <Authors>niltor</Authors>
-    <Version>1.0.0-beta5</Version>
+    <Version>1.0.0-beta6</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>extension;webapi;framework;ater;aspnetcore;cache</PackageTags>
     <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>

@@ -299,10 +299,10 @@ export class EnumTextPipeModule { }
             builder.AddMiddlewareServices();
 
             // add Managers, auto generate by source generator
-            builder.Services.AddManagers();
+            // builder.Services.AddManagers();
 
             // add modules, auto generate by source generator
-            builder.AddModules();
+            // builder.AddModules();
 
             WebApplication app = builder.Build();
 
