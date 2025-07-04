@@ -279,4 +279,25 @@
   <data name="DirectoryNotFound" xml:space="preserve">
     <value>文件夹不存在，请检查！</value>
   </data>
+  <data name="SolutionTypeStandard" xml:space="preserve">
+    <value>标准解决方案</value>
+  </data>
+  <data name="SolutionTypeMini" xml:space="preserve">
+    <value>轻量解决方案</value>
+  </data>
+  <data name="DatabasePostgreSql" xml:space="preserve">
+    <value>PostgreSql</value>
+  </data>
+  <data name="DatabaseSqlServer" xml:space="preserve">
+    <value>SqlServer</value>
+  </data>
+  <data name="CacheTypeHybrid" xml:space="preserve">
+    <value>混合缓存</value>
+  </data>
+  <data name="CacheTypeMemory" xml:space="preserve">
+    <value>内存</value>
+  </data>
+  <data name="CacheTypeRedis" xml:space="preserve">
+    <value>Redis</value>
+  </data>
 </root>

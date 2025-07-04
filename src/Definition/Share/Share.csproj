@@ -18,11 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
-    <PackageReference
-      Include="Ater.Web.SourceGeneration"
-      Version="1.0.0-beta4"
-      PrivateAssets="true"
-    />
+    <PackageReference Include="Ater.Web.SourceGeneration" Version="1.0.0-beta5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />

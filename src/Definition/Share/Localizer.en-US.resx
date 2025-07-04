@@ -279,4 +279,25 @@
   <data name="DirectoryNotFound" xml:space="preserve">
     <value>directory not found,please check！</value>
   </data>
+  <data name="SolutionTypeStandard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="SolutionTypeMini" xml:space="preserve">
+    <value>Light Solution</value>
+  </data>
+  <data name="DatabasePostgreSql" xml:space="preserve">
+    <value>PostgreSql</value>
+  </data>
+  <data name="DatabaseSqlServer" xml:space="preserve">
+    <value>SqlServer</value>
+  </data>
+  <data name="CacheTypeHybrid" xml:space="preserve">
+    <value>Hybrid</value>
+  </data>
+  <data name="CacheTypeMemory" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="CacheTypeRedis" xml:space="preserve">
+    <value>Redis</value>
+  </data>
 </root>

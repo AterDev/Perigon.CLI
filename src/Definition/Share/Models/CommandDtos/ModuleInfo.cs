@@ -1,4 +1,5 @@
 namespace Share.Models.CommandDtos;
+
 /// <summary>
 /// 模块信息
 /// </summary>
@@ -30,7 +31,8 @@ public class ModuleInfo
     /// 获取所有模块内容
     /// </summary>
     /// <returns></returns>
-    public static List<ModuleInfo> GetModules() => [
+    public static List<ModuleInfo> GetModules() =>
+        [
             //new() {
             //    Name = "系统模块",
             //    Value = System,
@@ -40,25 +42,25 @@ public class ModuleInfo
             {
                 Name = "客户模块",
                 Value = Customer,
-                Description = TipConst.CustomerModuleDes
+                Description = Localizer.CustomerModuleDes,
             },
             new ModuleInfo
             {
                 Name = "文件管理模块",
                 Value = FileManager,
-                Description = TipConst.FileManagerModuleDes
+                Description = Localizer.FileManagerModuleDes,
             },
             new ModuleInfo
             {
                 Name = "订单模块",
                 Value = Order,
-                Description = TipConst.OrderModuleDes
+                Description = Localizer.OrderModuleDes,
             },
             new ModuleInfo
             {
                 Name = "内容管理模块",
                 Value = CMS,
-                Description = TipConst.CMSModuleDes
+                Description = Localizer.CMSModuleDes,
             },
             //new ModuleInfo
             //{

@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using CommandLine;
 using CommandLine.Commands;
 using Microsoft.Extensions.DependencyInjection;
@@ -5,8 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Helper;
 using Share.Services;
-using System.Globalization;
-using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -34,39 +34,63 @@ var registrar = new DITypeRegistrar(host.Services);
 var app = new CommandApp(registrar);
 
 var localizer = host.Services.GetRequiredService<Localizer>();
-app.Configure(config =>
-{
-
+app.Configure(
+    (Action<IConfigurator>)(
+        config =>
+        {
 #if DEBUG
-    config.PropagateExceptions();
-    config.ValidateExamples();
+            config.PropagateExceptions();
+            config.ValidateExamples();
 #endif
-    config.SetApplicationName("ater");
-    config.SetApplicationVersion("10.0.0");
-    config.SetApplicationCulture(systemCulture);
+            config.SetApplicationName("ater");
+            config.SetApplicationVersion("10.0.0");
+            config.SetApplicationCulture(systemCulture);
 
-    config.AddCommand<NewCommand>(SubCommand.New)
-        .WithDescription(localizer.Get(TipConst.NewDes))
-        .WithExample(["new", "name"]);
+            config
+                .AddCommand<NewCommand>(SubCommand.New)
+                .WithDescription(localizer.Get((string)Localizer.NewDes))
+                .WithExample(["new", "name"]);
 
-    config.AddCommand<StudioCommand>(SubCommand.Studio)
-        .WithDescription(localizer.Get(TipConst.StudioDes));
+            config
+                .AddCommand<StudioCommand>(SubCommand.Studio)
+                .WithDescription(localizer.Get((string)Localizer.StudioDes));
 
-    config.AddBranch(SubCommand.Generate, config =>
-    {
-        config.SetDescription(localizer.Get(TipConst.GenerateDes));
+            ConfiguratorExtensions
+                .AddBranch(
+                    config,
+                    SubCommand.Generate,
+                    (Action<IConfigurator<CommandSettings>>)(
+                        config =>
+                        {
+                            config.SetDescription(localizer.Get((string)Localizer.GenerateDes));
 
-        config.AddCommand<RequestCommand>(SubCommand.Request)
-            .WithDescription(localizer.Get(TipConst.RequestDes))
-            .WithExample(["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]);
+                            config
+                                .AddCommand<RequestCommand>(SubCommand.Request)
+                                .WithDescription(localizer.Get((string)Localizer.RequestDes))
+                                .WithExample(
+                                    [
+                                        "generate",
+                                        "request",
+                                        "./openapi.json",
+                                        "./src/services",
+                                        "-t",
+                                        "angular",
+                                    ]
+                                );
+                        }
+                    )
+                )
+                .WithAlias("g");
 
-    }).WithAlias("g");
-
-    config.SetExceptionHandler((ex, resolver) =>
-    {
-        AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
-        return -1;
-    });
-});
+            config.SetExceptionHandler(
+                (ex, resolver) =>
+                {
+                    AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                    return -1;
+                }
+            );
+        }
+    )
+);
 
 return app.Run(args);
