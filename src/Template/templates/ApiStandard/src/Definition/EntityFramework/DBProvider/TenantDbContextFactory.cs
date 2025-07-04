@@ -1,5 +1,3 @@
-using Ater.Common.Options;
-using Ater.Web.Convention.Abstraction;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 
@@ -16,7 +14,7 @@ public class TenantDbContextFactory(
     HybridCache cache,
     CommandDbContext db,
     IOptions<ComponentOption> options
-    )
+)
 {
     public CommandDbContext CreateCommandDbContext()
     {
@@ -24,9 +22,11 @@ public class TenantDbContextFactory(
         Guid tenantId = tenantProvider.TenantId;
 
         // 从缓存中查询连接字符串
-        var connectionStrings = cache.GetOrCreateAsync(
-            $"{tenantId}_CommandConnectionString",
-            async cancel => await GetTenantConnectionStringAsync(tenantId, "command"))
+        var connectionStrings = cache
+            .GetOrCreateAsync(
+                $"{tenantId}_CommandConnectionString",
+                async cancel => await GetTenantConnectionStringAsync(tenantId, "command")
+            )
             .Result;
 
         switch (options?.Value.Database)
@@ -41,16 +41,17 @@ public class TenantDbContextFactory(
         return new CommandDbContext(builder.Options);
     }
 
-
     public QueryDbContext CreateQueryDbContext()
     {
         var builder = new DbContextOptionsBuilder<QueryDbContext>();
         Guid tenantId = tenantProvider.TenantId;
 
         // 从缓存中查询连接字符串
-        var connectionStrings = cache.GetOrCreateAsync(
-            $"{tenantId}_QueryConnectionString",
-            async cancel => await GetTenantConnectionStringAsync(tenantId, "query"))
+        var connectionStrings = cache
+            .GetOrCreateAsync(
+                $"{tenantId}_QueryConnectionString",
+                async cancel => await GetTenantConnectionStringAsync(tenantId, "query")
+            )
             .Result;
 
         builder.UseSqlServer(connectionStrings);

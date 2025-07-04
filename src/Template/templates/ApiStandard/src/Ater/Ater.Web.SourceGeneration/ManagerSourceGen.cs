@@ -84,6 +84,7 @@ public class ManagerSourceGen : IIncrementalGenerator
                 var compilation = pair.Left;
                 var classes = pair.Right;
 
+                // 过滤
                 if (compilation.Assembly.Name == "Share")
                 {
                     return;
@@ -178,6 +179,10 @@ public class ManagerSourceGen : IIncrementalGenerator
         IEnumerable<INamedTypeSymbol?> symbols
     )
     {
+        if (symbols == null)
+        {
+            return null;
+        }
         var namespaceName = compilation.Assembly.Name ?? "Service";
         // Order the classes by name
         var distinctSymbols = symbols
@@ -186,7 +191,6 @@ public class ManagerSourceGen : IIncrementalGenerator
             .OrderBy(s => s!.Name)
             .ToList();
 
-        distinctSymbols ??= [];
         var registrations = string.Empty;
         foreach (var symbol in distinctSymbols)
         {
@@ -242,6 +246,10 @@ public class ManagerSourceGen : IIncrementalGenerator
                     validAssemblies.Add(assemblyName);
                 }
             }
+        }
+        if (validAssemblies.Count == 0)
+        {
+            return null;
         }
 
         var registrations = string.Empty;

@@ -19,14 +19,17 @@ public class LocalizerConstGen : IIncrementalGenerator
         );
 
         var compilationAndResx = context.CompilationProvider.Combine(resxFiles.Collect());
-
         context.RegisterSourceOutput(
             compilationAndResx,
             (spc, pair) =>
             {
                 var (compilation, resxList) = (pair.Left, pair.Right);
-                var allKeys = new HashSet<string>();
 
+                if (resxList.Length == 0)
+                {
+                    return;
+                }
+                var allKeys = new HashSet<string>();
                 string fileName = string.Empty;
                 foreach (var file in resxList)
                 {
