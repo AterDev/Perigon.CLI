@@ -179,10 +179,6 @@ public class ManagerSourceGen : IIncrementalGenerator
         IEnumerable<INamedTypeSymbol?> symbols
     )
     {
-        if (symbols == null)
-        {
-            return null;
-        }
         var namespaceName = compilation.Assembly.Name ?? "Service";
         // Order the classes by name
         var distinctSymbols = symbols
@@ -190,6 +186,11 @@ public class ManagerSourceGen : IIncrementalGenerator
             .Distinct(SymbolEqualityComparer.Default)
             .OrderBy(s => s!.Name)
             .ToList();
+
+        if (distinctSymbols.Count == 0)
+        {
+            return null;
+        }
 
         var registrations = string.Empty;
         foreach (var symbol in distinctSymbols)
