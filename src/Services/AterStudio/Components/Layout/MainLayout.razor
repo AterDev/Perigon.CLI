@@ -1,13 +1,18 @@
 @inherits LayoutComponentBase
+@inject Localizer Localizer
 
 <FluentLayout>
     <FluentHeader Class="header">
-        Ater Studio
+        <FluentNavLink Href="/">
+            Ater Studio
+        </FluentNavLink>
         <FluentSpacer />
         <div class="nav-item">
-            <NavLink Match="NavLinkMatch.All" href="/">解决方案</NavLink>
-            <NavLink Match="NavLinkMatch.All" href="/tools">快捷工具</NavLink>
+
+            <NavLink href="/">解决方案</NavLink>
+            <NavLink href="/tools">快捷工具</NavLink>
         </div>
+
         <FluentSpacer />
         <div>
             <FluentIcon Id="myFirstButton" Value="@(new Icons.Regular.Size24.Notepad())" Color="Color.Lightweight" />
@@ -25,11 +30,12 @@
         </FluentBodyContent>
     </FluentStack>
 </FluentLayout>
-<FluentTooltipProvider />
-<FluentDialogProvider />
-<FluentTooltip Anchor="myFirstButton" OnDismissed="@(e => Console.WriteLine(e))">
 
-</FluentTooltip>
+<FluentToastProvider />
+<FluentDialogProvider />
+<FluentTooltipProvider />
+<FluentMessageBarProvider />
+<FluentMenuProvider />
 
 
 <div id="blazor-error-ui" data-nosnippet>

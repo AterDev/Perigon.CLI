@@ -19,7 +19,7 @@ builder.AddBlazorServices();
 
 builder.Services.AddManagers();
 
-// services 
+// services
 builder.Services.AddScoped<IProjectContext, ProjectContext>();
 
 builder.Services.AddScoped<CodeAnalysisService>();
@@ -28,9 +28,7 @@ builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<SolutionService>();
 
 // add MCP Server
-builder.Services.AddMcpServer()
-    .WithHttpTransport()
-    .WithToolsFromAssembly();
+builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
 
 WebApplication app = builder.Build();
 app.MapMcp("mcp");
@@ -43,4 +41,3 @@ using (app)
     await InitDataTask.InitDataAsync(scope.ServiceProvider);
     app.Run();
 }
-

@@ -1,4 +1,4 @@
-﻿.header .nav-item ::deep a {
+/*.header .nav-item ::deep a {
     text-decoration: none;
     color: white !important;
     padding: 0.65rem 1rem;
@@ -12,4 +12,5 @@
 .header .nav-item ::deep a.active {
     color: white !important;
     background-color: #a974ff;
-}
+}*/
+

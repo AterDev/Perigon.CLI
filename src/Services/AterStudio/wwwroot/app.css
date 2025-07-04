@@ -13,23 +13,24 @@ body {
     background: var(--neutral-fill-layer-rest);
 }
 
-.main-content {
-    min-height: calc(100dvh - 50px);
-    color: var(--neutral-foreground-rest);
-    align-items: stretch !important;
+.w-100 {
+    width: 100% !important;
 }
 
-.main-body-content {
-    padding: 0.5rem 1.5rem;
-    align-self: stretch !important;
-    width: 100%;
+.header {
+    height: 56px;
 }
 
-/*.content {
-    padding: 0.5rem 1.5rem;
-    align-self: stretch !important;
-    width: 100%;
-}*/
+.nav-menu-side {
+    height: calc(100vh - 104px);
+    overflow-y: auto;
+}
+
+.footer {
+    height: 48px;
+    padding: 0 8px;
+    background: var(--neutral-layer-card-container);
+}
 
 #blazor-error-ui {
     background: lightyellow;

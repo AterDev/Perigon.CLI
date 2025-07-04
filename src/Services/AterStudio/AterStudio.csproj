@@ -21,23 +21,22 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ater.Web.Analyzers" Version="1.0.0-beta3" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+    <PackageReference Include="Ater.Web.SourceGeneration" Version="1.0.0-beta4" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.5">
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.9" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.9" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.0" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.0" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\StudioMod\StudioMod.csproj" />
   </ItemGroup>
-
 </Project>
