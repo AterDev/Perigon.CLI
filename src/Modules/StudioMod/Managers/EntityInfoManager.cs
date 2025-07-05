@@ -1,7 +1,7 @@
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
+using System.Diagnostics;
 
 namespace StudioMod.Managers;
 
@@ -48,6 +48,7 @@ public partial class EntityInfoManager(
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             _logger.LogInformation(ex.Message);
             return entityFiles;
         }
@@ -297,57 +298,57 @@ public partial class EntityInfoManager(
                 files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
                 break;
             case CommandType.Manager:
-            {
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
-                var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
-                files.AddRange(managerFiles);
-                break;
-            }
-            case CommandType.API:
-            {
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
-                var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
-                files.AddRange(managerFiles);
-
-                _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, true);
-                var controllerType = _projectContext.Project?.Config.ControllerType ?? ControllerType.Both;
-
-                switch (controllerType)
                 {
-                    case ControllerType.Client:
-                    {
-                        tplContent = TplContent.ControllerTpl(false);
-                        var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    case ControllerType.Admin:
-                    {
-                        tplContent = TplContent.ControllerTpl();
-                        apiPath = Path.Combine(apiPath, "AdminControllers");
-                        var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    case ControllerType.Both:
-                    {
-                        tplContent = TplContent.ControllerTpl(false);
-                        var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-
-                        tplContent = TplContent.ControllerTpl();
-                        apiPath = Path.Combine(apiPath, "AdminControllers");
-                        controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    default:
-                        break;
+                    files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
+                    var tplContent = TplContent.ManagerTpl();
+                    var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
+                    files.AddRange(managerFiles);
+                    break;
                 }
-                break;
-            }
+            case CommandType.API:
+                {
+                    files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
+                    var tplContent = TplContent.ManagerTpl();
+                    var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
+                    files.AddRange(managerFiles);
+
+                    _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, true);
+                    var controllerType = _projectContext.Project?.Config.ControllerType ?? ControllerType.Both;
+
+                    switch (controllerType)
+                    {
+                        case ControllerType.Client:
+                            {
+                                tplContent = TplContent.ControllerTpl(false);
+                                var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
+                                files.Add(controllerFiles);
+                                break;
+                            }
+                        case ControllerType.Admin:
+                            {
+                                tplContent = TplContent.ControllerTpl();
+                                apiPath = Path.Combine(apiPath, "AdminControllers");
+                                var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
+                                files.Add(controllerFiles);
+                                break;
+                            }
+                        case ControllerType.Both:
+                            {
+                                tplContent = TplContent.ControllerTpl(false);
+                                var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
+                                files.Add(controllerFiles);
+
+                                tplContent = TplContent.ControllerTpl();
+                                apiPath = Path.Combine(apiPath, "AdminControllers");
+                                controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
+                                files.Add(controllerFiles);
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+                    break;
+                }
             default:
                 break;
         }

@@ -1,19 +1,89 @@
 @page "/workbench/entity/{id}"
 @layout Layout
-<h3>EntityList</h3>
 
-<h4>
-    Entity List for ID: @Id
-</h4>
+@* <h4>
+    <pre>
+        @JsonSerializer.Serialize(files, new JsonSerializerOptions() { WriteIndented = true })
+    </pre>
+</h4> *@
+@if (string.IsNullOrEmpty(solutionPath))
+{
+    <h3>Template Path: @solutionPath</h3>
+}
+)
 
+<FluentDataGrid @ref="grid"
+                Items="@files"
+                ResizableColumns=true
+                ResizeType="DataGridResizeType.Discrete"
+                Pagination="@pagination"
+                RowClass="@rowClass"
+                RowStyle="@rowStyle"
+                HeaderCellAsButtonWithMenu="true"
+                ColumnResizeLabels="@resizeLabels">
+    <TemplateColumn Title="实体文件">
+        <div class="d-flex gap-3">
+            <span title="模块标识">(@context.ModuleName)</span>
+            <span>@context.Name</span>
+        </div>
+    </TemplateColumn>
+    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="说明" Width="200px"/>
+    <TemplateColumn Title="操作" Align="Align.Center">
+        <FluentButton Appearance="Appearance.Lightweight"
+                    IconEnd="@(new Icons.Regular.Size16.Edit())"
+                    Class="edit-action">
+            操作 1
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight"
+                    IconEnd="@(new Icons.Regular.Size16.Edit())"
+                    Class="edit-action">
+            操作 2
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight"
+                    IconEnd="@(new Icons.Regular.Size16.Edit())"
+                    Class="edit-action">
+            操作 3
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight"
+                    IconEnd="@(new Icons.Regular.Size16.Edit())"
+                    Class="edit-action">
+            操作 4
+        </FluentButton>
+    </TemplateColumn>
+</FluentDataGrid>
+
+@inject EntityInfoManager EntityInfoManager
+@inject CommandDbContext context
+@inject IProjectContext ProjectContext
 @code {
-
-    [Parameter]
-    public string Id { get; set; }
-    protected override void OnInitialized()
+    FluentDataGrid<EntityFile> grid = default!;
+    bool _clearItems = false;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    string nameFilter = string.Empty;
+    int minMedals;
+    int maxMedals = 130;
+    private IQueryable<EntityFile>? files;
+    private string? solutionPath;
+    Func<EntityFile, string?> rowClass = x => x.Name.StartsWith("A") ? "highlighted" : null;
+    Func<EntityFile, string?> rowStyle = x => x.Name.StartsWith("Au") ? "background-color: var(--highlight-bg)" : null;
+    ColumnResizeLabels resizeLabels = ColumnResizeLabels.Default with
     {
-        // Initialization logic for the EntityList component
-        base.OnInitialized();
+        DiscreteLabel = "Width (+/- 10px)",
+        ResetAriaLabel = "Restore"
+    };
+    [Parameter] public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Guid.TryParse(Id, out var id))
+        {
+            var project = context.Projects.Find(id);
+            ArgumentNullException.ThrowIfNull(project, nameof(project));
+            ProjectContext.ProjectId = id;
+            solutionPath = project.Path;
+            await ProjectContext.SetProjectAsync(solutionPath);
+            ArgumentNullException.ThrowIfNull(ProjectContext.EntityPath, nameof(ProjectContext.EntityPath));
+            files = EntityInfoManager.GetEntityFiles(ProjectContext.EntityPath).AsQueryable();
+        }
     }
-    // Add methods and properties specific to the EntityList component here
 }

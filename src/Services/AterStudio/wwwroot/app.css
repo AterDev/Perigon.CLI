@@ -17,6 +17,14 @@ body {
     width: 100% !important;
 }
 
+.d-flex {
+    display: flex !important;
+}
+
+.gap-3 {
+    gap: 0.75rem !important;
+}
+
 :root[data-theme='dark'] fluent-header.header {
     background: var(--fluent-neutral-background3, #222);
 }
