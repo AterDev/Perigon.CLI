@@ -1,41 +1,120 @@
 @namespace AterStudio.Components
-@implements IDialogContentComponent<AddProjectDto>
+@inherits PageBase
+@implements IDialogContentComponent
+@inject ProjectManager projectManager
 
-<FluentEditForm Model="Content" OnValidSubmit="Submit">
+<EditForm EditContext="editContext">
     <FluentDialogHeader ShowDismiss="false">
         <FluentLabel Typo="Typography.PaneHeader">
-            添加解决方案
+            @Lang(Localizer.Load, Localizer.Project, " ")
+        </FluentLabel>
+
+        <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
+            @Lang(Localizer.LoadProjectDes)
         </FluentLabel>
     </FluentDialogHeader>
     <FluentBodyContent>
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+
         <FluentStack Orientation="Orientation.Vertical" VerticalGap="16">
-            <FluentLabel Typo="Typography.Subject">
-                仅支持.NET或Node类型项目
-            </FluentLabel>
-            <FluentStack VerticalGap="1" Orientation="Orientation.Vertical">
-                <FluentTextField @bind-Value="Content.ProjectName" Label="项目名称" Required="true" Placeholder="显示名称" Style="width: 100%" />
+            <FluentStack VerticalGap="4" Orientation="Orientation.Vertical">
+                <FluentTextField @bind-Value="AddDto.ProjectName"
+                                 Label="@Lang(Localizer.Project,Localizer.Name)"
+                                 Class="w-100"
+                                 Required="true"
+                                 Placeholder="@Lang(Localizer.Project,Localizer.Name)" />
+
+                <FluentValidationMessage For="@(() => AddDto.ProjectName)" />
             </FluentStack>
-            <FluentStack VerticalGap="1" Orientation="Orientation.Vertical">
-                <FluentTextField @bind-Value="Content.ProjectDirectory" Label="项目目录" Required="true" Placeholder="项目根目录路径，非文件路径" Style="width: 100%" />
+            <FluentStack VerticalGap="4" Orientation="Orientation.Vertical">
+                <FluentTextField @bind-Value="AddDto.ProjectDirectory"
+                                 Label="@Lang(Localizer.Project,Localizer.Directory)"
+                                 Required="true"
+                                 Placeholder="@Lang(Localizer.LoadProjectPathDes)"
+                                 Class="w-100" />
+                <FluentValidationMessage For="@(() => AddDto.ProjectDirectory)" />
             </FluentStack>
         </FluentStack>
     </FluentBodyContent>
+
     <FluentDialogFooter>
         <FluentButton Appearance="Appearance.Accent"
-                      Type="ButtonType.Submit">
-            保存
+                      Type="ButtonType.Button"
+                      OnClick="SaveAsync">
+            @Lang(Localizer.Load)
         </FluentButton>
-        <FluentButton Appearance="Appearance.Neutral">
-            取消
+        <FluentButton Appearance="Appearance.Neutral"
+                      OnClick="CancelAsync">
+            @Lang(Localizer.Cancel)
         </FluentButton>
     </FluentDialogFooter>
-</FluentEditForm>
+</EditForm>
 
 @code {
-    [Parameter] public AddProjectDto Content { get; set; } = null!;
-    [CascadingParameter] public FluentDialog Dialog { get; set; } = null!;
-    private Task Submit(EditContext args)
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = null!;
+    private EditContext? editContext;
+    public AddProjectDto AddDto { get; set; } = default!;
+    private bool formValid = false;
+
+    protected override void OnInitialized()
     {
-        return Dialog.CloseAsync();
+        AddDto = new AddProjectDto
+        {
+            ProjectName = string.Empty,
+            ProjectDirectory = string.Empty
+        };
+        editContext = new EditContext(AddDto);
+        editContext.OnFieldChanged += HandleFieldChanged;
+
+    }
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        if (editContext is not null)
+        {
+            formValid = editContext.Validate();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (editContext is not null)
+        {
+            editContext.OnFieldChanged -= HandleFieldChanged;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!editContext!.Validate())
+        {
+            ToastService.ShowError(Lang(Localizer.FormValidFailed));
+            return;
+        }
+
+        if (AddDto != null)
+        {
+            if(!Directory.Exists(AddDto.ProjectDirectory))
+            {
+                ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName,AddDto.ProjectDirectory));
+                return;
+            }
+            var res = await projectManager.AddAsync(AddDto.ProjectName, AddDto.ProjectDirectory);
+            if (res is not null)
+            {
+                await Dialog.CloseAsync(res);
+            }
+            else
+            {
+                ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
+            }
+        }
+    }
+
+    private async Task CancelAsync()
+    {
+        await Dialog.CancelAsync();
     }
 }

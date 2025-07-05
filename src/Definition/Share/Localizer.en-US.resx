@@ -300,4 +300,25 @@
   <data name="CacheTypeRedis" xml:space="preserve">
     <value>Redis</value>
   </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="LoadProjectDes" xml:space="preserve">
+    <value>Select local project to load</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="LoadProjectPathDes" xml:space="preserve">
+    <value>Input the root directory path of project, not file path</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="NotFoundWithName" xml:space="preserve">
+    <value>Not Found {0}</value>
+  </data>
 </root>

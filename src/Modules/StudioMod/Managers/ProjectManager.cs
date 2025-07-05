@@ -1,11 +1,13 @@
 namespace StudioMod.Managers;
 
-public class ProjectManager(DataAccessContext<Project> dataContext,
+public class ProjectManager(
+    DataAccessContext<Project> dataContext,
     IProjectContext projectContext,
     ILogger<ProjectManager> logger
-    ) : ManagerBase<Project>(dataContext, logger)
+) : ManagerBase<Project>(dataContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
+
     public string GetToolVersion()
     {
         return AssemblyHelper.GetCurrentToolVersion();
@@ -36,7 +38,7 @@ public class ProjectManager(DataAccessContext<Project> dataContext,
     /// 添加项目
     /// </summary>
     /// <param name="name"></param>
-    /// <param name="path"></param>
+    /// <param name="projectFilePath"></param>
     /// <returns></returns>
     public async Task<Guid?> AddAsync(string name, string? projectFilePath)
     {
@@ -48,7 +50,7 @@ public class ProjectManager(DataAccessContext<Project> dataContext,
             DisplayName = name,
             Path = solutionPath,
             Name = solutionName,
-            SolutionType = solutionType
+            SolutionType = solutionType,
         };
         entity.Config.SolutionPath = solutionPath;
         return await AddAsync(entity) ? entity.Id : null;
@@ -83,7 +85,9 @@ public class ProjectManager(DataAccessContext<Project> dataContext,
         try
         {
             string path = _projectContext.Project.Path;
-            string? version = await AssemblyHelper.GetSolutionVersionAsync(_projectContext.SolutionPath!);
+            string? version = await AssemblyHelper.GetSolutionVersionAsync(
+                _projectContext.SolutionPath!
+            );
             return version == null ? "未找到项目配置文件，无法进行更新" : "暂不支持该功能";
         }
         catch (Exception ex)

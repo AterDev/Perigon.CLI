@@ -300,4 +300,25 @@
   <data name="CacheTypeRedis" xml:space="preserve">
     <value>Redis</value>
   </data>
+  <data name="Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="LoadProjectDes" xml:space="preserve">
+    <value>选择本地要加载的项目</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>加载</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="LoadProjectPathDes" xml:space="preserve">
+    <value>输入项目要目录路径，而不是项目文件路径</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="NotFoundWithName" xml:space="preserve">
+    <value>未找到 {0}</value>
+  </data>
 </root>
