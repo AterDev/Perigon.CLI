@@ -321,4 +321,13 @@
   <data name="NotFoundWithName" xml:space="preserve">
     <value>Not Found {0}</value>
   </data>
+  <data name="Entity" xml:space="preserve">
+    <value>Entity</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="OpenAPI" xml:space="preserve">
+    <value>OpenAPI</value>
+  </data>
 </root>

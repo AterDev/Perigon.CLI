@@ -321,4 +321,13 @@
   <data name="NotFoundWithName" xml:space="preserve">
     <value>未找到 {0}</value>
   </data>
+  <data name="Entity" xml:space="preserve">
+    <value>实体</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="OpenAPI" xml:space="preserve">
+    <value>OpenAPI</value>
+  </data>
 </root>

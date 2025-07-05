@@ -1,25 +1,54 @@
 @inherits LayoutComponentBase
 @inject Localizer Localizer
-
+@inject IJSRuntime JS
 <FluentLayout>
-    <FluentHeader Class="header">
-        <FluentNavLink Href="/">
-            Ater Studio
-        </FluentNavLink>
-        <FluentSpacer />
-        <div class="nav-item">
+    <FluentHeader Class="header" Height="56" Style="background:var(--neutral-layer-2)">
+        <ChildContent>
+            <FluentStack>
+                <FluentNavLink Href="/">
+                    <FluentLabel Typo="Typography.H5">
+                        Ater Studio
+                    </FluentLabel>
+                </FluentNavLink>
+            </FluentStack>
+            <FluentSpacer />
+            <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.Center">
+                <FluentNavLink Href="/">
+                    <FluentButton Appearance="Appearance.Neutral"
+                                  BackgroundColor="rgba(0, 0, 0, 0)">
+                        @Localizer.Get(Localizer.Solution)
+                    </FluentButton>
+                </FluentNavLink>
+                <FluentNavLink Href="/tools">
+                    <FluentButton Appearance="Appearance.Neutral"
+                                  BackgroundColor="rgba(0, 0, 0, 0)">
+                        @Localizer.Get(Localizer.Tools)
+                    </FluentButton>
+                </FluentNavLink>
 
-            <NavLink href="/">解决方案</NavLink>
-            <NavLink href="/tools">快捷工具</NavLink>
-        </div>
+            </FluentStack>
+            <FluentSpacer />
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.End">
 
-        <FluentSpacer />
-        <div>
-            <FluentIcon Id="myFirstButton" Value="@(new Icons.Regular.Size24.Notepad())" Color="Color.Lightweight" />
-            <a href="https://github.com/AterDev/ater.dry.cli">
-                <img src="assets/github-mark.svg" width="24" alt="github" />
-            </a>
-        </div>
+                <FluentIcon Value="@(new Icons.Regular.Size24.DocumentOnePageSparkle())" Color="Color.Neutral" />
+                <a href="https://github.com/AterDev/ater.dry.cli">
+                    @if (isDarkMode)
+                    {
+                        <img src="assets/github-mark-white.svg" width="20" alt="github" />
+                    }
+                    else
+                    {
+                        <img src="assets/github-mark.svg" width="20" alt="github" />
+                    }
+
+                </a>
+            </FluentStack>
+        </ChildContent>
+
+
     </FluentHeader>
     <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
         <FluentBodyContent Class="main-content">
@@ -48,5 +77,13 @@
 @code
 {
     public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
-    bool open = false;
+    private bool isDarkMode = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        var themeMode = await JS.InvokeAsync<string>("getCurrentThemeMode");
+        StateHasChanged(); // 如果需要刷新UI
+        isDarkMode = themeMode == "dark";
+    }
 }

@@ -1,0 +1,19 @@
+@page "/workbench/entity/{id}"
+@layout Layout
+<h3>EntityList</h3>
+
+<h4>
+    Entity List for ID: @Id
+</h4>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+    protected override void OnInitialized()
+    {
+        // Initialization logic for the EntityList component
+        base.OnInitialized();
+    }
+    // Add methods and properties specific to the EntityList component here
+}

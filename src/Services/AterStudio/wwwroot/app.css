@@ -10,15 +10,15 @@ body {
     line-height: var(--type-ramp-base-line-height);
     font-weight: var(--font-weight);
     color: var(--neutral-foreground-rest);
-    background: var(--neutral-fill-layer-rest);
+    background: var(--neutral-layer-1);
 }
 
 .w-100 {
     width: 100% !important;
 }
 
-.header {
-    height: 56px;
+:root[data-theme='dark'] fluent-header.header {
+    background: var(--fluent-neutral-background3, #222);
 }
 
 .nav-menu-side {
@@ -61,3 +61,14 @@ body {
     .blazor-error-boundary::before {
         content: "An error has occurred. "
     }
+
+
+
+
+fluent-card:hover .delete-action {
+    display: inline-flex;
+}
+
+.delete-action {
+    display: none;
+}

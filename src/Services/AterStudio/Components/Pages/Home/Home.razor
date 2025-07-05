@@ -8,12 +8,16 @@
 
 <FluentStack Orientation="Orientation.Vertical">
     <FluentToolbar Class="w-100">
-        <FluentButton Appearance="Appearance.Accent" OnClick="AddLocalProject">
-            @Lang(Localizer.Load, Localizer.Project, " ")
+        <FluentButton Appearance="Appearance.Stealth"
+                      IconStart="@(new Icons.Regular.Size24.OpenFolder())"
+                      OnClick="AddLocalProject">
+            @Lang(Localizer.Load, Localizer.Project)
         </FluentButton>
-        <FluentButton Appearance="Appearance.Accent"
+        <FluentButton Appearance="Appearance.Stealth"
                       IconStart="@(new Icons.Regular.Size24.Add())"
-                      onclick='()=>NavigationManager.NavigateTo("/create-project")' />
+                      onclick='()=>NavigationManager.NavigateTo("/create-project")'>
+            @Lang(Localizer.Create, Localizer.Solution)
+        </FluentButton>
     </FluentToolbar>
 
     @if (projects.Count == 0)
@@ -43,9 +47,13 @@
                                      VerticalAlignment="VerticalAlignment.Center"
                                      HorizontalAlignment="HorizontalAlignment.End">
 
-                            <FluentIcon Value="@(new Icons.Filled.Size20.Delete())"
-                                        Color="Color.Error" OnClick="() => DeleteProject(project)"></FluentIcon>
-                            <FluentButton Appearance="Appearance.Lightweight">
+                            <FluentButton Class="delete-action"
+                                          IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Error))"
+                                          Appearance="Appearance.Stealth"
+                                          OnClick="()=>DeleteProject(project)" />
+
+                            <FluentButton Appearance="Appearance.Lightweight"
+                                          OnClick='()=>NavigationManager.NavigateTo($"/workbench/entity/{project.Id}")'>
                                 @Lang(Localizer.Enter, Localizer.Workbench)
                             </FluentButton>
                         </FluentStack>
