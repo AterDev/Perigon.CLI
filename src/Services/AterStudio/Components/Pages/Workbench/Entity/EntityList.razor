@@ -1,0 +1,81 @@
+@page "/workbench/entity/{id}"
+@inherits PageBase
+@layout Layout
+
+@if (!string.IsNullOrEmpty(_project.ProjectName))
+{
+    <h3>@_project.ProjectName</h3>
+}
+
+<FluentDataGrid @ref="grid"
+                Items="@files"
+                ResizableColumns=true
+                ResizeType="DataGridResizeType.Discrete"
+                Pagination="@pagination"
+                HeaderCellAsButtonWithMenu="true">
+    <TemplateColumn Title="实体文件">
+        <div class="d-flex gap-3">
+            <span title="模块标识">(@context.ModuleName)</span>
+            <span>@context.Name</span>
+        </div>
+    </TemplateColumn>
+    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="说明" Width="200px" />
+    <TemplateColumn Title="操作" Align="Align.Center">
+        <FluentButton Appearance="Appearance.Lightweight"
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            操作 1
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight"
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            操作 2
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight"
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            操作 3
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight"
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            操作 4
+        </FluentButton>
+    </TemplateColumn>
+</FluentDataGrid>
+
+@inject EntityInfoManager EntityInfoManager
+@inject CommandDbContext context
+@inject IProjectContext _project
+@code {
+    FluentDataGrid<EntityFile> grid = default!;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
+
+    private IQueryable<EntityFile>? files;
+    bool _clearItems = false;
+    string nameFilter = string.Empty;
+
+    [Parameter] public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Guid.TryParse(Id, out var id))
+        {
+            await _project.SetProjectByIdAsync(Id);
+
+            Console.WriteLine(ToJson(_project));
+            GetEntityList();
+        }
+        else
+        {
+            ToastService.ShowError("invalid project id");
+        }
+    }
+
+    private void GetEntityList()
+    {
+        var entityFiles = EntityInfoManager.GetEntityFiles(_project.EntityPath!);
+        files = entityFiles.AsQueryable();
+    }
+
+}
