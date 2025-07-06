@@ -43,7 +43,7 @@ public partial class Home
 
         var result = await dialog.Result;
         if (result.Cancelled) return;
-        await ProjectManager.DeleteAsync([project.Id]);
-        await OnInitializedAsync();
+        await ProjectManager.DeleteAsync([project.Id], false);
+        await GetProjectListAsync();
     }
 }

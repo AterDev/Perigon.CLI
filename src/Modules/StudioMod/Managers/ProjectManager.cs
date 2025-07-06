@@ -2,12 +2,10 @@ namespace StudioMod.Managers;
 
 public class ProjectManager(
     DataAccessContext<Project> dataContext,
-    IProjectContext projectContext,
-    ILogger<ProjectManager> logger
+    ILogger<ProjectManager> logger,
+    CommandService commandService
 ) : ManagerBase<Project>(dataContext, logger)
 {
-    private readonly IProjectContext _projectContext = projectContext;
-
     public string GetToolVersion()
     {
         return AssemblyHelper.GetCurrentToolVersion();
@@ -38,22 +36,11 @@ public class ProjectManager(
     /// 添加项目
     /// </summary>
     /// <param name="name"></param>
-    /// <param name="projectFilePath"></param>
+    /// <param name="projectPath"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddAsync(string name, string? projectFilePath)
+    public async Task<Guid?> AddAsync(string name, string projectPath)
     {
-        var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
-        var solutionName = Path.GetFileName(projectFilePath) ?? name;
-        var solutionPath = Path.GetDirectoryName(projectFilePath) ?? "";
-        var entity = new Project()
-        {
-            DisplayName = name,
-            Path = solutionPath,
-            Name = solutionName,
-            SolutionType = solutionType,
-        };
-        entity.Config.SolutionPath = solutionPath;
-        return await AddAsync(entity) ? entity.Id : null;
+        return await commandService.AddProjectAsync(name, projectPath);
     }
 
     public async Task<Project?> GetDetailAsync(Guid id)
@@ -70,31 +57,6 @@ public class ProjectManager(
     {
         string res = ProcessHelper.ExecuteCommands($"start {path}");
         return res;
-    }
-
-    /// <summary>
-    /// 更新解决方案
-    /// </summary>
-    /// <returns></returns>
-    public async Task<string> UpdateSolutionAsync()
-    {
-        if (_projectContext.Project == null)
-        {
-            return "未找到有效的项目";
-        }
-        try
-        {
-            string path = _projectContext.Project.Path;
-            string? version = await AssemblyHelper.GetSolutionVersionAsync(
-                _projectContext.SolutionPath!
-            );
-            return version == null ? "未找到项目配置文件，无法进行更新" : "暂不支持该功能";
-        }
-        catch (Exception ex)
-        {
-            await Console.Out.WriteLineAsync(ex.Message + ex.StackTrace);
-            return ex.Message;
-        }
     }
 
     /// <summary>

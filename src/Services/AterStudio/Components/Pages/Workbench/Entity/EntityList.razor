@@ -62,8 +62,6 @@
         if (Guid.TryParse(Id, out var id))
         {
             await _project.SetProjectByIdAsync(Id);
-
-            Console.WriteLine(ToJson(_project));
             GetEntityList();
         }
         else

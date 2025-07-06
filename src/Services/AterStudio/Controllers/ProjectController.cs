@@ -11,10 +11,9 @@ public class ProjectController(
     ProjectManager manager,
     IProjectContext project,
     CommandService commandService,
-    ILogger<ProjectContext> logger) : BaseController<ProjectManager>(localizer, manager, project, logger)
+    ILogger<ProjectContext> logger
+) : BaseController<ProjectManager>(localizer, manager, project, logger)
 {
-
-
     /// <summary>
     /// 获取解决方案列表
     /// </summary>
@@ -77,16 +76,6 @@ public class ProjectController(
     }
 
     /// <summary>
-    /// 更新解决方案
-    /// </summary>
-    /// <returns></returns>
-    [HttpPut("solution")]
-    public async Task<string> UpdateSolutionAsync()
-    {
-        return await _manager.UpdateSolutionAsync();
-    }
-
-    /// <summary>
     /// 打开解决方案，仅支持sln
     /// </summary>
     /// <param name="path"></param>
@@ -94,7 +83,9 @@ public class ProjectController(
     [HttpPost("open")]
     public ActionResult<string> OpenSolution(string path)
     {
-        return path.EndsWith(".sln") ? _manager.OpenSolution(path) : Problem("不支持的解决方案文件");
+        return path.EndsWith(".sln")
+            ? _manager.OpenSolution(path)
+            : Problem("不支持的解决方案文件");
     }
 
     /// <summary>

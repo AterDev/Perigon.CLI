@@ -1,4 +1,5 @@
-﻿@implements IDialogContentComponent
+@using BlazorMonaco.Editor
+@implements IDialogContentComponent
 
 @if (OptionsFunc != null)
 {
@@ -6,5 +7,6 @@
 }
 
 @code {
-    [Parameter] public Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions>? OptionsFunc { get; set; }
+    [Parameter]
+    public Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions>? OptionsFunc { get; set; }
 }

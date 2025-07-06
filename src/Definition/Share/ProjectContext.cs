@@ -66,7 +66,7 @@ public class ProjectContext : IProjectContext
             if (Project != null)
             {
                 ProjectName = Project.Name;
-                SolutionPath = Path.Combine(Project.Path, Project.Name);
+                SolutionPath = Project.Path;
                 var config = Project.Config;
                 SharePath = Path.Combine(SolutionPath, config.SharePath);
                 CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);

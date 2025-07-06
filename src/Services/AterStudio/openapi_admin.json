@@ -1342,25 +1342,6 @@
         }
       }
     },
-    "/api/admin/Project/solution": {
-      "put": {
-        "tags": [
-          "Project"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/admin/Project/open": {
       "post": {
         "tags": [

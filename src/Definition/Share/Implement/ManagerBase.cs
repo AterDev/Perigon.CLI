@@ -1,5 +1,3 @@
-
-
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Share.Implement;
@@ -25,9 +23,8 @@ public class ManagerBase<TEntity> : ManagerBase<QueryDbContext, CommandDbContext
     /// </summary>
     /// <param name="dataAccess"></param>
     /// <param name="logger"></param>
-    public ManagerBase(DataAccessContext<TEntity> dataAccess, ILogger logger) : base(dataAccess.QueryContext, dataAccess.CommandContext, logger)
-    {
-    }
+    public ManagerBase(DataAccessContext<TEntity> dataAccess, ILogger logger)
+        : base(dataAccess.QueryContext, dataAccess.CommandContext, logger) { }
 }
 
 /// <summary>
@@ -37,12 +34,10 @@ public class ManagerBase<TEntity> : ManagerBase<QueryDbContext, CommandDbContext
 /// <typeparam name="TEntity"></typeparam>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class ManagerBase<TContext, TEntity>(TContext context, ILogger logger) : ManagerBase<TContext, TContext, TEntity>(context, context, logger)
+public class ManagerBase<TContext, TEntity>(TContext context, ILogger logger)
+    : ManagerBase<TContext, TContext, TEntity>(context, context, logger)
     where TContext : DbContext
-    where TEntity : class, IEntityBase
-{
-
-}
+    where TEntity : class, IEntityBase { }
 
 /// <summary>
 /// 实现类
@@ -70,6 +65,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// 是否自动保存(调用SaveChanges)
     /// </summary>
     protected bool AutoSave { get; set; } = true;
+
     /// <summary>
     /// 错误信息
     /// </summary>
@@ -79,6 +75,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     ///错误状态码
     /// </summary>
     public int ErrorStatus { get; set; }
+
     /// <summary>
     /// 当前实体
     /// </summary>
@@ -86,6 +83,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     #endregion
 
     protected DatabaseFacade Database { get; init; }
+
     /// <summary>
     /// 实体的只读仓储实现
     /// </summary>
@@ -128,17 +126,18 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <typeparam name="TDto"></typeparam>
     /// <param name="whereExp"></param>
     /// <returns></returns>
-    public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null) where TDto : class
+    public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
+        where TDto : class
     {
         if (typeof(TDto) == typeof(TEntity))
         {
-            var model = await Command.Where(whereExp ?? (e => true))
-                .FirstOrDefaultAsync();
+            var model = await Command.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
             return model as TDto;
         }
         else
         {
-            return await Command.Where(whereExp ?? (e => true))
+            return await Command
+                .Where(whereExp ?? (e => true))
                 .ProjectTo<TDto>()
                 .FirstOrDefaultAsync();
         }
@@ -165,9 +164,11 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <typeparam name="TDto"></typeparam>
     /// <param name="whereExp"></param>
     /// <returns></returns>
-    public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null) where TDto : class
+    public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
+        where TDto : class
     {
-        var model = await Query.AsNoTracking()
+        var model = await Query
+            .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
             .FirstOrDefaultAsync();
@@ -205,9 +206,13 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <typeparam name="TDto">返回类型</typeparam>
     /// <param name="whereExp"></param>
     /// <returns></returns>
-    public async Task<List<TDto>> ToListAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null) where TDto : class
+    public async Task<List<TDto>> ToListAsync<TDto>(
+        Expression<Func<TEntity, bool>>? whereExp = null
+    )
+        where TDto : class
     {
-        return await Query.AsNoTracking()
+        return await Query
+            .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
             .ToListAsync();
@@ -215,9 +220,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
 
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
-        return await Query.AsNoTracking()
-            .Where(whereExp ?? (e => true))
-            .ToListAsync();
+        return await Query.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
     }
 
     /// <summary>
@@ -225,11 +228,14 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public async Task<PageList<TItem>> ToPageAsync<TFilter, TItem>(TFilter filter) where TFilter : FilterBase where TItem : class
+    public async Task<PageList<TItem>> ToPageAsync<TFilter, TItem>(TFilter filter)
+        where TFilter : FilterBase
+        where TItem : class
     {
-        Queryable = filter.OrderBy != null
-            ? Queryable.OrderBy(filter.OrderBy)
-            : Queryable.OrderByDescending(t => t.CreatedTime);
+        Queryable =
+            filter.OrderBy != null
+                ? Queryable.OrderBy(filter.OrderBy)
+                : Queryable.OrderByDescending(t => t.CreatedTime);
 
         var count = Queryable.Count();
         List<TItem> data = await Queryable
@@ -244,7 +250,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         {
             Count = count,
             Data = data,
-            PageIndex = filter.PageIndex
+            PageIndex = filter.PageIndex,
         };
     }
 
@@ -285,7 +291,12 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <param name="entity">当前实体</param>
     /// <param name="propertyExpression">导航属性</param>
     /// <param name="data">新数据</param>
-    public void UpdateRelation<TProperty>(TEntity entity, Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression, List<TProperty> data) where TProperty : class
+    public void UpdateRelation<TProperty>(
+        TEntity entity,
+        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression,
+        List<TProperty> data
+    )
+        where TProperty : class
     {
         var currentValue = CommandContext.Entry(entity).Collection(propertyExpression).CurrentValue;
         if (currentValue != null && currentValue.Any())
@@ -337,13 +348,14 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <summary>
     /// 批量删除
     /// </summary>
-    /// <param name="ids">实体id</param>
-    /// <param name="softDelete">是否软件删除</param>
+    /// <param name="ids">实体ids</param>
+    /// <param name="softDelete">是否软删除</param>
     /// <returns></returns>
     public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         var res = softDelete
-            ? await Command.Where(d => ids.Contains(d.Id))
+            ? await Command
+                .Where(d => ids.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
             : await Command.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
         return res > 0;
@@ -375,7 +387,11 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <param name="entity"></param>
     /// <param name="propertyExpression"></param>
     /// <returns></returns>
-    public async Task LoadAsync<TProperty>(TEntity entity, Expression<Func<TEntity, TProperty?>> propertyExpression) where TProperty : class
+    public async Task LoadAsync<TProperty>(
+        TEntity entity,
+        Expression<Func<TEntity, TProperty?>> propertyExpression
+    )
+        where TProperty : class
     {
         var entry = CommandContext.Entry(entity);
         if (entry.State != EntityState.Detached)
@@ -384,8 +400,11 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         }
         else
         {
-            await QueryContext.Entry(entity).Reference(propertyExpression)
-                .Query().AsNoTracking()
+            await QueryContext
+                .Entry(entity)
+                .Reference(propertyExpression)
+                .Query()
+                .AsNoTracking()
                 .LoadAsync();
         }
     }
@@ -397,7 +416,11 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <param name="entity"></param>
     /// <param name="propertyExpression"></param>
     /// <returns></returns>
-    public async Task LoadManyAsync<TProperty>(TEntity entity, Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression) where TProperty : class
+    public async Task LoadManyAsync<TProperty>(
+        TEntity entity,
+        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression
+    )
+        where TProperty : class
     {
         var entry = CommandContext.Entry(entity);
         if (entry.State != EntityState.Detached)
@@ -406,8 +429,11 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         }
         else
         {
-            await QueryContext.Entry(entity).Collection(propertyExpression)
-                .Query().AsNoTracking()
+            await QueryContext
+                .Entry(entity)
+                .Collection(propertyExpression)
+                .Query()
+                .AsNoTracking()
                 .LoadAsync();
         }
     }

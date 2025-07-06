@@ -38,10 +38,30 @@
                      VerticalGap="8">
             @foreach (var project in projects)
             {
-                <FluentCard Style="min-width:320px;" Class="col">
+                <FluentCard Style="min-width:300px;" Class="col">
                     <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
-                        <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
-                        <FluentLabel Typo="Typography.Body">@project.Name</FluentLabel>
+                        <FluentStack Orientation="Orientation.Horizontal"
+                                     VerticalAlignment="VerticalAlignment.Center">
+                            @if (project.SolutionType == SolutionType.DotNet)
+                            {
+                                <img src="assets/logo_net.svg" height="30" width="30">
+                            }
+                            @if (project.SolutionType == SolutionType.Node)
+                            {
+                                <img src="assets/nodejs.svg" height="30" width="30">
+                            }
+                            <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
+
+                            <FluentButton Id="setting_btn"
+                                          IconStart="@(new Icons.Regular.Size24.Settings())"
+                                          Appearance="Appearance.Stealth">
+                            </FluentButton>
+                            <FluentTooltip Anchor="setting_btn" Position="TooltipPosition.Right">
+                                @Lang(Localizer.Project, Localizer.Setting)
+                            </FluentTooltip>
+                        </FluentStack>
+
+                        <FluentLabel Typo="Typography.Subject" Color="Color.Accent">@project.Name</FluentLabel>
                         <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
                         <FluentStack Orientation="Orientation.Horizontal"
                                      VerticalAlignment="VerticalAlignment.Center"
