@@ -330,4 +330,10 @@
   <data name="OpenAPI" xml:space="preserve">
     <value>OpenAPI</value>
   </data>
+  <data name="Operate" xml:space="preserve">
+    <value>Operate</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
 </root>

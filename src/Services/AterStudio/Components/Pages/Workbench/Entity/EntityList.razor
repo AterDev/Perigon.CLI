@@ -2,78 +2,73 @@
 @inherits PageBase
 @layout Layout
 
-@if (!string.IsNullOrEmpty(_project.ProjectName))
+@if (!string.IsNullOrEmpty(project.ProjectName))
 {
-    <h3>@_project.ProjectName</h3>
+    <h3>@project.ProjectName</h3>
 }
 
 <FluentDataGrid @ref="grid"
                 Items="@files"
                 ResizableColumns=true
-                ResizeType="DataGridResizeType.Discrete"
+                RowSize="@DataGridRowSize.Medium"
                 Pagination="@pagination"
+                AutoFit="true"
                 HeaderCellAsButtonWithMenu="true">
-    <TemplateColumn Title="实体文件">
-        <div class="d-flex gap-3">
-            <span title="模块标识">(@context.ModuleName)</span>
-            <span>@context.Name</span>
-        </div>
+    <TemplateColumn Title="@Lang(Localizer.Entity)" Sortable="true">
+
+        <FluentStack Orientation="Orientation.Horizontal"
+                     VerticalAlignment="VerticalAlignment.Center">
+
+            @if (!string.IsNullOrWhiteSpace(context.ModuleName))
+            {
+                <FluentLabel Typo="Typography.Body" Color="Color.Neutral">(@context.ModuleName)</FluentLabel>
+            }
+            <FluentButton Appearance="Appearance.Lightweight"
+                          OnClick="@(_ => EditCodeAsync(context))">
+                @context.Name
+            </FluentButton>
+        </FluentStack>
+
     </TemplateColumn>
-    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="说明" Width="200px" />
-    <TemplateColumn Title="操作" Align="Align.Center">
-        <FluentButton Appearance="Appearance.Lightweight"
-                      IconEnd="@(new Icons.Regular.Size16.Edit())"
-                      Class="edit-action">
-            操作 1
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Lightweight"
-                      IconEnd="@(new Icons.Regular.Size16.Edit())"
-                      Class="edit-action">
-            操作 2
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Lightweight"
-                      IconEnd="@(new Icons.Regular.Size16.Edit())"
-                      Class="edit-action">
-            操作 3
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Lightweight"
-                      IconEnd="@(new Icons.Regular.Size16.Edit())"
-                      Class="edit-action">
-            操作 4
-        </FluentButton>
+    <PropertyColumn Property="@(c => c.Comment)"
+                    Sortable="true"
+                    Title="@Lang(Localizer.Description)"
+                    Width="200px" />
+
+    <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+        <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
+            <FluentButton Title="生成代码"
+                          Appearance="Appearance.Stealth"
+                          IconEnd="@(new Icons.Regular.Size20.AddSquare())" />
+            <FluentButton Title="编辑DTO"
+                          Appearance="Appearance.Stealth"
+                          IconEnd="@(new Icons.Regular.Size20.Code())" />
+            <FluentButton Title="Manager"
+                          Appearance="Appearance.Stealth"
+                          IconEnd="@(new Icons.Regular.Size20.CodeBlock())" />
+            <FluentButton Title="API"
+                          Appearance="Appearance.Stealth"
+                          IconEnd="@(new Icons.Regular.Size20.Connected())" />
+        </FluentStack>
     </TemplateColumn>
 </FluentDataGrid>
 
-@inject EntityInfoManager EntityInfoManager
-@inject CommandDbContext context
-@inject IProjectContext _project
-@code {
-    FluentDataGrid<EntityFile> grid = default!;
-    PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
-
-    private IQueryable<EntityFile>? files;
-    bool _clearItems = false;
-    string nameFilter = string.Empty;
-
-    [Parameter] public string? Id { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (Guid.TryParse(Id, out var id))
-        {
-            await _project.SetProjectByIdAsync(Id);
-            GetEntityList();
-        }
-        else
-        {
-            ToastService.ShowError("invalid project id");
-        }
-    }
-
-    private void GetEntityList()
-    {
-        var entityFiles = EntityInfoManager.GetEntityFiles(_project.EntityPath!);
-        files = entityFiles.AsQueryable();
-    }
-
-}
+<FluentDialog @ref="_dialog" 
+    @bind-Hidden="@Hidden" 
+    Style="--dialog-width:800px" 
+    Modal="true"
+>
+    <FluentDialogHeader ShowDismiss="true">
+        <FluentLabel Typo="Typography.PaneHeader">编辑实体<code>@entityName</code>文件</FluentLabel>
+        <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
+            编辑实体文件的代码内容
+        </FluentLabel>
+    </FluentDialogHeader>
+    <StandaloneCodeEditor CssClass="vh-75" ConstructionOptions="SetCodeEditorOptions" />
+    <FluentDialogFooter Style="text-align:end">
+        <FluentStack HorizontalAlignment="HorizontalAlignment.End">
+            <FluentButton OnClick="_dialog.Hide">关闭</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" OnClick="_dialog.Hide">保存</FluentButton>
+        </FluentStack>
+    </FluentDialogFooter>
+</FluentDialog>

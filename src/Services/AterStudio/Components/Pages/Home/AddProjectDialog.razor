@@ -96,9 +96,9 @@
 
         if (AddDto != null)
         {
-            if(!Directory.Exists(AddDto.ProjectDirectory))
+            if (!Directory.Exists(AddDto.ProjectDirectory))
             {
-                ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName,AddDto.ProjectDirectory));
+                ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName, AddDto.ProjectDirectory));
                 return;
             }
             var res = await projectManager.AddAsync(AddDto.ProjectName, AddDto.ProjectDirectory);
