@@ -1,0 +1,10 @@
+﻿@implements IDialogContentComponent
+
+@if (OptionsFunc != null)
+{
+    <StandaloneCodeEditor CssClass="vh-75" ConstructionOptions="@OptionsFunc" />
+}
+
+@code {
+    [Parameter] public Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions>? OptionsFunc { get; set; }
+}

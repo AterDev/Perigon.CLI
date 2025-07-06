@@ -1,62 +1,54 @@
 @page "/workbench/entity/{id}"
 @layout Layout
 
-@* <h4>
-    <pre>
-        @JsonSerializer.Serialize(files, new JsonSerializerOptions() { WriteIndented = true })
-    </pre>
-</h4> *@
 @if (string.IsNullOrEmpty(solutionPath))
 {
     <h3>Template Path: @solutionPath</h3>
 }
-)
-
 <FluentDataGrid @ref="grid"
-                Items="@files"
-                ResizableColumns=true
-                ResizeType="DataGridResizeType.Discrete"
+                Items="@files" RowSize="@DataGridRowSize.Medium"
                 Pagination="@pagination"
-                RowClass="@rowClass"
-                RowStyle="@rowStyle"
-                HeaderCellAsButtonWithMenu="true"
-                ColumnResizeLabels="@resizeLabels">
+                AutoFit="true"
+                HeaderCellAsButtonWithMenu="true">
     <TemplateColumn Title="实体文件">
-        <div class="d-flex gap-3">
+        <div class="d-flex gap-3 align-items-center">
             <span title="模块标识">(@context.ModuleName)</span>
-            <span>@context.Name</span>
+            <FluentButton OnClick="@(_ => EditCodeAsync(context))">@context.Name</FluentButton>
         </div>
     </TemplateColumn>
-    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="说明" Width="200px"/>
+    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="说明" />
     <TemplateColumn Title="操作" Align="Align.Center">
-        <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 1
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 2
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 3
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 4
-        </FluentButton>
+        <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
+            <FluentButton Title="生成代码" IconEnd="@(new Icons.Regular.Size24.AddSquare())" />
+            <FluentButton Title="编辑DTO" IconEnd="@(new Icons.Regular.Size24.Code())" />
+            <FluentButton Title="Manager" IconEnd="@(new Icons.Regular.Size24.CodeBlock())" />
+            <FluentButton Title="API" IconEnd="@(new Icons.Regular.Size24.Connected())" />
+        </FluentStack>
     </TemplateColumn>
 </FluentDataGrid>
+<FluentDialog @ref="_dialog" @bind-Hidden="@Hidden" Style="--dialog-width:800px">
+    <FluentDialogHeader ShowDismiss="true">
+        <FluentLabel Typo="Typography.PaneHeader">编辑实体<code>@entityName</code>文件</FluentLabel>
+        <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
+            编辑实体文件的代码内容
+        </FluentLabel>
+    </FluentDialogHeader>
+    <StandaloneCodeEditor CssClass="vh-75" ConstructionOptions="SetCodeEditorOptions" />
+    <FluentDialogFooter Style="text-align:end">
+        <FluentStack HorizontalAlignment="HorizontalAlignment.End">
+            <FluentButton OnClick="_dialog.Hide">关闭</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" OnClick="_dialog.Hide">保存</FluentButton>
+        </FluentStack>
+    </FluentDialogFooter>
+</FluentDialog>
 
 @inject EntityInfoManager EntityInfoManager
 @inject CommandDbContext context
 @inject IProjectContext ProjectContext
+@inject IDialogService DialogService
 @code {
     FluentDataGrid<EntityFile> grid = default!;
+    FluentDialog _dialog = default!;
     bool _clearItems = false;
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     string nameFilter = string.Empty;
@@ -64,13 +56,12 @@
     int maxMedals = 130;
     private IQueryable<EntityFile>? files;
     private string? solutionPath;
-    Func<EntityFile, string?> rowClass = x => x.Name.StartsWith("A") ? "highlighted" : null;
-    Func<EntityFile, string?> rowStyle = x => x.Name.StartsWith("Au") ? "background-color: var(--highlight-bg)" : null;
-    ColumnResizeLabels resizeLabels = ColumnResizeLabels.Default with
-    {
-        DiscreteLabel = "Width (+/- 10px)",
-        ResetAriaLabel = "Restore"
-    };
+    private StandaloneCodeEditor editor = default!;
+    private StandaloneEditorConstructionOptions options = default!;
+    string entityName = string.Empty;
+
+    private bool Hidden { get; set; } = true;
+
     [Parameter] public string? Id { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -84,6 +75,32 @@
             await ProjectContext.SetProjectAsync(solutionPath);
             ArgumentNullException.ThrowIfNull(ProjectContext.EntityPath, nameof(ProjectContext.EntityPath));
             files = EntityInfoManager.GetEntityFiles(ProjectContext.EntityPath).AsQueryable();
+
+            options = new StandaloneEditorConstructionOptions
+            {
+                Language = "csharp",
+                Theme = "vs-dark",
+                AutomaticLayout = true,
+                ReadOnly = false,
+                FontSize = 14,
+                LineNumbers = "on",
+                ScrollBeyondLastLine = false,
+                WordWrap = "on",
+                WrappingStrategy = "advanced"
+            };
         }
+    }
+
+    private async Task EditCodeAsync(EntityFile entity)
+    {
+        entityName = entity.Name;
+        await editor.SetValue(entity.Content);
+        Hidden = false;
+    }
+
+    private StandaloneEditorConstructionOptions SetCodeEditorOptions(StandaloneCodeEditor editor)
+    {
+        this.editor = editor;
+        return options;
     }
 }
