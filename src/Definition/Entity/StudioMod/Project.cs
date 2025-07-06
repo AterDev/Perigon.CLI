@@ -1,4 +1,5 @@
 namespace Entity.StudioMod;
+
 /// <summary>
 /// 项目
 /// </summary>
@@ -10,11 +11,13 @@ public class Project : EntityBase
     /// </summary>
     [MaxLength(100)]
     public required string Name { get; set; }
+
     /// <summary>
     /// 显示名
     /// </summary>
     [MaxLength(100)]
     public required string DisplayName { get; set; }
+
     /// <summary>
     /// 路径
     /// </summary>
@@ -26,6 +29,7 @@ public class Project : EntityBase
     /// </summary>
     [MaxLength(20)]
     public string? Version { get; set; }
+
     /// <summary>
     /// 解决方案类型
     /// </summary>
@@ -75,23 +79,28 @@ public enum ControllerType
     /// </summary>
     [Description("用户端")]
     Client,
+
     /// <summary>
     /// 管理端
     /// </summary>
     [Description("管理端")]
     Admin,
+
     /// <summary>
     /// 用户和管理端
     /// </summary>
     [Description("用户端和管理端")]
-    Both
+    Both,
 }
+
 public enum SolutionType
 {
     [Description("DotNet")]
     DotNet,
+
     [Description("Node")]
     Node,
+
     [Description("Else")]
-    Else
+    Else,
 }

@@ -1,89 +1,81 @@
 @page "/workbench/entity/{id}"
+@inherits PageBase
 @layout Layout
 
-@* <h4>
-    <pre>
-        @JsonSerializer.Serialize(files, new JsonSerializerOptions() { WriteIndented = true })
-    </pre>
-</h4> *@
-@if (string.IsNullOrEmpty(solutionPath))
+@if (!string.IsNullOrEmpty(_project.ProjectName))
 {
-    <h3>Template Path: @solutionPath</h3>
+    <h3>@_project.ProjectName</h3>
 }
-)
 
 <FluentDataGrid @ref="grid"
                 Items="@files"
                 ResizableColumns=true
                 ResizeType="DataGridResizeType.Discrete"
                 Pagination="@pagination"
-                RowClass="@rowClass"
-                RowStyle="@rowStyle"
-                HeaderCellAsButtonWithMenu="true"
-                ColumnResizeLabels="@resizeLabels">
-    <TemplateColumn Title="实体文件">
+                HeaderCellAsButtonWithMenu="true">
+    <TemplateColumn Title="瀹炰綋鏂囦欢">
         <div class="d-flex gap-3">
-            <span title="模块标识">(@context.ModuleName)</span>
+            <span title="妯″潡鏍囪瘑">(@context.ModuleName)</span>
             <span>@context.Name</span>
         </div>
     </TemplateColumn>
-    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="说明" Width="200px"/>
-    <TemplateColumn Title="操作" Align="Align.Center">
+    <PropertyColumn Property="@(c => c.Comment)" Sortable="true" Align="Align.Center" Tooltip="true" Title="璇存槑" Width="200px" />
+    <TemplateColumn Title="鎿嶄綔" Align="Align.Center">
         <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 1
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            鎿嶄綔 1
         </FluentButton>
         <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 2
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            鎿嶄綔 2
         </FluentButton>
         <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 3
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            鎿嶄綔 3
         </FluentButton>
         <FluentButton Appearance="Appearance.Lightweight"
-                    IconEnd="@(new Icons.Regular.Size16.Edit())"
-                    Class="edit-action">
-            操作 4
+                      IconEnd="@(new Icons.Regular.Size16.Edit())"
+                      Class="edit-action">
+            鎿嶄綔 4
         </FluentButton>
     </TemplateColumn>
 </FluentDataGrid>
 
 @inject EntityInfoManager EntityInfoManager
 @inject CommandDbContext context
-@inject IProjectContext ProjectContext
+@inject IProjectContext _project
 @code {
     FluentDataGrid<EntityFile> grid = default!;
-    bool _clearItems = false;
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    string nameFilter = string.Empty;
-    int minMedals;
-    int maxMedals = 130;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 50 };
+
     private IQueryable<EntityFile>? files;
-    private string? solutionPath;
-    Func<EntityFile, string?> rowClass = x => x.Name.StartsWith("A") ? "highlighted" : null;
-    Func<EntityFile, string?> rowStyle = x => x.Name.StartsWith("Au") ? "background-color: var(--highlight-bg)" : null;
-    ColumnResizeLabels resizeLabels = ColumnResizeLabels.Default with
-    {
-        DiscreteLabel = "Width (+/- 10px)",
-        ResetAriaLabel = "Restore"
-    };
+    bool _clearItems = false;
+    string nameFilter = string.Empty;
+
     [Parameter] public string? Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         if (Guid.TryParse(Id, out var id))
         {
-            var project = context.Projects.Find(id);
-            ArgumentNullException.ThrowIfNull(project, nameof(project));
-            ProjectContext.ProjectId = id;
-            solutionPath = project.Path;
-            await ProjectContext.SetProjectAsync(solutionPath);
-            ArgumentNullException.ThrowIfNull(ProjectContext.EntityPath, nameof(ProjectContext.EntityPath));
-            files = EntityInfoManager.GetEntityFiles(ProjectContext.EntityPath).AsQueryable();
+            await _project.SetProjectByIdAsync(Id);
+
+            Console.WriteLine(ToJson(_project));
+            GetEntityList();
+        }
+        else
+        {
+            ToastService.ShowError("invalid project id");
         }
     }
+
+    private void GetEntityList()
+    {
+        var entityFiles = EntityInfoManager.GetEntityFiles(_project.EntityPath!);
+        files = entityFiles.AsQueryable();
+    }
+
 }

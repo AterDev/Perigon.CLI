@@ -1,4 +1,5 @@
 namespace Share;
+
 /// <summary>
 /// 项目上下文
 /// </summary>
@@ -13,6 +14,7 @@ public interface IProjectContext
     string? ApiPath { get; set; }
     string? EntityFrameworkPath { get; set; }
     string? ModulesPath { get; set; }
+    string? ProjectName { get; set; }
 
     /// <summary>
     /// 获取Api目录路径
@@ -32,4 +34,5 @@ public interface IProjectContext
     string GetModulePath(string? moduleName = null);
 
     Task SetProjectAsync(string solutionPath);
+    Task SetProjectByIdAsync(string id);
 }

@@ -9,6 +9,7 @@ namespace Share;
 public class ProjectContext : IProjectContext
 {
     public Guid ProjectId { get; set; }
+    public string? ProjectName { get; set; }
     public Project? Project { get; set; }
     public string? SolutionPath { get; set; }
     public string? SharePath { get; set; }
@@ -50,16 +51,51 @@ public class ProjectContext : IProjectContext
         }
     }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task SetProjectByIdAsync(string id)
+    {
+        if (Guid.TryParse(id, out Guid projectId))
+        {
+            ProjectId = projectId;
+            Project = await _context.Projects.FindAsync(projectId);
+
+            if (Project != null)
+            {
+                ProjectName = Project.Name;
+                SolutionPath = Path.Combine(Project.Path, Project.Name);
+                var config = Project.Config;
+                SharePath = Path.Combine(SolutionPath, config.SharePath);
+                CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);
+                EntityPath = Path.Combine(SolutionPath, config.EntityPath);
+                ApiPath = Path.Combine(SolutionPath, config.ApiPath);
+                EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
+                ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
+            }
+        }
+    }
+
     public async Task SetProjectAsync(string solutionPath)
     {
         SolutionPath = solutionPath;
-        var project = await _context.Projects.Where(p => p.Path.Equals(solutionPath)).FirstOrDefaultAsync();
+        var project = await _context
+            .Projects.Where(p => p.Path.Equals(solutionPath))
+            .FirstOrDefaultAsync();
         var config = project?.Config;
         SharePath = Path.Combine(SolutionPath, config?.SharePath ?? PathConst.SharePath);
-        CommonModPath = Path.Combine(SolutionPath, config?.CommonModPath ?? PathConst.CommonModPath);
+        CommonModPath = Path.Combine(
+            SolutionPath,
+            config?.CommonModPath ?? PathConst.CommonModPath
+        );
         EntityPath = Path.Combine(SolutionPath, config?.EntityPath ?? PathConst.EntityPath);
         ApiPath = Path.Combine(SolutionPath, config?.ApiPath ?? PathConst.APIPath);
-        EntityFrameworkPath = Path.Combine(SolutionPath, config?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath);
+        EntityFrameworkPath = Path.Combine(
+            SolutionPath,
+            config?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath
+        );
         ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
     }
 
@@ -74,9 +110,13 @@ public class ProjectContext : IProjectContext
         var name = Path.GetFileNameWithoutExtension(entityName);
         return moduleName.IsEmpty()
             ? Path.Combine(SharePath ?? PathConst.SharePath, ConstVal.ModelsDir, $"{name}Dtos")
-            : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName, ConstVal.ModelsDir, $"{name}Dtos");
+            : Path.Combine(
+                ModulesPath ?? PathConst.ModulesPath,
+                moduleName,
+                ConstVal.ModelsDir,
+                $"{name}Dtos"
+            );
     }
-
 
     public string GetModulePath(string? moduleName = null)
     {
@@ -84,7 +124,6 @@ public class ProjectContext : IProjectContext
             ? Path.Combine(CommonModPath ?? PathConst.CommonModPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
     }
-
 
     /// <summary>
     /// 获取manager路径
@@ -104,8 +143,16 @@ public class ProjectContext : IProjectContext
     public string GetControllerPath(string? moduleName = null)
     {
         return moduleName.IsEmpty()
-            ? Path.Combine(ModulesPath ?? PathConst.ModulesPath, ConstVal.CommonMod, ConstVal.ControllersDir)
-            : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName, ConstVal.ControllersDir);
+            ? Path.Combine(
+                ModulesPath ?? PathConst.ModulesPath,
+                ConstVal.CommonMod,
+                ConstVal.ControllersDir
+            )
+            : Path.Combine(
+                ModulesPath ?? PathConst.ModulesPath,
+                moduleName,
+                ConstVal.ControllersDir
+            );
     }
 
     public string GetApiPath(string? moduleName = null)
