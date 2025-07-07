@@ -1,7 +1,8 @@
-using Share.Models.CommandDtos;
 using System.Text.Json.Nodes;
+using Share.Models.CommandDtos;
 
 namespace StudioMod.Managers;
+
 /// <summary>
 /// 功能集成
 /// </summary>
@@ -11,7 +12,7 @@ public class SolutionManager(
     ILogger<SolutionManager> logger,
     CommandService commandService,
     SolutionService solution
-    ) : ManagerBase(logger)
+) : ManagerBase(logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly ProjectManager _projectManager = projectManager;
@@ -49,19 +50,39 @@ public class SolutionManager(
         // 修改配置文件
         string configFile = Path.Combine(path, "src", apiName, "appsettings.json");
         string jsonString = File.ReadAllText(configFile);
-        JsonNode? jsonNode = JsonNode.Parse(jsonString, documentOptions: new JsonDocumentOptions
-        {
-            CommentHandling = JsonCommentHandling.Skip
-        });
+        JsonNode? jsonNode = JsonNode.Parse(
+            jsonString,
+            documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip }
+        );
         if (jsonNode != null)
         {
             JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Database", dto.DBType.ToString());
             JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Cache", dto.CacheType.ToString());
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "Key.DefaultPassword", dto.DefaultPassword ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CommandDb", dto.CommandDbConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.QueryDb", dto.QueryDbConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.Cache", dto.CacheConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CacheInstanceName", dto.CacheInstanceName ?? "");
+            JsonHelper.AddOrUpdateJsonNode(
+                jsonNode,
+                "Key.DefaultPassword",
+                dto.DefaultPassword ?? ""
+            );
+            JsonHelper.AddOrUpdateJsonNode(
+                jsonNode,
+                "ConnectionStrings.CommandDb",
+                dto.CommandDbConnStrings ?? ""
+            );
+            JsonHelper.AddOrUpdateJsonNode(
+                jsonNode,
+                "ConnectionStrings.QueryDb",
+                dto.QueryDbConnStrings ?? ""
+            );
+            JsonHelper.AddOrUpdateJsonNode(
+                jsonNode,
+                "ConnectionStrings.Cache",
+                dto.CacheConnStrings ?? ""
+            );
+            JsonHelper.AddOrUpdateJsonNode(
+                jsonNode,
+                "ConnectionStrings.CacheInstanceName",
+                dto.CacheInstanceName ?? ""
+            );
 
             jsonString = jsonNode.ToString();
             File.WriteAllText(configFile, jsonString);
@@ -72,14 +93,21 @@ public class SolutionManager(
     /// 获取模块信息
     /// </summary>
     /// <returns></returns>
-    public List<SubProjectInfo> GetModulesInfo()
+    public List<SubProjectInfo> GetModules()
     {
         List<SubProjectInfo> res = [];
         if (!Directory.Exists(_projectContext.ModulesPath!))
         {
             return [];
         }
-        var projectFiles = Directory.GetFiles(_projectContext.ModulesPath!, $"*{ConstVal.CSharpProjectExtension}", SearchOption.AllDirectories).ToList() ?? [];
+        var projectFiles =
+            Directory
+                .GetFiles(
+                    _projectContext.ModulesPath!,
+                    $"*{ConstVal.CSharpProjectExtension}",
+                    SearchOption.AllDirectories
+                )
+                .ToList() ?? [];
 
         projectFiles.ForEach(path =>
         {
@@ -87,9 +115,48 @@ public class SolutionManager(
             {
                 Name = Path.GetFileNameWithoutExtension(path),
                 Path = path,
-                ProjectType = ProjectType.Module
+                ProjectType = ProjectType.Module,
             };
             res.Add(moduleInfo);
+        });
+        return res;
+    }
+
+    /// <summary>
+    /// 获取服务列表
+    /// </summary>
+    /// <returns></returns>
+    public List<SubProjectInfo> GetServices()
+    {
+        List<SubProjectInfo> res = [];
+        if (!Directory.Exists(_projectContext.ServicesPath!))
+        {
+            return [];
+        }
+        var projectFiles =
+            Directory
+                .GetFiles(
+                    _projectContext.ServicesPath!,
+                    $"*{ConstVal.CSharpProjectExtension}",
+                    SearchOption.AllDirectories
+                )
+                .ToList() ?? [];
+
+        projectFiles.ForEach(path =>
+        {
+            // 读取项目文件前三行内容
+            string? content = null;
+            content = string.Join(Environment.NewLine, File.ReadLines(path).Take(3));
+            if (content != null && content.Contains("<Project Sdk=\"Microsoft.NET.Sdk.Web\">"))
+            {
+                SubProjectInfo moduleInfo = new()
+                {
+                    Name = Path.GetFileNameWithoutExtension(path),
+                    Path = path,
+                    ProjectType = ProjectType.WebAPI,
+                };
+                res.Add(moduleInfo);
+            }
         });
         return res;
     }

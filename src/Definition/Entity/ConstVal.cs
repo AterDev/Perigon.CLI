@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Entity;
+
 public static class ConstVal
 {
     public const string Version = "10.0.0";
@@ -35,7 +36,7 @@ public static class ConstVal
     public const string ControllersDir = "Controllers";
     public const string SrcDir = "src";
     public const string TemplateDir = "templates";
-    public const string MicroserviceDir = "Microservice";
+    public const string ServicesDir = "Services";
 
     public const string StudioDir = "DryStudio";
 
@@ -58,7 +59,7 @@ public static class ConstVal
     public const string UpdatedTime = "UpdatedTime";
     public const string IsDeleted = "IsDeleted";
 
-    // files 
+    // files
     public const string TemplateZip = "template.zip";
     public const string StudioZip = "studio.zip";
     public const string SyncJson = "sync.json";
@@ -81,13 +82,39 @@ public static class ConstVal
 /// </summary>
 public static class PathConst
 {
-    public static readonly string APIPath = Path.Combine(ConstVal.SrcDir, ConstVal.APIName);
-    public static readonly string CommonModPath = Path.Combine(ConstVal.SrcDir, ConstVal.ModulesDir, ConstVal.CommonMod);
-    public static readonly string DefinitionPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir);
-    public static readonly string SharePath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.ShareName);
+    public static readonly string APIPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.ServicesDir,
+        ConstVal.APIName
+    );
+    public static readonly string CommonModPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.ModulesDir,
+        ConstVal.CommonMod
+    );
+    public static readonly string DefinitionPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir
+    );
+    public static readonly string SharePath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir,
+        ConstVal.ShareName
+    );
 
-    public static readonly string EntityPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityName);
-    public static readonly string EntityFrameworkPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityFrameworkName);
+    public static readonly string EntityPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir,
+        ConstVal.EntityName
+    );
+    public static readonly string EntityFrameworkPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir,
+        ConstVal.EntityFrameworkName
+    );
     public static readonly string ModulesPath = Path.Combine(ConstVal.SrcDir, ConstVal.ModulesDir);
-    public static readonly string MicroservicePath = Path.Combine(ConstVal.SrcDir, ConstVal.MicroserviceDir);
+    public static readonly string ServicesPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.ServicesDir
+    );
 }

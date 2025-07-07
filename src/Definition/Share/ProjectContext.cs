@@ -18,6 +18,7 @@ public class ProjectContext : IProjectContext
     public string? ApiPath { get; set; }
     public string? EntityFrameworkPath { get; set; }
     public string? ModulesPath { get; set; }
+    public string? ServicesPath { get; set; }
 
     private readonly CommandDbContext _context;
 
@@ -42,6 +43,7 @@ public class ProjectContext : IProjectContext
                     ApiPath = Path.Combine(SolutionPath, config.ApiPath);
                     EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
                     ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
+                    ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
                 }
             }
             else
@@ -74,6 +76,7 @@ public class ProjectContext : IProjectContext
                 ApiPath = Path.Combine(SolutionPath, config.ApiPath);
                 EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
                 ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
+                ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
             }
         }
     }
@@ -97,6 +100,7 @@ public class ProjectContext : IProjectContext
             config?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath
         );
         ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
+        ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
     }
 
     /// <summary>

@@ -15,6 +15,7 @@ public interface IProjectContext
     string? EntityFrameworkPath { get; set; }
     string? ModulesPath { get; set; }
     string? ProjectName { get; set; }
+    string? ServicesPath { get; set; }
 
     /// <summary>
     /// 获取Api目录路径

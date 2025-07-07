@@ -11,10 +11,9 @@ public class SolutionController(
     Localizer localizer,
     SolutionManager manager,
     IProjectContext projectContext,
-    ILogger<SolutionController> logger)
-    : BaseController<SolutionManager>(localizer, manager, projectContext, logger)
+    ILogger<SolutionController> logger
+) : BaseController<SolutionManager>(localizer, manager, projectContext, logger)
 {
-
     /// <summary>
     /// 创建新解决方案
     /// </summary>
@@ -33,7 +32,7 @@ public class SolutionController(
     [HttpGet("modules")]
     public List<SubProjectInfo> GetModulesInfo()
     {
-        return _manager.GetModulesInfo();
+        return _manager.GetModules();
     }
 
     /// <summary>

@@ -3025,7 +3025,7 @@
           "apiPath": {
             "type": "string"
           },
-          "microservicePath": {
+          "servicePath": {
             "type": "string"
           },
           "solutionPath": {

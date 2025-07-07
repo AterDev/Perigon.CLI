@@ -73,17 +73,25 @@
     <span class="dismiss">🗙</span>
 </div>
 
-<FluentDesignTheme @bind-Mode="@Mode" StorageName="theme" />
+<FluentDesignTheme @bind-Mode="@Mode" StorageName="theme" OfficeColor="OfficeColor.OneNote" OnLuminanceChanged="ThemeChanged" />
 @code
 {
     public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
     private bool isDarkMode = false;
 
+    private void ThemeChanged(LuminanceChangedEventArgs e)
+    {
+        isDarkMode = e.IsDark;
+        StateHasChanged();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
-        var themeMode = await JS.InvokeAsync<string>("getCurrentThemeMode");
-        StateHasChanged(); // 如果需要刷新UI
-        isDarkMode = themeMode == "dark";
+        if (firstRender)
+        {
+            var themeMode = await JS.InvokeAsync<string>("getCurrentThemeMode");
+            isDarkMode = themeMode == "dark";
+            StateHasChanged();
+        }
     }
 }

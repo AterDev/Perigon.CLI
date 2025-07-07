@@ -336,4 +336,19 @@
   <data name="Description" xml:space="preserve">
     <value>Description</value>
   </data>
+  <data name="CodeGen" xml:space="preserve">
+    <value>CodeGen</value>
+  </data>
+  <data name="Template" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="MCP" xml:space="preserve">
+    <value>MCP</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>All</value>
+  </data>
 </root>

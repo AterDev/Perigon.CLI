@@ -61,7 +61,7 @@ public class ProjectConfig
     public string EntityFrameworkPath { get; set; } = PathConst.EntityFrameworkPath;
     public string CommonModPath { get; set; } = PathConst.CommonModPath;
     public string ApiPath { get; set; } = PathConst.APIPath;
-    public string MicroservicePath { get; set; } = PathConst.MicroservicePath;
+    public string ServicePath { get; set; } = PathConst.ServicesPath;
     public string SolutionPath { get; set; } = "";
     public bool IsLight { get; private set; } = false;
     public ControllerType ControllerType { get; set; } = ControllerType.Client;

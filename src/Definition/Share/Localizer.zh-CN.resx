@@ -336,4 +336,19 @@
   <data name="Description" xml:space="preserve">
     <value>说明</value>
   </data>
+  <data name="CodeGen" xml:space="preserve">
+    <value>代码生成</value>
+  </data>
+  <data name="Template" xml:space="preserve">
+    <value>模板</value>
+  </data>
+  <data name="MCP" xml:space="preserve">
+    <value>MCP</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>筛选</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>全部</value>
+  </data>
 </root>

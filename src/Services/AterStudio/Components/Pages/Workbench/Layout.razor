@@ -3,12 +3,16 @@
 @layout MainLayout
 @inject Localizer Localizer
 
-<FluentStack Orientation="Orientation.Horizontal" Width="100%">
+<FluentStack Orientation="Orientation.Horizontal" Width="100%" HorizontalGap="0">
     <div class="col-auto" style="background: var(--neutral-layer-2);height:calc(100vh - 56px)">
-        <FluentNavMenu Expanded="true" Width="220">
-            <FluentNavGroup Icon="@(new Icons.Regular.Size24.Table())" @bind-Expanded="Expanded">
+        <FluentNavMenu Expanded="true"
+                       Width="220"
+                       Collapsible="true">
+            <FluentNavGroup Icon="@(new Icons.Regular.Size28.Table())"
+                            Expanded="true"
+                            Gap="0">
                 <TitleTemplate>
-                    <FluentLabel Typo="Typography.PaneHeader">@Localizer.Workbench</FluentLabel>
+                    <FluentLabel Typo="Typography.Subject">@Localizer.Get(Localizer.Solution)</FluentLabel>
                 </TitleTemplate>
                 <ChildContent>
                     <FluentNavLink Icon="@(new Icons.Regular.Size24.BoxMultiple())">
@@ -18,16 +22,29 @@
                     <FluentNavLink Icon="@(new Icons.Regular.Size24.PlugConnected())">
                         @Localizer.Get(Localizer.OpenAPI)
                     </FluentNavLink>
+                </ChildContent>
+            </FluentNavGroup>
+            <FluentNavGroup Icon="@(new Icons.Regular.Size24.BrainCircuit())"
+                            Expanded="true"
+                            Gap="0">
+                <TitleTemplate>
+                    <FluentLabel Typo="Typography.Subject">@Localizer.Get(Localizer.CodeGen)</FluentLabel>
+                </TitleTemplate>
+                <ChildContent>
+                    <FluentNavLink Icon="@(new Icons.Regular.Size24.DocumentCopy())">
+                        @Localizer.Get(Localizer.Template)
+                    </FluentNavLink>
 
-                    <FluentNavLink Icon="@(new Icons.Regular.Size24.AppsAddIn())">
-                        @Localizer.Get(Localizer.Modules)@Localizer.Get(Localizer.Manage)
+                    <FluentNavLink Icon="@(new Icons.Regular.Size24.LinkSquare())">
+                        @Localizer.Get(Localizer.MCP)
                     </FluentNavLink>
                 </ChildContent>
+
             </FluentNavGroup>
 
         </FluentNavMenu>
     </div>
-    <div class="col">
+    <div class="col" style="height:calc(100vh - 56px);overflow-y:auto">
         @Body
     </div>
 </FluentStack>
