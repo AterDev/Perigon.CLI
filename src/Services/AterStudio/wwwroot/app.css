@@ -28,6 +28,10 @@ body {
     background: var(--neutral-background-rest);
 }
 
+.cursor {
+    cursor: pointer;
+}
+
 .w-100 {
     width: 100% !important;
 }

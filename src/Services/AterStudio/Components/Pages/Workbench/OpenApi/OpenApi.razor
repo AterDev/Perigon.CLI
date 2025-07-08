@@ -1,4 +1,57 @@
-@page "/workbench/openapi"
+@page "/workbench/openapi/{id:guid}"
 @inherits PageBase
 @layout Layout
-<h2>OpenApi</h2>
+
+
+<FluentStack Orientation="Orientation.Vertical" Class="w-100" VerticalGap="4">
+    @* top Toolbar *@
+    <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2">
+        <FluentStack Orientation="Orientation.Horizontal"
+                     HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+
+            <FluentStack Orientation="Orientation.Horizontal"
+                         HorizontalGap="4">
+                <FluentButton Appearance="Appearance.Stealth"
+                              Title="add"
+                              IconStart="@(new Icons.Regular.Size24.Add())">
+                </FluentButton>
+                <FluentButton Appearance="Appearance.Stealth"
+                              Title="edit"
+                              IconStart="@(new Icons.Regular.Size24.Edit())">
+                </FluentButton>
+                <FluentButton Appearance="Appearance.Stealth"
+                              Title="delete"
+                              IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Error))">
+                </FluentButton>
+            </FluentStack>
+
+            <FluentStack Orientation="Orientation.Horizontal"
+                         HorizontalGap="4"
+                         Class="pe-2"
+                         HorizontalAlignment="HorizontalAlignment.End">
+                <FluentButton Appearance="Appearance.Lightweight"
+                              Title="refresh"
+                              IconStart="@(new Icons.Regular.Size24.CodeBlock())"></FluentButton>
+                <FluentButton Appearance="Appearance.Lightweight"
+                              Title="clean solution obj & bin files"
+                              IconStart="@(new Icons.Regular.Size24.ArrowClockwise().WithColor(Color.Warning))">
+                </FluentButton>
+
+            </FluentStack>
+        </FluentStack>
+    </FluentToolbar>
+
+
+    <FluentTabs OnTabChange="HandleOnTabChange"
+                Size="TabSize.Large"
+                Class="w-100"
+                ActiveTabId="api">
+        <FluentTab Label="API" Id="api">
+            api
+        </FluentTab>
+        <FluentTab Label="Models" Id="models">
+            models
+        </FluentTab>
+    </FluentTabs>
+</FluentStack>
+
