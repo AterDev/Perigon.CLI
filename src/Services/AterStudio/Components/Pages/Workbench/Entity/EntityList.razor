@@ -5,7 +5,7 @@
 
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
     @* top Toolbar *@
-    <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2">
+    <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2 bg-3">
         <FluentStack Orientation="Orientation.Horizontal"
                      HorizontalAlignment="HorizontalAlignment.SpaceBetween">
             <FluentLabel Typo="Typography.PaneHeader">
@@ -17,17 +17,16 @@
                          HorizontalAlignment="HorizontalAlignment.End">
                 <FluentButton Appearance="Appearance.Stealth"
                               Title="refresh"
-                              IconStart="@(new Icons.Regular.Size24.ArrowSync())"></FluentButton>
+                              IconStart="@(new Icons.Regular.Size24.ArrowClockwise())"></FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
                               Title="clean solution obj & bin files"
-                              IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Success))"></FluentButton>
+                              IconStart="@(new Icons.Regular.Size24.Broom().WithColor(Color.Success))"></FluentButton>
 
                 <FluentCounterBadge Appearance="Appearance.Accent"
                                     Count="@Services.Count">
                     <FluentButton Appearance="Appearance.Stealth"
                                   Title="services"
                                   IconStart="@(new Icons.Regular.Size24.Connected())">
-
                     </FluentButton>
                 </FluentCounterBadge>
 
@@ -39,16 +38,45 @@
                     Panel1Size="200px"
                     Panel1MinSize="200px"
                     Panel2MinSize="60%"
-                    Class="w-100" Style="height:auto">
+                    Class="w-100" Style="height:calc(100vh - 108px)">
         <Panel1>
             @* modules *@
-            <FluentStack Orientation="Orientation.Vertical" Class="px-1">
-                <FluentLabel Typo="Typography.Subject">
-                    @Lang(Localizer.Modules, Localizer.Filter)
-                </FluentLabel>
+            <FluentStack Orientation="Orientation.Vertical"
+                         Class="px-1"
+                         VerticalGap="0">
+                <FluentToolbar Orientation="Orientation.Horizontal"
+                               Class="w-100 bg-1">
+                    <FluentStack Orientation="Orientation.Horizontal"
+                                 VerticalAlignment="VerticalAlignment.Center"
+                                 HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                                 HorizontalGap="0">
+                        <FluentStack>
+                            <FluentLabel Typo="Typography.Subject">
+                                @Lang(Localizer.Modules)
+                            </FluentLabel>
+                        </FluentStack>
+
+                        <FluentStack Orientation="Orientation.Horizontal"
+                                     HorizontalAlignment="HorizontalAlignment.Right">
+
+                            <FluentButton Appearance="Appearance.Stealth"
+                                          Title=@Lang(Localizer.Add, Localizer.Modules)
+                                          IconStart="@(new Icons.Regular.Size20.Add())">
+                            </FluentButton>
+
+                            <FluentButton Appearance="Appearance.Stealth"
+                                          Title=@Lang(Localizer.Delete, Localizer.Modules)
+                                          IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))">
+                            </FluentButton>
+                        </FluentStack>
+
+                    </FluentStack>
+                </FluentToolbar>
+
                 <FluentListbox TOption="string"
                                @bind-Value=SelectedModule
                                Width="100%"
+                               SelectedOptionChanged="FilterEntityFiles"
                                Class="w-100">
                     <FluentOption Selected=true>@Lang(Localizer.All)</FluentOption>
                     @if (Modules.Count > 0)
@@ -60,23 +88,23 @@
                     }
                 </FluentListbox>
             </FluentStack>
-
-            <h5>
-                @SelectedModule
-            </h5>
         </Panel1>
 
         <Panel2>
+
             @* entity list *@
-            <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden">
+            <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="p-1">
+
                 <FluentDataGrid @ref="grid"
-                                Items="@EntityFiles"
+                                Class="w-100"
+                                Items="@FilteredEntityFiles"
                                 ResizableColumns=true
                                 RowSize="@DataGridRowSize.Medium"
                                 Pagination="@pagination"
-                                AutoFit="true"
-                                HeaderCellAsButtonWithMenu="true">
-                    <TemplateColumn Title="@Lang(Localizer.Entity)" Sortable="true">
+                                AutoFit="true">
+
+                    <TemplateColumn Title="@Lang(Localizer.Entity)"
+                                    Sortable="true">
                         <FluentStack Orientation="Orientation.Horizontal"
                                      VerticalAlignment="VerticalAlignment.Center">
                             <FluentButton Appearance="Appearance.Lightweight"
@@ -87,7 +115,6 @@
 
                     </TemplateColumn>
                     <PropertyColumn Property="@(c => c.Comment)"
-                                    Sortable="true"
                                     Title="@Lang(Localizer.Description)"
                                     Width="200px" />
 
@@ -108,6 +135,7 @@
                         </FluentStack>
                     </TemplateColumn>
                 </FluentDataGrid>
+                <FluentPaginator State="@pagination" Style="width:100%" />
             </FluentStack>
         </Panel2>
     </FluentSplitter>

@@ -20,14 +20,15 @@ public partial class EntityList
 
     private FluentDataGrid<EntityFile> grid = default!;
     private FluentDialog _dialog = default!;
-    private PaginationState pagination = new() { ItemsPerPage = 50 };
+    private PaginationState pagination = new() { ItemsPerPage = 20 };
     private StandaloneCodeEditor editor = default!;
 
     private IQueryable<EntityFile>? EntityFiles { get; set; }
+    private IQueryable<EntityFile>? FilteredEntityFiles { get; set; }
     private List<SubProjectInfo> Modules { get; set; } = [];
     private List<SubProjectInfo> Services { get; set; } = [];
 
-    string nameFilter = string.Empty;
+    string moduleFilter = string.Empty;
     private StandaloneEditorConstructionOptions options = default!;
     string entityName = string.Empty;
     private bool Hidden { get; set; } = true;
@@ -66,13 +67,28 @@ public partial class EntityList
     private void GetServices()
     {
         Services = SolutionManager.GetServices();
-        Console.WriteLine(ToJson(Services));
     }
 
     private void GetEntityList()
     {
         var entityFiles = EntityInfoManager.GetEntityFiles(ProjectContext.EntityPath!);
         EntityFiles = entityFiles.AsQueryable();
+        FilteredEntityFiles = EntityFiles;
+    }
+
+    private void FilterEntityFiles()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedModule))
+        {
+            FilteredEntityFiles = EntityFiles;
+        }
+        else
+        {
+            FilteredEntityFiles = EntityFiles?.Where(e =>
+                e.ModuleName != null
+                && e.ModuleName.Equals(SelectedModule, StringComparison.OrdinalIgnoreCase)
+            );
+        }
     }
 
     private void GetModules()

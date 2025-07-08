@@ -12,6 +12,22 @@ body {
     background: var(--neutral-layer-1);
 }
 
+.bg-1 {
+    background: var(--neutral-layer-1);
+}
+
+.bg-2 {
+    background: var(--neutral-layer-2);
+}
+
+.bg-3 {
+    background: var(--neutral-layer-3);
+}
+
+.bg-neutral {
+    background: var(--neutral-background-rest);
+}
+
 .w-100 {
     width: 100% !important;
 }
@@ -42,10 +58,6 @@ body {
 
 #my-diff-editor {
     height: 600px;
-}
-
-:root[data-theme='dark'] fluent-header.header {
-    background: var(--fluent-neutral-background3, #222);
 }
 
 .nav-menu-side {
@@ -88,8 +100,6 @@ body {
     .blazor-error-boundary::before {
         content: "An error has occurred. "
     }
-
-
 
 
 fluent-card:hover .delete-action {
