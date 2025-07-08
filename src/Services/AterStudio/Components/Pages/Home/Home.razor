@@ -74,7 +74,7 @@
                                           OnClick="()=>DeleteProject(project)" />
 
                             <FluentButton Appearance="Appearance.Lightweight"
-                                          OnClick='()=>NavigationManager.NavigateTo($"/workbench/entity/{project.Id}")'>
+                                          OnClick='()=>ToSolution(project.Id)'>
                                 @Lang(Localizer.Enter, Localizer.Workbench)
                             </FluentButton>
                         </FluentStack>

@@ -46,4 +46,10 @@ public partial class Home
         await ProjectManager.DeleteAsync([project.Id], false);
         await GetProjectListAsync();
     }
+
+    private void ToSolution(Guid id)
+    {
+        StorageService.SetParameter("projectId", id);
+        NavigationManager.NavigateTo($"/workbench/entity/{id}");
+    }
 }

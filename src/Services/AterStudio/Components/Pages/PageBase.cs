@@ -26,7 +26,10 @@ public class PageBase : ComponentBase
     protected NavigationManager NavigationManager { get; set; } = default!;
 
     [Inject]
-    private IJSRuntime JS { get; set; } = default!;
+    protected StorageService StorageService { get; set; } = default!;
+
+    [Inject]
+    protected IJSRuntime JS { get; set; } = default!;
 
     public JsonSerializerOptions IndentedJsonOptions { get; } =
         new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

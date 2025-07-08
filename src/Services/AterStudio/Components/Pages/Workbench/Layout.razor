@@ -2,6 +2,7 @@
 @inherits LayoutComponentBase
 @layout MainLayout
 @inject Localizer Localizer
+@inject StorageService StorageService
 
 <FluentStack Orientation="Orientation.Horizontal" Width="100%" HorizontalGap="0">
     <div class="col-auto" style="background: var(--neutral-layer-2);height:calc(100vh - 56px)">
@@ -15,11 +16,13 @@
                     <FluentLabel Typo="Typography.Subject">@Localizer.Get(Localizer.Solution)</FluentLabel>
                 </TitleTemplate>
                 <ChildContent>
-                    <FluentNavLink Icon="@(new Icons.Regular.Size24.BoxMultiple())">
+                    <FluentNavLink Icon="@(new Icons.Regular.Size24.BoxMultiple())"
+                                   Href='@($"/workbench/entity/{projectId}")'>
                         @Localizer.Get(Localizer.Entity)@Localizer.Get(Localizer.Manage)
                     </FluentNavLink>
 
-                    <FluentNavLink Icon="@(new Icons.Regular.Size24.PlugConnected())">
+                    <FluentNavLink Icon="@(new Icons.Regular.Size24.PlugConnected())"
+                                   Href='@($"/workbench/openapi/{projectId}")'>
                         @Localizer.Get(Localizer.OpenAPI)
                     </FluentNavLink>
                 </ChildContent>
@@ -31,11 +34,13 @@
                     <FluentLabel Typo="Typography.Subject">@Localizer.Get(Localizer.CodeGen)</FluentLabel>
                 </TitleTemplate>
                 <ChildContent>
-                    <FluentNavLink Icon="@(new Icons.Regular.Size24.DocumentCopy())">
+                    <FluentNavLink Icon="@(new Icons.Regular.Size24.DocumentCopy())"
+                                   Href='@($"/workbench/template/{projectId}")'>
                         @Localizer.Get(Localizer.Template)
                     </FluentNavLink>
 
-                    <FluentNavLink Icon="@(new Icons.Regular.Size24.LinkSquare())">
+                    <FluentNavLink Icon="@(new Icons.Regular.Size24.LinkSquare())"
+                                   Href='@($"/workbench/mcp/{projectId}")'>
                         @Localizer.Get(Localizer.MCP)
                     </FluentNavLink>
                 </ChildContent>
@@ -51,4 +56,15 @@
 
 @code {
     private bool Expanded = true;
+    private Guid? projectId = null;
+
+    protected async override Task OnInitializedAsync()
+    {
+        projectId = StorageService.GetParameter<Guid>("projectId");
+        if (projectId == Guid.Empty)
+        {
+            projectId = null;
+        }
+        await base.OnInitializedAsync();
+    }
 }
