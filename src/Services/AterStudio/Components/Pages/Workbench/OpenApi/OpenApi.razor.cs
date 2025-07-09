@@ -5,22 +5,16 @@ namespace AterStudio.Components.Pages.Workbench.OpenApi;
 
 public partial class OpenApi
 {
-    [Parameter]
-    public Guid Id { get; set; }
-
     [Inject]
     private IProjectContext ProjectContext { get; set; } = default!;
 
-    string? activeid = "api";
-    FluentTab? changedto;
+    private string? activeId = "api";
+    private FluentTab? currentTab;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await ProjectContext.SetProjectByIdAsync(Id.ToString());
-    }
+    protected override async Task OnInitializedAsync() { }
 
     private void HandleOnTabChange(FluentTab tab)
     {
-        changedto = tab;
+        currentTab = tab;
     }
 }

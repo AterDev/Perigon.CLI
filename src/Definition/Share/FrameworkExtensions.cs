@@ -40,19 +40,26 @@ public static partial class FrameworkExtensions
             Directory.CreateDirectory(dir);
         }
         var path = Path.Combine(dir, ConstVal.DbName);
-        builder.Services.AddDbContext<CommandDbContext>(options =>
+
+        builder.Services.AddDbContextFactory<CommandDbContext>(options =>
         {
-            options.UseSqlite($"DataSource={path}", _ =>
-            {
-                _.MigrationsAssembly("AterStudio");
-            });
+            options.UseSqlite(
+                $"DataSource={path}",
+                _ =>
+                {
+                    _.MigrationsAssembly("AterStudio");
+                }
+            );
         });
-        builder.Services.AddDbContext<QueryDbContext>(options =>
+        builder.Services.AddDbContextFactory<QueryDbContext>(options =>
         {
-            options.UseSqlite($"DataSource={path}", _ =>
-            {
-                _.MigrationsAssembly("AterStudio");
-            });
+            options.UseSqlite(
+                $"DataSource={path}",
+                _ =>
+                {
+                    _.MigrationsAssembly("AterStudio");
+                }
+            );
         });
         return builder;
     }

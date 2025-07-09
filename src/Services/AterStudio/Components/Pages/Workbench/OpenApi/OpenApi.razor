@@ -1,4 +1,4 @@
-@page "/workbench/openapi/{id:guid}"
+@page "/workbench/openapi"
 @inherits PageBase
 @layout Layout
 
@@ -11,8 +11,12 @@
 
             <FluentStack Orientation="Orientation.Horizontal"
                          HorizontalGap="4">
+
+                @* <FluentSelect >
+                </FluentSelect> *@
+
                 <FluentButton Appearance="Appearance.Stealth"
-                              Title="add"
+                              Title="@Lang(Localizer.Add, Localizer.OpenApiEndpoint)"
                               IconStart="@(new Icons.Regular.Size24.Add())">
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
@@ -40,8 +44,7 @@
             </FluentStack>
         </FluentStack>
     </FluentToolbar>
-
-
+    @* tabs: api, models *@
     <FluentTabs OnTabChange="HandleOnTabChange"
                 Size="TabSize.Large"
                 Class="w-100"

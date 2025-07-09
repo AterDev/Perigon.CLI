@@ -37,18 +37,9 @@ public partial class EntityList
 
     protected override async Task OnInitializedAsync()
     {
-        if (Guid.TryParse(Id, out var id))
-        {
-            await ProjectContext.SetProjectByIdAsync(Id);
-            GetEntityList();
-            GetModules();
-            GetServices();
-        }
-        else
-        {
-            ToastService.ShowError("invalid project id");
-        }
-
+        GetEntityList();
+        GetModules();
+        GetServices();
         options = new StandaloneEditorConstructionOptions
         {
             Language = "csharp",

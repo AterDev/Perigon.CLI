@@ -17,12 +17,12 @@
                 </TitleTemplate>
                 <ChildContent>
                     <FluentNavLink Icon="@(new Icons.Regular.Size24.BoxMultiple())"
-                                   Href='@($"/workbench/entity/{projectId}")'>
+                                   Href='@($"/workbench/entity")'>
                         @Localizer.Get(Localizer.Entity)@Localizer.Get(Localizer.Manage)
                     </FluentNavLink>
 
                     <FluentNavLink Icon="@(new Icons.Regular.Size24.PlugConnected())"
-                                   Href='@($"/workbench/openapi/{projectId}")'>
+                                   Href='@($"/workbench/openapi")'>
                         @Localizer.Get(Localizer.OpenAPI)
                     </FluentNavLink>
                 </ChildContent>
@@ -35,12 +35,12 @@
                 </TitleTemplate>
                 <ChildContent>
                     <FluentNavLink Icon="@(new Icons.Regular.Size24.DocumentCopy())"
-                                   Href='@($"/workbench/template/{projectId}")'>
+                                   Href='@($"/workbench/template")'>
                         @Localizer.Get(Localizer.Template)
                     </FluentNavLink>
 
                     <FluentNavLink Icon="@(new Icons.Regular.Size24.LinkSquare())"
-                                   Href='@($"/workbench/mcp/{projectId}")'>
+                                   Href='@($"/workbench/mcp")'>
                         @Localizer.Get(Localizer.MCP)
                     </FluentNavLink>
                 </ChildContent>
@@ -56,15 +56,4 @@
 
 @code {
     private bool Expanded = true;
-    private Guid? projectId = null;
-
-    protected async override Task OnInitializedAsync()
-    {
-        projectId = StorageService.GetParameter<Guid>("projectId");
-        if (projectId == Guid.Empty)
-        {
-            projectId = null;
-        }
-        await base.OnInitializedAsync();
-    }
 }

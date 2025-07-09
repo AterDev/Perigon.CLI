@@ -351,4 +351,7 @@
   <data name="All" xml:space="preserve">
     <value>All</value>
   </data>
+  <data name="OpenApiEndpoint" xml:space="preserve">
+    <value>OpenApi Endopint</value>
+  </data>
 </root>

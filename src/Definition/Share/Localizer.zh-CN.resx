@@ -351,4 +351,7 @@
   <data name="All" xml:space="preserve">
     <value>全部</value>
   </data>
+  <data name="OpenApiEndpoint" xml:space="preserve">
+    <value>OpenApi终结点</value>
+  </data>
 </root>

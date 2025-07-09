@@ -1,10 +1,15 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace AterStudio.Components.Pages.Home;
+
 public partial class Home
 {
     List<Project> projects = [];
+
+    [Inject]
+    IProjectContext ProjectContext { get; set; } = default!;
 
     private async Task AddLocalProject(MouseEventArgs arg)
     {
@@ -18,7 +23,8 @@ public partial class Home
         var dialog = await DialogService.ShowDialogAsync<AddProjectDialog>(parameters);
 
         var result = await dialog.Result;
-        if (result.Cancelled) return;
+        if (result.Cancelled)
+            return;
 
         await GetProjectListAsync();
     }
@@ -37,18 +43,21 @@ public partial class Home
     {
         var dialog = await DialogService.ShowConfirmationAsync(
             Lang(Localizer.ConfirmDeleteMessage),
-            primaryText: Lang(Localizer.Yes), secondaryText: Lang(Localizer.No),
-            title: Lang(Localizer.Delete, Localizer.Project));
+            primaryText: Lang(Localizer.Yes),
+            secondaryText: Lang(Localizer.No),
+            title: Lang(Localizer.Delete, Localizer.Project)
+        );
 
         var result = await dialog.Result;
-        if (result.Cancelled) return;
+        if (result.Cancelled)
+            return;
         await ProjectManager.DeleteAsync([project.Id], false);
         await GetProjectListAsync();
     }
 
-    private void ToSolution(Guid id)
+    private async Task ToSolution(Guid id)
     {
-        StorageService.SetParameter("projectId", id);
-        NavigationManager.NavigateTo($"/workbench/entity/{id}");
+        await ProjectContext.SetProjectByIdAsync(id);
+        NavigationManager.NavigateTo($"/workbench/entity");
     }
 }

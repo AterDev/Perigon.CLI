@@ -21,7 +21,7 @@ builder.AddBlazorServices();
 builder.Services.AddManagers();
 
 // services
-builder.Services.AddScoped<IProjectContext, ProjectContext>();
+builder.Services.AddSingleton<IProjectContext, ProjectContext>();
 
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();

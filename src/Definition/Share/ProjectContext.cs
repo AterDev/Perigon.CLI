@@ -22,9 +22,12 @@ public class ProjectContext : IProjectContext
 
     private readonly CommandDbContext _context;
 
-    public ProjectContext(IHttpContextAccessor httpContextAccessor, CommandDbContext context)
+    public ProjectContext(
+        IHttpContextAccessor httpContextAccessor,
+        IDbContextFactory<CommandDbContext> contextFactory
+    )
     {
-        _context = context;
+        _context = contextFactory.CreateDbContext();
         string? id = httpContextAccessor.HttpContext?.Request.Headers["projectId"].ToString();
 
         if (!string.IsNullOrWhiteSpace(id))
@@ -32,7 +35,7 @@ public class ProjectContext : IProjectContext
             if (Guid.TryParse(id, out Guid projectId))
             {
                 ProjectId = projectId;
-                Project = context.Projects.Find(projectId);
+                Project = _context.Projects.Find(projectId);
                 if (Project != null)
                 {
                     SolutionPath = Project.Path;
@@ -58,26 +61,22 @@ public class ProjectContext : IProjectContext
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task SetProjectByIdAsync(string id)
+    public async Task SetProjectByIdAsync(Guid id)
     {
-        if (Guid.TryParse(id, out Guid projectId))
+        ProjectId = id;
+        Project = await _context.Projects.FindAsync(id);
+        if (Project != null)
         {
-            ProjectId = projectId;
-            Project = await _context.Projects.FindAsync(projectId);
-
-            if (Project != null)
-            {
-                ProjectName = Project.Name;
-                SolutionPath = Project.Path;
-                var config = Project.Config;
-                SharePath = Path.Combine(SolutionPath, config.SharePath);
-                CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);
-                EntityPath = Path.Combine(SolutionPath, config.EntityPath);
-                ApiPath = Path.Combine(SolutionPath, config.ApiPath);
-                EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
-                ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
-                ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
-            }
+            ProjectName = Project.Name;
+            SolutionPath = Project.Path;
+            var config = Project.Config;
+            SharePath = Path.Combine(SolutionPath, config.SharePath);
+            CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);
+            EntityPath = Path.Combine(SolutionPath, config.EntityPath);
+            ApiPath = Path.Combine(SolutionPath, config.ApiPath);
+            EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
+            ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
+            ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
         }
     }
 
@@ -167,6 +166,11 @@ public class ProjectContext : IProjectContext
     }
 
     public string GetApplicationPath(string? moduleName = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SetProjectByIdAsync(string id)
     {
         throw new NotImplementedException();
     }

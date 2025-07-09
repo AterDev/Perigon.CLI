@@ -35,5 +35,5 @@ public interface IProjectContext
     string GetModulePath(string? moduleName = null);
 
     Task SetProjectAsync(string solutionPath);
-    Task SetProjectByIdAsync(string id);
+    Task SetProjectByIdAsync(Guid id);
 }
