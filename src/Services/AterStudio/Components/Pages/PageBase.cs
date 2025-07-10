@@ -7,6 +7,7 @@ namespace AterStudio.Components.Pages;
 
 public class PageBase : ComponentBase
 {
+    #region inject
     [Inject]
     protected Localizer Localizer { get; set; } = default!;
 
@@ -30,6 +31,12 @@ public class PageBase : ComponentBase
 
     [Inject]
     protected IJSRuntime JS { get; set; } = default!;
+
+    [Inject]
+    protected IProjectContext ProjectContext { get; set; } = default!;
+
+    #endregion
+
 
     public JsonSerializerOptions IndentedJsonOptions { get; } =
         new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

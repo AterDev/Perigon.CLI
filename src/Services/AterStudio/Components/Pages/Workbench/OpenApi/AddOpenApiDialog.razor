@@ -1,0 +1,105 @@
+@using StudioMod.Models.ApiDocInfoDtos
+@using Microsoft.FluentUI.AspNetCore.Components
+@inherits PageBase
+@implements IDialogContentComponent
+
+<FluentDialogHeader ShowDismiss="false">
+    <FluentLabel Typo="Typography.PaneHeader">
+        @Lang(Localizer.Add, Localizer.OpenApiEndpoint)
+    </FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+    <EditForm EditContext="editContext">
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+
+        <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+                <FluentTextField @bind-Value="Model.Name"
+                                 Label=@Lang(Localizer.Name)
+                                 Placeholder="@Lang(Localizer.Name)"
+                                 Required
+                                 Class="w-100"
+                                 MaxLength="100" />
+                <ValidationMessage For="@(() => Model.Name)" />
+            </FluentStack>
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+                <FluentTextField @bind-Value="Model.Path"
+                                 Class="w-100"
+                                 Label=@Lang(Localizer.OpenApiEndpoint)
+                                 Placeholder=@Lang(Localizer.OpenApiPathTip)
+                                 Required
+                                 MaxLength="300" />
+                <ValidationMessage For="@(() => Model.Path)" />
+            </FluentStack>
+
+        </FluentStack>
+
+
+    </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent"
+                  Type="ButtonType.Button" OnClick="SaveAsync">
+        @Lang(Localizer.Save)
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Neutral"
+                  OnClick="CancelAsync">
+        @Lang(Localizer.Cancel)
+    </FluentButton>
+</FluentDialogFooter>
+
+@code {
+    [CascadingParameter]
+    FluentDialog Dialog { get; set; } = null!;
+    EditContext? editContext;
+    ApiDocInfoAddDto Model { get; set; } = default!;
+    bool formValid { get; set; }
+
+    [Inject]
+    private ApiDocInfoManager _manager { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Model = new ApiDocInfoAddDto
+        {
+            Name = string.Empty,
+            Path = string.Empty
+        };
+        editContext = new EditContext(Model);
+        editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        if (editContext is not null)
+        {
+            formValid = editContext.Validate();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (editContext is not null)
+        {
+            editContext.OnFieldChanged -= HandleFieldChanged;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!editContext!.Validate())
+        {
+            return;
+        }
+        var entity = Model.MapTo<ApiDocInfoAddDto, ApiDocInfo>();
+        entity.ProjectId = ProjectContext.ProjectId;
+        await _manager.AddAsync(entity);
+        await Dialog.CloseAsync(Model);
+    }
+    private async Task CancelAsync()
+    {
+        await Dialog.CancelAsync();
+    }
+}

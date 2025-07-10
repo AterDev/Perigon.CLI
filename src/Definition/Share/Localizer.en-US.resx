@@ -354,4 +354,13 @@
   <data name="OpenApiEndpoint" xml:space="preserve">
     <value>OpenApi Endopint</value>
   </data>
+  <data name="OpenApiPathTip" xml:space="preserve">
+    <value>Url or Local absolute path</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="MustSelectOption" xml:space="preserve">
+    <value>You must select a option</value>
+  </data>
 </root>

@@ -8,9 +8,6 @@ public partial class Home
 {
     List<Project> projects = [];
 
-    [Inject]
-    IProjectContext ProjectContext { get; set; } = default!;
-
     private async Task AddLocalProject(MouseEventArgs arg)
     {
         DialogParameters parameters = new()

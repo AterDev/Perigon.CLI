@@ -7,9 +7,6 @@ namespace AterStudio.Components.Pages.Workbench.Entity;
 public partial class EntityList
 {
     [Inject]
-    private IProjectContext ProjectContext { get; set; } = default!;
-
-    [Inject]
     private EntityInfoManager EntityInfoManager { get; set; } = default!;
 
     [Inject]
@@ -53,6 +50,7 @@ public partial class EntityList
             WordWrap = "on",
             WrappingStrategy = "advanced",
         };
+        await base.OnInitializedAsync();
     }
 
     private void GetServices()

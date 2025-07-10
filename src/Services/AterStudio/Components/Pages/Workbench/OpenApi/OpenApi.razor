@@ -1,60 +1,71 @@
 @page "/workbench/openapi"
 @inherits PageBase
 @layout Layout
+@using StudioMod.Models.ApiDocInfoDtos
 
 
-<FluentStack Orientation="Orientation.Vertical" Class="w-100" VerticalGap="4">
-    @* top Toolbar *@
-    <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2">
-        <FluentStack Orientation="Orientation.Horizontal"
-                     HorizontalAlignment="HorizontalAlignment.SpaceBetween">
-
+@if (!isLoading)
+{
+    <FluentStack Orientation="Orientation.Vertical" Class="w-100" VerticalGap="4">
+        @* top Toolbar *@
+        <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2">
             <FluentStack Orientation="Orientation.Horizontal"
-                         HorizontalGap="4">
+                         HorizontalAlignment="HorizontalAlignment.SpaceBetween">
 
-                @* <FluentSelect >
-                </FluentSelect> *@
+                <FluentStack Orientation="Orientation.Horizontal"
+                             HorizontalGap="4">
 
-                <FluentButton Appearance="Appearance.Stealth"
-                              Title="@Lang(Localizer.Add, Localizer.OpenApiEndpoint)"
-                              IconStart="@(new Icons.Regular.Size24.Add())">
-                </FluentButton>
-                <FluentButton Appearance="Appearance.Stealth"
-                              Title="edit"
-                              IconStart="@(new Icons.Regular.Size24.Edit())">
-                </FluentButton>
-                <FluentButton Appearance="Appearance.Stealth"
-                              Title="delete"
-                              IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Error))">
-                </FluentButton>
+                    <FluentSelect Appearance="Appearance.Filled"
+                                  Items="Docs"
+                                  TOption="ApiDocInfoItemDto"
+                                  OptionText="@(d=>d.Name)"
+                                  OptionValue="@(d=>d.Id.ToString())"
+                                  @bind-SelectedOption="CurrentDoc">
+                    </FluentSelect>
+
+                    <FluentButton Appearance="Appearance.Stealth"
+                                  OnClick="() => OpenAddOpenApiDialog()"
+                                  Title="@Lang(Localizer.Add, Localizer.OpenApiEndpoint)"
+                                  IconStart="@(new Icons.Regular.Size24.Add())">
+                    </FluentButton>
+                    <FluentButton Appearance="Appearance.Stealth"
+                                  Title="edit"
+                                  OnClick="() => OpenEditOpenApiDialog()"
+                                  IconStart="@(new Icons.Regular.Size24.Edit())">
+                    </FluentButton>
+                    <FluentButton Appearance="Appearance.Stealth"
+                                  Title="delete"
+                                  OnClick="()=>DeleteOpenApiAsync()"
+                                  IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Error))">
+                    </FluentButton>
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Horizontal"
+                             HorizontalGap="4"
+                             Class="pe-2"
+                             HorizontalAlignment="HorizontalAlignment.End">
+                    <FluentButton Appearance="Appearance.Lightweight"
+                                  Title="refresh"
+                                  IconStart="@(new Icons.Regular.Size24.CodeBlock())"></FluentButton>
+                    <FluentButton Appearance="Appearance.Lightweight"
+                                  Title="clean solution obj & bin files"
+                                  IconStart="@(new Icons.Regular.Size24.ArrowClockwise().WithColor(Color.Warning))">
+                    </FluentButton>
+
+                </FluentStack>
             </FluentStack>
-
-            <FluentStack Orientation="Orientation.Horizontal"
-                         HorizontalGap="4"
-                         Class="pe-2"
-                         HorizontalAlignment="HorizontalAlignment.End">
-                <FluentButton Appearance="Appearance.Lightweight"
-                              Title="refresh"
-                              IconStart="@(new Icons.Regular.Size24.CodeBlock())"></FluentButton>
-                <FluentButton Appearance="Appearance.Lightweight"
-                              Title="clean solution obj & bin files"
-                              IconStart="@(new Icons.Regular.Size24.ArrowClockwise().WithColor(Color.Warning))">
-                </FluentButton>
-
-            </FluentStack>
-        </FluentStack>
-    </FluentToolbar>
-    @* tabs: api, models *@
-    <FluentTabs OnTabChange="HandleOnTabChange"
-                Size="TabSize.Large"
-                Class="w-100"
-                ActiveTabId="api">
-        <FluentTab Label="API" Id="api">
-            api
-        </FluentTab>
-        <FluentTab Label="Models" Id="models">
-            models
-        </FluentTab>
-    </FluentTabs>
-</FluentStack>
-
+        </FluentToolbar>
+        @* tabs: api, models *@
+        <FluentTabs OnTabChange="HandleOnTabChange"
+                    Size="TabSize.Large"
+                    Class="w-100"
+                    ActiveTabId="api">
+            <FluentTab Label="API" Id="api">
+                api
+            </FluentTab>
+            <FluentTab Label="Models" Id="models">
+                models
+            </FluentTab>
+        </FluentTabs>
+    </FluentStack>
+}
