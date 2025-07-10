@@ -11,10 +11,9 @@
 <FluentBodyContent>
     <EditForm EditContext="editContext">
         <DataAnnotationsValidator />
-        <FluentValidationSummary />
 
         <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
-            <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
                 <FluentTextField @bind-Value="Model.Name"
                                  Label=@Lang(Localizer.Name)
                                  Placeholder="@Lang(Localizer.Name)"
@@ -23,7 +22,7 @@
                                  MaxLength="100" />
                 <ValidationMessage For="@(() => Model.Name)" />
             </FluentStack>
-            <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
                 <FluentTextField @bind-Value="Model.Path"
                                  Class="w-100"
                                  Label=@Lang(Localizer.OpenApiEndpoint)
@@ -40,7 +39,9 @@
 </FluentBodyContent>
 <FluentDialogFooter>
     <FluentButton Appearance="Appearance.Accent"
-                  Type="ButtonType.Button" OnClick="SaveAsync">
+                  Type="ButtonType.Button"
+                  Disabled="!formValid"
+                  OnClick="SaveAsync">
         @Lang(Localizer.Save)
     </FluentButton>
     <FluentButton Appearance="Appearance.Neutral"
@@ -61,11 +62,7 @@
 
     protected override void OnInitialized()
     {
-        Model = new ApiDocInfoAddDto
-        {
-            Name = string.Empty,
-            Path = string.Empty
-        };
+        Model = new ApiDocInfoAddDto();
         editContext = new EditContext(Model);
         editContext.OnFieldChanged += HandleFieldChanged;
     }

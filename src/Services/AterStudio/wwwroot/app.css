@@ -60,6 +60,14 @@ body {
     gap: 0.75rem !important;
 }
 
+.list .content-region {
+    margin-left: -4px !important;
+}
+
+.fluent-nav-icon {
+    min-width: 0 !important;
+}
+
 #my-diff-editor {
     height: 600px;
 }

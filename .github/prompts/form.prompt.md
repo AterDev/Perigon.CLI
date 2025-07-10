@@ -26,10 +26,10 @@
     <DataAnnotationsValidator />
     <FluentValidationSummary />
     <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
-        <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+        <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
             {控件内容1}
         </FluentStack>
-        <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+        <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
             {控件内容2}
         </FluentStack>
 
