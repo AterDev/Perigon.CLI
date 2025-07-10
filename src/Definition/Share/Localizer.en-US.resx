@@ -363,4 +363,16 @@
   <data name="MustSelectOption" xml:space="preserve">
     <value>You must select a option</value>
   </data>
+  <data name="GenerateDtos" xml:space="preserve">
+    <value>Generate Dtos</value>
+  </data>
+  <data name="GenerateManagers" xml:space="preserve">
+    <value>Generate Managers</value>
+  </data>
+  <data name="GenerateApis" xml:space="preserve">
+    <value>Generate APIControllers</value>
+  </data>
+  <data name="SearchEntity" xml:space="preserve">
+    <value>Search Entities Infomation</value>
+  </data>
 </root>

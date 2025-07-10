@@ -363,4 +363,16 @@
   <data name="MustSelectOption" xml:space="preserve">
     <value>你必须先选择一个选项</value>
   </data>
+  <data name="GenerateDtos" xml:space="preserve">
+    <value>生成Dto</value>
+  </data>
+  <data name="GenerateManagers" xml:space="preserve">
+    <value>生成Manager</value>
+  </data>
+  <data name="GenerateApis" xml:space="preserve">
+    <value>生成APIController</value>
+  </data>
+  <data name="SearchEntity" xml:space="preserve">
+    <value>搜索实体信息</value>
+  </data>
 </root>

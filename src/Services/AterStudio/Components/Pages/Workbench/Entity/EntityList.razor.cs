@@ -17,7 +17,7 @@ public partial class EntityList
 
     private FluentDataGrid<EntityFile> grid = default!;
     private FluentDialog _dialog = default!;
-    private PaginationState pagination = new() { ItemsPerPage = 20 };
+    private PaginationState pagination = new() { ItemsPerPage = 15 };
     private StandaloneCodeEditor editor = default!;
 
     private IQueryable<EntityFile>? EntityFiles { get; set; }
@@ -96,5 +96,12 @@ public partial class EntityList
     {
         this.editor = editor;
         return options;
+    }
+    private void OnSearch(string searchText)
+    {
+        FilteredEntityFiles = EntityFiles?.Where(e =>
+            e.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+          (!string.IsNullOrEmpty(e.Comment) && e.Comment.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        );
     }
 }
