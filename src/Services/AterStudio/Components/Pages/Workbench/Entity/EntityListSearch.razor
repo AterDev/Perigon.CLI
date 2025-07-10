@@ -1,0 +1,71 @@
+﻿@using System.Timers
+@implements IDisposable
+
+<FluentSearch @ref=searchTest
+              @bind-Value="SearchValue"
+              @bind-Value:after="HandleClear"
+              @oninput="@(e => SearchValue = e.Value?.ToString())"
+              Placeholder="@Placeholder" Style="@("width:"+Width)" />
+
+@code {
+    [Parameter] public EventCallback<string> OnSearched { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "search for name";
+    [Parameter] public int Debounce { get; set; } = 400;
+    [Parameter] public string Width { get; set; } = "30%";
+
+    private Timer? timer = null;
+
+    private FluentSearch? searchTest;
+
+    private string? searchValue = string.Empty;
+
+    private string? SearchValue
+    {
+        get => searchValue;
+        set
+        {
+            if (value != searchValue)
+            {
+                searchValue = value;
+                DisposeTimer();
+                timer = new Timer(Debounce);
+                timer.Elapsed += TimerElapsed_TickAsync;
+                timer.Enabled = true;
+                timer.Start();
+            }
+        }
+    }
+
+    private async void TimerElapsed_TickAsync(object? sender, EventArgs e)
+    {
+        DisposeTimer();
+        await InvokeAsync(async () => await OnSearched.InvokeAsync(SearchValue));
+    }
+
+    private void DisposeTimer()
+    {
+        if (timer != null)
+        {
+            timer.Enabled = false;
+            timer.Elapsed -= TimerElapsed_TickAsync;
+            timer.Dispose();
+            timer = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        HandleClear();
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(SearchValue))
+            return;
+
+        DisposeTimer();
+        SearchValue = string.Empty;
+        StateHasChanged();
+    }
+
+}

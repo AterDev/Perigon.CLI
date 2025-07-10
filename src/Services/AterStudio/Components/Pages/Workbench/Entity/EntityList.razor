@@ -1,8 +1,6 @@
 @page "/workbench/entity"
 @inherits PageBase
 @layout Layout
-
-
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
     @* top Toolbar *@
     <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2 bg-3">
@@ -91,10 +89,11 @@
         </Panel1>
 
         <Panel2>
-
             @* entity list *@
             <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="p-1">
-
+                <FluentStack>
+                    <EntityListSearch OnSearched="OnSearch" Placeholder="@Lang(Localizer.SearchEntity)" />
+                </FluentStack>
                 <FluentDataGrid @ref="grid"
                                 Class="w-100"
                                 Items="@FilteredEntityFiles"
@@ -120,18 +119,15 @@
 
                     <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
                         <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
-                            <FluentButton Title="生成代码"
-                                          Appearance="Appearance.Stealth"
-                                          IconEnd="@(new Icons.Regular.Size20.AddSquare())" />
-                            <FluentButton Title="编辑DTO"
-                                          Appearance="Appearance.Stealth"
-                                          IconEnd="@(new Icons.Regular.Size20.Code())" />
-                            <FluentButton Title="Manager"
-                                          Appearance="Appearance.Stealth"
-                                          IconEnd="@(new Icons.Regular.Size20.CodeBlock())" />
-                            <FluentButton Title="API"
-                                          Appearance="Appearance.Stealth"
-                                          IconEnd="@(new Icons.Regular.Size20.Connected())" />
+                            <FluentButton Appearance="Appearance.Accent">
+                                @Lang(Localizer.GenerateDtos)
+                            </FluentButton>
+                            <FluentButton Appearance="Appearance.Accent">
+                                @Lang(Localizer.GenerateManagers)
+                            </FluentButton>
+                            <FluentButton Appearance="Appearance.Accent">
+                                @Lang(Localizer.GenerateApis)
+                            </FluentButton>
                         </FluentStack>
                     </TemplateColumn>
                 </FluentDataGrid>
