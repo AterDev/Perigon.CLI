@@ -387,4 +387,13 @@
   <data name="Required" xml:space="preserve">
     <value>Required</value>
   </data>
+  <data name="RequestBody" xml:space="preserve">
+    <value>RequestBody</value>
+  </data>
+  <data name="ResponseBody" xml:space="preserve">
+    <value>ResponseBody</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>Validate</value>
+  </data>
 </root>

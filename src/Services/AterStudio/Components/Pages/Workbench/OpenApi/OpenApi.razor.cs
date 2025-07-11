@@ -1,3 +1,4 @@
+using Ater.Common.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.OpenApi.Models;
@@ -8,7 +9,7 @@ namespace AterStudio.Components.Pages.Workbench.OpenApi;
 public partial class OpenApi
 {
     [Inject]
-    private ApiDocInfoManager _manager { get; set; } = default!;
+    ApiDocInfoManager _manager { get; set; } = default!;
 
     List<ApiDocInfoItemDto> Docs { get; set; } = [];
     ApiDocInfoItemDto? CurrentDoc { get; set; }
@@ -29,11 +30,14 @@ public partial class OpenApi
 
     string? SelectedNav { get; set; }
 
-    bool isLoading = true;
-    bool isSync = false;
+    bool IsLoading { get; set; } = true;
+    bool IsSync { get; set; } = false;
 
-    private string? activeId = "api";
-    private FluentTab? currentTab;
+    string ActiveId { get; set; } = "api";
+
+    FluentTab? currentTab;
+    FluentDialog? modelInfoDialog;
+    bool ModelInfoDialogIsHidden { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,7 +55,7 @@ public partial class OpenApi
             new ApiDocInfoFilterDto { PageSize = 999, ProjectId = ProjectContext.ProjectId }
         );
         Docs = res.Data;
-        isLoading = false;
+        IsLoading = false;
     }
 
     private async Task GetDocContentAsync(bool isFresh)
@@ -74,7 +78,7 @@ public partial class OpenApi
                     .SelectMany(g => g.ApiInfos ?? [])
                     .FirstOrDefault(a => a.Router == CurrentApi?.Router);
             }
-            isLoading = false;
+            IsLoading = false;
         }
     }
 
@@ -89,6 +93,105 @@ public partial class OpenApi
     {
         CurrentModel = model;
         SelectedNav = model.Name;
+    }
+
+    private void SearchApi()
+    {
+        if (!string.IsNullOrWhiteSpace(ApiSearchKeyword))
+        {
+            FilteredRestApiGroups = RestApiGroups
+                .Where(group =>
+                    (
+                        group.Name?.Contains(ApiSearchKeyword, StringComparison.OrdinalIgnoreCase)
+                        ?? false
+                    )
+                    || (
+                        group.ApiInfos?.Any(api =>
+                            (
+                                api.Router?.Contains(
+                                    ApiSearchKeyword,
+                                    StringComparison.OrdinalIgnoreCase
+                                ) ?? false
+                            )
+                            || (
+                                api.Summary?.Contains(
+                                    ApiSearchKeyword,
+                                    StringComparison.OrdinalIgnoreCase
+                                ) ?? false
+                            )
+                            || (
+                                api.Tag?.Contains(
+                                    ApiSearchKeyword,
+                                    StringComparison.OrdinalIgnoreCase
+                                ) ?? false
+                            )
+                        ) ?? false
+                    )
+                )
+                .Select(group => new RestApiGroup
+                {
+                    Name = group.Name,
+                    ApiInfos =
+                        group
+                            .ApiInfos?.Where(api =>
+                                (
+                                    api.Router?.Contains(
+                                        ApiSearchKeyword,
+                                        StringComparison.OrdinalIgnoreCase
+                                    ) ?? false
+                                )
+                                || (api.Summary?.Contains(ApiSearchKeyword) ?? false)
+                                || (api.Tag?.Contains(ApiSearchKeyword) ?? false)
+                            )
+                            .ToList() ?? [],
+                })
+                .ToList();
+        }
+        else
+        {
+            FilteredRestApiGroups = RestApiGroups;
+        }
+    }
+
+    private void SearchModel()
+    {
+        if (!string.IsNullOrWhiteSpace(ModelSearchKeyword))
+        {
+            FilteredModelList = ModelList
+                .Where(model =>
+                    (
+                        model.Name?.Contains(ModelSearchKeyword, StringComparison.OrdinalIgnoreCase)
+                        ?? false
+                    )
+                    || (
+                        model.Comment?.Contains(
+                            ModelSearchKeyword,
+                            StringComparison.OrdinalIgnoreCase
+                        ) ?? false
+                    )
+                        && model.IsEnum == false
+                )
+                .ToList();
+        }
+        else
+        {
+            FilteredModelList = ModelList;
+        }
+    }
+
+    private void OpenModelInfoDialog(string modelName)
+    {
+        var model = ModelList.Where(m => m.Name == modelName).FirstOrDefault();
+        if (model != null)
+        {
+            SelectedModel = model;
+
+            Console.WriteLine(ToJson(SelectedModel));
+            modelInfoDialog?.Hide();
+            modelInfoDialog?.Show();
+        }
+        StateHasChanged();
+        //ModelInfoDialogIsHidden = false;
     }
 
     private async Task OpenAddOpenApiDialog()
@@ -187,7 +290,7 @@ public partial class OpenApi
 
     private async Task Refresh()
     {
-        isLoading = true;
+        IsLoading = true;
         await this.GetDocContentAsync(true);
     }
 

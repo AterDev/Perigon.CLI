@@ -32,6 +32,8 @@ public partial class EntityList
 
     private string? SelectedModule { get; set; }
 
+    public string? SearchModelKey { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         GetEntityList();
@@ -97,11 +99,18 @@ public partial class EntityList
         this.editor = editor;
         return options;
     }
-    private void OnSearch(string searchText)
+
+    private void OnSearch()
     {
-        FilteredEntityFiles = EntityFiles?.Where(e =>
-            e.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-          (!string.IsNullOrEmpty(e.Comment) && e.Comment.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-        );
+        if (!string.IsNullOrWhiteSpace(SearchModelKey) && EntityFiles is not null)
+        {
+            FilteredEntityFiles = EntityFiles.Where(e =>
+                e.Name.Contains(SearchModelKey, StringComparison.OrdinalIgnoreCase)
+                || (
+                    e.Comment != null
+                    && e.Comment.Contains(SearchModelKey, StringComparison.OrdinalIgnoreCase)
+                )
+            );
+        }
     }
 }

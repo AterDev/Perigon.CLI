@@ -387,4 +387,13 @@
   <data name="Required" xml:space="preserve">
     <value>必需</value>
   </data>
+  <data name="RequestBody" xml:space="preserve">
+    <value>请求体</value>
+  </data>
+  <data name="ResponseBody" xml:space="preserve">
+    <value>响应体</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>验证</value>
+  </data>
 </root>

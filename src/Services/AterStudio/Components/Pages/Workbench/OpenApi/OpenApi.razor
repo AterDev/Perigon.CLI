@@ -5,11 +5,11 @@
 @using Share.Models
 @using CodeGenerator.Models
 
-@if (!isLoading)
+@if (!IsLoading)
 {
   <FluentStack Orientation="Orientation.Vertical"
                Class="w-100"
-               VerticalGap="4">
+               VerticalGap="0">
     @* top Toolbar *@
     <FluentToolbar Orientation="Orientation.Horizontal"
                    Class="w-100 p-2">
@@ -70,8 +70,7 @@
                 Size="TabSize.Large"
                 Class="w-100 p-1"
                 ActiveTabId="api">
-      <FluentTab Label="API"
-                 Id="api">
+      <FluentTab Label="API" Id="api" Style="font-size:20px">
         <FluentSplitter Orientation="Orientation.Horizontal"
                         Panel1Size="260px"
                         Panel1MinSize="260px"
@@ -82,10 +81,12 @@
           <Panel1>
             <FluentStack Orientation="Orientation.Vertical"
                          Class="pe-1">
-              <FluentTextField TextFieldType="TextFieldType.Search"
-                               @bind-Value="ApiSearchKeyword"
-                               Class="w-100">
-              </FluentTextField>
+              <FluentSearch @bind-Value=ApiSearchKeyword
+                            @bind-Value:after="SearchApi"
+                            AriaLabel="Search"
+                            Immediate="true"
+                            ImmediateDelay="100"
+                            AutoComplete="off " />
 
               <FluentNavMenu Class="w-100 list" Expanded="true">
                 @foreach (var group in FilteredRestApiGroups)
@@ -155,11 +156,7 @@
                     <FluentLabel Typo="Typography.H4" Color="Color.Warning">
                       @Lang(Localizer.QueryParameters)
                     </FluentLabel>
-                    <PropTableView Items="@CurrentApi.QueryParameters.AsQueryable()"
-                                   NameTitle="@Lang(Localizer.Name)"
-                                   TypeTitle="@Lang(Localizer.Type)"
-                                   RequiredTitle="@Lang(Localizer.Required)"
-                                   DescriptionTitle="@Lang(Localizer.Description)" />
+                    <PropTableView Items="@CurrentApi.QueryParameters.AsQueryable()" />
                   </FluentStack>
                 }
                 @* request body *@
@@ -167,7 +164,8 @@
                 {
                   <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
                     <FluentLabel Typo="Typography.H4" Color="Color.Accent">
-                      Request Body
+                      @Lang(Localizer.RequestBody)
+
                     </FluentLabel>
                     <FluentStack>
                       <FluentBadge Appearance="Appearance.Neutral">
@@ -181,12 +179,8 @@
 
                     @if (CurrentApi.RequestInfo.PropertyInfos?.Count > 0)
                     {
-                      var properties = CurrentApi.RequestInfo.PropertyInfos.AsQueryable();
-                      <PropTableView Items="@properties"
-                                     NameTitle="@Lang(Localizer.Name)"
-                                     TypeTitle="@Lang(Localizer.Type)"
-                                     RequiredTitle="@Lang(Localizer.Required)"
-                                     DescriptionTitle="@Lang(Localizer.Description)" />
+                      <PropTableView Items="@CurrentApi.RequestInfo.PropertyInfos.AsQueryable()"
+                                     OnClickModel="OpenModelInfoDialog" />
                     }
                   </FluentStack>
                 }
@@ -195,7 +189,7 @@
                 {
                   <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
                     <FluentLabel Typo="Typography.H4" Color="Color.Accent">
-                      Response Body
+                      @Lang(Localizer.ResponseBody)
                     </FluentLabel>
                     <FluentStack>
                       <FluentBadge Appearance="Appearance.Neutral">
@@ -206,10 +200,7 @@
                       </FluentBadge>
                     </FluentStack>
                     <PropTableView Items="@CurrentApi.ResponseInfo.PropertyInfos.AsQueryable()"
-                                   NameTitle="@Lang(Localizer.Name)"
-                                   TypeTitle="@Lang(Localizer.Type)"
-                                   RequiredTitle="@Lang(Localizer.Required)"
-                                   DescriptionTitle="@Lang(Localizer.Description)" />
+                                   OnClickModel="OpenModelInfoDialog" />
                   </FluentStack>
                 }
                 else
@@ -239,10 +230,13 @@
                          Class="pe-1">
               @if (CurrentDoc != null)
               {
-                <FluentTextField TextFieldType="TextFieldType.Search"
-                                 @bind-Value="ModelSearchKeyword"
-                                 Class="w-100">
-                </FluentTextField>
+                <FluentSearch @bind-Value=ModelSearchKeyword
+                              @bind-Value:after="SearchModel"
+                              AriaLabel="Search"
+                              Immediate="true"
+                              ImmediateDelay="100"
+                              AutoComplete="off " />
+
                 <FluentNavMenu Class="w-100 list" Expanded="true">
                   @foreach (var item in FilteredModelList)
                   {
@@ -295,4 +289,35 @@
       </FluentTab>
     </FluentTabs>
   </FluentStack>
+
+  @* FluentDialog内容 *@
+  <FluentDialog @ref="modelInfoDialog"
+                @bind-Hidden=@ModelInfoDialogIsHidden
+                style="--dialog-width:auto;"
+                @ondialogdismiss="() => modelInfoDialog.Hide()"
+                Modal="true">
+    <FluentDialogHeader ShowDismiss="false">
+      <FluentLabel Typo="Typography.PaneHeader">
+        @SelectedModel?.Name
+      </FluentLabel>
+    </FluentDialogHeader>
+    <FluentDialogBody>
+      @if (SelectedModel != null)
+      {
+        <PropTableView Items="@SelectedModel.PropertyInfos.AsQueryable()"
+                       @key="SelectedModel.Name"
+                       OnClickModel="OpenModelInfoDialog" />
+      }
+
+    </FluentDialogBody>
+
+    <FluentDialogFooter>
+      <FluentStack Orientation="Orientation.Horizontal"
+                   HorizontalAlignment="HorizontalAlignment.End">
+        <FluentButton OnClick="() => modelInfoDialog!.Hide()">@Lang(Localizer.Close)</FluentButton>
+      </FluentStack>
+
+    </FluentDialogFooter>
+  </FluentDialog>
+
 }
