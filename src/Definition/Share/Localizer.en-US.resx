@@ -375,4 +375,16 @@
   <data name="SearchEntity" xml:space="preserve">
     <value>Search Entities Infomation</value>
   </data>
+  <data name="ClickToView" xml:space="preserve">
+    <value>Click to view</value>
+  </data>
+  <data name="QueryParameters" xml:space="preserve">
+    <value>QueryParameters</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
 </root>

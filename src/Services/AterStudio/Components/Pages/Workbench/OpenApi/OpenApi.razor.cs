@@ -24,7 +24,10 @@ public partial class OpenApi
     RestApiInfo? CurrentApi { get; set; }
     TypeMeta? CurrentModel { get; set; }
     TypeMeta? SelectedModel { get; set; }
-    string? SearchKeyword { get; set; }
+    string? ApiSearchKeyword { get; set; }
+    string? ModelSearchKeyword { get; set; }
+
+    string? SelectedNav { get; set; }
 
     bool isLoading = true;
     bool isSync = false;
@@ -73,6 +76,19 @@ public partial class OpenApi
             }
             isLoading = false;
         }
+    }
+
+    private void SelectApi(RestApiInfo api)
+    {
+        CurrentApi = api;
+        // TODO: OperationId
+        SelectedNav = api.Router;
+    }
+
+    private void SelectModel(TypeMeta model)
+    {
+        CurrentModel = model;
+        SelectedNav = model.Name;
     }
 
     private async Task OpenAddOpenApiDialog()
@@ -156,7 +172,7 @@ public partial class OpenApi
 
     private string GetApiTypeColor(OperationType type)
     {
-        return type switch
+        var color = type switch
         {
             OperationType.Get => "#318deb",
             OperationType.Post => "#14cc78",
@@ -165,6 +181,8 @@ public partial class OpenApi
             OperationType.Delete => "#f93e3e",
             _ => "#888888",
         };
+
+        return $"color:{color};font-weight:bold";
     }
 
     private async Task Refresh()

@@ -1,0 +1,22 @@
+@using CodeGenerator.Models
+
+<FluentDataGrid TGridItem="PropertyInfo"
+                Items="@Items"
+                Style="min-width:600px"
+                RowSize="DataGridRowSize.Medium"
+                AutoFit="true">
+    <PropertyColumn Property="@(p => p.Name)" Title="@NameTitle" />
+    <PropertyColumn Property="@(p => p.Type)" Title="@TypeTitle" />
+    <TemplateColumn Title="@RequiredTitle">
+        @(context.IsRequired ? "Yes" : "No")
+    </TemplateColumn>
+    <PropertyColumn Property="@(p => p.CommentSummary)" Title="@DescriptionTitle" />
+</FluentDataGrid>
+
+@code {
+    [Parameter] public IQueryable<PropertyInfo> Items { get; set; } = default!;
+    [Parameter] public string NameTitle { get; set; } = "Name";
+    [Parameter] public string TypeTitle { get; set; } = "Type";
+    [Parameter] public string RequiredTitle { get; set; } = "Required";
+    [Parameter] public string DescriptionTitle { get; set; } = "Description";
+}

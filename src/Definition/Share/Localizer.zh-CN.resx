@@ -375,4 +375,16 @@
   <data name="SearchEntity" xml:space="preserve">
     <value>搜索实体信息</value>
   </data>
+  <data name="ClickToView" xml:space="preserve">
+    <value>点击查看</value>
+  </data>
+  <data name="QueryParameters" xml:space="preserve">
+    <value>查询参数</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>必需</value>
+  </data>
 </root>

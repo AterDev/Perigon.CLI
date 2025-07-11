@@ -3,112 +3,296 @@
 @layout Layout
 @using StudioMod.Models.ApiDocInfoDtos
 @using Share.Models
+@using CodeGenerator.Models
 
 @if (!isLoading)
 {
-    <FluentStack Orientation="Orientation.Vertical" Class="w-100" VerticalGap="4">
-        @* top Toolbar *@
-        <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2">
-            <FluentStack Orientation="Orientation.Horizontal"
-                         HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+  <FluentStack Orientation="Orientation.Vertical"
+               Class="w-100"
+               VerticalGap="4">
+    @* top Toolbar *@
+    <FluentToolbar Orientation="Orientation.Horizontal"
+                   Class="w-100 p-2">
+      <FluentStack Orientation="Orientation.Horizontal"
+                   HorizontalAlignment="HorizontalAlignment.SpaceBetween">
 
-                <FluentStack Orientation="Orientation.Horizontal"
-                             HorizontalGap="4">
+        <FluentStack Orientation="Orientation.Horizontal"
+                     HorizontalGap="4">
 
-                    <FluentSelect Appearance="Appearance.Filled"
-                                  Items="Docs"
-                                  TOption="ApiDocInfoItemDto"
-                                  Placeholder="Add OpenApi Endpoint"
-                                  OptionText="@(d=>d.Name)"
-                                  OptionValue="@(d=>d.Id.ToString())"
-                                  @bind-SelectedOption="CurrentDoc">
-                    </FluentSelect>
+          <FluentSelect Appearance="Appearance.Filled"
+                        Items="Docs"
+                        TOption="ApiDocInfoItemDto"
+                        Placeholder="Add OpenApi Endpoint"
+                        OptionText="@(d=>d.Name)"
+                        OptionValue="@(d=>d.Id.ToString())"
+                        @bind-SelectedOption="CurrentDoc">
+          </FluentSelect>
 
-                    <FluentButton Appearance="Appearance.Stealth"
-                                  OnClick="() => OpenAddOpenApiDialog()"
-                                  Title="@Lang(Localizer.Add, Localizer.OpenApiEndpoint)"
-                                  IconStart="@(new Icons.Regular.Size24.Add())">
-                    </FluentButton>
-                    <FluentButton Appearance="Appearance.Stealth"
-                                  Title="edit"
-                                  OnClick="() => OpenEditOpenApiDialog()"
-                                  IconStart="@(new Icons.Regular.Size24.Edit())">
-                    </FluentButton>
-                    <FluentButton Appearance="Appearance.Stealth"
-                                  Title="delete"
-                                  OnClick="()=>DeleteOpenApiAsync()"
-                                  IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Error))">
-                    </FluentButton>
-                </FluentStack>
+          <FluentButton Appearance="Appearance.Stealth"
+                        OnClick="() => OpenAddOpenApiDialog()"
+                        Title="@Lang(Localizer.Add, Localizer.OpenApiEndpoint)"
+                        IconStart="@(new Icons.Regular.Size24.Add())">
+          </FluentButton>
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="edit"
+                        OnClick="() => OpenEditOpenApiDialog()"
+                        IconStart="@(new Icons.Regular.Size24.Edit())">
+          </FluentButton>
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="delete"
+                        OnClick="()=>DeleteOpenApiAsync()"
+                        IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Error))">
+          </FluentButton>
+        </FluentStack>
 
-                <FluentStack Orientation="Orientation.Horizontal"
-                             HorizontalGap="4"
-                             Class="pe-2"
-                             HorizontalAlignment="HorizontalAlignment.End">
-                    <FluentButton Appearance="Appearance.Lightweight"
-                                  Title="refresh"
-                                  IconStart="@(new Icons.Regular.Size24.CodeBlock())"></FluentButton>
-                    <FluentButton Appearance="Appearance.Lightweight"
-                                  Title="clean solution obj & bin files"
-                                  IconStart="@(new Icons.Regular.Size24.ArrowClockwise().WithColor(Color.Warning))">
-                    </FluentButton>
+        <FluentStack Orientation="Orientation.Horizontal"
+                     HorizontalGap="4"
+                     Class="pe-2"
+                     HorizontalAlignment="HorizontalAlignment.End">
+          <FluentButton Appearance="Appearance.Lightweight"
+                        Title="code generation"
+                        IconStart="@(new Icons.Regular.Size24.Code())">
+          </FluentButton>
+          <FluentButton Appearance="Appearance.Lightweight"
+                        Title="refresh"
+                        IconStart="@(new Icons.Regular.Size24.ArrowClockwise())">
+          </FluentButton>
+          <FluentButton Appearance="Appearance.Lightweight"
+                        Title="clean solution obj & bin files"
+                        IconStart="@(new Icons.Regular.Size24.Broom().WithColor(Color.Warning))">
+          </FluentButton>
 
-                </FluentStack>
+        </FluentStack>
+      </FluentStack>
+    </FluentToolbar>
+    @* tabs: api, models *@
+    <FluentTabs OnTabChange="HandleOnTabChange"
+                Size="TabSize.Large"
+                Class="w-100 p-1"
+                ActiveTabId="api">
+      <FluentTab Label="API"
+                 Id="api">
+        <FluentSplitter Orientation="Orientation.Horizontal"
+                        Panel1Size="260px"
+                        Panel1MinSize="260px"
+                        Panel2MinSize="60%"
+                        BarSize="6"
+                        Class="w-100"
+                        Style="height:calc(100vh - 156px)">
+          <Panel1>
+            <FluentStack Orientation="Orientation.Vertical"
+                         Class="pe-1">
+              <FluentTextField TextFieldType="TextFieldType.Search"
+                               @bind-Value="ApiSearchKeyword"
+                               Class="w-100">
+              </FluentTextField>
+
+              <FluentNavMenu Class="w-100 list" Expanded="true">
+                @foreach (var group in FilteredRestApiGroups)
+                {
+                  <FluentNavGroup Expanded="true">
+                    <TitleTemplate>
+                      <FluentLabel Typo="Typography.Subject"
+                                   Color="Color.Accent">
+                        @group.Name @group.Description
+                      </FluentLabel>
+                    </TitleTemplate>
+                    <ChildContent>
+                      @foreach (var api in group.ApiInfos)
+                      {
+                        var active = SelectedNav == api.Router ? "selected" : "";
+                        <FluentNavLink Class="@("p-0 " + active)"
+                                       Style="margin-left:-8px"
+                                       OnClick="()=>SelectApi(api)">
+                          <FluentStack Orientation="Orientation.Horizontal"
+                                       HorizontalGap="4"
+                                       VerticalAlignment="VerticalAlignment.Center">
+                            <FluentLabel Typo="Typography.Subject"
+                                         style="@GetApiTypeColor(api.OperationType)">
+                              @(api.OperationType.ToString().Substring(0, 1))
+                            </FluentLabel>
+                            <FluentLabel Typo="Typography.Subject">
+                              @(api.Summary ?? api.Router)
+                            </FluentLabel>
+                          </FluentStack>
+                        </FluentNavLink>
+                      }
+                    </ChildContent>
+                  </FluentNavGroup>
+                }
+              </FluentNavMenu>
             </FluentStack>
-        </FluentToolbar>
-        @* tabs: api, models *@
-        <FluentTabs OnTabChange="HandleOnTabChange"
-                    Size="TabSize.Large"
-                    Class="w-100 p-1"
-                    ActiveTabId="api">
-            <FluentTab Label="API" Id="api">
-                <FluentSplitter Orientation="Orientation.Horizontal"
-                                Panel1Size="240px"
-                                Panel1MinSize="240px"
-                                Panel2MinSize="60%"
-                                BarSize="4"
-                                Class="w-100"
-                                Style="height:calc(100vh - 156px)">
-                    <Panel1>
-                        <FluentStack Orientation="Orientation.Vertical" Class="pe-1">
-                            <FluentTextField TextFieldType="TextFieldType.Search"
-                                             @bind-Value="SearchKeyword"
-                                             Class="w-100"></FluentTextField>
+          </Panel1>
+          <Panel2>
+            @if (CurrentApi is not null)
+            {
+              <FluentStack Orientation="Orientation.Vertical"
+                           VerticalGap="4"
+                           Class="p-1 ps-2">
+                <FluentStack Orientation="Orientation.Vertical"
+                             Class="mb-2">
+                  <FluentLabel Typo="Typography.H3"
+                               Class="mb-1">
+                    @CurrentApi.Summary
+                  </FluentLabel>
+                  <FluentStack Orientation="Orientation.Horizontal"
+                               HorizontalGap="8"
+                               VerticalAlignment="VerticalAlignment.Center">
+                    <FluentLabel Typo="Typography.H4"
+                                 style="@GetApiTypeColor(CurrentApi.OperationType)">
+                      @(CurrentApi.OperationType.ToString().Substring(0, 1))
+                    </FluentLabel>
+                    <FluentLabel Typo="Typography.H4">
+                      @CurrentApi.Router
+                    </FluentLabel>
+                  </FluentStack>
+                </FluentStack>
 
-                            <FluentNavMenu Class="w-100 list"
-                                           Expanded="true">
-                                @foreach (var group in FilteredRestApiGroups)
-                                {
-                                    <FluentNavGroup Expanded="true">
-                                        <TitleTemplate>
-                                            @group.Name @group.Description
-                                        </TitleTemplate>
-                                        <ChildContent>
-                                            @foreach (var api in group.ApiInfos)
-                                            {
-                                                <FluentNavLink Class="p-0">
-                                                    <span>
-                                                        @(api.OperationType.ToString().Substring(0, 1))
-                                                    </span>
-                                                    <span>
-                                                        @(api.Summary ?? api.Router)
-                                                    </span>
-                                                </FluentNavLink>
-                                            }
-                                        </ChildContent>
-                                    </FluentNavGroup>
-                                }
-                            </FluentNavMenu>
-                        </FluentStack>
-                    </Panel1>
-                    <Panel2>
+                @* query parameters *@
+                @if (CurrentApi.QueryParameters?.Count > 0)
+                {
+                  <FluentStack Orientation="Orientation.Vertical">
+                    <FluentLabel Typo="Typography.H4" Color="Color.Warning">
+                      @Lang(Localizer.QueryParameters)
+                    </FluentLabel>
+                    <PropTableView Items="@CurrentApi.QueryParameters.AsQueryable()"
+                                   NameTitle="@Lang(Localizer.Name)"
+                                   TypeTitle="@Lang(Localizer.Type)"
+                                   RequiredTitle="@Lang(Localizer.Required)"
+                                   DescriptionTitle="@Lang(Localizer.Description)" />
+                  </FluentStack>
+                }
+                @* request body *@
+                @if (CurrentApi.RequestInfo is not null)
+                {
+                  <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
+                    <FluentLabel Typo="Typography.H4" Color="Color.Accent">
+                      Request Body
+                    </FluentLabel>
+                    <FluentStack>
+                      <FluentBadge Appearance="Appearance.Neutral">
+                        application/json
+                      </FluentBadge>
 
-                    </Panel2>
-                </FluentSplitter>
-            </FluentTab>
-            <FluentTab Label="Models" Id="models">
-                models
-            </FluentTab>
-        </FluentTabs>
-    </FluentStack>
+                      <FluentBadge Appearance="Appearance.Accent">
+                        @CurrentApi.RequestInfo.Name
+                      </FluentBadge>
+                    </FluentStack>
+
+                    @if (CurrentApi.RequestInfo.PropertyInfos?.Count > 0)
+                    {
+                      var properties = CurrentApi.RequestInfo.PropertyInfos.AsQueryable();
+                      <PropTableView Items="@properties"
+                                     NameTitle="@Lang(Localizer.Name)"
+                                     TypeTitle="@Lang(Localizer.Type)"
+                                     RequiredTitle="@Lang(Localizer.Required)"
+                                     DescriptionTitle="@Lang(Localizer.Description)" />
+                    }
+                  </FluentStack>
+                }
+                @* response body *@
+                @if (CurrentApi.ResponseInfo?.PropertyInfos?.Count > 0)
+                {
+                  <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
+                    <FluentLabel Typo="Typography.H4" Color="Color.Accent">
+                      Response Body
+                    </FluentLabel>
+                    <FluentStack>
+                      <FluentBadge Appearance="Appearance.Neutral">
+                        application/json
+                      </FluentBadge>
+                      <FluentBadge Appearance="Appearance.Accent">
+                        @CurrentApi.ResponseInfo.Name@(CurrentApi.ResponseInfo.IsList ? "[]" : "")
+                      </FluentBadge>
+                    </FluentStack>
+                    <PropTableView Items="@CurrentApi.ResponseInfo.PropertyInfos.AsQueryable()"
+                                   NameTitle="@Lang(Localizer.Name)"
+                                   TypeTitle="@Lang(Localizer.Type)"
+                                   RequiredTitle="@Lang(Localizer.Required)"
+                                   DescriptionTitle="@Lang(Localizer.Description)" />
+                  </FluentStack>
+                }
+                else
+                {
+                  <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
+                    <FluentLabel>application/json</FluentLabel>
+                    <FluentLabel Typo="Typography.Subject">
+                      @CurrentApi.ResponseInfo?.Name
+                    </FluentLabel>
+                  </FluentStack>
+                }
+              </FluentStack>
+            }
+          </Panel2>
+        </FluentSplitter>
+      </FluentTab>
+      <FluentTab Label="Models" Id="models">
+        <FluentSplitter Orientation="Orientation.Horizontal"
+                        Panel1Size="260px"
+                        Panel1MinSize="260px"
+                        Panel2MinSize="60%"
+                        BarSize="6"
+                        Class="w-100"
+                        Style="height:calc(100vh - 156px)">
+          <Panel1>
+            <FluentStack Orientation="Orientation.Vertical"
+                         Class="pe-1">
+              @if (CurrentDoc != null)
+              {
+                <FluentTextField TextFieldType="TextFieldType.Search"
+                                 @bind-Value="ModelSearchKeyword"
+                                 Class="w-100">
+                </FluentTextField>
+                <FluentNavMenu Class="w-100 list" Expanded="true">
+                  @foreach (var item in FilteredModelList)
+                  {
+                    var active = SelectedNav == item.Name ? "selected" : "";
+                    <FluentNavLink Class="@("p-0 " + active)"
+                                   Style="margin-left:-8px"
+                                   OnClick="() => SelectModel(item)">
+                      <FluentStack Orientation="Orientation.Horizontal"
+                                   HorizontalGap="4"
+                                   VerticalAlignment="VerticalAlignment.Center">
+                        <FluentLabel Typo="Typography.Subject">
+                          @item.Name
+                        </FluentLabel>
+                      </FluentStack>
+                    </FluentNavLink>
+                  }
+                </FluentNavMenu>
+              }
+            </FluentStack>
+          </Panel1>
+          <Panel2>
+            @if (CurrentModel is not null)
+            {
+              <FluentStack Orientation="Orientation.Vertical"
+                           VerticalGap="4"
+                           Class="p-1 ps-2">
+                <FluentLabel Typo="Typography.H3"
+                             Class="mb-1">
+                  @CurrentModel.Name @CurrentModel.Comment
+                </FluentLabel>
+                <FluentStack Orientation="Orientation.Horizontal"
+                             HorizontalGap="8"
+                             VerticalAlignment="VerticalAlignment.Center">
+                  <FluentLabel Typo="Typography.H4">
+                    @CurrentModel.Summary
+                  </FluentLabel>
+                </FluentStack>
+                @if (CurrentModel.PropertyInfos?.Count > 0)
+                {
+                  <PropTableView Items="@CurrentModel.PropertyInfos.AsQueryable()"
+                                 NameTitle="@Lang(Localizer.Name)"
+                                 TypeTitle="@Lang(Localizer.Type)"
+                                 RequiredTitle="@Lang(Localizer.Required)"
+                                 DescriptionTitle="@Lang(Localizer.Description)" />
+                }
+              </FluentStack>
+            }
+          </Panel2>
+        </FluentSplitter>
+      </FluentTab>
+    </FluentTabs>
+  </FluentStack>
 }

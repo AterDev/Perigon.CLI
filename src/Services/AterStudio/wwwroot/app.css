@@ -60,8 +60,26 @@ body {
     gap: 0.75rem !important;
 }
 
-.list .content-region {
+
+.list .fluent-nav-item {
+    margin: 0 !important;
+}
+
+.list .positioning-region .fluent-nav-link {
+    min-height: 40px !important;
+}
+
+.list .fluent-nav-item.selected .positioning-region {
+    background: var(--neutral-layer-2) !important;
+}
+
+.list .fluent-nav-group .content-region {
     margin-left: -4px !important;
+}
+
+.list .fluent-nav-text {
+    margin-left: 4px !important;
+    width: 98% !important;
 }
 
 .fluent-nav-icon {

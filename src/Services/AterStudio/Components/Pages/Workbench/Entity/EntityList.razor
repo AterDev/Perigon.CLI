@@ -107,11 +107,11 @@
                         <FluentStack Orientation="Orientation.Horizontal"
                                      VerticalAlignment="VerticalAlignment.Center">
                             <FluentButton Appearance="Appearance.Lightweight"
+                                          Title="@Lang(Localizer.ClickToView)"
                                           OnClick="@(_ => EditCodeAsync(context))">
                                 @context.Name
                             </FluentButton>
                         </FluentStack>
-
                     </TemplateColumn>
                     <PropertyColumn Property="@(c => c.Comment)"
                                     Title="@Lang(Localizer.Description)"
@@ -119,14 +119,19 @@
 
                     <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
                         <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
-                            <FluentButton Appearance="Appearance.Accent">
-                                @Lang(Localizer.GenerateDtos)
+                            <FluentButton Appearance="Appearance.Stealth"
+                                          IconStart="@(new Icons.Regular.Size24.CodeBlock())"
+                                          Title="@Lang(Localizer.GenerateDtos)">
+
                             </FluentButton>
-                            <FluentButton Appearance="Appearance.Accent">
-                                @Lang(Localizer.GenerateManagers)
+                            <FluentButton Appearance="Appearance.Stealth"
+                                          IconStart="@(new Icons.Regular.Size24.LinkSquare())"
+                                          Title="@Lang(Localizer.GenerateManagers)">
+
                             </FluentButton>
-                            <FluentButton Appearance="Appearance.Accent">
-                                @Lang(Localizer.GenerateApis)
+                            <FluentButton Appearance="Appearance.Stealth"
+                                          IconStart="@(new Icons.Regular.Size24.PlugConnected())"
+                                          Title="@Lang(Localizer.GenerateApis)">
                             </FluentButton>
                         </FluentStack>
                     </TemplateColumn>
@@ -142,16 +147,12 @@
               Style="--dialog-width:800px"
               Modal="true">
     <FluentDialogHeader ShowDismiss="true">
-        <FluentLabel Typo="Typography.PaneHeader">编辑实体<code>@entityName</code>文件</FluentLabel>
-        <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
-            编辑实体文件的代码内容
-        </FluentLabel>
+        <FluentLabel Typo="Typography.PaneHeader">@entityName</FluentLabel>
     </FluentDialogHeader>
     <StandaloneCodeEditor CssClass="vh-75" ConstructionOptions="SetCodeEditorOptions" />
     <FluentDialogFooter Style="text-align:end">
         <FluentStack HorizontalAlignment="HorizontalAlignment.End">
-            <FluentButton OnClick="_dialog.Hide">关闭</FluentButton>
-            <FluentButton Appearance="Appearance.Accent" OnClick="_dialog.Hide">保存</FluentButton>
+            <FluentButton OnClick="_dialog.Hide">@Lang(Localizer.Close)</FluentButton>
         </FluentStack>
     </FluentDialogFooter>
 </FluentDialog>
