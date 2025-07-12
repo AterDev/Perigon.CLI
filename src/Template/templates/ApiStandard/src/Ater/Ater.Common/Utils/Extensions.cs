@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Data;
 using Ater.Common.Models;
 using Ater.Common.Utils;
@@ -103,15 +104,14 @@ public static partial class Extensions
         Expression<Func<TSource, bool>> expression
     )
     {
-        if (field is not null)
+        return field switch
         {
-            if (field is string str && str.IsEmpty())
-            {
-                return source;
-            }
-            return source.Where(expression);
-        }
-        return source;
+            null => source,
+            string str when str.IsEmpty() => source,
+            ICollection collection when collection.Count == 0 => source,
+            Array array when array.Length == 0 => source,
+            _ => source.Where(expression),
+        };
     }
 
     public static IQueryable<TResult> ProjectTo<TResult>(this IQueryable source)
