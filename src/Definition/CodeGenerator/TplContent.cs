@@ -198,7 +198,7 @@ export class EnumTextPipeModule { }
 """
             : "";
         return $$"""
-            // 该文件自动生成，会被覆盖更新
+            // <auto-generate>
             import { {{(
                 IsNgModule ? "NgModule, " : ""
             )}}Injectable, Pipe, PipeTransform } from '@@angular/core';

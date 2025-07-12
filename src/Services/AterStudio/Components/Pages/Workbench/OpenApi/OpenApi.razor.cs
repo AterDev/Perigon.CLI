@@ -185,8 +185,6 @@ public partial class OpenApi
         if (model != null)
         {
             SelectedModel = model;
-
-            Console.WriteLine(ToJson(SelectedModel));
             modelInfoDialog?.Hide();
             modelInfoDialog?.Show();
         }
