@@ -29,6 +29,18 @@ body {
     background: var(--neutral-background-rest);
 }
 
+.bg-bottom-1 {
+    border-bottom: 1px solid var(--neutral-layer-1);
+}
+
+.bg-bottom-2 {
+    border-bottom: 1px solid var(--neutral-layer-2);
+}
+
+.bg-bottom-3 {
+    border-bottom: 1px solid var(--neutral-layer-3);
+}
+
 .cursor {
     cursor: pointer;
 }

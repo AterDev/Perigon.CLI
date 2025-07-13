@@ -347,4 +347,67 @@ export class EnumTextPipeModule { }
             @HostAddress = http://localhost:{port}
             """;
     }
+
+    /// <summary>
+    /// project file template for service
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
+    public static string ServiceProjectFileTpl(string version = ConstVal.NetVersion)
+    {
+        return $"""
+            <Project Sdk="Microsoft.NET.Sdk.Web">
+              <PropertyGroup>
+                <TargetFramework>{version}</TargetFramework>
+                <Nullable>enable</Nullable>
+                <GenerateDocumentationFile>True</GenerateDocumentationFile>
+                <NoWarn>1701;1702;1591</NoWarn>
+                <ImplicitUsings>enable</ImplicitUsings>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+              </ItemGroup>
+              <ItemGroup>
+                <ProjectReference
+                  Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false"
+                />
+                <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+              </ItemGroup>
+              <ItemGroup>
+                <Folder Include="Controllers\" />
+              </ItemGroup>
+            </Project>
+
+            """;
+    }
+
+    public static string ServiceLaunchSettingsTpl(string serviceName)
+    {
+        var httpPort = Random.Shared.Next(5000, 5300);
+        var httpsPort = Random.Shared.Next(7000, 7300);
+
+        return $$"""
+            {
+              "$schema": "http://json.schemastore.org/launchsettings.json",·
+              "profiles": {
+                "{{serviceName}}": {
+                  "commandName": "Project",
+                  "launchBrowser": true,
+                  "launchUrl": "openapi/admin.json",
+                  "applicationUrl": "http://localhost:{{httpPort}};https://localhost:{{httpsPort}}",
+                  "environmentVariables": {
+                    "ASPNETCORE_ENVIRONMENT": "Development"
+                  }
+                }
+              },
+              "Docker": {
+                "commandName": "Docker",
+                "publishAllPorts": true,
+                "useSSL": true
+              }
+            }
+            """;
+    }
 }

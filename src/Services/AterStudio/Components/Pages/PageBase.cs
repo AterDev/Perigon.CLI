@@ -46,15 +46,19 @@ public class PageBase : ComponentBase
     /// </summary>
     /// <param name="key1"></param>
     /// <param name="key2"></param>
-    /// <param name="separator"></param>
     /// <returns></returns>
-    public string Lang(string key1, string key2, string? separator = "")
+    public string Lang(string key1, string key2)
     {
+        // get current culture language
+        var culture = System.Globalization.CultureInfo.CurrentUICulture;
+        bool isEn = culture.TwoLetterISOLanguageName.Equals(
+            "en",
+            StringComparison.OrdinalIgnoreCase
+        );
+
         var value1 = Localizer.Get(key1);
         var value2 = Localizer.Get(key2);
-        return string.IsNullOrEmpty(separator)
-            ? $"{value1}{value2}"
-            : $"{value1}{separator}{value2}";
+        return isEn ? $"{value1} {value2}" : $"{value1}{value2}";
     }
 
     public string Lang(string key)

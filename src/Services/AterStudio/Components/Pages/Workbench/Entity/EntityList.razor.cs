@@ -14,10 +14,14 @@ public partial class EntityList
 
     [Parameter]
     public string? Id { get; set; }
+    bool isLoading = true;
+    bool IsProcessing { get; set; }
+    bool IsRefreshing { get; set; }
 
-    private FluentDataGrid<EntityFile> grid = default!;
+    bool IsCleaning { get; set; }
+
     private FluentDialog _dialog = default!;
-    private PaginationState pagination = new() { ItemsPerPage = 15 };
+    private PaginationState pagination = new() { ItemsPerPage = 20 };
     private StandaloneCodeEditor editor = default!;
 
     private IQueryable<EntityFile>? EntityFiles { get; set; }
@@ -36,9 +40,10 @@ public partial class EntityList
 
     protected override async Task OnInitializedAsync()
     {
-        GetEntityList();
+        await GetEntityListAsync();
         GetModules();
         GetServices();
+        isLoading = false;
         options = new StandaloneEditorConstructionOptions
         {
             Language = "csharp",
@@ -60,11 +65,36 @@ public partial class EntityList
         Services = SolutionManager.GetServices();
     }
 
-    private void GetEntityList()
+    private async Task GetEntityListAsync()
     {
+        IsRefreshing = true;
+        await Task.Yield();
         var entityFiles = EntityInfoManager.GetEntityFiles(ProjectContext.EntityPath!);
         EntityFiles = entityFiles.AsQueryable();
         FilteredEntityFiles = EntityFiles;
+        IsRefreshing = false;
+    }
+
+    private async Task CleanSolutionAsync()
+    {
+        IsCleaning = true;
+        await Task.Yield();
+        var result = SolutionManager.CleanSolution();
+        if (!result)
+        {
+            ToastService.ShowError(SolutionManager.ErrorMsg);
+        }
+        else
+        {
+            ToastService.ShowSuccess(Lang(Localizer.Clean, Localizer.Success));
+        }
+        IsCleaning = false;
+    }
+
+    private void SelectModel(string? module = null)
+    {
+        SelectedModule = module;
+        FilterEntityFiles();
     }
 
     private void FilterEntityFiles()
@@ -85,6 +115,60 @@ public partial class EntityList
     private void GetModules()
     {
         Modules = SolutionManager.GetModules();
+    }
+
+    private async Task OpenAddModuleDialogAsync()
+    {
+        var parameters = new DialogParameters { Modal = false, Width = "320px" };
+        var dialog = await DialogService.ShowDialogAsync<AddModuleDialog>(parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            ToastService.ShowSuccess(Lang(Localizer.Add, Localizer.Success));
+            GetModules();
+        }
+    }
+
+    private async Task OpenServicesDialog()
+    {
+        var parameters = new DialogParameters { Modal = false, Width = "500px" };
+        var dialog = await DialogService.ShowDialogAsync<ServicesDialog>(parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            GetServices();
+        }
+    }
+
+    private async Task DeleteModuleAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(SelectedModule))
+        {
+            var dialog = await DialogService.ShowWarningAsync(
+                Lang(Localizer.ConfirmDeleteMessage),
+                Lang(Localizer.Delete, Localizer.Modules),
+                Lang(Localizer.Confirm)
+            );
+
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                var res = SolutionManager.DeleteModule(SelectedModule);
+                if (res)
+                {
+                    ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
+                    GetModules();
+                }
+                else
+                {
+                    ToastService.ShowError(SolutionManager.ErrorMsg);
+                }
+            }
+        }
+        else
+        {
+            ToastService.ShowError(Lang(Localizer.MustSelectOption));
+        }
     }
 
     private async Task EditCodeAsync(EntityFile entity)

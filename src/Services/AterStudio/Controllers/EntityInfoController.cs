@@ -8,7 +8,7 @@ public class EntityInfoController(
     EntityInfoManager manager,
     IProjectContext project,
     ILogger<EntityInfoController> logger
-    ) : BaseController<EntityInfoManager>(localizer, manager, project, logger)
+) : BaseController<EntityInfoManager>(localizer, manager, project, logger)
 {
     /// <summary>
     /// 实体列表
@@ -18,7 +18,6 @@ public class EntityInfoController(
     [HttpGet("{id}")]
     public ActionResult<List<EntityFile>> List([FromRoute] Guid id)
     {
-
         return _project.Project == null
             ? NotFound("不存在的项目")
             : _manager.GetEntityFiles(_project.EntityPath!);
@@ -33,19 +32,8 @@ public class EntityInfoController(
     public ActionResult<List<EntityFile>> GetDtos(string entityFilePath)
     {
         return !System.IO.File.Exists(entityFilePath)
-            ? NotFound("不存在的文件") : _manager.GetDtos(entityFilePath);
-    }
-
-    /// <summary>
-    /// 清理解决方案
-    /// </summary>
-    /// <returns></returns>
-    [HttpDelete]
-    public string CleanSolution()
-    {
-        bool res = _manager.CleanSolution(out string? errorMsg);
-        return res ? "清理成功" : errorMsg;
-
+            ? NotFound("不存在的文件")
+            : _manager.GetDtos(entityFilePath);
     }
 
     /// <summary>
@@ -60,7 +48,6 @@ public class EntityInfoController(
     {
         return _manager.GetFileContent(entityName, isManager, moduleName);
     }
-
 
     /// <summary>
     /// 更新内容

@@ -1,5 +1,7 @@
+using System.ComponentModel;
 
-namespace StudioMod.Models;
+namespace Share.Models;
+
 /// <summary>
 /// 项目信息
 /// </summary>
@@ -18,29 +20,40 @@ public enum ProjectType
     /// </summary>
     [Description("web服务")]
     Web,
+
     /// <summary>
     /// 控制台应用
     /// </summary>
     [Description("控制台应用")]
     Console,
+
     /// <summary>
     /// 类库
     /// </summary>
     [Description("类库")]
     Lib,
+
     /// <summary>
     /// 模块
     /// </summary>
     [Description("模块")]
     Module,
+
     /// <summary>
     /// 接口服务
     /// </summary>
     [Description("接口服务")]
     WebAPI,
+
     /// <summary>
     /// gPRC服务
     /// </summary>
     [Description("gPRC服务")]
-    GRPC
+    GRPC,
+
+    /// <summary>
+    /// Worker服务
+    /// </summary>
+    [Description("Worker服务")]
+    Worker,
 }

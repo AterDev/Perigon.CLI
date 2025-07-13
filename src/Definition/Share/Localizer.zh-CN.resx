@@ -265,7 +265,7 @@
     <value>保存</value>
   </data>
   <data name="Setting" xml:space="preserve">
-    <value>设置</value>
+    <value>`</value>
   </data>
   <data name="Success" xml:space="preserve">
     <value>成功</value>
@@ -395,5 +395,17 @@
   </data>
   <data name="Validate" xml:space="preserve">
     <value>验证</value>
+  </data>
+  <data name="Clean" xml:space="preserve">
+    <value>清理</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>服务</value>
+  </data>
+  <data name="WebService" xml:space="preserve">
+    <value>Web服务</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>路径</value>
   </data>
 </root>

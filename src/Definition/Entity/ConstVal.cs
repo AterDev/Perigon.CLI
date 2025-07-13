@@ -63,6 +63,8 @@ public static class ConstVal
     public const string TemplateZip = "template.zip";
     public const string StudioZip = "studio.zip";
     public const string SyncJson = "sync.json";
+    public const string AppSettingJson = "appsettings.json";
+    public const string AppSettingDevelopmentJson = "appsettings.Development.json";
 
     public const string SolutionExtension = ".sln";
     public const string SolutionXMLExtension = ".slnx";
@@ -73,8 +75,6 @@ public static class ConstVal
     public const string ExtensionLibName = "Ater.Web.Extension";
 
     public const string GlobalUsingsFile = "GlobalUsings.cs";
-    public const string ServiceExtensionsFile = "ServiceCollectionExtensions.cs";
-    public const string ManagerServiceExtensionsFile = "AppManagerServiceExtensions.cs";
 }
 
 /// <summary>

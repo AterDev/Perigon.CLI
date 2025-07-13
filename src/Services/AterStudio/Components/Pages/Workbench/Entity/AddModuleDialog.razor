@@ -1,0 +1,101 @@
+@using System.ComponentModel.DataAnnotations
+@inherits PageBase
+@implements IDialogContentComponent
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">@Lang(Localizer.Add, Localizer.Modules)</FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.Name"
+                         Label="@Lang(Localizer.Name)"
+                         Placeholder="@Lang(Localizer.Modules, Localizer.Name)"
+                         Class="w-100"
+                         AutoComplete="off"
+                         Required="true" />
+        <ValidationMessage For="@(() => Model.Name)" />
+      </FluentStack>
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                Disabled="!formValid"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Add)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  class AddModuleModel
+  {
+    [Required]
+    [MaxLength(20)]
+    public string? Name { get; set; }
+  }
+
+
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+  EditContext? editContext;
+
+  [Inject]
+  SolutionManager SolutionManager { get; set; } = null!;
+
+  AddModuleModel Model { get; set; } = new();
+  bool formValid { get; set; }
+
+  protected override void OnInitialized()
+  {
+    editContext = new EditContext(Model);
+    editContext.OnFieldChanged += HandleFieldChanged;
+  }
+
+  private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    if (editContext is not null)
+    {
+      formValid = editContext.Validate();
+      StateHasChanged();
+    }
+  }
+
+  public void Dispose()
+  {
+    if (editContext is not null)
+    {
+      editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+  }
+
+  private async Task SaveAsync()
+  {
+    if (!editContext!.Validate())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+    if (await SolutionManager.CreateModuleAsync(Model.Name!))
+    {
+      await Dialog.CloseAsync(Model);
+    }
+    else
+    {
+      ToastService.ShowError(Lang(SolutionManager.ErrorMsg));
+    }
+
+  }
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

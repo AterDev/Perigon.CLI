@@ -4,7 +4,7 @@ using AterStudio.Worker;
 using Mapster;
 using Share.Services;
 
-TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
+//TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();

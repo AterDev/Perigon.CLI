@@ -126,39 +126,9 @@ public class SolutionManager(
     /// 获取服务列表
     /// </summary>
     /// <returns></returns>
-    public List<SubProjectInfo> GetServices()
+    public List<SubProjectInfo> GetServices(bool onlyWeb = true)
     {
-        List<SubProjectInfo> res = [];
-        if (!Directory.Exists(_projectContext.ServicesPath!))
-        {
-            return [];
-        }
-        var projectFiles =
-            Directory
-                .GetFiles(
-                    _projectContext.ServicesPath!,
-                    $"*{ConstVal.CSharpProjectExtension}",
-                    SearchOption.AllDirectories
-                )
-                .ToList() ?? [];
-
-        projectFiles.ForEach(path =>
-        {
-            // 读取项目文件前三行内容
-            string? content = null;
-            content = string.Join(Environment.NewLine, File.ReadLines(path).Take(3));
-            if (content != null && content.Contains("<Project Sdk=\"Microsoft.NET.Sdk.Web\">"))
-            {
-                SubProjectInfo moduleInfo = new()
-                {
-                    Name = Path.GetFileNameWithoutExtension(path),
-                    Path = path,
-                    ProjectType = ProjectType.WebAPI,
-                };
-                res.Add(moduleInfo);
-            }
-        });
-        return res;
+        return _solution.GetServices(onlyWeb);
     }
 
     /// <summary>
@@ -176,6 +146,64 @@ public class SolutionManager(
         catch (Exception ex)
         {
             ErrorMsg = ex.Message;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 移除模块
+    /// </summary>
+    /// <param name="moduleName"></param>
+    /// <returns></returns>
+    public bool DeleteModule(string moduleName)
+    {
+        try
+        {
+            _solution.DeleteModule(moduleName);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ErrorMsg = ex.Message;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 清理解决方案
+    /// </summary>
+    /// <returns></returns>
+    public bool CleanSolution()
+    {
+        try
+        {
+            if (_solution.CleanSolution(out string error))
+            {
+                return true;
+            }
+            else
+            {
+                ErrorMsg = error;
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMsg = ex.Message;
+            return false;
+        }
+    }
+
+    public async Task<bool> CreateServiceAsync(string serviceName)
+    {
+        var (res, error) = await _solution.CreateServiceAsync(serviceName);
+        if (res)
+        {
+            return true;
+        }
+        else
+        {
+            ErrorMsg = error ?? string.Empty;
             return false;
         }
     }

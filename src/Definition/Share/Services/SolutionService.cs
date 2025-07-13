@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
 using Entity;
@@ -114,26 +115,66 @@ public class SolutionService(
         }
     }
 
-    public void CleanModule(string moduleName)
+    /// <summary>
+    /// clean solution
+    /// </summary>
+    /// <param name="errorMsg"></param>
+    /// <returns></returns>
+    public bool CleanSolution(out string errorMsg)
     {
-        var entityPath = Path.Combine(_projectContext.EntityPath!, moduleName);
-        var entityFrameworkPath = _projectContext.EntityFrameworkPath!;
+        errorMsg = string.Empty;
+        string?[] dirPaths =
+        [
+            _projectContext.ServicesPath,
+            _projectContext.EntityPath,
+            _projectContext.EntityFrameworkPath,
+            _projectContext.CommonModPath,
+            _projectContext.SharePath,
+            _projectContext.ModulesPath,
+        ];
 
-        if (Directory.Exists(entityPath))
+        string[] dirs = [];
+        foreach (var path in dirPaths.Where(p => p.NotEmpty()))
         {
-            Directory.Delete(entityPath, true);
-            // 从解决方案移除项目
-            var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
-            var moduleProjectFilePath = Path.Combine(
-                modulePath,
-                $"{moduleName}{ConstVal.CSharpProjectExtension}"
-            );
-            ProcessHelper.RunCommand(
-                "dotnet",
-                $"sln {_projectContext.SolutionPath} remove {moduleProjectFilePath}",
-                out string error
-            );
-            Directory.Delete(modulePath, true);
+            if (!Directory.Exists(path))
+            {
+                continue;
+            }
+            dirs = dirs.Union(Directory.GetDirectories(path, "bin", SearchOption.TopDirectoryOnly))
+                .Union(Directory.GetDirectories(path, "obj", SearchOption.TopDirectoryOnly))
+                .ToArray();
+        }
+        try
+        {
+            foreach (string dir in dirs)
+            {
+                Directory.Delete(dir, true);
+            }
+            string? apiFiePath = Directory
+                .GetFiles(_projectContext.ApiPath!, "*.csproj", SearchOption.TopDirectoryOnly)
+                .FirstOrDefault();
+
+            if (apiFiePath != null)
+            {
+                Console.WriteLine($"⛏️ build project:{apiFiePath}");
+                Process process = Process.Start("dotnet", $"build {apiFiePath}");
+                process.WaitForExit();
+                // if process has error message
+                if (process.ExitCode != 0)
+                {
+                    errorMsg = "project build failed！";
+                    return false;
+                }
+                return true;
+            }
+            errorMsg = $"can't find {apiFiePath}, please build manually!";
+            return false;
+        }
+        catch (Exception ex)
+        {
+            errorMsg = "project clean failed, please try to close the occupied program and retry.";
+            Console.WriteLine($"❌ Clean solution occur error:{ex.Message}");
+            return false;
         }
     }
 
@@ -271,48 +312,49 @@ public class SolutionService(
     /// 使用 dotnet sln add
     /// </summary>
     /// <param name="projectPath"></param>
-    private void UpdateSolutionFile(string projectPath)
+    /// <param name="isRemove">remove</param>
+    private void UpdateSolutionFile(string projectPath, bool isRemove = false)
     {
         FileInfo? slnFile = AssemblyHelper.GetSlnFile(
             new DirectoryInfo(_projectContext.SolutionPath!)
         );
         if (slnFile != null)
         {
-            // 添加到解决方案
-            if (
-                !ProcessHelper.RunCommand(
-                    "dotnet",
-                    $"sln {slnFile.FullName} add {projectPath}",
-                    out string error
-                )
-            )
+            if (isRemove)
             {
-                _logger.LogInformation("add project ➡️ solution failed:" + error);
+                // 从解决方案中移除
+                if (
+                    !ProcessHelper.RunCommand(
+                        "dotnet",
+                        $"sln {slnFile.FullName} remove {projectPath}",
+                        out string error
+                    )
+                )
+                {
+                    _logger.LogInformation("remove project ➡️ solution failed:" + error);
+                }
+                else
+                {
+                    _logger.LogInformation("✅ remove project ➡️ solution!");
+                }
             }
             else
             {
-                _logger.LogInformation("✅ add project ➡️ solution!");
-            }
-        }
-        var csprojFiles = Directory
-            .GetFiles(
-                _projectContext.ApiPath!,
-                $"*{ConstVal.CSharpProjectExtension}",
-                SearchOption.TopDirectoryOnly
-            )
-            .FirstOrDefault();
-        if (File.Exists(csprojFiles))
-        {
-            // 添加到主服务
-            if (
-                !ProcessHelper.RunCommand(
-                    "dotnet",
-                    $"add {csprojFiles} reference {projectPath}",
-                    out string error
+                // 添加到解决方案
+                if (
+                    !ProcessHelper.RunCommand(
+                        "dotnet",
+                        $"sln {slnFile.FullName} add {projectPath}",
+                        out string error
+                    )
                 )
-            )
-            {
-                _logger.LogInformation("add project reference failed:" + error);
+                {
+                    _logger.LogInformation("add project ➡️ solution failed:" + error);
+                }
+                else
+                {
+                    _logger.LogInformation("✅ add project ➡️ solution!");
+                }
             }
         }
     }
@@ -384,6 +426,147 @@ public class SolutionService(
     }
 
     /// <summary>
+    /// 实现创建服务的逻辑
+    /// </summary>
+    /// <param name="serviceName"></param>
+    /// <returns></returns>
+    public async Task<(bool, string? errorMsg)> CreateServiceAsync(string serviceName)
+    {
+        var existService = GetServices().FirstOrDefault();
+
+        var serviceDir = Path.Combine(_projectContext.ServicesPath!, serviceName);
+        if (Directory.Exists(serviceDir))
+        {
+            return (false, "exist service");
+        }
+        else
+        {
+            Directory.CreateDirectory(serviceDir);
+            var csprojContent = TplContent.ServiceProjectFileTpl(ConstVal.NetVersion);
+            var csprojPath = Path.Combine(
+                serviceDir,
+                $"{serviceName}{ConstVal.CSharpProjectExtension}"
+            );
+
+            var programContent = TplContent.ServiceProgramTpl();
+            var programPath = Path.Combine(serviceDir, "Program.cs");
+
+            var globalUsingsContent = TplContent.ServiceGlobalUsingsTpl(serviceName);
+            var globalUsingsPath = Path.Combine(serviceDir, ConstVal.GlobalUsingsFile);
+
+            var launchSettingsContent = TplContent.ServiceLaunchSettingsTpl(serviceName);
+            var launchSettingsPath = Path.Combine(serviceDir, "Propeties", "launchSettings.json");
+
+            try
+            {
+                await AssemblyHelper.GenerateFileAsync(csprojPath, csprojContent);
+                await AssemblyHelper.GenerateFileAsync(programPath, programContent);
+                await AssemblyHelper.GenerateFileAsync(globalUsingsPath, globalUsingsContent);
+                await AssemblyHelper.GenerateFileAsync(launchSettingsPath, launchSettingsContent);
+
+                if (existService != null)
+                {
+                    var existAppSettingsPath = Path.Combine(
+                        Path.GetDirectoryName(existService.Path)!,
+                        ConstVal.AppSettingJson
+                    );
+                    var appSettingsPath = Path.Combine(serviceDir, ConstVal.AppSettingJson);
+                    var appSettingsContent = "{}";
+                    if (File.Exists(existAppSettingsPath))
+                    {
+                        appSettingsContent = await File.ReadAllTextAsync(existAppSettingsPath);
+                    }
+                    await AssemblyHelper.GenerateFileAsync(appSettingsPath, appSettingsContent);
+
+                    // appsetings.development.json
+                    var existAppSettingsDevPath = Path.Combine(
+                        Path.GetDirectoryName(existService.Path)!,
+                        ConstVal.AppSettingDevelopmentJson
+                    );
+                    var appSettingsDevPath = Path.Combine(
+                        serviceDir,
+                        ConstVal.AppSettingDevelopmentJson
+                    );
+                    var appSettingsDevContent = "{}";
+                    if (File.Exists(existAppSettingsDevPath))
+                    {
+                        appSettingsDevContent = await File.ReadAllTextAsync(
+                            existAppSettingsDevPath
+                        );
+                    }
+                    await AssemblyHelper.GenerateFileAsync(
+                        appSettingsDevPath,
+                        appSettingsDevContent
+                    );
+                }
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+    }
+
+    public List<SubProjectInfo> GetServices(bool onlyWeb = true)
+    {
+        List<SubProjectInfo> res = [];
+        if (!Directory.Exists(_projectContext.ServicesPath!))
+        {
+            return [];
+        }
+        var projectFiles =
+            Directory
+                .GetFiles(
+                    _projectContext.ServicesPath!,
+                    $"*{ConstVal.CSharpProjectExtension}",
+                    SearchOption.AllDirectories
+                )
+                .ToList() ?? [];
+
+        projectFiles.ForEach(path =>
+        {
+            // 读取项目文件前三行内容
+            string? content = null;
+            content = string.Join(Environment.NewLine, File.ReadLines(path).Take(10));
+            if (content != null)
+            {
+                SubProjectInfo moduleInfo = new()
+                {
+                    Name = Path.GetFileNameWithoutExtension(path),
+                    Path = path,
+                    ProjectType = ProjectType.WebAPI,
+                };
+                if (content.Contains("<Project Sdk=\"Microsoft.NET.Sdk.Web\">"))
+                {
+                    moduleInfo.ProjectType = ProjectType.WebAPI;
+                }
+                else if (content.Contains("<Project Sdk=\"Microsoft.NET.Sdk.Worker\">"))
+                {
+                    moduleInfo.ProjectType = ProjectType.Worker;
+                }
+                else if (content.Contains("<Project Sdk=\"Microsoft.NET.Sdk\">"))
+                {
+                    moduleInfo.ProjectType = ProjectType.Lib;
+                    if (content.Contains("<OutputType>Exe</OutputType>"))
+                    {
+                        moduleInfo.ProjectType = ProjectType.Console;
+                    }
+                }
+                res.Add(moduleInfo);
+            }
+        });
+        if (onlyWeb)
+        {
+            return res.Where(m =>
+                    m.ProjectType == ProjectType.WebAPI || m.ProjectType == ProjectType.Web
+                )
+                .ToList();
+        }
+        return res;
+    }
+
+    /// <summary>
     /// 复制模块文件
     /// </summary>
     /// <param name="sourceDir"></param>`
@@ -418,6 +601,21 @@ public class SolutionService(
         }
     }
 
-    // TODO: 实现创建服务的逻辑
-    private static void CreateServiceAsync(string serviceName) { }
+    /// <summary>
+    /// delete module
+    /// </summary>
+    /// <param name="moduleName"></param>
+    public void DeleteModule(string moduleName)
+    {
+        string moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
+        var modulePath = Path.Combine(moduleDir, moduleName);
+        if (Directory.Exists(modulePath))
+        {
+            Directory.Delete(modulePath, true);
+        }
+        UpdateSolutionFile(
+            Path.Combine(modulePath, $"{moduleName}{ConstVal.CSharpProjectExtension}"),
+            true
+        );
+    }
 }

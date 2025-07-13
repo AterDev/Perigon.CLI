@@ -1,0 +1,87 @@
+@inherits PageBase
+@implements IDialogContentComponent
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">@Lang(Localizer.Solution, Localizer.Service)</FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+    <FluentStack Orientation="Orientation.Horizontal"
+                 HorizontalGap="8"
+                 Class="p-1">
+      <FluentTextField @bind-Value="ServiceName"
+                       Class="w-100"
+                       Required="true"
+                       Placeholder="@Lang(Localizer.WebService, Localizer.Name)" />
+      <FluentButton Appearance="Appearance.Accent"
+                    OnClick="AddServiceAsync"
+                    Title="@Lang(Localizer.Add, Localizer.WebService)">
+        @Lang(Localizer.Add)
+      </FluentButton>
+    </FluentStack>
+
+    <FluentDataGrid Items="@Services.AsQueryable()"
+                    Class="w-100"
+                    RowSize="DataGridRowSize.Medium"
+                    AutoFit="true">
+      <PropertyColumn Property="@(s => s.Name)" Title="@Lang(Localizer.Name)" />
+      <PropertyColumn Property="@(s => s.Path)" Title="@Lang(Localizer.Path)" />
+      <TemplateColumn Title="@Lang(Localizer.Type)">
+        @context.ProjectType.ToString()
+      </TemplateColumn>
+    </FluentDataGrid>
+  </FluentStack>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+  [Inject]
+  SolutionManager SolutionManager { get; set; } = null!;
+
+  private string ServiceName { get; set; } = string.Empty;
+  private List<Share.Models.SubProjectInfo> Services { get; set; } = new();
+
+  protected override void OnInitialized()
+  {
+    GetServices();
+    base.OnInitialized();
+  }
+
+
+  private void GetServices()
+  {
+    Services = SolutionManager.GetServices(onlyWeb: false);
+  }
+
+  private async Task AddServiceAsync()
+  {
+    if (string.IsNullOrWhiteSpace(ServiceName))
+    {
+      ToastService.ShowError(Lang(nameof(ServiceName), Localizer.Required));
+      return;
+    }
+    var res = await SolutionManager.CreateServiceAsync(ServiceName);
+    if (res)
+    {
+      ToastService.ShowSuccess(Lang(Localizer.Add, Localizer.Success));
+    }
+    else
+    {
+      ToastService.ShowError(SolutionManager.ErrorMsg);
+    }
+    GetServices();
+    ServiceName = string.Empty;
+  }
+
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

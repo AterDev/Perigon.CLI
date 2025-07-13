@@ -396,4 +396,16 @@
   <data name="Validate" xml:space="preserve">
     <value>Validate</value>
   </data>
+  <data name="Clean" xml:space="preserve">
+    <value>Clean</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
+  <data name="WebService" xml:space="preserve">
+    <value>WebService</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Path</value>
+  </data>
 </root>
