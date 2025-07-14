@@ -62,7 +62,7 @@ public partial class EntityList
 
     private void GetServices()
     {
-        Services = SolutionManager.GetServices();
+        Services = SolutionManager.GetServices(false);
     }
 
     private async Task GetEntityListAsync()
@@ -131,12 +131,32 @@ public partial class EntityList
 
     private async Task OpenServicesDialog()
     {
-        var parameters = new DialogParameters { Modal = false, Width = "500px" };
+        var parameters = new DialogParameters { Modal = false, Width = "560px" };
         var dialog = await DialogService.ShowDialogAsync<ServicesDialog>(parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
             GetServices();
+        }
+    }
+
+    private async Task GenerateDtoAsync(EntityFile entity, CommandType commandType)
+    {
+        var parameters = new DialogParameters { Modal = true, Width = "400px" };
+
+        var data = new GenerateDialogData
+        {
+            CommandType = commandType,
+            EntityPaths = [entity.FullName],
+        };
+
+        var dialog = await DialogService.ShowDialogAsync<GenerateDialog>(data, parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            // TODO: Handle the result if needed
+
+            ToastService.ShowSuccess(Lang(Localizer.Generate, Localizer.Success));
         }
     }
 

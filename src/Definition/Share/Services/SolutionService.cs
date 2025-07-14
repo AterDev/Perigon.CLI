@@ -435,9 +435,13 @@ public class SolutionService(
         var existService = GetServices().FirstOrDefault();
 
         var serviceDir = Path.Combine(_projectContext.ServicesPath!, serviceName);
-        if (Directory.Exists(serviceDir))
+        var serviceFilePath = Path.Combine(
+            serviceDir,
+            $"{serviceName}{ConstVal.CSharpProjectExtension}"
+        );
+        if (File.Exists(serviceFilePath))
         {
-            return (false, "exist service");
+            return (false, "💀 Exist service!");
         }
         else
         {
@@ -478,7 +482,7 @@ public class SolutionService(
                     }
                     await AssemblyHelper.GenerateFileAsync(appSettingsPath, appSettingsContent);
 
-                    // appsetings.development.json
+                    // appsettings.Development.json
                     var existAppSettingsDevPath = Path.Combine(
                         Path.GetDirectoryName(existService.Path)!,
                         ConstVal.AppSettingDevelopmentJson

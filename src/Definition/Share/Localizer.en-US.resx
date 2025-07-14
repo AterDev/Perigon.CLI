@@ -408,4 +408,7 @@
   <data name="Path" xml:space="preserve">
     <value>Path</value>
   </data>
+  <data name="Generate" xml:space="preserve">
+    <value>Generate</value>
+  </data>
 </root>

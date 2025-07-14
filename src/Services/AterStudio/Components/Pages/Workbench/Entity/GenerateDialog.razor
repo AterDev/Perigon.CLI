@@ -1,0 +1,40 @@
+@inherits PageBase
+@implements IDialogContentComponent<GenerateDialogData>
+
+<FluentDialogHeader>
+  <FluentLabel Typo="Typography.PaneHeader">@Lang(Localizer.Generate) @Content.CommandType.ToString() </FluentLabel>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+  <FluentStack Orientation="Orientation.Vertical">
+    @if (Content.CommandType == CommandType.API)
+    {
+      <FluentSelect TOption="SubProjectInfo"
+                    Label="Select Api Service"
+                    Items="@Services"
+                    Id="services"
+                    Height="200px"
+                    Width="200px"
+                    OptionValue="@(p => p.Path)"
+                    OptionText="@(p => p.Name)"
+                    Multiple="true"
+                    @bind-Value="@SelectedValue"
+                    @bind-SelectedOptions="SelectedServices" />
+    }
+
+    <FluentSwitch @bind-Value=GenerateDto.Force Label="Override" />
+  </FluentStack>
+</FluentDialogBody>
+<FluentDialogFooter>
+
+  <FluentButton Appearance="Appearance.Accent" OnClick="GenerateAsync">
+    @Lang(Localizer.Generate)
+  </FluentButton>
+  <FluentButton OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+
+</FluentDialogFooter>
+
+
+

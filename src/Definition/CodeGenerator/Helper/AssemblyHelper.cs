@@ -21,7 +21,9 @@ public class AssemblyHelper
         try
         {
             FileInfo? file = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")?.FirstOrDefault();
-            return root == null ? file : file == null && dir != root ? FindProjectFile(dir.Parent!, root) : file;
+            return root == null ? file
+                : file == null && dir != root ? FindProjectFile(dir.Parent!, root)
+                : file;
         }
         catch (DirectoryNotFoundException)
         {
@@ -39,7 +41,11 @@ public class AssemblyHelper
     public static string? FindFileInProject(string projectFilePath, string searchFileName)
     {
         DirectoryInfo dir = new(Path.GetDirectoryName(projectFilePath)!);
-        string[] files = Directory.GetFiles(dir.FullName, searchFileName, SearchOption.AllDirectories);
+        string[] files = Directory.GetFiles(
+            dir.FullName,
+            searchFileName,
+            SearchOption.AllDirectories
+        );
         return files.Any() ? files[0] : default;
     }
 
@@ -77,9 +83,8 @@ public class AssemblyHelper
         XElement xml = XElement.Load(file.FullName);
         var sdk = xml.Attribute("Sdk")?.Value;
         // TODO:仅判断是否为web
-        return sdk == null ? null :
-            sdk.EndsWith("Sdk.Web")
-            ? "web"
+        return sdk == null ? null
+            : sdk.EndsWith("Sdk.Web") ? "web"
             : "console";
     }
 
@@ -132,7 +137,8 @@ public class AssemblyHelper
             FileInfo? file = dir.GetFiles("*.sln")?.FirstOrDefault();
             file ??= dir.GetFiles("*.slnx")?.FirstOrDefault();
             return root == null ? file
-                : file == null && dir != root ? GetSlnFile(dir.Parent!, root) : file;
+                : file == null && dir != root ? GetSlnFile(dir.Parent!, root)
+                : file;
         }
         catch (Exception)
         {
@@ -150,9 +156,10 @@ public class AssemblyHelper
         try
         {
             DirectoryInfo? directory = dir.GetDirectories(".git").FirstOrDefault();
-            return directory != null
-                ? directory.Parent
-                : directory == null && dir.Root != dir && dir.Parent != null ? GetGitRoot(dir.Parent) : default;
+            return directory != null ? directory.Parent
+                : directory == null && dir.Root != dir && dir.Parent != null
+                    ? GetGitRoot(dir.Parent)
+                : default;
         }
         catch (Exception)
         {
@@ -166,12 +173,21 @@ public class AssemblyHelper
     /// <returns></returns>
     public static string GetCurrentToolVersion()
     {
-        string? version = Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        string? version = Assembly
+            .GetEntryAssembly()!
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
         return version != null
             ? version.Split('+')[0]
-            : Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
-            ?? Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
-            ?? string.Empty;
+            : Assembly
+                .GetEntryAssembly()!
+                .GetCustomAttribute<AssemblyFileVersionAttribute>()
+                ?.Version
+                ?? Assembly
+                    .GetEntryAssembly()!
+                    .GetCustomAttribute<AssemblyVersionAttribute>()
+                    ?.Version
+                ?? string.Empty;
     }
 
     /// <summary>
@@ -197,11 +213,13 @@ public class AssemblyHelper
     /// <returns></returns>
     public static List<XmlCommentMember>? GetXmlMembers(DirectoryInfo dir)
     {
-        FileInfo? projectFile = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")?.FirstOrDefault();
+        FileInfo? projectFile = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")
+            ?.FirstOrDefault();
         if (projectFile != null)
         {
             string assemblyName = GetAssemblyName(projectFile);
-            FileInfo? xmlFile = dir.GetFiles($"{assemblyName}.xml", SearchOption.AllDirectories).FirstOrDefault();
+            FileInfo? xmlFile = dir.GetFiles($"{assemblyName}.xml", SearchOption.AllDirectories)
+                .FirstOrDefault();
             if (xmlFile != null)
             {
                 XElement xml = XElement.Load(xmlFile.FullName);
@@ -209,9 +227,9 @@ public class AssemblyHelper
                     .Select(s => new XmlCommentMember
                     {
                         FullName = s.Attribute("name")?.Value ?? "",
-                        Summary = s.Element("summary")?.Value
-
-                    }).ToList();
+                        Summary = s.Element("summary")?.Value,
+                    })
+                    .ToList();
                 return members;
             }
         }
@@ -229,7 +247,7 @@ public class AssemblyHelper
     }
 
     /// <summary>
-    /// get csproject targetFramework 
+    /// get csproject targetFramework
     /// </summary>
     /// <param name="projectPath"></param>
     /// <returns></returns>
@@ -248,7 +266,12 @@ public class AssemblyHelper
     /// <param name="content"></param>
     /// <param name="cover"></param>
     /// <returns></returns>
-    public static async Task GenerateFileAsync(string dir, string fileName, string content, bool cover = false)
+    public static async Task GenerateFileAsync(
+        string dir,
+        string fileName,
+        string content,
+        bool cover = false
+    )
     {
         if (!Directory.Exists(dir))
         {
@@ -269,9 +292,14 @@ public class AssemblyHelper
     public static async Task GenerateFileAsync(string filePath, string content, bool cover = false)
     {
         string fileName = Path.GetFileName(filePath);
+        var dir = Path.GetDirectoryName(filePath);
+        if (dir != null && !Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
         if (!File.Exists(filePath) || cover)
         {
-            await File.WriteAllTextAsync(filePath, content);
+            await File.WriteAllTextAsync(filePath, content, Encoding.UTF8);
             if (cover)
             {
                 Console.WriteLine(@$"  ℹ️ update file {fileName}.");
@@ -280,7 +308,6 @@ public class AssemblyHelper
             {
                 Console.WriteLine(@$"  ✅ generate file {fileName}.");
             }
-
         }
         else
         {
@@ -306,7 +333,8 @@ public class AssemblyHelper
             version,
             "tools",
             ConstVal.NetVersion,
-            "any");
+            "any"
+        );
     }
 
     /// <summary>
@@ -316,16 +344,21 @@ public class AssemblyHelper
     /// <returns></returns>
     public static SolutionType GetSolutionType(string? filePath)
     {
-        if (filePath.IsEmpty()) return SolutionType.Else;
+        if (filePath.IsEmpty())
+            return SolutionType.Else;
         string fileName = Path.GetFileName(filePath);
         string fileExt = Path.GetExtension(filePath);
-        return (SolutionType)(fileName == ConstVal.NodeProjectFile
-            ? SolutionType.Node
-            : fileExt switch
-            {
-                ConstVal.SolutionExtension or ConstVal.CSharpProjectExtension or ConstVal.SolutionXMLExtension => (SolutionType?)SolutionType.DotNet,
-                _ => (SolutionType?)SolutionType.Else,
-            });
+        return (SolutionType)(
+            fileName == ConstVal.NodeProjectFile
+                ? SolutionType.Node
+                : fileExt switch
+                {
+                    ConstVal.SolutionExtension
+                    or ConstVal.CSharpProjectExtension
+                    or ConstVal.SolutionXMLExtension => (SolutionType?)SolutionType.DotNet,
+                    _ => (SolutionType?)SolutionType.Else,
+                }
+        );
     }
 
     /// <summary>
@@ -335,13 +368,21 @@ public class AssemblyHelper
     /// <param name="packageNames"></param>
     public static void RemovePackageReference(string projectPath, string[] packageNames)
     {
-        packageNames.ToList().ForEach(package =>
-        {
-            if (!ProcessHelper.RunCommand("dotnet", $"remove {projectPath} package {string.Join(" ", packageNames)}", out string error))
+        packageNames
+            .ToList()
+            .ForEach(package =>
             {
-                Console.WriteLine("dotnet remove error:" + error);
-            }
-        });
+                if (
+                    !ProcessHelper.RunCommand(
+                        "dotnet",
+                        $"remove {projectPath} package {string.Join(" ", packageNames)}",
+                        out string error
+                    )
+                )
+                {
+                    Console.WriteLine("dotnet remove error:" + error);
+                }
+            });
     }
 
     /// <summary>
@@ -357,6 +398,7 @@ public class AssemblyHelper
             .Trim('.');
     }
 }
+
 public class XmlCommentMember
 {
     public string FullName { get; set; } = string.Empty;

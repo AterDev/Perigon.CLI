@@ -33,14 +33,6 @@ public partial class EntityInfoManager(
             if (filePaths.Count != 0)
             {
                 entityFiles = _codeAnalysis.GetEntityFiles(_projectContext.EntityPath!, filePaths);
-                foreach (var item in entityFiles)
-                {
-                    // 查询生成的dto\manager\api状态
-                    (bool hasDto, bool hasManager, bool hasAPI) = GetEntityStates(item);
-                    item.HasDto = hasDto;
-                    item.HasManager = hasManager;
-                    item.HasAPI = hasAPI;
-                }
                 // 排序
                 entityFiles =
                 [
@@ -55,47 +47,6 @@ public partial class EntityInfoManager(
             return entityFiles;
         }
         return entityFiles;
-    }
-
-    /// <summary>
-    /// 判断生成状态
-    /// </summary>
-    /// <param name="serviceName"></param>
-    /// <param name="entityName"></param>
-    /// <param name="moduleName"></param>
-    /// <returns></returns>
-    private (bool hasDto, bool hasManager, bool hasAPI) GetEntityStates(EntityFile entity)
-    {
-        bool hasDto = false;
-        bool hasManager = false;
-        bool hasAPI = false;
-        var entityName = Path.GetFileNameWithoutExtension(entity.Name);
-
-        string dtoPath = Path.Combine(entity.GetDtoPath(_projectContext), $"{entityName}AddDto.cs");
-        string managerPath = Path.Combine(
-            entity.GetManagerPath(_projectContext),
-            $"{entityName}Manager.cs"
-        );
-        string apiPath = Path.Combine(entity.GetControllerPath(_projectContext));
-
-        string servicePath = Path.Combine(_projectContext.SolutionPath!, "src");
-
-        if (Directory.Exists(apiPath))
-        {
-            if (
-                File.Exists(Path.Combine(apiPath, $"{entityName}Controller.cs"))
-                || File.Exists(
-                    Path.Combine(apiPath, "AdminControllers", $"{entityName}Controller.cs")
-                )
-            )
-            {
-                hasAPI = true;
-            }
-        }
-
-        hasDto = File.Exists(dtoPath);
-        hasManager = File.Exists(managerPath);
-        return (hasDto, hasManager, hasAPI);
     }
 
     /// <summary>

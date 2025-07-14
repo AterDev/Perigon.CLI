@@ -294,7 +294,7 @@
   <FluentDialog @ref="modelInfoDialog"
                 @bind-Hidden=@ModelInfoDialogIsHidden
                 style="--dialog-width:auto;"
-                @ondialogdismiss="() => modelInfoDialog.Hide()"
+                @ondialogdismiss="() => modelInfoDialog!.Hide()"
                 Modal="true">
     <FluentDialogHeader ShowDismiss="false">
       <FluentLabel Typo="Typography.PaneHeader">

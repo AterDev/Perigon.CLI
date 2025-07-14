@@ -5,7 +5,7 @@
   <FluentLabel Typo="Typography.PaneHeader">@Lang(Localizer.Solution, Localizer.Service)</FluentLabel>
 </FluentDialogHeader>
 <FluentBodyContent>
-  <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+  <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
     <FluentStack Orientation="Orientation.Horizontal"
                  HorizontalGap="8"
                  Class="p-1">
@@ -19,17 +19,23 @@
         @Lang(Localizer.Add)
       </FluentButton>
     </FluentStack>
+    <FluentLabel Typo="Typography.Body">
+      only support WebApi services,
+    </FluentLabel>
 
-    <FluentDataGrid Items="@Services.AsQueryable()"
-                    Class="w-100"
-                    RowSize="DataGridRowSize.Medium"
-                    AutoFit="true">
-      <PropertyColumn Property="@(s => s.Name)" Title="@Lang(Localizer.Name)" />
-      <PropertyColumn Property="@(s => s.Path)" Title="@Lang(Localizer.Path)" />
-      <TemplateColumn Title="@Lang(Localizer.Type)">
-        @context.ProjectType.ToString()
-      </TemplateColumn>
-    </FluentDataGrid>
+    <div class="mt-2">
+      <FluentDataGrid Items="@Services.AsQueryable()"
+                      Class="w-100"
+                      RowSize="DataGridRowSize.Medium"
+                      AutoFit="true">
+        <PropertyColumn Property="@(s => s.Name)" Title="@Lang(Localizer.Name)" />
+        <PropertyColumn Property="@(s => s.Path)" Title="@Lang(Localizer.Path)" />
+        <TemplateColumn Title="@Lang(Localizer.Type)">
+          @context.ProjectType.ToString()
+        </TemplateColumn>
+      </FluentDataGrid>
+    </div>
+
   </FluentStack>
 </FluentBodyContent>
 <FluentDialogFooter>

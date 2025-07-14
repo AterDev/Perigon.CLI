@@ -1,6 +1,8 @@
 @page "/workbench/entity"
 @inherits PageBase
 @layout Layout
+
+<PageTitle>@Lang(Localizer.Entity, Localizer.Manage)</PageTitle>
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
   @* top Toolbar *@
   <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2 bg-1 bg-bottom-2">
@@ -75,7 +77,7 @@
                 <FluentButton Appearance="Appearance.Stealth"
                               Title=@Lang(Localizer.Delete, Localizer.Modules)
                               OnClick="()=>DeleteModuleAsync()"
-                              IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))">
+                              IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))">
                 </FluentButton>
               </FluentStack>
 
@@ -148,16 +150,19 @@
             <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
               <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
                 <FluentButton Appearance="Appearance.Stealth"
+                              OnClick="@(_ => GenerateDtoAsync(context,CommandType.Dto))"
                               IconStart="@(new Icons.Regular.Size24.CodeBlock())"
                               Title="@Lang(Localizer.GenerateDtos)">
 
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
+                              OnClick="@(_ => GenerateDtoAsync(context,CommandType.Manager))"
                               IconStart="@(new Icons.Regular.Size24.LinkSquare())"
                               Title="@Lang(Localizer.GenerateManagers)">
 
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
+                              OnClick="@(_ => GenerateDtoAsync(context,CommandType.API))"
                               IconStart="@(new Icons.Regular.Size24.PlugConnected())"
                               Title="@Lang(Localizer.GenerateApis)">
                 </FluentButton>

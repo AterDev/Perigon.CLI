@@ -390,7 +390,7 @@ export class EnumTextPipeModule { }
 
         return $$"""
             {
-              "$schema": "http://json.schemastore.org/launchsettings.json",·
+              "$schema": "http://json.schemastore.org/launchsettings.json",
               "profiles": {
                 "{{serviceName}}": {
                   "commandName": "Project",
