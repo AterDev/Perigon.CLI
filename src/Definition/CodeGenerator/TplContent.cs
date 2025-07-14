@@ -1,4 +1,5 @@
-﻿namespace CodeGenerator;
+namespace CodeGenerator;
+
 /// <summary>
 /// 模板内容类
 /// </summary>
@@ -106,54 +107,54 @@ public class TplContent
     /// <returns></returns>
     public static string ManagerServiceExtensionTpl(bool isModule = false)
     {
-        return isModule ?
-            $$"""
-            using @(Model.Namespace).{{ConstVal.ManagersDir}};
+        return isModule
+            ? $$"""
+                using @(Model.Namespace).{{ConstVal.ManagersDir}};
 
-            namespace @(Model.Namespace);
-            /// <summary>
-            /// 服务注入扩展
-            /// </summary>
-            public static class ServiceCollectionExtensions
-            {
+                namespace @(Model.Namespace);
                 /// <summary>
-                /// 添加模块服务
+                /// 服务注入扩展
                 /// </summary>
-                /// <param name="services"></param>
-                /// <returns></returns>
-                public static IServiceCollection Add@(Model.Namespace)Services(this IServiceCollection services)
+                public static class ServiceCollectionExtensions
                 {
-                    services.Add@(Model.Namespace)Managers();
-                    // add other services
-                    return services;
-                }
+                    /// <summary>
+                    /// 添加模块服务
+                    /// </summary>
+                    /// <param name="services"></param>
+                    /// <returns></returns>
+                    public static IServiceCollection Add@(Model.Namespace)Services(this IServiceCollection services)
+                    {
+                        services.Add@(Model.Namespace)Managers();
+                        // add other services
+                        return services;
+                    }
 
 
-                /// <summary>
-                /// 添加@(Model.Namespace) 注入服务
-                /// </summary>
-                /// <param name="services"></param>
-                public static IServiceCollection Add@(Model.Namespace)Managers(this IServiceCollection services)
-                {
-            @Model.ManagerServices
-                    return services;
+                    /// <summary>
+                    /// 添加@(Model.Namespace) 注入服务
+                    /// </summary>
+                    /// <param name="services"></param>
+                    public static IServiceCollection Add@(Model.Namespace)Managers(this IServiceCollection services)
+                    {
+                @Model.ManagerServices
+                        return services;
+                    }
                 }
-            }
-            """ :
-            $$"""
-            namespace @(Model.Namespace);
-            public static partial class {{ConstVal.ManagerServiceExtensionsFile}}
-            {
-                public static IServiceCollection AddManagers(this IServiceCollection services)
+                """
+            : $$"""
+                namespace @(Model.Namespace);
+                public static partial class {{ConstVal.ManagerServiceExtensionsFile}}
                 {
-                    services.AddScoped(typeof(DataAccessContext<>));
-            @Model.ManagerServices
-                    return services;
+                    public static IServiceCollection AddManagers(this IServiceCollection services)
+                    {
+                        services.AddScoped(typeof(DataAccessContext<>));
+                @Model.ManagerServices
+                        return services;
+                    }
                 }
-            }
-            """;
-
+                """;
     }
+
     public static string ControllerTpl(bool isAdmin = true)
     {
         var baseClass = isAdmin ? "RestControllerBase" : "ClientControllerBase";
@@ -241,16 +242,19 @@ public class TplContent
 
     public static string EnumPipeTpl(bool IsNgModule = false)
     {
-
-        string ngModule = IsNgModule ? """
+        string ngModule = IsNgModule
+            ? """
 @NgModule({
   declarations: [EnumTextPipe], exports: [EnumTextPipe]
 })
 export class EnumTextPipeModule { }
-""" : "";
+"""
+            : "";
         return $$"""
             // 该文件自动生成，会被覆盖更新
-            import { Injectable, Pipe, PipeTransform } from '@@angular/core';
+            import { Injectable, {{(
+                IsNgModule ? "NgModule, " : ""
+            )}}Pipe, PipeTransform } from '@@angular/core';
 
             @@Pipe({
               name: 'enumText'
@@ -305,7 +309,7 @@ export class EnumTextPipeModule { }
             global using Microsoft.AspNetCore.Mvc;
             global using Microsoft.EntityFrameworkCore;
             global using Microsoft.Extensions.Logging;
-            
+
             """;
     }
 

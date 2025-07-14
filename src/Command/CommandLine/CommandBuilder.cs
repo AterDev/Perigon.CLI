@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using Entity;
 
 namespace CommandLine;
@@ -10,9 +10,11 @@ public class CommandBuilder
 
     public CommandBuilder(CommandRunner runner)
     {
-        RootCommand = new RootCommand("Welcome to use dry cli, a tool to help you generate source code!")
+        RootCommand = new RootCommand(
+            "Welcome to use dry cli, a tool to help you generate source code!"
+        )
         {
-            Name = "dry"
+            Name = "dry",
         };
         _runner = runner;
     }
@@ -49,11 +51,9 @@ public class CommandBuilder
         // dto 生成命令
         System.CommandLine.Command dtoCommand = new("dto", "generate entity dto files");
         Argument<string> path = new("entity path", "The entity file path");
-        Option<string> outputOption = new(["--output", "-o"],
-            "output project directory");
+        Option<string> outputOption = new(["--output", "-o"], "output project directory");
         outputOption.SetDefaultValue(PathConst.SharePath);
-        Option<bool> forceOption = new(["--force", "-f"],
-            "force overwrite file");
+        Option<bool> forceOption = new(["--force", "-f"], "force overwrite file");
         forceOption.SetDefaultValue(true);
 
         dtoCommand.AddArgument(path);
@@ -63,21 +63,28 @@ public class CommandBuilder
 
         RootCommand.Add(dtoCommand);
     }
+
     /// <summary>
     /// 前端请求命令
     /// </summary>
     public void AddRequest()
     {
-        System.CommandLine.Command reqCommand = new("request", "generate request service and interface from OpenAPI json");
+        System.CommandLine.Command reqCommand = new(
+            "request",
+            "generate request service and interface from OpenAPI json"
+        );
         reqCommand.AddAlias("request");
         Argument<string> url = new("Url or Path", "openApi json file url");
         Option<string> outputOption = new(["--output", "-o"])
         {
             IsRequired = true,
-            Description = "output path"
+            Description = "output path",
         };
 
-        Option<RequestLibType> typeOption = new(["--type", "-t"], "request lib type:axios or NgHttp");
+        Option<RequestLibType> typeOption = new(
+            ["--type", "-t"],
+            "request lib type:axios or NgHttp"
+        );
         reqCommand.AddArgument(url);
         reqCommand.AddOption(outputOption);
         reqCommand.AddOption(typeOption);
@@ -95,16 +102,12 @@ public class CommandBuilder
         System.CommandLine.Command apiCommand = new("manager", "generate dtos, datastore, manager");
         apiCommand.AddAlias("manager");
         Argument<string> path = new("entity path", "The entity file path");
-        Option<string> dtoOption = new(["--dto", "-d"],
-            "dto project directory");
+        Option<string> dtoOption = new(["--dto", "-d"], "dto project directory");
         dtoOption.SetDefaultValue(PathConst.SharePath);
-        Option<string> storeOption = new(["--manager", "-m"],
-            "application project directory");
+        Option<string> storeOption = new(["--manager", "-m"], "application project directory");
         storeOption.SetDefaultValue(PathConst.ApplicationPath);
-        Option<string> typeOption = new(["--type", "-t"],
-            "api type, valid values:rest/grpc/graph");
-        Option<bool> forceOption = new(["--force", "-f"],
-           "force overwrite file");
+        Option<string> typeOption = new(["--type", "-t"], "api type, valid values:rest/grpc/graph");
+        Option<bool> forceOption = new(["--force", "-f"], "force overwrite file");
         forceOption.SetDefaultValue(false);
 
         typeOption.SetDefaultValue("rest");
@@ -114,33 +117,41 @@ public class CommandBuilder
         apiCommand.AddOption(forceOption);
 
         apiCommand.SetHandler(
-            _runner.GenerateManagerAsync, path, dtoOption, storeOption, forceOption);
+            _runner.GenerateManagerAsync,
+            path,
+            dtoOption,
+            storeOption,
+            forceOption
+        );
 
         RootCommand.Add(apiCommand);
     }
+
     /// <summary>
     /// 后端接口及仓储、dto
     /// </summary>
     public void AddApi()
     {
         // api 生成命令
-        System.CommandLine.Command apiCommand = new("webapi", "generate dtos, managers and RestfulApi controllers");
+        System.CommandLine.Command apiCommand = new(
+            "webapi",
+            "generate dtos, managers and RestfulApi controllers"
+        );
         apiCommand.AddAlias("api");
         Argument<string> path = new("entity path", "The entity file path");
-        Option<string> dtoOption = new(["--dto", "-d"],
-            "dto project director");
+        Option<string> dtoOption = new(["--dto", "-d"], "dto project director");
         dtoOption.SetDefaultValue(PathConst.SharePath);
 
-        Option<string> managerOption = new(["--manager", "-m"],
-            "manager and datastore project directory");
+        Option<string> managerOption = new(
+            ["--manager", "-m"],
+            "manager and datastore project directory"
+        );
         managerOption.SetDefaultValue(PathConst.ApplicationPath);
 
-        Option<string> apiOption = new(["--output", "-o"],
-            "api controller project directory");
+        Option<string> apiOption = new(["--output", "-o"], "api controller project directory");
         apiOption.SetDefaultValue(PathConst.APIPath);
 
-        Option<bool> forceOption = new(["--force", "-f"],
-      "force overwrite file");
+        Option<bool> forceOption = new(["--force", "-f"], "force overwrite file");
         forceOption.SetDefaultValue(false);
 
         apiCommand.AddArgument(path);
@@ -149,14 +160,24 @@ public class CommandBuilder
         apiCommand.AddOption(apiOption);
         apiCommand.AddOption(forceOption);
 
-        apiCommand.SetHandler(_runner.GenerateApiAsync, path, dtoOption, managerOption, apiOption, forceOption);
+        apiCommand.SetHandler(
+            _runner.GenerateApiAsync,
+            path,
+            dtoOption,
+            managerOption,
+            apiOption,
+            forceOption
+        );
 
         RootCommand.Add(apiCommand);
     }
 
     public void AddCsharpClient()
     {
-        System.CommandLine.Command clientCommand = new("client", "generate csharp request   client from OpenAPI json");
+        System.CommandLine.Command clientCommand = new(
+            "client",
+            "generate csharp request   client from OpenAPI json"
+        );
         clientCommand.AddAlias("client");
         Argument<string> url = new("Url or Path", "openApi json file url or local path");
         Option<string> outputOption = new(["--output", "-o"])
@@ -171,20 +192,28 @@ public class CommandBuilder
 
         clientCommand.AddArgument(url);
         clientCommand.AddOption(outputOption);
-        clientCommand.SetHandler(CommandRunner.GenerateCSharpApiClientAsync, url, outputOption, language);
+        clientCommand.SetHandler(
+            CommandRunner.GenerateCSharpApiClientAsync,
+            url,
+            outputOption,
+            language
+        );
 
         RootCommand.Add(clientCommand);
     }
 
     public void AddNgService()
     {
-        System.CommandLine.Command ngCommand = new("angular", "generate angular request service and interface from OpenAPI json");
+        System.CommandLine.Command ngCommand = new(
+            "angular",
+            "generate angular request service and interface from OpenAPI json"
+        );
         ngCommand.AddAlias("ng");
         Argument<string> url = new("Url or Path", "openApi json file url or local path");
         Option<string> outputOption = new(["--output", "-o"])
         {
             IsRequired = true,
-            Description = "angular project root path"
+            Description = "angular project root path",
         };
         ngCommand.AddArgument(url);
         ngCommand.AddOption(outputOption);

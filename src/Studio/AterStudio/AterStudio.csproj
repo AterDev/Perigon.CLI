@@ -9,7 +9,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <Version>9.0.0</Version>
+    <Version>9.0.1</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591</NoWarn>
@@ -34,7 +34,7 @@
   <!-- 在build 后执行命令-->
   <Target AfterTargets="Build" Name="RunSwagger">
     <Exec Command="dotnet swagger tofile --output ./swagger.json .\bin\Debug\net8.0\AterStudio.dll admin" UseUtf8Encoding="Always" />
-    <Exec Command="dry ng .\swagger.json -o ..\ClientApp\src\app" UseUtf8Encoding="Always" />
+    <!--<Exec Command="dry ng .\swagger.json -o ..\ClientApp\src\app" UseUtf8Encoding="Always" />-->
   </Target>
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
