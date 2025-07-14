@@ -115,7 +115,8 @@
       <Panel2>
         @* entity list *@
         <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="p-1">
-          <FluentStack>
+          <FluentStack Orientation="Orientation.Horizontal"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween">
             @* <EntityListSearch OnSearched="OnSearch" Placeholder="@Lang(Localizer.SearchEntity)" /> *@
             <FluentSearch @bind-Value=SearchModelKey
                           @bind-Value:after="OnSearch"
@@ -124,6 +125,27 @@
                           Immediate="true"
                           ImmediateDelay="100"
                           AutoComplete="off " />
+
+            <FluentButton Id="batchMenu"
+                          IconStart="@(new Icons.Regular.Size24.AddSquareMultiple())"
+                          Appearance="Appearance.Neutral"
+                          OnClick="()=>BatchOpen=!BatchOpen"
+                          Disabled="!SelectedEntity.Any()">
+              @Lang(Localizer.Batch, Localizer.Generate)
+            </FluentButton>
+            <FluentMenu Anchor="batchMenu"
+                        @bind-Open="BatchOpen">
+              <FluentMenuItem OnClick="@(() => null)">
+                @Lang(Localizer.GenerateDtos)
+              </FluentMenuItem>
+              <FluentMenuItem OnClick="@(() => null)">
+                @Lang(Localizer.GenerateManagers)
+              </FluentMenuItem>
+              <FluentMenuItem OnClick="@(() => null)">
+                @Lang(Localizer.GenerateApis)
+              </FluentMenuItem>
+            </FluentMenu>
+
           </FluentStack>
           <FluentDataGrid Class="w-100"
                           Items="@FilteredEntityFiles"
@@ -131,6 +153,11 @@
                           RowSize="@DataGridRowSize.Medium"
                           Pagination="@pagination"
                           AutoFit="true">
+
+            <SelectColumn TGridItem="EntityFile"
+                          SelectMode="DataGridSelectMode.Multiple"
+                          SelectFromEntireRow="false"
+                          @bind-SelectedItems="@SelectedEntity" />
 
             <TemplateColumn Title="@Lang(Localizer.Entity)"
                             Sortable="true">
@@ -150,19 +177,19 @@
             <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
               <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
                 <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(_ => GenerateDtoAsync(context,CommandType.Dto))"
+                              OnClick="@(_ => OpenGenerateDialog(context,CommandType.Dto))"
                               IconStart="@(new Icons.Regular.Size24.CodeBlock())"
                               Title="@Lang(Localizer.GenerateDtos)">
 
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(_ => GenerateDtoAsync(context,CommandType.Manager))"
+                              OnClick="@(_ => OpenGenerateDialog(context,CommandType.Manager))"
                               IconStart="@(new Icons.Regular.Size24.LinkSquare())"
                               Title="@Lang(Localizer.GenerateManagers)">
 
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(_ => GenerateDtoAsync(context,CommandType.API))"
+                              OnClick="@(_ => OpenGenerateDialog(context,CommandType.API))"
                               IconStart="@(new Icons.Regular.Size24.PlugConnected())"
                               Title="@Lang(Localizer.GenerateApis)">
                 </FluentButton>

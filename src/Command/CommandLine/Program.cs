@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using CommandLine;
 using CommandLine.Commands;
+using Entity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
@@ -34,63 +35,50 @@ var registrar = new DITypeRegistrar(host.Services);
 var app = new CommandApp(registrar);
 
 var localizer = host.Services.GetRequiredService<Localizer>();
-app.Configure(
-    (Action<IConfigurator>)(
-        config =>
-        {
+app.Configure(config =>
+{
 #if DEBUG
-            config.PropagateExceptions();
-            config.ValidateExamples();
+    config.PropagateExceptions();
+    config.ValidateExamples();
 #endif
-            config.SetApplicationName("ater");
-            config.SetApplicationVersion("10.0.0");
-            config.SetApplicationCulture(systemCulture);
+    config.SetApplicationName(ConstVal.CommandName);
+    config.SetApplicationVersion(ConstVal.Version);
+    config.SetApplicationCulture(systemCulture);
 
-            config
-                .AddCommand<NewCommand>(SubCommand.New)
-                .WithDescription(localizer.Get((string)Localizer.NewDes))
-                .WithExample(["new", "name"]);
+    config
+        .AddCommand<NewCommand>(SubCommand.New)
+        .WithDescription(localizer.Get(Localizer.NewDes))
+        .WithExample(["new", "name"]);
 
-            config
-                .AddCommand<StudioCommand>(SubCommand.Studio)
-                .WithDescription(localizer.Get((string)Localizer.StudioDes));
+    config
+        .AddCommand<StudioCommand>(SubCommand.Studio)
+        .WithDescription(localizer.Get(Localizer.StudioDes));
 
-            ConfiguratorExtensions
-                .AddBranch(
-                    config,
-                    SubCommand.Generate,
-                    (Action<IConfigurator<CommandSettings>>)(
-                        config =>
-                        {
-                            config.SetDescription(localizer.Get((string)Localizer.GenerateDes));
+    ConfiguratorExtensions
+        .AddBranch(
+            config,
+            SubCommand.Generate,
+            config =>
+            {
+                config.SetDescription(localizer.Get(Localizer.GenerateDes));
 
-                            config
-                                .AddCommand<RequestCommand>(SubCommand.Request)
-                                .WithDescription(localizer.Get((string)Localizer.RequestDes))
-                                .WithExample(
-                                    [
-                                        "generate",
-                                        "request",
-                                        "./openapi.json",
-                                        "./src/services",
-                                        "-t",
-                                        "angular",
-                                    ]
-                                );
-                        }
-                    )
-                )
-                .WithAlias("g");
+                config
+                    .AddCommand<RequestCommand>(SubCommand.Request)
+                    .WithDescription(localizer.Get(Localizer.RequestDes))
+                    .WithExample(
+                        ["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]
+                    );
+            }
+        )
+        .WithAlias("g");
 
-            config.SetExceptionHandler(
-                (ex, resolver) =>
-                {
-                    AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
-                    return -1;
-                }
-            );
+    config.SetExceptionHandler(
+        (ex, resolver) =>
+        {
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            return -1;
         }
-    )
-);
+    );
+});
 
 return app.Run(args);

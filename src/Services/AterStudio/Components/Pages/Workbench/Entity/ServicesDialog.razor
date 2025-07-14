@@ -8,7 +8,7 @@
   <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
     <FluentStack Orientation="Orientation.Horizontal"
                  HorizontalGap="8"
-                 Class="p-1">
+                 Class="pe-2">
       <FluentTextField @bind-Value="ServiceName"
                        Class="w-100"
                        Required="true"
@@ -19,13 +19,14 @@
         @Lang(Localizer.Add)
       </FluentButton>
     </FluentStack>
-    <FluentLabel Typo="Typography.Body">
-      only support WebApi services,
+    <FluentLabel Typo="Typography.Body" Color="Color.Info">
+      Create a webApi service
     </FluentLabel>
 
     <div class="mt-2">
       <FluentDataGrid Items="@Services.AsQueryable()"
                       Class="w-100"
+                      MultiLine="true"
                       RowSize="DataGridRowSize.Medium"
                       AutoFit="true">
         <PropertyColumn Property="@(s => s.Name)" Title="@Lang(Localizer.Name)" />

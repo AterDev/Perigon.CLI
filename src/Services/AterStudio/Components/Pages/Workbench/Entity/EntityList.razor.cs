@@ -19,6 +19,7 @@ public partial class EntityList
     bool IsRefreshing { get; set; }
 
     bool IsCleaning { get; set; }
+    bool BatchOpen { get; set; } = false;
 
     private FluentDialog _dialog = default!;
     private PaginationState pagination = new() { ItemsPerPage = 20 };
@@ -37,6 +38,8 @@ public partial class EntityList
     private string? SelectedModule { get; set; }
 
     public string? SearchModelKey { get; set; }
+
+    private IEnumerable<EntityFile> SelectedEntity { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,9 +143,14 @@ public partial class EntityList
         }
     }
 
-    private async Task GenerateDtoAsync(EntityFile entity, CommandType commandType)
+    private async Task OpenGenerateDialog(EntityFile entity, CommandType commandType)
     {
-        var parameters = new DialogParameters { Modal = true, Width = "400px" };
+        var parameters = new DialogParameters
+        {
+            Modal = true,
+            Width = "360px",
+            ShowDismiss = false,
+        };
 
         var data = new GenerateDialogData
         {

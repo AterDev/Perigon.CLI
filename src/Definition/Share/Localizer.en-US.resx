@@ -411,4 +411,10 @@
   <data name="Generate" xml:space="preserve">
     <value>Generate</value>
   </data>
+  <data name="OverwriteCurrent" xml:space="preserve">
+    <value>Overwrite Files</value>
+  </data>
+  <data name="Batch" xml:space="preserve">
+    <value>Batch</value>
+  </data>
 </root>
