@@ -13,9 +13,8 @@ public class ApiDocInfoController(
     ApiDocInfoManager manager,
     IProjectContext project,
     ILogger<ApiDocInfoController> logger
-    ) : BaseController<ApiDocInfoManager>(localizer, manager, project, logger)
+) : BaseController<ApiDocInfoManager>(localizer, manager, project, logger)
 {
-
     /// <summary>
     /// 获取项目文档
     /// </summary>
@@ -23,11 +22,7 @@ public class ApiDocInfoController(
     [HttpGet]
     public async Task<ActionResult<List<ApiDocInfoItemDto>>> ListAsync()
     {
-        var filter = new ApiDocInfoFilterDto()
-        {
-            PageSize = 999,
-            ProjectId = _project.ProjectId
-        };
+        var filter = new ApiDocInfoFilterDto() { PageSize = 999, ProjectId = _project.ProjectId };
         var pager = await _manager.FilterAsync(filter);
         return pager.Data;
     }
@@ -39,7 +34,10 @@ public class ApiDocInfoController(
     /// <param name="isFresh"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiDocContent?>> GetApiDocContentAsync([FromRoute] Guid id, bool isFresh = true)
+    public async Task<ActionResult<ApiDocContent?>> GetApiDocContentAsync(
+        [FromRoute] Guid id,
+        bool isFresh = true
+    )
     {
         ApiDocContent? res = await _manager.GetContentAsync(id, isFresh);
         return res == null ? Problem(_manager.ErrorMsg) : res;
@@ -57,7 +55,6 @@ public class ApiDocInfoController(
         string content = await _manager.ExportDocAsync(id);
         return File(Encoding.UTF8.GetBytes(content), "application/octet-stream", "api-doc.md");
     }
-
 
     /// <summary>
     ///  添加
@@ -94,9 +91,7 @@ public class ApiDocInfoController(
     public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
     {
         var entity = await _manager.FindAsync(id);
-        return entity == null
-            ? NotFound("未找到该对象")
-            : await _manager.DeleteAsync([id], false);
+        return entity == null ? NotFound("未找到该对象") : await _manager.DeleteAsync([id], false);
     }
 
     /// <summary>
@@ -108,7 +103,12 @@ public class ApiDocInfoController(
     /// <param name="swaggerPath"></param>
     /// <returns></returns>
     [HttpGet("generateRequest/{id}")]
-    public async Task<ActionResult<bool>> GenerateRequest([FromRoute] Guid id, string webPath, RequestLibType type, string? swaggerPath = null)
+    public async Task<ActionResult<bool>> GenerateRequest(
+        [FromRoute] Guid id,
+        string webPath,
+        RequestClientType type,
+        string? swaggerPath = null
+    )
     {
         if (_project.Project == null)
         {
@@ -125,7 +125,6 @@ public class ApiDocInfoController(
         return true;
     }
 
-
     /// <summary>
     /// 生成Csharp请求
     /// </summary>
@@ -134,7 +133,11 @@ public class ApiDocInfoController(
     /// <param name="swaggerPath"></param>
     /// <returns></returns>
     [HttpGet("generateCsharpRequest/{id}")]
-    public async Task<ActionResult<bool>> GenerateCsharpRequest([FromRoute] Guid id, string webPath, string? swaggerPath = null)
+    public async Task<ActionResult<bool>> GenerateCsharpRequest(
+        [FromRoute] Guid id,
+        string webPath,
+        string? swaggerPath = null
+    )
     {
         if (_project.Project == null)
         {

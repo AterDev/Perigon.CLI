@@ -1,4 +1,5 @@
 using CodeGenerator.Models;
+
 namespace Command.Share.Runners;
 
 /// <summary>
@@ -10,24 +11,27 @@ public class RequestRunner : RunnerBase
     /// swagger文档链接
     /// </summary>
     public string DocUrl { get; set; }
+
     /// <summary>
-    /// 文档名称 
+    /// 文档名称
     /// </summary>
     public string DocName { get; set; }
 
     public OpenApiDocument? ApiDocument { get; set; }
 
-    public RequestLibType LibType { get; set; } = RequestLibType.NgHttp;
+    public RequestClientType LibType { get; set; } = RequestClientType.NgHttp;
 
     public string OutputPath { get; set; }
 
-    public RequestRunner(string docUrl, string output, RequestLibType libType)
+    public RequestRunner(string docUrl, string output, RequestClientType libType)
     {
         DocUrl = docUrl;
         OutputPath = output;
         LibType = libType;
 
-        DocName = docUrl.Contains("http") ? docUrl.Split('/').Reverse().Skip(1).First() : string.Empty;
+        DocName = docUrl.Contains("http")
+            ? docUrl.Split('/').Reverse().Skip(1).First()
+            : string.Empty;
         Instructions.Add($"  🔹 generate ts interfaces.");
         Instructions.Add($"  🔹 generate request services.");
     }
@@ -39,7 +43,12 @@ public class RequestRunner : RunnerBase
         {
             HttpClientHandler handler = new()
             {
-                ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                ServerCertificateCustomValidationCallback = (
+                    sender,
+                    certificate,
+                    chain,
+                    sslPolicyErrors
+                ) => true,
             };
 
             using HttpClient http = new(handler);
@@ -49,9 +58,7 @@ public class RequestRunner : RunnerBase
         {
             openApiContent = File.ReadAllText(DocUrl);
         }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
+        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         ApiDocument = new OpenApiStringReader().Read(openApiContent, out _);
 
@@ -68,7 +75,7 @@ public class RequestRunner : RunnerBase
         await GenerateFileAsync(dir, "base.service.ts", content, false);
 
         // 枚举pipe
-        if (LibType == RequestLibType.NgHttp)
+        if (LibType == RequestClientType.NgHttp)
         {
             var schemas = ApiDocument!.Components.Schemas;
 
@@ -86,7 +93,7 @@ public class RequestRunner : RunnerBase
             string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
             await GenerateFileAsync(dir, "enum-text.pipe.ts", pipeContent, true);
         }
-        else if (LibType == RequestLibType.Axios)
+        else if (LibType == RequestClientType.Axios)
         {
             var schemas = ApiDocument!.Components.Schemas;
             string pipeContent = RequestGenerate.GetEnumFunctionContent(schemas);
@@ -97,16 +104,12 @@ public class RequestRunner : RunnerBase
 
     public async Task GenerateRequestServicesAsync()
     {
-        RequestGenerate ngGen = new(ApiDocument!)
-        {
-            LibType = LibType
-        };
+        RequestGenerate ngGen = new(ApiDocument!) { LibType = LibType };
 
         // 获取对应的ts模型类，生成文件
         List<GenFileInfo> models = ngGen.GetTSInterfaces();
         foreach (GenFileInfo model in models)
         {
-
             string dir = Path.Combine(OutputPath, "services", DocName, model.FullName, "models");
             await GenerateFileAsync(dir, model.Name, model.Content, true);
         }

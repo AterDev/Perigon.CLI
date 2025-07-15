@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Readers;
 using StudioMod.Models.ApiDocInfoDtos;
 
 namespace StudioMod.Managers;
+
 /// <summary>
 /// 接口文档
 /// </summary>
@@ -10,7 +11,7 @@ public class ApiDocInfoManager(
     IProjectContext project,
     ILogger<ApiDocInfoManager> logger,
     CodeGenService codeGenService
-    ) : ManagerBase<ApiDocInfo>(dataContext, logger)
+) : ManagerBase<ApiDocInfo>(dataContext, logger)
 {
     private readonly IProjectContext _project = project;
     private readonly CodeGenService _codeGenService = codeGenService;
@@ -42,7 +43,6 @@ public class ApiDocInfoManager(
         return await ToPageAsync<ApiDocInfoFilterDto, ApiDocInfoItemDto>(filter);
     }
 
-
     /// <summary>
     /// 解析并获取文档内容
     /// </summary>
@@ -66,7 +66,12 @@ public class ApiDocInfoManager(
                 {
                     HttpClientHandler handler = new()
                     {
-                        ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        ServerCertificateCustomValidationCallback = (
+                            sender,
+                            certificate,
+                            chain,
+                            sslPolicyErrors
+                        ) => true,
                     };
                     using HttpClient http = new(handler);
                     http.Timeout = TimeSpan.FromSeconds(60);
@@ -86,9 +91,7 @@ public class ApiDocInfoManager(
             }
         }
 
-        openApiContent = openApiContent
-               .Replace("«", "")
-               .Replace("»", "");
+        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
         var helper = new OpenApiService(apiDocument);
@@ -96,7 +99,7 @@ public class ApiDocInfoManager(
         {
             TypeMeta = helper.ModelInfos,
             OpenApiTags = helper.OpenApiTags,
-            RestApiGroups = helper.RestApiGroups
+            RestApiGroups = helper.RestApiGroups,
         };
     }
 
@@ -108,7 +111,8 @@ public class ApiDocInfoManager(
     public async Task<string> ExportDocAsync(Guid id)
     {
         ApiDocInfo? apiDocInfo = await FindAsync(id);
-        if (apiDocInfo == null) return string.Empty;
+        if (apiDocInfo == null)
+            return string.Empty;
         string path = apiDocInfo.Path;
         string openApiContent = "";
         if (path.StartsWith("http://") || path.StartsWith("https://"))
@@ -121,9 +125,7 @@ public class ApiDocInfoManager(
         {
             openApiContent = File.ReadAllText(path);
         }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
+        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
 
@@ -151,12 +153,13 @@ public class ApiDocInfoManager(
                 var requestInfo = api.RequestInfo;
                 if (requestInfo != null)
                 {
-
                     sb.AppendLine("|名称|类型|是否必须|说明|");
                     sb.AppendLine("|---------|---------|---------|---------|");
                     foreach (var property in requestInfo.PropertyInfos)
                     {
-                        sb.AppendLine($"|{property.Name}|{property.Type}|{(property.IsRequired ? "是" : "否")}|{property.CommentSummary?.Trim()}|");
+                        sb.AppendLine(
+                            $"|{property.Name}|{property.Type}|{(property.IsRequired ? "是" : "否")}|{property.CommentSummary?.Trim()}|"
+                        );
                     }
                     sb.AppendLine();
                 }
@@ -173,7 +176,9 @@ public class ApiDocInfoManager(
                     sb.AppendLine("|---------|---------|---------|");
                     foreach (var property in responseInfo.PropertyInfos)
                     {
-                        sb.AppendLine($"|{property.Name}|{property.Type}|{property.CommentSummary?.Trim()}|");
+                        sb.AppendLine(
+                            $"|{property.Name}|{property.Type}|{property.CommentSummary?.Trim()}|"
+                        );
                     }
                 }
                 else
@@ -217,7 +222,12 @@ public class ApiDocInfoManager(
     /// <param name="type"></param>
     /// <param name="swaggerPath"></param>
     /// <returns></returns>
-    public async Task GenerateRequestAsync(ApiDocInfo doc, string webPath, RequestLibType type, string? swaggerPath = null)
+    public async Task GenerateRequestAsync(
+        ApiDocInfo doc,
+        string webPath,
+        RequestClientType type,
+        string? swaggerPath = null
+    )
     {
         // 保存路径
         doc.LocalPath = webPath;
@@ -227,7 +237,6 @@ public class ApiDocInfoManager(
         var files = await _codeGenService.GenerateWebRequestAsync(swaggerPath, webPath, type);
         _codeGenService.GenerateFiles(files);
     }
-
 
     /// <summary>
     /// 生成csharp请求服务

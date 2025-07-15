@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
 
 namespace CodeGenerator.Generate;
+
 /// <summary>
 /// 请求生成
 /// </summary>
@@ -15,7 +16,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     public IDictionary<string, OpenApiSchema> Schemas { get; set; } = openApi.Components.Schemas;
     public OpenApiDocument OpenApi { get; set; } = openApi;
 
-    public RequestLibType LibType { get; set; } = RequestLibType.NgHttp;
+    public RequestClientType LibType { get; set; } = RequestClientType.NgHttp;
     public string? Server { get; set; } = openApi.Servers.FirstOrDefault()?.Url;
 
     public List<GenFileInfo> TsModelFiles { get; set; } = [];
@@ -25,15 +26,15 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// </summary>
     public List<string> EnumModels { get; set; } = [];
 
-    public static string GetBaseService(RequestLibType libType)
+    public static string GetBaseService(RequestClientType libType)
     {
         try
         {
             switch (libType)
             {
-                case RequestLibType.NgHttp:
+                case RequestClientType.NgHttp:
                     return GetTplContent("angular.base.service.tpl");
-                case RequestLibType.Axios:
+                case RequestClientType.Axios:
                     return GetTplContent("RequestService.axios.service.tpl");
                 default:
                     break;
@@ -41,7 +42,9 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine("request base service:" + ex.Message + ex.StackTrace + ex.InnerException);
+            Console.WriteLine(
+                "request base service:" + ex.Message + ex.StackTrace + ex.InnerException
+            );
             return default!;
         }
         return string.Empty;
@@ -57,7 +60,9 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         // 处理所有方法
         foreach (KeyValuePair<string, OpenApiPathItem> path in PathsPairs)
         {
-            foreach (KeyValuePair<OperationType, OpenApiOperation> operation in path.Value.Operations)
+            foreach (
+                KeyValuePair<OperationType, OpenApiOperation> operation in path.Value.Operations
+            )
             {
                 RequestServiceFunction function = new()
                 {
@@ -71,24 +76,31 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 {
                     function.Name = operation.Key + "_" + path.Key.Split("/").LastOrDefault();
                 }
-                (function.RequestType, function.RequestRefType) = GetTypescriptParamType(operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema);
-                (function.ResponseType, function.ResponseRefType) = GetTypescriptParamType(operation.Value.Responses.FirstOrDefault().Value
-                    ?.Content.FirstOrDefault().Value
-                    ?.Schema);
-                function.Params = operation.Value.Parameters?.Select(p =>
-                {
-                    string? location = p.In?.GetDisplayName();
-                    bool? inpath = location?.ToLower()?.Equals("path");
-                    (string type, string? _) = GetTypescriptParamType(p.Schema);
-                    return new FunctionParams
+                (function.RequestType, function.RequestRefType) = GetTypescriptParamType(
+                    operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
+                );
+                (function.ResponseType, function.ResponseRefType) = GetTypescriptParamType(
+                    operation
+                        .Value.Responses.FirstOrDefault()
+                        .Value?.Content.FirstOrDefault()
+                        .Value?.Schema
+                );
+                function.Params = operation
+                    .Value.Parameters?.Select(p =>
                     {
-                        Description = p.Description,
-                        Name = p.Name,
-                        InPath = inpath ?? false,
-                        IsRequired = p.Required,
-                        Type = type
-                    };
-                }).ToList();
+                        string? location = p.In?.GetDisplayName();
+                        bool? inpath = location?.ToLower()?.Equals("path");
+                        (string type, string? _) = GetTypescriptParamType(p.Schema);
+                        return new FunctionParams
+                        {
+                            Description = p.Description,
+                            Name = p.Name,
+                            InPath = inpath ?? false,
+                            IsRequired = p.Required,
+                            Type = type,
+                        };
+                    })
+                    .ToList();
 
                 functions.Add(function);
             }
@@ -111,7 +123,9 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         List<RequestServiceFunction> functions = GetAllRequestFunctions();
 
         // 先以tag分组
-        List<IGrouping<string?, RequestServiceFunction>> funcGroups = functions.GroupBy(f => f.Tag).ToList();
+        List<IGrouping<string?, RequestServiceFunction>> funcGroups = functions
+            .GroupBy(f => f.Tag)
+            .ToList();
         foreach (IGrouping<string?, RequestServiceFunction>? group in funcGroups)
         {
             // 查询该标签包含的所有方法
@@ -122,21 +136,21 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
             {
                 Description = currentTag.Description,
                 Name = currentTag.Name!,
-                Functions = tagFunctions
+                Functions = tagFunctions,
             };
 
             string content = LibType switch
             {
-                RequestLibType.NgHttp => ToNgRequestBaseService(serviceFile),
-                RequestLibType.Axios => ToAxiosRequestService(serviceFile),
-                _ => ""
+                RequestClientType.NgHttp => ToNgRequestBaseService(serviceFile),
+                RequestClientType.Axios => ToAxiosRequestService(serviceFile),
+                _ => "",
             };
 
             string path = currentTag.Name?.ToHyphen() ?? "";
             switch (LibType)
             {
                 // 同时生成基类和继承类，继承类可自定义
-                case RequestLibType.NgHttp:
+                case RequestClientType.NgHttp:
                 {
                     string baseFileName = currentTag.Name?.ToHyphen() + "-base.service.ts";
 
@@ -149,21 +163,14 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
                     string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
                     content = ToNgRequestService(serviceFile);
-                    file = new(fileName, content)
-                    {
-                        FullName = path,
-                        IsCover = false
-                    };
+                    file = new(fileName, content) { FullName = path, IsCover = false };
                     files.Add(file);
                     break;
                 }
-                case RequestLibType.Axios:
+                case RequestClientType.Axios:
                 {
                     string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
-                    GenFileInfo file = new(fileName, content)
-                    {
-                        FullName = path,
-                    };
+                    GenFileInfo file = new(fileName, content) { FullName = path };
                     files.Add(file);
                     break;
                 }
@@ -195,7 +202,10 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         return files;
     }
 
-    public static string GetEnumPipeContent(IDictionary<string, OpenApiSchema> schemas, bool isNgModule = false)
+    public static string GetEnumPipeContent(
+        IDictionary<string, OpenApiSchema> schemas,
+        bool isNgModule = false
+    )
     {
         string tplContent = TplContent.EnumPipeTpl(isNgModule);
         string codeBlocks = "";
@@ -207,10 +217,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
             }
         }
         var genContext = new RazorGenContext();
-        var model = new CommonViewModel
-        {
-            Content = codeBlocks
-        };
+        var model = new CommonViewModel { Content = codeBlocks };
         return genContext.GenCode(tplContent, model);
     }
 
@@ -245,9 +252,9 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
     public static string ToEnumSwitchString(string enumType, OpenApiSchema schema)
     {
-        KeyValuePair<string, IOpenApiExtension> enumData = schema.Extensions
-                .Where(e => e.Key == "x-enumData")
-                .FirstOrDefault();
+        KeyValuePair<string, IOpenApiExtension> enumData = schema
+            .Extensions.Where(e => e.Key == "x-enumData")
+            .FirstOrDefault();
         // 过滤没有注释的内容
         if (enumData.Value == null)
         {
@@ -257,7 +264,10 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         var caseStrings = "";
         if (enumData.Value is OpenApiArray array)
         {
-            if (array.Count == 0) { return string.Empty; }
+            if (array.Count == 0)
+            {
+                return string.Empty;
+            }
 
             StringBuilder sb = new();
             var whiteSpace = new string(' ', 12);
@@ -266,8 +276,12 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 OpenApiObject item = (OpenApiObject)array[i];
                 var value = ((OpenApiInteger)item["value"]).Value;
                 var description = ((OpenApiString)item["description"]).Value;
-                string caseString = string.Format("{0}case {1}: result = '{2}'; break;",
-                    whiteSpace, value, description);
+                string caseString = string.Format(
+                    "{0}case {1}: result = '{2}'; break;",
+                    whiteSpace,
+                    value,
+                    description
+                );
                 sb.AppendLine(caseString);
             }
             sb.Append($"{whiteSpace}default: result = '默认'; break;");
@@ -353,7 +367,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                     refType = itemType switch
                     {
                         JsonSchemaType.Integer => "number",
-                        _ => itemType
+                        _ => itemType,
                     };
                     type = refType + "[]";
                 }
@@ -375,7 +389,9 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 // TODO:object  字典
                 if (schema.AdditionalProperties != null)
                 {
-                    (string inType, string? inRefType) = GetTypescriptParamType(schema.AdditionalProperties);
+                    (string inType, string? inRefType) = GetTypescriptParamType(
+                        schema.AdditionalProperties
+                    );
                     refType = inRefType;
                     type = $"Map<string, {inType}>";
                 }
@@ -405,15 +421,15 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         string importModels = "";
         if (functions != null)
         {
-            functionString = string.Join("\n",
-                functions.Select(ToAxiosFunction).ToArray());
+            functionString = string.Join("\n", functions.Select(ToAxiosFunction).ToArray());
             List<string> refTypes = GetRefTyeps(functions);
             refTypes.ForEach(t =>
             {
                 importModels = InsertImportModel(serviceFile, t, importModels);
             });
         }
-        tplContent = tplContent.Replace("//[@Import]", importModels)
+        tplContent = tplContent
+            .Replace("//[@Import]", importModels)
             .Replace("//[@ServiceName]", serviceFile.Name)
             .Replace("//[@Functions]", functionString);
         return tplContent;
@@ -437,16 +453,22 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
             string[] baseTypes = ["string", "string[]", "number", "number[]", "boolean", "integer"];
             // 获取请求和响应的类型，以便导入
             List<string?> requestRefs = functions
-                .Where(f => !string.IsNullOrEmpty(f.RequestRefType)
-                    && !baseTypes.Contains(f.RequestRefType))
-                .Select(f => f.RequestRefType).ToList();
+                .Where(f =>
+                    !string.IsNullOrEmpty(f.RequestRefType) && !baseTypes.Contains(f.RequestRefType)
+                )
+                .Select(f => f.RequestRefType)
+                .ToList();
             List<string?> responseRefs = functions
-                .Where(f => !string.IsNullOrEmpty(f.ResponseRefType)
-                    && !baseTypes.Contains(f.ResponseRefType))
-                .Select(f => f.ResponseRefType).ToList();
+                .Where(f =>
+                    !string.IsNullOrEmpty(f.ResponseRefType)
+                    && !baseTypes.Contains(f.ResponseRefType)
+                )
+                .Select(f => f.ResponseRefType)
+                .ToList();
 
             // 参数中的类型
-            List<string?> paramsRefs = functions.SelectMany(f => f.Params!)
+            List<string?> paramsRefs = functions
+                .SelectMany(f => f.Params!)
                 .Where(p => !baseTypes.Contains(p.Type))
                 .Select(p => p.Type)
                 .ToList();
@@ -465,16 +487,15 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 refTypes.AddRange(paramsRefs!);
             }
 
-            refTypes = refTypes.GroupBy(t => t)
-                .Select(g => g.FirstOrDefault()!)
-                .ToList();
+            refTypes = refTypes.GroupBy(t => t).Select(g => g.FirstOrDefault()!).ToList();
 
             refTypes.ForEach(t =>
             {
                 importModels = InsertImportModel(serviceFile, t, importModels);
             });
         }
-        string result = $@"import {{ Injectable }} from '@angular/core';
+        string result =
+            $@"import {{ Injectable }} from '@angular/core';
 import {{ BaseService }} from '../base.service';
 import {{ Observable }} from 'rxjs';
 {importModels}
@@ -522,7 +543,9 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         string Name = function.Name;
         List<FunctionParams>? Params = function.Params;
         string RequestType = function.RequestType;
-        string ResponseType = string.IsNullOrWhiteSpace(function.ResponseType) ? "any" : function.ResponseType!;
+        string ResponseType = string.IsNullOrWhiteSpace(function.ResponseType)
+            ? "any"
+            : function.ResponseType!;
 
         string Path = function.Path;
         if (Server != null)
@@ -542,12 +565,15 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         string dataString = "";
         if (Params?.Count > 0)
         {
-            paramsString = string.Join(", ",
-                Params.OrderByDescending(p => p.IsRequired)
-                    .Select(p => p.IsRequired
-                        ? p.Name + ": " + p.Type
-                        : p.Name + ": " + p.Type + " | null")
-                .ToArray());
+            paramsString = string.Join(
+                ", ",
+                Params
+                    .OrderByDescending(p => p.IsRequired)
+                    .Select(p =>
+                        p.IsRequired ? p.Name + ": " + p.Type : p.Name + ": " + p.Type + " | null"
+                    )
+                    .ToArray()
+            );
             Params.ForEach(p =>
             {
                 paramsComments += $"   * @param {p.Name} {p.Description ?? p.Type}\n";
@@ -574,27 +600,35 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         }
         paramsString += "extOptions?: ExtOptions";
         // 注释生成
-        string comments = $@"  /**
+        string comments =
+            $@"  /**
    * {function.Description ?? Name}
 {paramsComments}   */";
 
         // 构造请求url
         List<string?>? paths = Params?.Where(p => p.InPath).Select(p => p.Name)?.ToList();
         paths?.ForEach(p =>
-            {
-                string origin = $"{{{p}}}";
-                Path = Path.Replace(origin, "$" + origin);
-            });
+        {
+            string origin = $"{{{p}}}";
+            Path = Path.Replace(origin, "$" + origin);
+        });
         // 需要拼接的参数,特殊处理文件上传
-        List<string?>? reqParams = Params?.Where(p => !p.InPath && p.Type != "FormData")
-            .Select(p => p.Name)?.ToList();
+        List<string?>? reqParams = Params
+            ?.Where(p => !p.InPath && p.Type != "FormData")
+            .Select(p => p.Name)
+            ?.ToList();
         if (reqParams != null)
         {
             string queryParams = "";
-            queryParams = string.Join("&", reqParams.Select(p =>
-            {
-                return $"{p}=${{{p} ?? ''}}";
-            }).ToArray());
+            queryParams = string.Join(
+                "&",
+                reqParams
+                    .Select(p =>
+                    {
+                        return $"{p}=${{{p} ?? ''}}";
+                    })
+                    .ToArray()
+            );
             if (!string.IsNullOrEmpty(queryParams))
             {
                 Path += "?" + queryParams;
@@ -616,7 +650,8 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         {
             dataString += ", extOptions";
         }
-        string functionString = @$"{comments}
+        string functionString =
+            @$"{comments}
   {Name}({paramsString}): Promise<{ResponseType}> {{
     const _url = `{Path}`;
     return this.request<{ResponseType}>('{function.Method.ToLower()}', _url{dataString});
@@ -630,7 +665,9 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         string Name = function.Name;
         List<FunctionParams>? Params = function.Params;
         string RequestType = function.RequestType;
-        string ResponseType = string.IsNullOrWhiteSpace(function.ResponseType) ? "any" : function.ResponseType!;
+        string ResponseType = string.IsNullOrWhiteSpace(function.ResponseType)
+            ? "any"
+            : function.ResponseType!;
 
         string Path = function.Path;
         if (Server != null)
@@ -648,12 +685,15 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         string dataString = "";
         if (Params?.Count > 0)
         {
-            paramsString = string.Join(", ",
-                Params.OrderByDescending(p => p.IsRequired)
-                    .Select(p => p.IsRequired
-                        ? p.Name + ": " + p.Type
-                        : p.Name + ": " + p.Type + " | null")
-                .ToArray());
+            paramsString = string.Join(
+                ", ",
+                Params
+                    .OrderByDescending(p => p.IsRequired)
+                    .Select(p =>
+                        p.IsRequired ? p.Name + ": " + p.Type : p.Name + ": " + p.Type + " | null"
+                    )
+                    .ToArray()
+            );
             Params.ForEach(p =>
             {
                 paramsComments += $"   * @param {p.Name} {p.Description ?? p.Type}\n";
@@ -675,7 +715,8 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             paramsComments += $"   * @param data {RequestType}\n";
         }
         // 注释生成
-        string comments = $@"  /**
+        string comments =
+            $@"  /**
    * {function.Description ?? Name}
 {paramsComments}   */";
 
@@ -687,15 +728,22 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             Path = Path.Replace(origin, "$" + origin);
         });
         // 需要拼接的参数,特殊处理文件上传
-        List<string?>? reqParams = Params?.Where(p => !p.InPath && p.Type != "FormData")
-            .Select(p => p.Name)?.ToList();
+        List<string?>? reqParams = Params
+            ?.Where(p => !p.InPath && p.Type != "FormData")
+            .Select(p => p.Name)
+            ?.ToList();
         if (reqParams != null)
         {
             string queryParams = "";
-            queryParams = string.Join("&", reqParams.Select(p =>
-            {
-                return $"{p}=${{{p} ?? ''}}";
-            }).ToArray());
+            queryParams = string.Join(
+                "&",
+                reqParams
+                    .Select(p =>
+                    {
+                        return $"{p}=${{{p} ?? ''}}";
+                    })
+                    .ToArray()
+            );
             if (!string.IsNullOrEmpty(queryParams))
             {
                 Path += "?" + queryParams;
@@ -716,7 +764,8 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             generics = "";
         }
 
-        string functionString = @$"{comments}
+        string functionString =
+            @$"{comments}
   {Name}({paramsString}): Observable<{ResponseType}> {{
     const _url = `{Path}`;
     return this.{method}{generics}('{function.Method.ToLower()}', _url{dataString});
@@ -724,6 +773,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
 ";
         return functionString;
     }
+
     /// <summary>
     /// 模板的引用
     /// </summary>
@@ -735,20 +785,25 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     {
         if (EnumModels.Contains(t))
         {
-            importModels += $"import {{ {t} }} from '../enum/models/{t.ToHyphen()}.model';{Environment.NewLine}";
+            importModels +=
+                $"import {{ {t} }} from '../enum/models/{t.ToHyphen()}.model';{Environment.NewLine}";
         }
         else
         {
-            string? dirName = TsModelFiles.Where(f => f.ModelName == t)
-                .Select(f => f.DirName).FirstOrDefault();
+            string? dirName = TsModelFiles
+                .Where(f => f.ModelName == t)
+                .Select(f => f.DirName)
+                .FirstOrDefault();
 
             if (dirName != serviceFile.Name.ToHyphen())
             {
-                importModels += $"import {{ {t} }} from '../{dirName}/models/{t.ToHyphen()}.model';{Environment.NewLine}";
+                importModels +=
+                    $"import {{ {t} }} from '../{dirName}/models/{t.ToHyphen()}.model';{Environment.NewLine}";
             }
             else
             {
-                importModels += $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
+                importModels +=
+                    $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
             }
         }
         return importModels;
@@ -766,19 +821,24 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         string[] baseTypes = ["string", "string[]", "number", "number[]", "boolean", "integer"];
         // 获取请求和响应的类型，以便导入
         List<string?> requestRefs = functions
-                .Where(f => !string.IsNullOrEmpty(f.RequestRefType)
-                    && !baseTypes.Contains(f.RequestRefType))
-                .Select(f => f.RequestRefType).ToList();
+            .Where(f =>
+                !string.IsNullOrEmpty(f.RequestRefType) && !baseTypes.Contains(f.RequestRefType)
+            )
+            .Select(f => f.RequestRefType)
+            .ToList();
         List<string?> responseRefs = functions
-                .Where(f => !string.IsNullOrEmpty(f.ResponseRefType)
-                    && !baseTypes.Contains(f.ResponseRefType))
-                .Select(f => f.ResponseRefType).ToList();
+            .Where(f =>
+                !string.IsNullOrEmpty(f.ResponseRefType) && !baseTypes.Contains(f.ResponseRefType)
+            )
+            .Select(f => f.ResponseRefType)
+            .ToList();
 
         // 参数中的类型
-        List<string?> paramsRefs = functions.SelectMany(f => f.Params!)
-                .Where(p => !baseTypes.Contains(p.Type))
-                .Select(p => p.Type)
-                .ToList();
+        List<string?> paramsRefs = functions
+            .SelectMany(f => f.Params!)
+            .Where(p => !baseTypes.Contains(p.Type))
+            .Select(p => p.Type)
+            .ToList();
         if (requestRefs != null)
         {
             refTypes.AddRange(requestRefs!);
@@ -794,16 +854,19 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             refTypes.AddRange(paramsRefs!);
         }
 
-        refTypes = refTypes.GroupBy(t => t)
-            .Select(g => g.FirstOrDefault()!)
-            .ToList();
+        refTypes = refTypes.GroupBy(t => t).Select(g => g.FirstOrDefault()!).ToList();
         return refTypes;
     }
 }
-public enum RequestLibType
+
+public enum RequestClientType
 {
     [Description("angular http")]
     NgHttp,
+
     [Description("axios")]
-    Axios
+    Axios,
+
+    [Description("csharp")]
+    Csharp,
 }

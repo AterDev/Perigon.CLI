@@ -87,7 +87,7 @@ public class CodeTools(
     public async Task<string?> GenerateServiceAsync(
         [Description("openapi的url地址或本地路径")] string openApiPath,
         [Description("代码生成的输出路径")] string outputPath,
-        [Description("前端请求类型,NgHttp或Axios")] RequestLibType clientType
+        [Description("前端请求类型,NgHttp或Axios")] RequestClientType clientType
     )
     {
         try

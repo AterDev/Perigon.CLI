@@ -6,13 +6,18 @@ using Microsoft.Extensions.Logging;
 using Share.Services;
 
 namespace Command.Share;
+
 /// <summary>
 /// 所有命令运行的类
 /// </summary>
 /// <param name="codeGen"></param>
 /// <param name="codeAnalysis"></param>
 /// <param name="logger"></param>
-public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnalysis, ILogger<CommandRunner> logger)
+public class CommandRunner(
+    CodeGenService codeGen,
+    CodeAnalysisService codeAnalysis,
+    ILogger<CommandRunner> logger
+)
 {
     private readonly CodeGenService _codeGen = codeGen;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
@@ -47,7 +52,7 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
         try
         {
             _logger.LogInformation("🚀 Generating ts models and ng services...");
-            RequestRunner cmd = new(url, output, RequestLibType.NgHttp);
+            RequestRunner cmd = new(url, output, RequestClientType.NgHttp);
             await cmd.RunAsync();
         }
         catch (WebException webExp)
@@ -61,13 +66,18 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
             _logger.LogInformation(exp.StackTrace);
         }
     }
+
     /// <summary>
     /// 请求服务生成
     /// </summary>
     /// <param name="url"></param>
     /// <param name="output"></param>
     /// <returns></returns>
-    public async Task GenerateRequestAsync(string url = "", string output = "", RequestLibType type = RequestLibType.NgHttp)
+    public async Task GenerateRequestAsync(
+        string url = "",
+        string output = "",
+        RequestClientType type = RequestClientType.NgHttp
+    )
     {
         try
         {
@@ -113,8 +123,12 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// <param name="sharePath"></param>
     /// <param name="applicationPath"></param>
     /// <returns></returns>
-    public async Task GenerateManagerAsync(string entityPath, string sharePath = "",
-            string applicationPath = "", bool force = false)
+    public async Task GenerateManagerAsync(
+        string entityPath,
+        string sharePath = "",
+        string applicationPath = "",
+        bool force = false
+    )
     {
         var entityInfo = await GetEntityInfoAsync(entityPath);
         var files = new List<GenFileInfo>();
@@ -132,8 +146,13 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// <param name="applicationPath">service目录</param>
     /// <param name="apiPath">网站目录</param>
     /// <param name="suffix">控制器后缀名</param>
-    public async Task GenerateApiAsync(string entityPath, string sharePath = "",
-            string applicationPath = "", string apiPath = "", bool force = false)
+    public async Task GenerateApiAsync(
+        string entityPath,
+        string sharePath = "",
+        string applicationPath = "",
+        string apiPath = "",
+        bool force = false
+    )
     {
         try
         {
@@ -142,10 +161,17 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
 
             files.AddRange(_codeGen.GenerateDtos(entityInfo, sharePath, force));
             var tplContent = TplContent.ManagerTpl();
-            files.AddRange(_codeGen.GenerateManager(entityInfo, applicationPath, tplContent, force));
+            files.AddRange(
+                _codeGen.GenerateManager(entityInfo, applicationPath, tplContent, force)
+            );
 
             tplContent = TplContent.ControllerTpl();
-            var controllerFiles = _codeGen.GenerateController(entityInfo, apiPath, tplContent, force);
+            var controllerFiles = _codeGen.GenerateController(
+                entityInfo,
+                apiPath,
+                tplContent,
+                force
+            );
             var globalFiles = _codeGen.GenerateApiGlobalUsing(entityInfo, apiPath, true);
             files.Add(controllerFiles);
             files.Add(globalFiles);
@@ -164,11 +190,13 @@ public class CommandRunner(CodeGenService codeGen, CodeAnalysisService codeAnaly
     /// <param name="swaggerUrl"></param>
     /// <param name="language"></param>
     /// <returns></returns>
-    public static async Task GenerateCSharpApiClientAsync(string swaggerUrl, string outputPath, LanguageType language = LanguageType.CSharp)
+    public static async Task GenerateCSharpApiClientAsync(
+        string swaggerUrl,
+        string outputPath,
+        LanguageType language = LanguageType.CSharp
+    )
     {
         ApiClientRunner cmd = new(swaggerUrl, outputPath, language);
         await cmd.RunAsync();
     }
 }
-
-

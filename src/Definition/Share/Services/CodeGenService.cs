@@ -6,6 +6,7 @@ using Entity;
 using Microsoft.OpenApi.Readers;
 
 namespace Share.Services;
+
 /// <summary>
 /// 代码生成服务
 /// </summary>
@@ -20,7 +21,11 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath">输出项目目录</param>
     /// <param name="isCover">是否覆盖</param>
     /// <returns></returns>
-    public List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string outputPath, bool isCover = false)
+    public List<GenFileInfo> GenerateDtos(
+        EntityInfo entityInfo,
+        string outputPath,
+        bool isCover = false
+    )
     {
         _logger.LogInformation("🚀 Generating Dtos...");
         // 生成Dto
@@ -33,7 +38,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             IsCover = isCover,
             FileType = GenFileType.Global,
             FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
 
         var addDtoFile = GenerateDto(entityInfo, DtoType.Add);
@@ -56,15 +61,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         detailDtoFile.IsCover = isCover;
         detailDtoFile.FullName = Path.Combine(outputPath, detailDtoFile.FullName);
 
-        return
-        [
-            globalFile,
-            addDtoFile,
-            updateDtoFile,
-            filterDtoFile,
-            itemDtoFile,
-            detailDtoFile
-        ];
+        return [globalFile, addDtoFile, updateDtoFile, filterDtoFile, itemDtoFile, detailDtoFile];
     }
 
     /// <summary>
@@ -75,7 +72,12 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="tplContent">模板内容</param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GenerateManager(EntityInfo entityInfo, string outputPath, string tplContent, bool isCover = false)
+    public List<GenFileInfo> GenerateManager(
+        EntityInfo entityInfo,
+        string outputPath,
+        string tplContent,
+        bool isCover = false
+    )
     {
         var managerGen = new ManagerGenerate(entityInfo);
         // GlobalUsing
@@ -85,15 +87,19 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             IsCover = isCover,
             FileType = GenFileType.Global,
             FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
 
         var content = managerGen.GetManagerContent(tplContent, entityInfo.GetManagerNamespace());
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
             IsCover = isCover,
-            FullName = Path.Combine(outputPath, ConstVal.ManagersDir, $"{entityInfo.Name}{ConstVal.Manager}.cs"),
-            ModuleName = entityInfo.ModuleName
+            FullName = Path.Combine(
+                outputPath,
+                ConstVal.ManagersDir,
+                $"{entityInfo.Name}{ConstVal.Manager}.cs"
+            ),
+            ModuleName = entityInfo.ModuleName,
         };
 
         return [globalFile, managerFile];
@@ -107,7 +113,12 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="tplContent"></param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public GenFileInfo GenerateController(EntityInfo entityInfo, string outputPath, string tplContent, bool isCover = false)
+    public GenFileInfo GenerateController(
+        EntityInfo entityInfo,
+        string outputPath,
+        string tplContent,
+        bool isCover = false
+    )
     {
         var apiGen = new RestApiGenerate(entityInfo);
         var content = apiGen.GetRestApiContent(tplContent);
@@ -115,21 +126,23 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             IsCover = isCover,
             FullName = Path.Combine(outputPath, $"{entityInfo.Name}{ConstVal.Controller}.cs"),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
         return controllerFile;
     }
 
-    public GenFileInfo GenerateApiGlobalUsing(EntityInfo entityInfo, string outputPath, bool isCover = false)
+    public GenFileInfo GenerateApiGlobalUsing(
+        EntityInfo entityInfo,
+        string outputPath,
+        bool isCover = false
+    )
     {
         var apiGen = new RestApiGenerate(entityInfo);
 
         var globalFilePath = Path.Combine(outputPath, ConstVal.GlobalUsingsFile);
-        var globalLines = File.Exists(globalFilePath)
-            ? File.ReadLines(globalFilePath)
-            : [];
+        var globalLines = File.Exists(globalFilePath) ? File.ReadLines(globalFilePath) : [];
         var globalList = apiGen.GetGlobalUsings();
-        // add globalList  item if globalLines not exist 
+        // add globalList  item if globalLines not exist
         globalList.ForEach(g =>
         {
             if (!globalLines.Contains(g))
@@ -138,12 +151,15 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             }
         });
 
-        var globalFile = new GenFileInfo(ConstVal.GlobalUsingsFile, string.Join(Environment.NewLine, globalLines))
+        var globalFile = new GenFileInfo(
+            ConstVal.GlobalUsingsFile,
+            string.Join(Environment.NewLine, globalLines)
+        )
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
             FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
         return globalFile;
     }
@@ -155,7 +171,11 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateWebRequestAsync(string url = "", string outputPath = "", RequestLibType type = RequestLibType.NgHttp)
+    public async Task<List<GenFileInfo>> GenerateWebRequestAsync(
+        string url = "",
+        string outputPath = "",
+        RequestClientType type = RequestClientType.NgHttp
+    )
     {
         _logger.LogInformation("🚀 Generating ts models and {type} request services...", type);
         var files = new List<GenFileInfo>();
@@ -168,7 +188,12 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             HttpClientHandler handler = new()
             {
-                ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                ServerCertificateCustomValidationCallback = (
+                    sender,
+                    certificate,
+                    chain,
+                    sslPolicyErrors
+                ) => true,
             };
             using HttpClient http = new(handler);
 
@@ -180,25 +205,24 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             openApiContent = File.ReadAllText(url);
         }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
+        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
-
 
         // base service
         string content = RequestGenerate.GetBaseService(type);
         string dir = Path.Combine(outputPath, "services", docName);
         Directory.CreateDirectory(dir);
-        files.Add(new GenFileInfo("base.service.ts", content)
-        {
-            FullName = Path.Combine(dir, "base.service.ts"),
-            IsCover = false
-        });
+        files.Add(
+            new GenFileInfo("base.service.ts", content)
+            {
+                FullName = Path.Combine(dir, "base.service.ts"),
+                IsCover = false,
+            }
+        );
 
         // 枚举pipe
-        if (type == RequestLibType.NgHttp)
+        if (type == RequestClientType.NgHttp)
         {
             var schemas = apiDocument!.Components.Schemas;
             dir = Path.Combine(outputPath, "pipe", docName);
@@ -224,17 +248,16 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             }
             string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
 
-            files.Add(new GenFileInfo("enum-text.pipe.ts", pipeContent)
-            {
-                FullName = enumTextPath,
-                IsCover = true
-            });
+            files.Add(
+                new GenFileInfo("enum-text.pipe.ts", pipeContent)
+                {
+                    FullName = enumTextPath,
+                    IsCover = true,
+                }
+            );
         }
         // request services
-        var ngGen = new RequestGenerate(apiDocument!)
-        {
-            LibType = type
-        };
+        var ngGen = new RequestGenerate(apiDocument!) { LibType = type };
         // 获取对应的ts模型类，生成文件
         var tsModels = ngGen.GetTSInterfaces();
         tsModels.ForEach(m =>
@@ -303,7 +326,10 @@ public class CodeGenService(ILogger<CodeGenService> logger)
                         ? File.ReadLines(file.FullName)
                         : [];
 
-                    var newLines = file.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                    var newLines = file.Content.Split(
+                        new[] { Environment.NewLine },
+                        StringSplitOptions.RemoveEmptyEntries
+                    );
 
                     var lines = globalLines.ToList();
                     foreach (var line in newLines)
@@ -345,7 +371,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             DtoType.Filter => dtoGen.GetFilterDto(),
             DtoType.Item => dtoGen.GetItemDto(),
             DtoType.Detail => dtoGen.GetDetailDto(),
-            _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null),
         };
 
         //var md5Hash = HashCrypto.Md5Hash(dto.EntityNamespace + dto.Name);
@@ -382,7 +408,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         return new GenFileInfo($"{dto.Name}.cs", content)
         {
             FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
     }
 
@@ -392,7 +418,10 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="docUrl"></param>
     /// <param name="outputPath"></param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(string docUrl, string outputPath)
+    public async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(
+        string docUrl,
+        string outputPath
+    )
     {
         var files = new List<GenFileInfo>();
         var docName = docUrl.Split('/').Reverse().Skip(1).First();
@@ -409,9 +438,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         {
             openApiContent = File.ReadAllText(docUrl);
         }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
+        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
         var gen = new CSHttpClientGenerate(apiDocument!);
@@ -420,17 +447,21 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         string baseContent = CSHttpClientGenerate.GetBaseService(nspName);
         string globalUsingContent = CSHttpClientGenerate.GetGlobalUsing(projectName);
 
-        files.Add(new GenFileInfo("BaseService", baseContent)
-        {
-            FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
-            IsCover = true
-        });
+        files.Add(
+            new GenFileInfo("BaseService", baseContent)
+            {
+                FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
+                IsCover = true,
+            }
+        );
 
-        files.Add(new GenFileInfo("GlobalUsings", globalUsingContent)
-        {
-            FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
-            IsCover = false
-        });
+        files.Add(
+            new GenFileInfo("GlobalUsings", globalUsingContent)
+            {
+                FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
+                IsCover = false,
+            }
+        );
 
         // services
         List<GenFileInfo> services = gen.GetServices(nspName);
@@ -448,11 +479,13 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         });
         // csproj
         var csprojContent = CSHttpClientGenerate.GetCsprojContent();
-        files.Add(new GenFileInfo(projectName, csprojContent)
-        {
-            FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
-            IsCover = true
-        });
+        files.Add(
+            new GenFileInfo(projectName, csprojContent)
+            {
+                FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
+                IsCover = true,
+            }
+        );
 
         files.AddRange(services);
         files.AddRange(models);
@@ -465,12 +498,16 @@ public enum DtoType
 {
     [Description("Add")]
     Add,
+
     [Description("Update")]
     Update,
+
     [Description("Filter")]
     Filter,
+
     [Description("Item")]
     Item,
+
     [Description("Detail")]
-    Detail
+    Detail,
 }

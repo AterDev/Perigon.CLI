@@ -34,7 +34,6 @@
     <Project Path="src/Modules/FileManagerMod/FileManagerMod.csproj" />
     <Project Path="src/Modules/OrderMod/OrderMod.csproj" />
     <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
-    <Project Path="src/Modules/TestMod/TestMod.csproj" />
     <Project Path="src/Modules/UserMod/UserMod.csproj" Id="8c4fb758-f362-4671-bf72-6ee9e9e482d2" />
   </Folder>
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">

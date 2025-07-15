@@ -31,7 +31,7 @@ public partial class OpenApi
     string? SelectedNav { get; set; }
 
     bool IsLoading { get; set; } = true;
-    bool IsSync { get; set; } = false;
+    bool IsFreshing { get; set; } = false;
 
     string ActiveId { get; set; } = "api";
 
@@ -47,6 +47,7 @@ public partial class OpenApi
             CurrentDoc = Docs[0];
             await GetDocContentAsync(false);
         }
+        IsLoading = false;
     }
 
     private async Task GetApiDocsAsync()
@@ -55,13 +56,13 @@ public partial class OpenApi
             new ApiDocInfoFilterDto { PageSize = 999, ProjectId = ProjectContext.ProjectId }
         );
         Docs = res.Data;
-        IsLoading = false;
     }
 
     private async Task GetDocContentAsync(bool isFresh)
     {
         if (CurrentDoc?.Id != null)
         {
+            IsFreshing = true;
             var res = await _manager.GetContentAsync(CurrentDoc.Id, isFresh);
 
             if (res is not null)
@@ -78,7 +79,7 @@ public partial class OpenApi
                     .SelectMany(g => g.ApiInfos ?? [])
                     .FirstOrDefault(a => a.Router == CurrentApi?.Router);
             }
-            IsLoading = false;
+            IsFreshing = false;
         }
     }
 
@@ -230,6 +231,29 @@ public partial class OpenApi
 
         await GetApiDocsAsync();
         StateHasChanged();
+    }
+
+    private async Task OpenRequestClientDialog()
+    {
+        if (CurrentDoc is null)
+        {
+            ToastService.ShowError(Lang(Localizer.MustSelectOption));
+            return;
+        }
+        DialogParameters parameters = new()
+        {
+            Width = "500px",
+            PreventScroll = true,
+            Modal = true,
+        };
+        var dialog = await DialogService.ShowDialogAsync<RequestClientDialog>(
+            CurrentDoc,
+            parameters
+        );
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+        await GetApiDocsAsync();
     }
 
     private async Task DeleteOpenApiAsync()

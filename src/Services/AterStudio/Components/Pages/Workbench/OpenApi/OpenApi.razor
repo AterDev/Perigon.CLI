@@ -51,17 +51,15 @@
                      HorizontalAlignment="HorizontalAlignment.End">
           <FluentButton Appearance="Appearance.Lightweight"
                         Title="code generation"
+                        OnClick="() => OpenRequestClientDialog()"
                         IconStart="@(new Icons.Regular.Size24.Code())">
           </FluentButton>
           <FluentButton Appearance="Appearance.Lightweight"
                         Title="refresh"
+                        Loading="@IsFreshing"
+                        OnClick="()=>GetDocContentAsync(true)"
                         IconStart="@(new Icons.Regular.Size24.ArrowClockwise())">
           </FluentButton>
-          <FluentButton Appearance="Appearance.Lightweight"
-                        Title="clean solution obj & bin files"
-                        IconStart="@(new Icons.Regular.Size24.Broom().WithColor(Color.Warning))">
-          </FluentButton>
-
         </FluentStack>
       </FluentStack>
     </FluentToolbar>
@@ -276,11 +274,7 @@
                 </FluentStack>
                 @if (CurrentModel.PropertyInfos?.Count > 0)
                 {
-                  <PropTableView Items="@CurrentModel.PropertyInfos.AsQueryable()"
-                                 NameTitle="@Lang(Localizer.Name)"
-                                 TypeTitle="@Lang(Localizer.Type)"
-                                 RequiredTitle="@Lang(Localizer.Required)"
-                                 DescriptionTitle="@Lang(Localizer.Description)" />
+                  <PropTableView Items="@CurrentModel.PropertyInfos.AsQueryable()" />
                 }
               </FluentStack>
             }
