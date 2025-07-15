@@ -169,7 +169,6 @@ public partial class EntityInfoManager(
     /// <summary>
     /// 生成服务
     /// </summary>
-    /// <param name="project"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
@@ -187,112 +186,156 @@ public partial class EntityInfoManager(
 
         var helper = new EntityParseHelper(dto.EntityPath);
         var entityInfo = await helper.ParseEntityAsync();
-        _ = entityInfo ?? throw new Exception("实体解析失败，请检查实体文件是否正确！");
+        _ = entityInfo ?? throw new Exception("Parse entity failed!");
 
-        _logger.LogInformation("✨ 解析到模块：{moduleName}", entityInfo.ModuleName);
+        _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
         if (string.IsNullOrWhiteSpace(entityInfo.ModuleName))
         {
-            _logger.LogWarning("⚠️ 未解析到模块信息，使用默认模块");
+            _logger.LogWarning("⚠️ Using default module when not found module");
             entityInfo.ModuleName = ConstVal.CommonMod;
         }
         ModuleName = entityInfo.ModuleName;
 
         string modulePath = _projectContext.GetModulePath(entityInfo.ModuleName);
-        string apiPath = _projectContext.GetControllerPath(entityInfo.ModuleName);
-
         var files = new List<GenFileInfo>();
+
         switch (dto.CommandType)
         {
             case CommandType.Dto:
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
+                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
                 break;
             case CommandType.Manager:
-            {
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
-                var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(
-                    entityInfo,
-                    modulePath,
-                    tplContent,
-                    dto.Force
-                );
-                files.AddRange(managerFiles);
+                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
                 break;
-            }
             case CommandType.API:
-            {
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
-                var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(
-                    entityInfo,
-                    modulePath,
-                    tplContent,
-                    dto.Force
-                );
-                files.AddRange(managerFiles);
-
-                _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, true);
-                var controllerType =
-                    _projectContext.Project?.Config.ControllerType ?? ControllerType.Both;
-
-                switch (controllerType)
-                {
-                    case ControllerType.Client:
-                    {
-                        tplContent = TplContent.ControllerTpl(false);
-                        var controllerFiles = _codeGenService.GenerateController(
-                            entityInfo,
-                            apiPath,
-                            tplContent,
-                            dto.Force
-                        );
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    case ControllerType.Admin:
-                    {
-                        tplContent = TplContent.ControllerTpl();
-                        apiPath = Path.Combine(apiPath, "AdminControllers");
-                        var controllerFiles = _codeGenService.GenerateController(
-                            entityInfo,
-                            apiPath,
-                            tplContent,
-                            dto.Force
-                        );
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    case ControllerType.Both:
-                    {
-                        tplContent = TplContent.ControllerTpl(false);
-                        var controllerFiles = _codeGenService.GenerateController(
-                            entityInfo,
-                            apiPath,
-                            tplContent,
-                            dto.Force
-                        );
-                        files.Add(controllerFiles);
-
-                        tplContent = TplContent.ControllerTpl();
-                        apiPath = Path.Combine(apiPath, "AdminControllers");
-                        controllerFiles = _codeGenService.GenerateController(
-                            entityInfo,
-                            apiPath,
-                            tplContent,
-                            dto.Force
-                        );
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
+                files.AddRange(GenerateControllers(entityInfo, dto));
                 break;
-            }
             default:
                 break;
         }
         _codeGenService.GenerateFiles(files);
+        return files;
+    }
+
+    private List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string modulePath, bool force)
+    {
+        return _codeGenService.GenerateDtos(entityInfo, modulePath, force);
+    }
+
+    private List<GenFileInfo> GenerateManagers(EntityInfo entityInfo, string modulePath, bool force)
+    {
+        var tplContent = TplContent.ManagerTpl();
+        return _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
+    }
+
+    /// <summary>
+    /// 控制器生成
+    /// </summary>
+    /// <param name="entityInfo"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    private List<GenFileInfo> GenerateControllers(EntityInfo entityInfo, GenerateDto dto)
+    {
+        var files = new List<GenFileInfo>();
+        bool onlyOneService = dto.ServicePath.Length == 1;
+        foreach (var apiPath in dto.ServicePath)
+        {
+            var controllerPath = Path.Combine(apiPath, ConstVal.ControllersDir);
+            _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, true);
+            var controllerType =
+                _projectContext.Project?.Config.ControllerType ?? ControllerType.Both;
+
+            if (onlyOneService)
+            {
+                files.Add(
+                    _codeGenService.GenerateController(
+                        entityInfo,
+                        apiPath,
+                        TplContent.ControllerTpl(false),
+                        true
+                    )
+                );
+            }
+            else
+            {
+                files.AddRange(GenerateControllerByType(entityInfo, apiPath, controllerType));
+            }
+        }
+        return files;
+    }
+
+    private List<GenFileInfo> GenerateControllerByType(
+        EntityInfo entityInfo,
+        string apiPath,
+        ControllerType controllerType
+    )
+    {
+        var files = new List<GenFileInfo>();
+
+        switch (controllerType)
+        {
+            case ControllerType.Client:
+                files.Add(
+                    _codeGenService.GenerateController(
+                        entityInfo,
+                        apiPath,
+                        TplContent.ControllerTpl(false),
+                        true
+                    )
+                );
+                break;
+            case ControllerType.Admin:
+                files.Add(
+                    _codeGenService.GenerateController(
+                        entityInfo,
+                        Path.Combine(apiPath, "AdminControllers"),
+                        TplContent.ControllerTpl(),
+                        true
+                    )
+                );
+                break;
+            case ControllerType.Both:
+                files.Add(
+                    _codeGenService.GenerateController(
+                        entityInfo,
+                        apiPath,
+                        TplContent.ControllerTpl(false),
+                        true
+                    )
+                );
+                files.Add(
+                    _codeGenService.GenerateController(
+                        entityInfo,
+                        Path.Combine(apiPath, "AdminControllers"),
+                        TplContent.ControllerTpl(),
+                        true
+                    )
+                );
+                break;
+            default:
+                files.Add(
+                    _codeGenService.GenerateController(
+                        entityInfo,
+                        apiPath,
+                        TplContent.ControllerTpl(false),
+                        true
+                    )
+                );
+                break;
+        }
+
+        // 多服务时只生成 Client 端 Controller
+        files.Add(
+            _codeGenService.GenerateController(
+                entityInfo,
+                apiPath,
+                TplContent.ControllerTpl(false),
+                true
+            )
+        );
         return files;
     }
 }

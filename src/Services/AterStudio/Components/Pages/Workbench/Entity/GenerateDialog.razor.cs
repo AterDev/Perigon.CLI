@@ -43,13 +43,17 @@ public partial class GenerateDialog
 
     private async Task GenerateAsync()
     {
+        IsProcessing = true;
         if (Content.EntityPaths == null || Content.EntityPaths.Length == 0)
         {
             ToastService.ShowError("No entity paths specified.");
             return;
         }
-        IsProcessing = true;
-        List<GenFileInfo> resFiles = new();
+        GenerateDto.ServicePath = SelectedServices
+            .Where(s => Path.GetDirectoryName(s.Path) != null)
+            .Select(s => Path.GetDirectoryName(s.Path)!)
+            .ToArray();
+        List<GenFileInfo> resFiles = [];
         foreach (var entityPath in Content.EntityPaths)
         {
             GenerateDto.EntityPath = entityPath;

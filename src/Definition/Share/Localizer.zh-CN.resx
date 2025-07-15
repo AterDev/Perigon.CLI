@@ -369,8 +369,8 @@
   <data name="GenerateManagers" xml:space="preserve">
     <value>生成Manager</value>
   </data>
-  <data name="GenerateApis" xml:space="preserve">
-    <value>生成APIController</value>
+  <data name="GenerateController" xml:space="preserve">
+    <value>生成Controller</value>
   </data>
   <data name="SearchEntity" xml:space="preserve">
     <value>搜索实体信息</value>

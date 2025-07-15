@@ -6,7 +6,7 @@ public class GenerateDto
 {
     public required string EntityPath { get; set; }
     public CommandType CommandType { get; set; }
-    public string? ServicePath { get; set; }
+    public string[] ServicePath { get; set; } = [];
 
     /// <summary>
     /// 是否覆盖

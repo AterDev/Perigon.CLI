@@ -1,4 +1,6 @@
+using AterStudio.Components.Shared;
 using BlazorMonaco.Editor;
+using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 
@@ -143,7 +145,7 @@ public partial class EntityList
         }
     }
 
-    private async Task OpenGenerateDialog(EntityFile entity, CommandType commandType)
+    private async Task OpenGenerateDialog(CommandType commandType, EntityFile? entity = null)
     {
         var parameters = new DialogParameters
         {
@@ -151,20 +153,42 @@ public partial class EntityList
             Width = "360px",
             ShowDismiss = false,
         };
+        var data = new GenerateDialogData { CommandType = commandType };
 
-        var data = new GenerateDialogData
+        if (entity is not null)
         {
-            CommandType = commandType,
-            EntityPaths = [entity.FullName],
-        };
+            data.EntityPaths = [entity.FullName];
+        }
+        else if (SelectedEntity.Any())
+        {
+            data.EntityPaths = SelectedEntity.Select(e => e.FullName).ToArray();
+        }
 
         var dialog = await DialogService.ShowDialogAsync<GenerateDialog>(data, parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            // TODO: Handle the result if needed
+            if (result.Data is List<GenFileInfo> list)
+            {
+                // 发送全局通知
+                var messages = new NotificationMessage()
+                {
+                    Title = Lang(Localizer.Generate) + commandType.ToString(),
+                    Content = string.Join("\n", list.Select(f => f.FullName)),
+                    UnRead = true,
+                    DateTime = DateTimeOffset.Now,
+                };
 
-            ToastService.ShowSuccess(Lang(Localizer.Generate, Localizer.Success));
+                MessageService.ShowMessageBar(options =>
+                {
+                    options.Intent = MessageIntent.Success;
+                    options.Title = Lang(Localizer.Generate) + commandType.ToString();
+                    options.Body = string.Join("\n", list.Select(f => f.FullName));
+                    options.Timestamp = DateTime.Now;
+                    options.Section = App.MESSAGES_NOTIFICATION_CENTER;
+                });
+            }
+            ToastService.ShowSuccess(Lang(Localizer.Generate, Localizer.Success), timeout: 3000);
         }
     }
 

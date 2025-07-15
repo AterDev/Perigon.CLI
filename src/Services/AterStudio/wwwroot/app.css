@@ -152,3 +152,8 @@ fluent-card:hover .delete-action {
 .delete-action {
     display: none;
 }
+
+
+.fluent-messagebar-notification-content {
+    word-break: break-word;
+}

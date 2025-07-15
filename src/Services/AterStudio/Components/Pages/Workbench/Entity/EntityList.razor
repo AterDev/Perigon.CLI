@@ -135,14 +135,23 @@
             </FluentButton>
             <FluentMenu Anchor="batchMenu"
                         @bind-Open="BatchOpen">
-              <FluentMenuItem OnClick="@(() => null)">
+              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Dto))">
+                <FluentIcon Value="@(new Icons.Regular.Size20.CodeBlock())"
+                            Color="Color.Accent"
+                            Slot="start" />
                 @Lang(Localizer.GenerateDtos)
               </FluentMenuItem>
-              <FluentMenuItem OnClick="@(() => null)">
+              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Manager))">
+                <FluentIcon Value="@(new Icons.Regular.Size20.LinkSquare())"
+                            Color="Color.Accent"
+                            Slot="start" />
                 @Lang(Localizer.GenerateManagers)
               </FluentMenuItem>
-              <FluentMenuItem OnClick="@(() => null)">
-                @Lang(Localizer.GenerateApis)
+              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.API))">
+                <FluentIcon Value="@(new Icons.Regular.Size20.PlugConnected())"
+                            Color="Color.Accent"
+                            Slot="start" />
+                @Lang(Localizer.GenerateController)
               </FluentMenuItem>
             </FluentMenu>
 
@@ -177,21 +186,21 @@
             <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
               <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
                 <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(_ => OpenGenerateDialog(context,CommandType.Dto))"
+                              OnClick="@(_ => OpenGenerateDialog(CommandType.Dto, context))"
                               IconStart="@(new Icons.Regular.Size24.CodeBlock())"
                               Title="@Lang(Localizer.GenerateDtos)">
 
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(_ => OpenGenerateDialog(context,CommandType.Manager))"
+                              OnClick="@(_ => OpenGenerateDialog(CommandType.Manager, context))"
                               IconStart="@(new Icons.Regular.Size24.LinkSquare())"
                               Title="@Lang(Localizer.GenerateManagers)">
 
                 </FluentButton>
                 <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(_ => OpenGenerateDialog(context,CommandType.API))"
+                              OnClick="@(_ => OpenGenerateDialog(CommandType.API, context))"
                               IconStart="@(new Icons.Regular.Size24.PlugConnected())"
-                              Title="@Lang(Localizer.GenerateApis)">
+                              Title="@Lang(Localizer.GenerateController)">
                 </FluentButton>
               </FluentStack>
             </TemplateColumn>

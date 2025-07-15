@@ -369,8 +369,8 @@
   <data name="GenerateManagers" xml:space="preserve">
     <value>Generate Managers</value>
   </data>
-  <data name="GenerateApis" xml:space="preserve">
-    <value>Generate APIControllers</value>
+  <data name="GenerateController" xml:space="preserve">
+    <value>Generate Controller</value>
   </data>
   <data name="SearchEntity" xml:space="preserve">
     <value>Search Entities Infomation</value>
