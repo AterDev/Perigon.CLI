@@ -417,4 +417,7 @@
   <data name="Batch" xml:space="preserve">
     <value>批量</value>
   </data>
+  <data name="RequestClient" xml:space="preserve">
+    <value>请求客户端</value>
+  </data>
 </root>

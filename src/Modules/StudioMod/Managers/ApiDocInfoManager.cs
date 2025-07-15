@@ -1,3 +1,4 @@
+using CodeGenerator.Models;
 using Microsoft.OpenApi.Readers;
 using StudioMod.Models.ApiDocInfoDtos;
 
@@ -10,7 +11,8 @@ public class ApiDocInfoManager(
     DataAccessContext<ApiDocInfo> dataContext,
     IProjectContext project,
     ILogger<ApiDocInfoManager> logger,
-    CodeGenService codeGenService
+    CodeGenService codeGenService,
+    Localizer localizer
 ) : ManagerBase<ApiDocInfo>(dataContext, logger)
 {
     private readonly IProjectContext _project = project;
@@ -215,39 +217,45 @@ public class ApiDocInfoManager(
     }
 
     /// <summary>
-    /// 生成前端请求服务
+    /// 生成请求客户端
     /// </summary>
-    /// <param name="doc"></param>
-    /// <param name="webPath"></param>
-    /// <param name="type"></param>
-    /// <param name="swaggerPath"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task GenerateRequestAsync(
-        ApiDocInfo doc,
-        string webPath,
-        RequestClientType type,
-        string? swaggerPath = null
+    public async Task<List<GenFileInfo>?> GenerateRequestClientAsync(
+        Guid openApiDocId,
+        RequestClientDto dto
     )
     {
-        // 保存路径
-        doc.LocalPath = webPath;
+        var doc = await GetCurrentAsync(openApiDocId);
+        if (doc == null)
+        {
+            ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId);
+            return null;
+        }
+        doc.LocalPath = dto.OutputPath;
         await SaveChangesAsync();
 
-        swaggerPath ??= Path.Combine(_project.ApiPath!, "openapi.json");
-        var files = await _codeGenService.GenerateWebRequestAsync(swaggerPath, webPath, type);
-        _codeGenService.GenerateFiles(files);
-    }
+        var files = new List<GenFileInfo>();
+        switch (dto.ClientType)
+        {
+            case RequestClientType.NgHttp:
+                files = await _codeGenService.GenerateWebRequestAsync(
+                    dto.OpenApiEndpoint!,
+                    dto.OutputPath!,
+                    dto.ClientType
+                );
 
-    /// <summary>
-    /// 生成csharp请求服务
-    /// </summary>
-    /// <param name="webPath"></param>
-    /// <param name="swaggerPath"></param>
-    /// <returns></returns>
-    public async Task GenerateCsharpRequestAsync(string webPath, string? swaggerPath = null)
-    {
-        swaggerPath ??= Path.Combine(_project.ApiPath!, "openapi.json");
-        var files = await _codeGenService.GenerateCsharpApiClientAsync(swaggerPath, webPath);
+                break;
+            case RequestClientType.Csharp:
+                files = await _codeGenService.GenerateCsharpApiClientAsync(
+                    dto.OpenApiEndpoint!,
+                    dto.OutputPath!
+                );
+                break;
+            default:
+                break;
+        }
         _codeGenService.GenerateFiles(files);
+        return files;
     }
 }

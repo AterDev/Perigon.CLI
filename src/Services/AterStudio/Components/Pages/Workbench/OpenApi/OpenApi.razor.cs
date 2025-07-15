@@ -1,4 +1,5 @@
 using Ater.Common.Utils;
+using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.OpenApi.Models;
@@ -253,7 +254,20 @@ public partial class OpenApi
         var result = await dialog.Result;
         if (result.Cancelled)
             return;
-        await GetApiDocsAsync();
+
+        if (result.Data is List<GenFileInfo> files)
+        {
+            // 发送全局通知
+            MessageService.ShowMessageBar(options =>
+            {
+                options.Intent = MessageIntent.Success;
+                options.Title = Lang(Localizer.Generate, Localizer.RequestClient);
+                options.Body = string.Join("\n", files.Select(f => f.FullName));
+                options.Timestamp = DateTime.Now;
+                options.Section = App.MESSAGES_NOTIFICATION_CENTER;
+            });
+        }
+        ToastService.ShowSuccess(Lang(Localizer.Generate, Localizer.Success), timeout: 3000);
     }
 
     private async Task DeleteOpenApiAsync()

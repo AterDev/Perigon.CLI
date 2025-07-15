@@ -168,22 +168,14 @@ public partial class EntityList
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            if (result.Data is List<GenFileInfo> list)
+            if (result.Data is List<GenFileInfo> files)
             {
                 // 发送全局通知
-                var messages = new NotificationMessage()
-                {
-                    Title = Lang(Localizer.Generate) + commandType.ToString(),
-                    Content = string.Join("\n", list.Select(f => f.FullName)),
-                    UnRead = true,
-                    DateTime = DateTimeOffset.Now,
-                };
-
                 MessageService.ShowMessageBar(options =>
                 {
                     options.Intent = MessageIntent.Success;
                     options.Title = Lang(Localizer.Generate) + commandType.ToString();
-                    options.Body = string.Join("\n", list.Select(f => f.FullName));
+                    options.Body = string.Join("\n", files.Select(f => f.FullName));
                     options.Timestamp = DateTime.Now;
                     options.Section = App.MESSAGES_NOTIFICATION_CENTER;
                 });

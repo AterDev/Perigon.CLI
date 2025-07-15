@@ -417,4 +417,7 @@
   <data name="Batch" xml:space="preserve">
     <value>Batch</value>
   </data>
+  <data name="RequestClient" xml:space="preserve">
+    <value>Request Client</value>
+  </data>
 </root>

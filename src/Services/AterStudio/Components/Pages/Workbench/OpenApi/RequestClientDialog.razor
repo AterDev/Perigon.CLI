@@ -75,6 +75,9 @@
   [Parameter]
   public ApiDocInfoItemDto Content { get; set; } = null!;
 
+  [Inject]
+  ApiDocInfoManager ApiDocInfoManager { get; set; } = default!;
+
   EditContext? editContext;
   RequestClientDto Model { get; set; } = default!;
   bool formValid { get; set; }
@@ -114,7 +117,14 @@
       return;
     }
 
-    // TODO:保存逻辑
+    var res = await ApiDocInfoManager.GenerateRequestClientAsync(Content.Id, Model);
+    if (res == null)
+    {
+      ToastService.ShowError(ApiDocInfoManager.ErrorMsg);
+      return;
+    }
+    await Dialog.CloseAsync(res);
+
   }
   private async Task CancelAsync()
   {
