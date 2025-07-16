@@ -74,6 +74,10 @@ body {
 }
 
 
+.fluent-nav-link .positioning-region {
+    min-height: 40px !important;
+}
+
 .list .fluent-nav-item {
     margin: 0 !important;
 }

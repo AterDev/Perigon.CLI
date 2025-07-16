@@ -1,8 +1,6 @@
-using AterStudio.Components.Shared;
 using BlazorMonaco.Editor;
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace AterStudio.Components.Pages.Workbench.Entity;
 
@@ -136,13 +134,9 @@ public partial class EntityList
 
     private async Task OpenServicesDialog()
     {
-        var parameters = new DialogParameters { Modal = false, Width = "560px" };
+        var parameters = new DialogParameters { Modal = true, Width = "560px" };
         var dialog = await DialogService.ShowDialogAsync<ServicesDialog>(parameters);
         var result = await dialog.Result;
-        if (!result.Cancelled)
-        {
-            GetServices();
-        }
     }
 
     private async Task OpenGenerateDialog(CommandType commandType, EntityFile? entity = null)

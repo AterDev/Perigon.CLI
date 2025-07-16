@@ -5,9 +5,8 @@
 @implements IDialogContentComponent<ApiDocInfoItemDto>
 
 <FluentDialogHeader ShowDismiss="false">
-  <FluentLabel Typo="Typography.PaneHeader">生成客户端请求</FluentLabel>
-  <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
-    请输入OpenApi终结点、客户端类型和输出目录
+  <FluentLabel Typo="Typography.PaneHeader">
+    @Lang(Localizer.Generate, Localizer.RequestClient)
   </FluentLabel>
 </FluentDialogHeader>
 <FluentBodyContent>
@@ -17,37 +16,33 @@
 
     <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentSelect TOption="RequestClientType"
+                      Items="Enum.GetValues<RequestClientType>()"
+                      OptionValue="@(t=>t.ToString())"
+                      OptionText="@(t=>t.ToString())"
+                      SelectedOption="Model.ClientType"
+                      OptionSelected="@(p=>p==RequestClientType.NgHttp)"
+                      Label="@Lang(Localizer.RequestClient)"
+                      Required
+                      Class="w-100">
+        </FluentSelect>
+        <ValidationMessage For="@(() => Model.ClientType)" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
         <FluentTextField @bind-Value="Model.OpenApiEndpoint"
-                         Label="OpenApi终结点"
-                         Placeholder="请输入OpenApi终结点"
+                         Label="@Lang(Localizer.OpenApiEndpoint)"
+                         Placeholder="@Lang(Localizer.OpenApiEndpoint)"
                          Required
                          Class="w-100"
                          MaxLength="300" />
         <ValidationMessage For="@(() => Model.OpenApiEndpoint)" />
       </FluentStack>
-      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
-        <FluentSelect TOption="RequestClientType"
-                      SelectedOption="Model.ClientType"
-                      Label="客户端类型"
-                      Placeholder="请选择客户端类型"
-                      Required
-                      Class="w-100">
 
-          @foreach (var type in Enum.GetValues<RequestClientType>())
-          {
-            <FluentOption Value="type">
-              @type
-            </FluentOption>
-          }
-        </FluentSelect>
-
-        <ValidationMessage For="@(() => Model.ClientType)" />
-      </FluentStack>
 
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
         <FluentTextField @bind-Value="Model.OutputPath"
-                         Label="输出目录"
-                         Placeholder="请输入输出目录"
+                         Label="@Lang(Localizer.OutputPath)"
+                         Placeholder="@Lang(Localizer.OutputPath)"
                          Required
                          Class="w-100"
                          MaxLength="200" />

@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Readers;
 using Share.Services;
 
 namespace CodeGenerator.Test;
+
 public class FunctionTest
 {
     [Fact]
@@ -20,10 +21,7 @@ public class FunctionTest
         string filePath = PathHelper.GetProjectFilePath(@"Data\openapi.json");
         string openApiContent = File.ReadAllText(filePath);
         // 过滤特殊符号
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
-
+        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
         var helper = new OpenApiService(apiDocument);
@@ -61,7 +59,7 @@ public class FunctionTest
 
         string projectFile = Path.Combine(current, "CodeGenerator.Test.csproj");
 
-        string? type = AssemblyHelper.GetProjectType(new FileInfo(projectFile));
+        string? type = AssemblyHelper.GetProjectType(new System.IO.FileInfo(projectFile));
         Assert.Equal("console", type);
     }
 
@@ -82,7 +80,6 @@ public class FunctionTest
         var content = compilation.SyntaxRoot!.ToFullString();
 
         Console.WriteLine();
-
     }
 
     [Fact]
@@ -117,12 +114,12 @@ public class FunctionTest
                 },
               "AllowedHosts": "*"
             }
-            
+
             """;
-        JsonNode? jsonNode = JsonNode.Parse(jsonString, documentOptions: new JsonDocumentOptions
-        {
-            CommentHandling = JsonCommentHandling.Skip
-        });
+        JsonNode? jsonNode = JsonNode.Parse(
+            jsonString,
+            documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip }
+        );
         var section = JsonHelper.GetSectionNode(jsonNode!, "ConnectionStrings");
         var value = JsonHelper.GetValue<string>(section!, "RedisInstanceName");
         JsonHelper.AddOrUpdateJsonNode(jsonNode!, "AllowedHosts", "111");
@@ -134,12 +131,19 @@ public class FunctionTest
     [Fact]
     public async Task Should_Analysis_CodeAsync()
     {
-        string content = File.ReadAllText(@"D:\codes\v7.0\src\Application\IManager\ISystemRoleManager.cs");
+        string content = File.ReadAllText(
+            @"D:\codes\v7.0\src\Application\IManager\ISystemRoleManager.cs"
+        );
         SyntaxTree tree = CSharpSyntaxTree.ParseText(content);
-        PortableExecutableReference mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-        CSharpCompilation compilation = CSharpCompilation.Create("MyCompilation", syntaxTrees: new[] { tree }, references: new[] { mscorlib });
+        PortableExecutableReference mscorlib = MetadataReference.CreateFromFile(
+            typeof(object).Assembly.Location
+        );
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "MyCompilation",
+            syntaxTrees: new[] { tree },
+            references: new[] { mscorlib }
+        );
         await CSharpAnalysisHelper.GetBaseInterfaceInfoAsync(compilation, tree);
-
     }
 
     [Fact]
@@ -199,10 +203,8 @@ public class FunctionTest
             List<JsonMetadata> meta = helper.JsonMetadataList;
             helper.GenerateClass(jsonElement);
 
-
             List<string> classcodes = helper.ClassCodes;
             Console.WriteLine(classcodes.Count);
-
         }
     }
 
@@ -225,7 +227,6 @@ public class FunctionTest
         Assert.NotNull(baseTypes);
         Assert.Equal("IEntityBase", baseTypes[0].ToString());
     }
-
 }
 
 public class Model

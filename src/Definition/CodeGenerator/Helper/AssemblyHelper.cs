@@ -16,11 +16,12 @@ public class AssemblyHelper
     /// <param name="dir">起始目录</param>
     /// <param name="root">根目录</param>
     /// <returns></returns>
-    public static FileInfo? FindProjectFile(DirectoryInfo dir, DirectoryInfo? root = null)
+    public static System.IO.FileInfo? FindProjectFile(DirectoryInfo dir, DirectoryInfo? root = null)
     {
         try
         {
-            FileInfo? file = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")?.FirstOrDefault();
+            System.IO.FileInfo? file = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")
+                ?.FirstOrDefault();
             return root == null ? file
                 : file == null && dir != root ? FindProjectFile(dir.Parent!, root)
                 : file;
@@ -54,7 +55,7 @@ public class AssemblyHelper
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    public static string GetAssemblyName(FileInfo file)
+    public static string GetAssemblyName(System.IO.FileInfo file)
     {
         XElement xml = XElement.Load(file.FullName);
         XElement? node = xml.Descendants("PropertyGroup")
@@ -78,7 +79,7 @@ public class AssemblyHelper
     /// </summary>
     /// <param name="file"></param>
     /// <returns>oneOf: null/web/console</returns>
-    public static string? GetProjectType(FileInfo file)
+    public static string? GetProjectType(System.IO.FileInfo file)
     {
         XElement xml = XElement.Load(file.FullName);
         var sdk = xml.Attribute("Sdk")?.Value;
@@ -90,7 +91,7 @@ public class AssemblyHelper
 
     public static string? GetAssemblyName(DirectoryInfo dir)
     {
-        FileInfo? file = FindProjectFile(dir);
+        System.IO.FileInfo? file = FindProjectFile(dir);
         return file == null ? null : GetAssemblyName(file);
     }
 
@@ -102,7 +103,7 @@ public class AssemblyHelper
     /// <returns></returns>
     public static string? GetNamespaceName(DirectoryInfo dir)
     {
-        FileInfo? file = FindProjectFile(dir);
+        System.IO.FileInfo? file = FindProjectFile(dir);
         if (file == null)
         {
             return null;
@@ -130,11 +131,11 @@ public class AssemblyHelper
     /// <param name="dir">当前目录</param>
     /// <param name="root">要目录</param>
     /// <returns></returns>
-    public static FileInfo? GetSlnFile(DirectoryInfo dir, DirectoryInfo? root = null)
+    public static System.IO.FileInfo? GetSlnFile(DirectoryInfo dir, DirectoryInfo? root = null)
     {
         try
         {
-            FileInfo? file = dir.GetFiles("*.sln")?.FirstOrDefault();
+            System.IO.FileInfo? file = dir.GetFiles("*.sln")?.FirstOrDefault();
             file ??= dir.GetFiles("*.slnx")?.FirstOrDefault();
             return root == null ? file
                 : file == null && dir != root ? GetSlnFile(dir.Parent!, root)
@@ -213,12 +214,15 @@ public class AssemblyHelper
     /// <returns></returns>
     public static List<XmlCommentMember>? GetXmlMembers(DirectoryInfo dir)
     {
-        FileInfo? projectFile = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")
+        System.IO.FileInfo? projectFile = dir.GetFiles($"*{ConstVal.CSharpProjectExtension}")
             ?.FirstOrDefault();
         if (projectFile != null)
         {
             string assemblyName = GetAssemblyName(projectFile);
-            FileInfo? xmlFile = dir.GetFiles($"{assemblyName}.xml", SearchOption.AllDirectories)
+            System.IO.FileInfo? xmlFile = dir.GetFiles(
+                    $"{assemblyName}.xml",
+                    SearchOption.AllDirectories
+                )
                 .FirstOrDefault();
             if (xmlFile != null)
             {

@@ -37,6 +37,7 @@ public static class ConstVal
     public const string ControllersDir = "Controllers";
     public const string SrcDir = "src";
     public const string TemplateDir = "templates";
+
     public const string ServicesDir = "Services";
 
     public const string StudioDir = "DryStudio";
@@ -118,4 +119,5 @@ public static class PathConst
         ConstVal.SrcDir,
         ConstVal.ServicesDir
     );
+    public static readonly string PromptPath = Path.Combine(".github", "prompts");
 }

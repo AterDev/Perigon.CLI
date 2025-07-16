@@ -1,0 +1,71 @@
+@page "/data/prompt"
+@inherits PageBase
+
+<PageTitle>Prompt 管理</PageTitle>
+<FluentSplitter Orientation="Orientation.Horizontal"
+                Panel1Size="220px"
+                Panel1MinSize="180px"
+                Panel2MinSize="60%"
+                Class="w-100" Style="height:calc(100vh - 110px)">
+  <Panel1>
+    <FluentStack Orientation="Orientation.Vertical" Class="px-1" VerticalGap="0">
+      <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+        <FluentLabel Typo="Typography.Subject">目录</FluentLabel>
+        <FluentStack Orientation="Orientation.Horizontal">
+          <FluentButton Appearance="Appearance.Stealth" Title="新建目录" OnClick="OpenAddDirectoryDialog" IconStart="@(new Icons.Regular.Size20.Add())" />
+          <FluentButton Appearance="Appearance.Stealth" Title="删除目录" OnClick="DeleteDirectoryAsync" IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))" />
+        </FluentStack>
+      </FluentStack>
+      <FluentNavMenu Class="w-100 list" Expanded="true">
+        @foreach (var dir in Directories)
+        {
+          var active = SelectedDirectory == dir.Name ? "selected" : "";
+          <FluentNavLink Class="@($"p-0 {active}")" Style="margin-left:-8px" OnClick="() => SelectDirectory(dir.Name)">
+            <FluentLabel Typo="Typography.Subject">@dir.Name</FluentLabel>
+          </FluentNavLink>
+        }
+      </FluentNavMenu>
+    </FluentStack>
+  </Panel1>
+  <Panel2>
+    <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="p-1">
+      <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+        <FluentLabel Typo="Typography.Subject">Prompt 文件</FluentLabel>
+        <FluentStack Orientation="Orientation.Horizontal">
+          <FluentButton Appearance="Appearance.Stealth" Title="新建文件" OnClick="OpenAddFileDialog" IconStart="@(new Icons.Regular.Size20.Add())" Disabled="string.IsNullOrEmpty(SelectedDirectory)" />
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="删除文件" OnClick="DeleteFileAsync" IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))" Disabled="SelectedFile == null" />
+        </FluentStack>
+      </FluentStack>
+      <FluentDataGrid Class="w-100"
+                      Items="@Files.AsQueryable()"
+                      RowSize="DataGridRowSize.Medium"
+                      AutoFit="true">
+        <PropertyColumn Property="@(f => f.Name)" Title="文件名" Width="200px" />
+        <PropertyColumn Property="@(f => f.Size)" Title="大小(KB)" Width="80px" />
+        <PropertyColumn Property="@(f => f.LatestTime)" Title="修改时间" Width="180px" />
+        <TemplateColumn Title="操作" Align="Align.Start">
+          <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+            <FluentButton Appearance="Appearance.Stealth" OnClick="@(() => EditFileAsync(context))" IconStart="@(new Icons.Regular.Size24.Edit())" Title="编辑" />
+          </FluentStack>
+        </TemplateColumn>
+      </FluentDataGrid>
+    </FluentStack>
+  </Panel2>
+</FluentSplitter>
+
+<FluentDialog @ref="_dialog" @bind-Hidden="DialogHidden" Style="--dialog-width:700px" Modal="true">
+  <FluentDialogHeader ShowDismiss="true">
+    <FluentLabel Typo="Typography.PaneHeader">@DialogTitle</FluentLabel>
+  </FluentDialogHeader>
+  <FluentBodyContent>
+    <EditForm EditContext="editContext">
+      <DataAnnotationsValidator />
+      <FluentTextArea @bind-Value="EditContent" Rows="18" Class="w-100" />
+    </EditForm>
+  </FluentBodyContent>
+  <FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" OnClick="SaveFileAsync">保存</FluentButton>
+    <FluentButton Appearance="Appearance.Neutral" OnClick="() => DialogHidden = true">取消</FluentButton>
+  </FluentDialogFooter>
+</FluentDialog>

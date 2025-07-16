@@ -64,6 +64,7 @@ public partial class OpenApi
         if (CurrentDoc?.Id != null)
         {
             IsFreshing = true;
+            await Task.Yield();
             var res = await _manager.GetContentAsync(CurrentDoc.Id, isFresh);
 
             if (res is not null)

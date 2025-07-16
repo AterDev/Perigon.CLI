@@ -5,6 +5,8 @@
 @using Share.Models
 @using CodeGenerator.Models
 
+<PageTitle>@Lang(Localizer.OpenAPI)</PageTitle>
+
 @if (!IsLoading)
 {
   <FluentStack Orientation="Orientation.Vertical"
@@ -41,7 +43,7 @@
           <FluentButton Appearance="Appearance.Stealth"
                         Title="delete"
                         OnClick="()=>DeleteOpenApiAsync()"
-                        IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Error))">
+                        IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Warning))">
           </FluentButton>
         </FluentStack>
 
@@ -274,7 +276,8 @@
                 </FluentStack>
                 @if (CurrentModel.PropertyInfos?.Count > 0)
                 {
-                  <PropTableView Items="@CurrentModel.PropertyInfos.AsQueryable()" />
+                  <PropTableView Items="@CurrentModel.PropertyInfos.AsQueryable()"
+                                 OnClickModel="OpenModelInfoDialog" />
                 }
               </FluentStack>
             }

@@ -1,13 +1,14 @@
 using Ater.Common.Utils;
 
 namespace Entity.StudioMod;
+
 /// <summary>
-/// task step
+/// template
 /// </summary>
 public class GenStep : EntityBase
 {
     /// <summary>
-    /// 步骤名称
+    /// 模板名称
     /// </summary>
     [MaxLength(100)]
     public required string Name { get; set; }
@@ -83,14 +84,16 @@ public enum GenStepType
     /// </summary>
     [Description("模板生成")]
     File,
+
     /// <summary>
     /// 运行命令
     /// </summary>
     [Description("执行命令")]
     Command,
+
     /// <summary>
     /// 运行脚本
     /// </summary>
     [Description("执行脚本")]
-    Script
+    Script,
 }

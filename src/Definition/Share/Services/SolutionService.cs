@@ -315,7 +315,7 @@ public class SolutionService(
     /// <param name="isRemove">remove</param>
     private void UpdateSolutionFile(string projectPath, bool isRemove = false)
     {
-        FileInfo? slnFile = AssemblyHelper.GetSlnFile(
+        System.IO.FileInfo? slnFile = AssemblyHelper.GetSlnFile(
             new DirectoryInfo(_projectContext.SolutionPath!)
         );
         if (slnFile != null)
@@ -392,7 +392,7 @@ public class SolutionService(
         CompilationHelper compilation = new(databasePath);
         compilation.LoadContent(dbContextContent);
 
-        List<FileInfo> entityFiles = new DirectoryInfo(Path.Combine(sourcePath, "Entity"))
+        List<System.IO.FileInfo> entityFiles = new DirectoryInfo(Path.Combine(sourcePath, "Entity"))
             .GetFiles("*.cs", SearchOption.AllDirectories)
             .ToList();
 
@@ -587,7 +587,7 @@ public class SolutionService(
         Directory.CreateDirectory(destinationDir);
 
         // 获取源目录中的文件并复制到目标目录
-        foreach (FileInfo file in dir.GetFiles())
+        foreach (System.IO.FileInfo file in dir.GetFiles())
         {
             string targetFilePath = Path.Combine(destinationDir, file.Name);
             file.CopyTo(targetFilePath, true);

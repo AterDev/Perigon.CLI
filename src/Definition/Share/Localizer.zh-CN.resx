@@ -420,4 +420,16 @@
   <data name="RequestClient" xml:space="preserve">
     <value>请求客户端</value>
   </data>
+  <data name="OutputPath" xml:space="preserve">
+    <value>输出目录</value>
+  </data>
+  <data name="Data" xml:space="preserve">
+    <value>数据</value>
+  </data>
+  <data name="Prompt" xml:space="preserve">
+    <value>提示词</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>任务</value>
+  </data>
 </root>

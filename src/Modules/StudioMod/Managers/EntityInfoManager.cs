@@ -74,7 +74,7 @@ public partial class EntityInfoManager(
 
             foreach (string? path in filePaths)
             {
-                FileInfo file = new(path);
+                System.IO.FileInfo file = new(path);
                 EntityFile item = new()
                 {
                     Name = file.Name,
@@ -130,7 +130,7 @@ public partial class EntityInfoManager(
         }
         if (filePath != null)
         {
-            FileInfo file = new(filePath);
+            System.IO.FileInfo file = new(filePath);
             return new EntityFile()
             {
                 Name = file.Name,

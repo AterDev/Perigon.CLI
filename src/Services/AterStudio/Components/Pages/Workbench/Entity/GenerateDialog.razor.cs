@@ -24,7 +24,7 @@ public partial class GenerateDialog
     string? SelectedValue;
     bool IsProcessing { get; set; } = false;
 
-    protected override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         GenerateDto = new GenerateDto
         {
@@ -33,7 +33,6 @@ public partial class GenerateDialog
             Force = false,
         };
         GetServices();
-        return base.OnInitializedAsync();
     }
 
     private void GetServices()
@@ -44,6 +43,7 @@ public partial class GenerateDialog
     private async Task GenerateAsync()
     {
         IsProcessing = true;
+        await Task.Yield();
         if (Content.EntityPaths == null || Content.EntityPaths.Length == 0)
         {
             ToastService.ShowError("No entity paths specified.");
@@ -53,6 +53,7 @@ public partial class GenerateDialog
             .Where(s => Path.GetDirectoryName(s.Path) != null)
             .Select(s => Path.GetDirectoryName(s.Path)!)
             .ToArray();
+
         List<GenFileInfo> resFiles = [];
         foreach (var entityPath in Content.EntityPaths)
         {
