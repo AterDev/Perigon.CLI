@@ -50,7 +50,6 @@ public class GenStepManager(
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!))
             .WhereNotNull(filter.FileType, q => q.FileType == filter.FileType)
-            .WhereNotNull(filter.GenStepType, q => q.GenStepType == filter.GenStepType)
             .WhereNotNull(filter.ProjectId, q => q.ProjectId == filter.ProjectId);
 
         return await ToPageAsync<GenStepFilterDto, GenStepItemDto>(filter);

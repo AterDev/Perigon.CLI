@@ -140,7 +140,7 @@ public class ProjectContext : IProjectContext
     }
 
     /// <summary>
-    /// controller Path
+    /// controller TemplatePath
     /// </summary>
     /// <returns></returns>
     public string GetControllerPath(string? moduleName = null)

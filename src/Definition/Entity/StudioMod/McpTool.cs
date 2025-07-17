@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Entity.StudioMod;
-internal class McpTool
+
+public class McpTool
 {
+    [MaxLength(40)]
+    public required string Name { get; set; }
+
+    [MaxLength(300)]
+    public required string Description { get; set; }
 }

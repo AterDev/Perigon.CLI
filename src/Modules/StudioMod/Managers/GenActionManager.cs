@@ -275,64 +275,40 @@ public class GenActionManager(
             {
                 foreach (var step in action.GenSteps)
                 {
-                    var content = step.Content ?? string.Empty;
-                    if (step.Path.NotEmpty())
+                    var content = string.Empty;
+                    var filePath = Path.Combine(_projectContext.SolutionPath!, step.TemplatePath);
+                    if (File.Exists(filePath))
                     {
-                        var filePath = Path.Combine(_projectContext.SolutionPath!, step.Path);
-                        if (File.Exists(filePath))
-                        {
-                            content = File.ReadAllText(filePath);
-                        }
+                        content = File.ReadAllText(filePath);
                     }
-                    switch (step.GenStepType)
+
+                    var outputContent = _codeGen.GenTemplateFile(content, actionRunModel);
+                    if (step.OutputPath.NotEmpty())
                     {
-                        case GenStepType.File:
-                            var outputContent = _codeGen.GenTemplateFile(content, actionRunModel);
-                            if (step.OutputPath.NotEmpty())
+                        // 处理outputPath中的变量
+                        var outputPath = step.OutputPathFormat(actionRunModel.Variables);
+                        outputPath = Path.Combine(_projectContext.SolutionPath!, outputPath);
+
+                        if (dto.OnlyOutput)
+                        {
+                            res.OutputFiles.Add(
+                                new ModelFileItemDto
+                                {
+                                    Name = Path.GetFileName(outputPath),
+                                    FullName = outputPath,
+                                    Content = outputContent,
+                                }
+                            );
+                        }
+                        else
+                        {
+                            if (!Directory.Exists(Path.GetDirectoryName(outputPath)))
                             {
-                                // 处理outputPath中的变量
-                                var outputPath = step.OutputPathFormat(actionRunModel.Variables);
-                                outputPath = Path.Combine(
-                                    _projectContext.SolutionPath!,
-                                    outputPath
-                                );
-
-                                if (dto.OnlyOutput)
-                                {
-                                    res.OutputFiles.Add(
-                                        new ModelFileItemDto
-                                        {
-                                            Name = Path.GetFileName(outputPath),
-                                            FullName = outputPath,
-                                            Content = outputContent,
-                                        }
-                                    );
-                                }
-                                else
-                                {
-                                    if (!Directory.Exists(Path.GetDirectoryName(outputPath)))
-                                    {
-                                        Directory.CreateDirectory(
-                                            Path.GetDirectoryName(outputPath)!
-                                        );
-                                    }
-                                    File.WriteAllText(
-                                        outputPath,
-                                        outputContent,
-                                        new UTF8Encoding(false)
-                                    );
-                                }
-                                res.IsSuccess = true;
+                                Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
                             }
-                            break;
-                        case GenStepType.Command:
-
-                            break;
-                        case GenStepType.Script:
-
-                            break;
-                        default:
-                            break;
+                            File.WriteAllText(outputPath, outputContent, new UTF8Encoding(false));
+                        }
+                        res.IsSuccess = true;
                     }
                 }
                 action.ActionStatus = ActionStatus.Success;
