@@ -26,7 +26,7 @@ public partial class Template
         CheckProject();
         RelativePath = ConstVal.TemplateDir;
         RootPath = Path.Combine(ProjectContext.SolutionPath!, ConstVal.TemplateDir);
-        FileHelper = new(RootPath);
+        FileHelper = new LocalFileHelper(RootPath);
         LoadDirectories();
 
         IsLoading = false;

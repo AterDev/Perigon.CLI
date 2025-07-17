@@ -33,9 +33,7 @@ public class LocalFileHelper
     {
         if (!Directory.Exists(rootPath))
         {
-            throw new DirectoryNotFoundException(
-                $"The specified root path does not exist: {rootPath}"
-            );
+            Directory.CreateDirectory(rootPath);
         }
         RootPath = rootPath;
     }
