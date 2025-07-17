@@ -5,7 +5,7 @@ namespace Share;
 /// </summary>
 public interface IProjectContext
 {
-    Guid ProjectId { get; set; }
+    Guid? ProjectId { get; set; }
     Project? Project { get; set; }
     string? SolutionPath { get; set; }
     string? SharePath { get; set; }

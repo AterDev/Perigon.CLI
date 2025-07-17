@@ -1,7 +1,7 @@
-using StudioMod;
 using StudioMod.Models.GenStepDtos;
 
 namespace StudioMod.Managers;
+
 /// <summary>
 /// task step
 /// </summary>
@@ -9,7 +9,8 @@ public class GenStepManager(
     DataAccessContext<GenStep> dataContext,
     ILogger<GenStepManager> logger,
     IProjectContext projectContext,
-    UserContext userContext) : ManagerBase<GenStep>(dataContext, logger)
+    UserContext userContext
+) : ManagerBase<GenStep>(dataContext, logger)
 {
     private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
@@ -22,7 +23,7 @@ public class GenStepManager(
     public async Task<Guid?> CreateNewEntityAsync(GenStepAddDto dto)
     {
         var entity = dto.MapTo<GenStepAddDto, GenStep>();
-        entity.ProjectId = _projectContext.ProjectId;
+        entity.ProjectId = _projectContext.ProjectId!.Value;
 
         var fileExt = Path.GetExtension(dto.OutputPath ?? "");
         entity.FileType = fileExt;
@@ -74,7 +75,8 @@ public class GenStepManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        return await Command.Where(q => q.Id.ToString() == unique)
+        return await Command
+            .Where(q => q.Id.ToString() == unique)
             .WhereNotNull(id, q => q.Id != id)
             .AnyAsync();
     }

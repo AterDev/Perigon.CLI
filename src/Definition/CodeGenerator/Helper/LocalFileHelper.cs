@@ -9,9 +9,9 @@ public class DataFile
     public required string FullPath { get; set; }
 
     /// <summary>
-    /// KB
+    ///
     /// </summary>
-    public int? Size { get; set; }
+    public long? Size { get; set; }
 
     /// <summary>
     /// 最后更新时间
@@ -38,6 +38,25 @@ public class LocalFileHelper
             );
         }
         RootPath = rootPath;
+    }
+
+    public void AddDirectory(string directoryName)
+    {
+        var dirPath = Path.Combine(RootPath, directoryName);
+        if (Directory.Exists(dirPath))
+            throw new IOException($"Directory already exists: {dirPath}");
+        Directory.CreateDirectory(dirPath);
+    }
+
+    public void AddFile(string directoryName, string fileName, string content)
+    {
+        var dirPath = Path.Combine(RootPath, directoryName);
+        if (!Directory.Exists(dirPath))
+            throw new DirectoryNotFoundException($"Directory not found: {dirPath}");
+        var filePath = Path.Combine(dirPath, fileName);
+        if (File.Exists(filePath))
+            throw new IOException($"File already exists: {filePath}");
+        File.WriteAllText(filePath, content);
     }
 
     /// <summary>
@@ -78,7 +97,7 @@ public class LocalFileHelper
                     {
                         Name = Path.GetFileName(file),
                         FullPath = file,
-                        Size = (int)(new System.IO.FileInfo(file).Length / 1024), // KB
+                        Size = new FileInfo(file).Length,
                         LatestTime = File.GetLastWriteTimeUtc(file),
                     }
                 );

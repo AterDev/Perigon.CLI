@@ -1,0 +1,137 @@
+@using System.ComponentModel.DataAnnotations
+@using AterStudio.Components.Shared.Models
+@using CodeGenerator.Helper
+@inherits PageBase
+@implements IDialogContentComponent<UpsertFileDto>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">
+    @if (IsEdit)
+    {
+      <span>@Lang(Localizer.Edit, Localizer.File): @Content.FileName</span>
+    }
+    else
+    {
+      <span>@Lang(Localizer.Add, Localizer.File)</span>
+    }
+  </FluentLabel>
+</FluentDialogHeader>
+
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+  <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+    <FluentTextField @bind-Value="FileName"
+                     Label="@Lang(Localizer.File,Localizer.Name)"
+                     Placeholder="fileName without extension,length<100"
+                     Class="w-100"
+                     AutoComplete="off"
+                     Required="true" />
+  </FluentStack>
+  <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+    @* monaco editor *@
+    <StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions"
+                          CssClass="upsert-file-dialog" />
+
+  </FluentStack>
+</FluentStack>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Confirm)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+
+  [Parameter]
+  public UpsertFileDto Content { get; set; } = default!;
+
+  StandaloneCodeEditor editor = default!;
+  LocalFileHelper fileHelper = default!;
+
+  string FileName { get; set; } = string.Empty;
+
+  bool IsEdit => !string.IsNullOrEmpty(Content.FileName);
+
+
+  protected override void OnInitialized()
+  {
+    fileHelper = new LocalFileHelper(Content.RootPath);
+    if (IsEdit)
+    {
+      FileName = Content.FileName!;
+    }
+  }
+
+  private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+  {
+    this.editor = editor;
+    var content = string.Empty;
+    if (IsEdit)
+    {
+      content = fileHelper.GetFileContent(Content.FullPath);
+    }
+
+    var language = Content.Suffix switch
+    {
+      ".js" => "javascript",
+      ".ts" => "typescript",
+      ".json" => "json",
+      ".css" => "css",
+      ".cs" => "csharp",
+      ".html" => "html",
+      ".razor" => "razor",
+      ".md" => "markdown",
+      _ => "markdown"
+    };
+
+    return new StandaloneEditorConstructionOptions
+    {
+      Language = language,
+      Theme = "vs-dark",
+      AutomaticLayout = true,
+      Minimap = new EditorMinimapOptions
+      {
+        Enabled = false
+      },
+      WordWrap = "on",
+      WrappingStrategy = "advanced",
+      ScrollBeyondLastLine = false,
+      Value = content,
+    };
+  }
+
+  private async Task SaveAsync()
+  {
+    var content = await this.editor.GetValue();
+
+    if (FileName.IsEmpty() || content.IsEmpty()
+    || FileName.Length > 100)
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+
+    var filePath = Path.Combine(Content.RootPath, Content.DirectoryName, FileName + Content.Suffix);
+    if (IsEdit)
+    {
+      fileHelper.UpdateFileContent(filePath, content);
+    }
+    else
+    {
+      fileHelper.AddFile(Content.DirectoryName, FileName + Content.Suffix, content);
+    }
+    await Dialog.CloseAsync(true);
+  }
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

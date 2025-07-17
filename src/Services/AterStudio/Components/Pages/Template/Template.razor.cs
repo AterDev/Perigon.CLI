@@ -1,36 +1,43 @@
+using AterStudio.Components.Shared;
+using AterStudio.Components.Shared.Models;
 using CodeGenerator.Helper;
-using Microsoft.AspNetCore.Components;
+using Entity;
 
 namespace AterStudio.Components.Pages.Template;
 
 public partial class Template
 {
-    [Inject]
-    private TemplateManager TemplateManager { get; set; } = default!;
-
-    private List<DataFile> Directories { get; set; } = new();
-    private List<DataFile> Files { get; set; } = new();
+    private LocalFileHelper FileHelper { get; set; } = default!;
+    private List<DataFile> Directories { get; set; } = [];
+    private List<DataFile> Files { get; set; } = [];
     private string? SelectedDirectory { get; set; }
     private DataFile? SelectedFile { get; set; }
 
-    private FluentDialog _dialog = default!;
     private bool DialogHidden { get; set; } = true;
-    private string DialogTitle { get; set; } = string.Empty;
-    private string EditContent { get; set; } = string.Empty;
-    private EditContext? editContext;
+    private string? NewDirectoryName { get; set; }
+    private string RelativePath { get; set; } = string.Empty;
+
+    private string RootPath { get; set; } = string.Empty;
+
+    private bool IsLoading { get; set; } = true;
 
     protected override void OnInitialized()
     {
+        CheckProject();
+        RelativePath = ConstVal.TemplateDir;
+        RootPath = Path.Combine(ProjectContext.SolutionPath!, ConstVal.TemplateDir);
+        FileHelper = new(RootPath);
         LoadDirectories();
+
+        IsLoading = false;
     }
 
     private void LoadDirectories()
     {
-        Directories = TemplateManager.FileHelper.GetDirectories();
+        Directories = FileHelper.GetDirectories();
         if (Directories.Count > 0)
         {
-            SelectedDirectory = Directories[0].Name;
-            LoadFiles();
+            SelectDirectory(Directories[0].Name);
         }
         else
         {
@@ -42,6 +49,7 @@ public partial class Template
     private void SelectDirectory(string dirName)
     {
         SelectedDirectory = dirName;
+        RelativePath = Path.Combine(ConstVal.TemplateDir, SelectedDirectory);
         LoadFiles();
     }
 
@@ -49,7 +57,7 @@ public partial class Template
     {
         if (!string.IsNullOrEmpty(SelectedDirectory))
         {
-            Files = TemplateManager.GetRazorFiles(SelectedDirectory);
+            Files = FileHelper.GetFiles(SelectedDirectory, ".razor");
         }
         else
         {
@@ -60,50 +68,102 @@ public partial class Template
 
     private void OpenAddDirectoryDialog()
     {
-        // TODO: 弹窗新建目录
+        DialogHidden = false;
+    }
+
+    private void AddDirectory()
+    {
+        if (NewDirectoryName != null)
+        {
+            FileHelper.AddDirectory(NewDirectoryName);
+            DialogHidden = true;
+            LoadDirectories();
+            NewDirectoryName = null;
+        }
     }
 
     private async Task DeleteDirectoryAsync()
     {
         if (!string.IsNullOrEmpty(SelectedDirectory))
         {
-            TemplateManager.FileHelper.DeleteDirectory(
-                System.IO.Path.Combine(TemplateManager.FileHelper.RootPath, SelectedDirectory)
+            var dialog = await DialogService.ShowConfirmationAsync(
+                Lang(Localizer.Delete, Localizer.Directory),
+                Lang(Localizer.Confirm),
+                Lang(Localizer.Cancel),
+                Lang(Localizer.ConfirmDeleteMessage)
             );
-            LoadDirectories();
+
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                FileHelper.DeleteDirectory(Path.Combine(FileHelper.RootPath, SelectedDirectory));
+                LoadDirectories();
+            }
+        }
+        else
+        {
+            ToastService.ShowError(Lang(Localizer.MustSelectOption));
         }
     }
 
-    private void OpenAddFileDialog()
+    private async Task OpenAddFileDialogAsync()
     {
-        // TODO: 弹窗新建文件
-    }
-
-    private async Task DeleteFileAsync()
-    {
-        if (SelectedFile != null)
+        var data = new UpsertFileDto
         {
-            TemplateManager.FileHelper.DeleteFile(SelectedFile.FullPath);
+            DirectoryName = SelectedDirectory!,
+            RootPath = RootPath,
+            Suffix = ".razor",
+        };
+        var dialog = await DialogService.ShowDialogAsync<UpsertFileDialog>(
+            data,
+            new DialogParameters { Width = "auto", Modal = false }
+        );
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            ToastService.ShowSuccess(Lang(Localizer.Add, Localizer.Success));
             LoadFiles();
         }
     }
 
-    private async Task EditFileAsync(DataFile file)
+    private async Task DeleteFile(DataFile file)
     {
-        DialogTitle = $"编辑: {file.Name}";
-        EditContent = TemplateManager.FileHelper.GetFileContent(file.FullPath);
-        editContext = new EditContext(this);
-        SelectedFile = file;
-        DialogHidden = false;
+        var dialog = await DialogService.ShowConfirmationAsync(
+            Lang(Localizer.Delete, Localizer.File),
+            Lang(Localizer.Confirm),
+            Lang(Localizer.Cancel),
+            Lang(Localizer.ConfirmDeleteMessage)
+        );
+
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+
+        if (file != null)
+        {
+            FileHelper.DeleteFile(file.FullPath);
+            LoadFiles();
+        }
     }
 
-    private async Task SaveFileAsync()
+    private async Task OpenEditFileDialog(DataFile file)
     {
-        if (SelectedFile != null)
+        var data = new UpsertFileDto
         {
-            TemplateManager.FileHelper.UpdateFileContent(SelectedFile.FullPath, EditContent);
-            DialogHidden = true;
+            DirectoryName = SelectedDirectory!,
+            FileName = Path.GetFileNameWithoutExtension(file.Name),
+            RootPath = RootPath,
+            Suffix = ".razor",
+        };
+        var dialog = await DialogService.ShowDialogAsync<UpsertFileDialog>(
+            data,
+            new DialogParameters { Width = "auto", Modal = false }
+        );
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
             LoadFiles();
+            ToastService.ShowSuccess(Lang(Localizer.Edit, Localizer.Success));
         }
     }
 }

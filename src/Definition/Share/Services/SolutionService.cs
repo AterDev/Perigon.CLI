@@ -225,6 +225,10 @@ public class SolutionService(
             ConstVal.SyncJson
         );
         var projectId = _projectContext.ProjectId;
+        if (projectId == null)
+        {
+            return (false, "项目ID未设置，无法同步数据");
+        }
 
         if (!File.Exists(filePath))
         {
@@ -241,7 +245,7 @@ public class SolutionService(
         try
         {
             var actions = await _context
-                .GenActions.Where(a => a.ProjectId == projectId)
+                .GenActions.Where(a => a.ProjectId == projectId.Value)
                 .Include(a => a.GenSteps)
                 .ToListAsync();
 
@@ -258,12 +262,12 @@ public class SolutionService(
 
             if (newActions != null && newActions.Count > 0)
             {
-                newActions.ForEach(a => a.ProjectId = projectId);
+                newActions.ForEach(a => a.ProjectId = (Guid)projectId);
                 await _context.GenActions.AddRangeAsync(newActions);
             }
             if (newSteps != null && newSteps.Count > 0)
             {
-                newSteps.ForEach(a => a.ProjectId = projectId);
+                newSteps.ForEach(a => a.ProjectId = (Guid)projectId);
                 await _context.GenSteps.AddRangeAsync(newSteps);
             }
             await _context.SaveChangesAsync();

@@ -1,4 +1,3 @@
-@using AterStudio.Components.Layout
 @inherits LayoutComponentBase
 @layout MainLayout
 @inject Localizer Localizer
@@ -8,21 +7,30 @@
     <FluentNavMenu Expanded="true"
                    Width="220"
                    Collapsible="true">
-      <FluentNavGroup Icon="@(new Icons.Regular.Size28.Table())"
+      <FluentNavGroup Icon="@(new Icons.Regular.Size24.Table())"
                       Expanded="true"
                       Gap="0">
         <TitleTemplate>
-          <FluentLabel Typo="Typography.Subject">@Localizer.Get(Localizer.Solution)</FluentLabel>
+          <FluentLabel Typo="Typography.Subject">
+            @Localizer.Get(Localizer.Solution)
+          </FluentLabel>
         </TitleTemplate>
         <ChildContent>
           <FluentNavLink Icon="@(new Icons.Regular.Size24.BoxMultiple())"
                          Href='@($"/workbench/entity")'>
-            @Localizer.Get(Localizer.Entity)@Localizer.Get(Localizer.Manage)
+
+            <FluentLabel Typo="Typography.Subject">
+              @Localizer.Get(Localizer.Entity)@Localizer.Get(Localizer.Manage)
+            </FluentLabel>
+
           </FluentNavLink>
 
           <FluentNavLink Icon="@(new Icons.Regular.Size24.PlugConnected())"
                          Href='@($"/workbench/openapi")'>
-            @Localizer.Get(Localizer.OpenAPI)
+            <FluentLabel Typo="Typography.Subject">
+              @Localizer.Get(Localizer.OpenAPI)
+            </FluentLabel>
+
           </FluentNavLink>
         </ChildContent>
       </FluentNavGroup>
@@ -35,12 +43,18 @@
         <ChildContent>
           <FluentNavLink Icon="@(new Icons.Regular.Size24.TaskListLtr())"
                          Href='@($"/codegen/task")'>
-            @Localizer.Get(Localizer.Generate)@Localizer.Get(Localizer.Task)
+            <FluentLabel Typo="Typography.Subject">
+
+              @Localizer.Get(Localizer.Generate)@Localizer.Get(Localizer.Task)
+            </FluentLabel>
           </FluentNavLink>
 
           <FluentNavLink Icon="@(new Icons.Regular.Size24.LinkSquare())"
                          Href='@($"/codegen/mcp")'>
-            @Localizer.Get(Localizer.MCP)
+
+            <FluentLabel Typo="Typography.Subject">
+              @Localizer.Get(Localizer.MCP)
+            </FluentLabel>
           </FluentNavLink>
         </ChildContent>
 
@@ -56,12 +70,16 @@
         <ChildContent>
           <FluentNavLink Icon="@(new Icons.Regular.Size24.DocumentCopy())"
                          Href='@($"/data/template")'>
-            @Localizer.Get(Localizer.Template)
+            <FluentLabel Typo="Typography.Subject">
+              @Localizer.Get(Localizer.Template)
+            </FluentLabel>
           </FluentNavLink>
 
           <FluentNavLink Icon="@(new Icons.Regular.Size24.Prompt())"
                          Href='@($"/data/prompt")'>
-            @Localizer.Get(Localizer.Prompt)
+            <FluentLabel Typo="Typography.Subject">
+              @Localizer.Get(Localizer.Prompt)
+            </FluentLabel>
           </FluentNavLink>
         </ChildContent>
 

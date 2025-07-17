@@ -8,7 +8,7 @@ namespace Share;
 /// </summary>
 public class ProjectContext : IProjectContext
 {
-    public Guid ProjectId { get; set; }
+    public Guid? ProjectId { get; set; }
     public string? ProjectName { get; set; }
     public Project? Project { get; set; }
     public string? SolutionPath { get; set; }

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
 using Microsoft.JSInterop;
 
@@ -37,9 +36,16 @@ public class PageBase : ComponentBase
 
     #endregion
 
-
     public JsonSerializerOptions IndentedJsonOptions { get; } =
         new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    public void CheckProject()
+    {
+        if (ProjectContext.ProjectId is null)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
 
     /// <summary>
     /// 用于展示多个语言键对应的文本

@@ -1,48 +1,49 @@
 @page "/workbench/entity"
+@using AterStudio.Components.Layout
 @inherits PageBase
-@layout Layout
+@layout MenuLayout
 
 <PageTitle>@Lang(Localizer.Entity, Localizer.Manage)</PageTitle>
+
+
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
-  @* top Toolbar *@
-  <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2 bg-1 bg-bottom-2">
-    <FluentStack Orientation="Orientation.Horizontal"
-                 HorizontalAlignment="HorizontalAlignment.SpaceBetween">
-      <FluentLabel Typo="Typography.PaneHeader">
-        @ProjectContext.ProjectName
-      </FluentLabel>
-      <FluentStack Orientation="Orientation.Horizontal"
-                   HorizontalGap="4"
-                   Class="pe-2"
-                   HorizontalAlignment="HorizontalAlignment.End">
-        <FluentButton Appearance="Appearance.Stealth"
-                      Title="refresh"
-                      Loading="@IsRefreshing"
-                      OnClick="()=>GetEntityListAsync()"
-                      IconStart="@(new Icons.Regular.Size24.ArrowClockwise())"></FluentButton>
-        <FluentButton Appearance="Appearance.Stealth"
-                      Title="clean solution obj & bin files"
-                      OnClick="()=>CleanSolutionAsync()"
-                      Loading="@IsCleaning"
-                      IconEnd="@(new Icons.Regular.Size24.Broom().WithColor(Color.Warning))">
-        </FluentButton>
-
-        <FluentCounterBadge Appearance="Appearance.Accent"
-                            Count="@Services.Count">
-          <FluentButton Appearance="Appearance.Stealth"
-                        Title="services"
-                        OnClick="()=>OpenServicesDialog()"
-                        IconStart="@(new Icons.Regular.Size24.Connected())">
-          </FluentButton>
-        </FluentCounterBadge>
-
-      </FluentStack>
-    </FluentStack>
-  </FluentToolbar>
-
-
   @if (!isLoading)
   {
+    @* top Toolbar *@
+    <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2 bg-1 bg-bottom-2">
+      <FluentStack Orientation="Orientation.Horizontal"
+                   HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+        <FluentLabel Typo="Typography.PaneHeader">
+          @ProjectContext.ProjectName
+        </FluentLabel>
+        <FluentStack Orientation="Orientation.Horizontal"
+                     HorizontalGap="4"
+                     Class="pe-2"
+                     HorizontalAlignment="HorizontalAlignment.End">
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="refresh"
+                        Loading="@IsRefreshing"
+                        OnClick="()=>GetEntityListAsync()"
+                        IconStart="@(new Icons.Regular.Size24.ArrowClockwise())"></FluentButton>
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="clean solution obj & bin files"
+                        OnClick="()=>CleanSolutionAsync()"
+                        Loading="@IsCleaning"
+                        IconEnd="@(new Icons.Regular.Size24.Broom().WithColor(Color.Warning))">
+          </FluentButton>
+
+          <FluentCounterBadge Appearance="Appearance.Accent"
+                              Count="@Services.Count">
+            <FluentButton Appearance="Appearance.Stealth"
+                          Title="services"
+                          OnClick="()=>OpenServicesDialog()"
+                          IconStart="@(new Icons.Regular.Size24.Connected())">
+            </FluentButton>
+          </FluentCounterBadge>
+
+        </FluentStack>
+      </FluentStack>
+    </FluentToolbar>
     <FluentSplitter Orientation="Orientation.Horizontal"
                     Panel1Size="200px"
                     Panel1MinSize="200px"
@@ -210,9 +211,12 @@
       </Panel2>
     </FluentSplitter>
   }
-
-
+  else
+  {
+    <FluentProgressRing></FluentProgressRing>
+  }
 </FluentStack>
+
 
 <FluentDialog @ref="_dialog"
               @bind-Hidden="@Hidden"

@@ -265,7 +265,7 @@
     <value>保存</value>
   </data>
   <data name="Setting" xml:space="preserve">
-    <value>`</value>
+    <value>设置</value>
   </data>
   <data name="Success" xml:space="preserve">
     <value>成功</value>
@@ -373,7 +373,7 @@
     <value>生成Controller</value>
   </data>
   <data name="SearchEntity" xml:space="preserve">
-    <value>搜索实体信息</value>
+    <value>搜索实体</value>
   </data>
   <data name="ClickToView" xml:space="preserve">
     <value>点击查看</value>
@@ -431,5 +431,14 @@
   </data>
   <data name="Task" xml:space="preserve">
     <value>任务</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="FileSize" xml:space="preserve">
+    <value>大小(KB)</value>
+  </data>
+  <data name="UpdateTime" xml:space="preserve">
+    <value>更新时间</value>
   </data>
 </root>

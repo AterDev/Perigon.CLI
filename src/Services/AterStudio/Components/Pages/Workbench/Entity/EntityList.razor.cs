@@ -182,10 +182,11 @@ public partial class EntityList
     {
         if (!string.IsNullOrWhiteSpace(SelectedModule))
         {
-            var dialog = await DialogService.ShowWarningAsync(
-                Lang(Localizer.ConfirmDeleteMessage),
+            var dialog = await DialogService.ShowConfirmationAsync(
                 Lang(Localizer.Delete, Localizer.Modules),
-                Lang(Localizer.Confirm)
+                Lang(Localizer.Confirm),
+                Lang(Localizer.Cancel),
+                Lang(Localizer.ConfirmDeleteMessage)
             );
 
             var result = await dialog.Result;
