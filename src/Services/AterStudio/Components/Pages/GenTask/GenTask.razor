@@ -1,5 +1,103 @@
 @using AterStudio.Components.Layout
+@using StudioMod.Models.GenActionDtos
+@using StudioMod.Models.GenStepDtos
 
 @page "/codegen/task"
 @inherits PageBase
 @layout MenuLayout
+
+<PageTitle>
+  @Lang(Localizer.Generate, Localizer.Task)
+</PageTitle>
+
+@if (!isLoading)
+{
+  <FluentSplitter Orientation="Orientation.Horizontal"
+                  Panel1Size="260px"
+                  Panel1MinSize="200px"
+                  Panel2MinSize="60%"
+                  Class="w-100"
+                  BarSize="5"
+                  Style="height:calc(100vh - 56px)">
+    <Panel1>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+        <FluentToolbar Class="w-100">
+          <FluentStack Orientation="Orientation.Horizontal"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                       VerticalAlignment="VerticalAlignment.Center">
+            <FluentLabel Typo="Typography.Subject">@Lang(Localizer.Task, Localizer.List)</FluentLabel>
+            <FluentButton Appearance="Appearance.Stealth"
+                          Title="@Lang(Localizer.Add, Localizer.Task)"
+                          OnClick="OpenAddActionDialogAsync"
+                          IconStart="@(new Icons.Regular.Size20.Add())" />
+          </FluentStack>
+        </FluentToolbar>
+        <FluentNavMenu Class="w-100 list" Expanded="true">
+          @foreach (var action in GenActions)
+          {
+            var active = SelectedAction?.Id == action.Id ? "selected" : "";
+            <FluentNavLink Class="@($"p-0 {active}")"
+                           OnClick="() => SelectAction(action)">
+              <FluentLabel Typo="Typography.Subject">@action.Name</FluentLabel>
+            </FluentNavLink>
+          }
+        </FluentNavMenu>
+      </FluentStack>
+    </Panel1>
+    <Panel2>
+      <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="px-1" VerticalGap="4">
+        <FluentToolbar Class="w-100 bg-bottom-2">
+          <FluentStack Orientation="Orientation.Horizontal"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                       VerticalAlignment="VerticalAlignment.Center">
+            <FluentLabel Typo="Typography.H5">@SelectedAction?.Name</FluentLabel>
+            <FluentStack Orientation="Orientation.Horizontal">
+              <FluentButton Appearance="Appearance.Stealth"
+                            Title="@Lang(Localizer.Edit)"
+                            OnClick="OpenEditActionDialogAsync"
+                            Disabled="SelectedAction == null"
+                            IconStart="@(new Icons.Regular.Size20.Edit())" />
+              <FluentButton Appearance="Appearance.Stealth"
+                            Title="@Lang(Localizer.Delete)"
+                            OnClick="DeleteActionAsync"
+                            Disabled="SelectedAction == null"
+                            IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))" />
+              <FluentButton Appearance="Appearance.Accent"
+                            Title="@Lang(Localizer.Add, Localizer.Step)"
+                            OnClick="OpenAddStepDialogAsync"
+                            Disabled="SelectedAction == null"
+                            IconStart="@(new Icons.Regular.Size20.Add())" />
+            </FluentStack>
+          </FluentStack>
+        </FluentToolbar>
+        <FluentDataGrid Class="w-100"
+                        Items="@GenSteps.AsQueryable()"
+                        RowSize="DataGridRowSize.Medium"
+                        AutoFit="true">
+          <PropertyColumn Property="@(s => s.Name)"
+                          Title="@Lang(Localizer.Step, Localizer.Name)"
+                          Width="180px" />
+          <PropertyColumn Property="@(s => s.TemplatePath)"
+                          Title="@Lang(Localizer.Template, Localizer.Path)" />
+          <PropertyColumn Property="@(s => s.OutputPath)"
+                          Title="@Lang(Localizer.OutputPath, Localizer.Path)" />
+          @*           <PropertyColumn Property="@(s => s.FileType)"
+                          Title="@Lang(Localizer.File, Localizer.Type)" Width="100px" /> *@
+          <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+            <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+              <FluentButton Appearance="Appearance.Stealth"
+                            OnClick="@(() => OpenEditStepDialogAsync(context))"
+                            IconStart="@(new Icons.Regular.Size24.Edit())"
+                            Title="@Lang(Localizer.Edit)" />
+              <FluentButton Appearance="Appearance.Stealth"
+                            OnClick="@(() => DeleteStepAsync(context))"
+                            IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Warning))"
+                            Title="@Lang(Localizer.Delete)" />
+            </FluentStack>
+          </TemplateColumn>
+        </FluentDataGrid>
+      </FluentStack>
+    </Panel2>
+  </FluentSplitter>
+}
+

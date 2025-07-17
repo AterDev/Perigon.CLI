@@ -15,7 +15,7 @@
                VerticalGap="0">
     @* top Toolbar *@
     <FluentToolbar Orientation="Orientation.Horizontal"
-                   Class="w-100 p-2">
+                   Class="w-100 p-2 bg-bottom-2">
       <FluentStack Orientation="Orientation.Horizontal"
                    HorizontalAlignment="HorizontalAlignment.SpaceBetween">
 
@@ -68,15 +68,15 @@
     </FluentToolbar>
     @* tabs: api, models *@
     <FluentTabs OnTabChange="HandleOnTabChange"
-                Size="TabSize.Large"
-                Class="w-100 p-1"
+                Size="TabSize.Medium"
+                Class="w-100"
                 ActiveTabId="api">
-      <FluentTab Label="API" Id="api" Style="font-size:20px">
+      <FluentTab Label="API" Id="api">
         <FluentSplitter Orientation="Orientation.Horizontal"
                         Panel1Size="260px"
-                        Panel1MinSize="260px"
+                        Panel1MinSize="200px"
                         Panel2MinSize="60%"
-                        BarSize="6"
+                        BarSize="5"
                         Class="w-100"
                         Style="height:calc(100vh - 156px)">
           <Panel1>

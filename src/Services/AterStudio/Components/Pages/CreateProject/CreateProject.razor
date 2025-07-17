@@ -1,69 +1,71 @@
-﻿@page "/create-project"
+@page "/create-project"
 
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="36">
-    <h2>创建新解决方案</h2>
-    <FluentStack Orientation="Orientation.Vertical">
-        <FluentLabel Typo="Typography.H3">基本信息</FluentLabel>
-        <div>
-            <FluentTextField Label="解决方案名称" @bind-Value="ProjectName" Required="true" />
-        </div>
-        <div>
-            <FluentTextField Label="路径" @bind-Value="Path" Required="true" />
-        </div>
-        <FluentSwitch @bind-Value=IsLight>使用轻量模板</FluentSwitch>
-    </FluentStack>
+  <h2>创建新解决方案</h2>
+  <FluentStack Orientation="Orientation.Vertical">
+    <FluentLabel Typo="Typography.H3">基本信息</FluentLabel>
+    <div>
+      <FluentTextField Label="解决方案名称" @bind-Value="ProjectName" Required="true" />
+    </div>
+    <div>
+      <FluentTextField Label="路径" @bind-Value="Path" Required="true" />
+    </div>
+    <FluentSwitch @bind-Value=IsLight>使用轻量模板</FluentSwitch>
+  </FluentStack>
 
-    <FluentStack Orientation="Orientation.Vertical">
-        <FluentLabel Typo="Typography.H3">选项配置</FluentLabel>
-        <FluentStack>
-            <div>
-                <FluentSelect Items="@(Enum.GetValues<DbType>())"
-                              @bind-SelectedOption="@Db" Label="数据库类型" />
-            </div>
-            <div>
-                <FluentSelect Items="@(Enum.GetValues<CacheType>())"
-                              @bind-SelectedOption="@Cahce" Label="缓存类型" />
-            </div>
-            <div>
-                <FluentTextField Label="默认密码" @bind-Value="Password" />
-            </div>
-        </FluentStack>
+  <FluentStack Orientation="Orientation.Vertical">
+    <FluentLabel Typo="Typography.H3">选项配置</FluentLabel>
+    <FluentStack>
+      <div>
+        <FluentSelect Items="@(Enum.GetValues<DbType>())"
+                      @bind-SelectedOption="@Db"
+                      Label="数据库类型" />
+      </div>
+      <div>
+        <FluentSelect Items="@(Enum.GetValues<CacheType>())"
+                      @bind-SelectedOption="@Cahce"
+                      Label="缓存类型" />
+      </div>
+      <div>
+        <FluentTextField Label="默认密码" @bind-Value="Password" />
+      </div>
     </FluentStack>
+  </FluentStack>
 
-    <FluentStack Orientation="Orientation.Vertical">
-        <FluentLabel Typo="Typography.H3">连接字符串</FluentLabel>
-        <div style="width: 100%;">
-            <FluentTextField Label="读数据库" @bind-Value="ReadDbConnectionString" Style="width: 100%;" />
-        </div>
-        <div style="width: 100%;">
-            <FluentTextField Label="写数据库" @bind-Value="WriteDbConnectionString" Style="width: 100%;" />
-        </div>
-        <div style="width: 100%;">
-            <FluentTextField Label="缓存连接" @bind-Value="CacheConnectionString" Style="width: 100%;" />
-        </div>
-    </FluentStack>
+  <FluentStack Orientation="Orientation.Vertical">
+    <FluentLabel Typo="Typography.H3">连接字符串</FluentLabel>
+    <div style="width: 100%;">
+      <FluentTextField Label="读数据库" @bind-Value="ReadDbConnectionString" Style="width: 100%;" />
+    </div>
+    <div style="width: 100%;">
+      <FluentTextField Label="写数据库" @bind-Value="WriteDbConnectionString" Style="width: 100%;" />
+    </div>
+    <div style="width: 100%;">
+      <FluentTextField Label="缓存连接" @bind-Value="CacheConnectionString" Style="width: 100%;" />
+    </div>
+  </FluentStack>
 </FluentStack>
 @code {
-    public string? ProjectName { get; set; }
-    public string? Path { get; set; }
-    public string Password { get; set; } = "123456";
-    public string ReadDbConnectionString { get; set; } = "Server=localhost;Port=5432;Database=MyProjectName;User Id=postgres;Password=root;";
-    public string WriteDbConnectionString { get; set; } = "Server=localhost;Port=5432;Database=MyProjectName;User Id=postgres;Password=root;";
-    public string CacheConnectionString { get; set; } = "localhost:6379";
-    public bool IsLight { get; set; }
+  public string? ProjectName { get; set; }
+  public string? Path { get; set; }
+  public string Password { get; set; } = "123456";
+  public string ReadDbConnectionString { get; set; } = "Server=localhost;Port=5432;Database=MyProjectName;User Id=postgres;Password=root;";
+  public string WriteDbConnectionString { get; set; } = "Server=localhost;Port=5432;Database=MyProjectName;User Id=postgres;Password=root;";
+  public string CacheConnectionString { get; set; } = "localhost:6379";
+  public bool IsLight { get; set; }
 
-    public DbType Db { get; set; } = DbType.PostgreSql;
-    public CacheType Cahce { get; set; } = CacheType.Redis;
+  public DbType Db { get; set; } = DbType.PostgreSql;
+  public CacheType Cahce { get; set; } = CacheType.Redis;
 
-    public enum DbType
-    {
-        PostgreSql,
-        SqlServer,
-    }
+  public enum DbType
+  {
+    PostgreSql,
+    SqlServer,
+  }
 
-    public enum CacheType
-    {
-        Redis,
-        Memory
-    }
+  public enum CacheType
+  {
+    Redis,
+    Memory
+  }
 }

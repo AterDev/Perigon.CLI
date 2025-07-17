@@ -88,6 +88,7 @@ public class LocalFileHelper
             if (
                 extension == null
                 || Path.GetExtension(file).Equals(extension, StringComparison.OrdinalIgnoreCase)
+                || file.EndsWith(extension, StringComparison.OrdinalIgnoreCase)
             )
             {
                 result.Add(

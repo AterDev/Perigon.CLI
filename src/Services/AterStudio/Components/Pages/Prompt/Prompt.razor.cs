@@ -148,7 +148,7 @@ public partial class Prompt
         var data = new UpsertFileDto
         {
             DirectoryName = SelectedDirectory!,
-            FileName = Path.GetFileNameWithoutExtension(file.Name),
+            FileName = file.Name.Replace(".prompt.md", ""),
             RootPath = RootPath,
             Suffix = ".prompt.md",
         };

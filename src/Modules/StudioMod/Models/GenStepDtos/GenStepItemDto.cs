@@ -25,4 +25,10 @@ public class GenStepItemDto
     public string? Path { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
     public DateTimeOffset CreatedTime { get; set; }
+
+    /// <summary>
+    /// 模板路径
+    /// </summary>
+    [MaxLength(400)]
+    public string? TemplatePath { get; set; }
 }

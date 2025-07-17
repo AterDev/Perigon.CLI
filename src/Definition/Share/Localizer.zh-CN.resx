@@ -441,4 +441,13 @@
   <data name="UpdateTime" xml:space="preserve">
     <value>更新时间</value>
   </data>
+  <data name="SourceType" xml:space="preserve">
+    <value>来源类型</value>
+  </data>
+  <data name="Step" xml:space="preserve">
+    <value>步骤</value>
+  </data>
+  <data name="List" xml:space="preserve">
+    <value>列表</value>
+  </data>
 </root>

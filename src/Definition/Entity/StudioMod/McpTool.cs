@@ -1,6 +1,9 @@
 namespace Entity.StudioMod;
 
-public class McpTool
+/// <summary>
+/// mcp tool
+/// </summary>
+public class McpTool : EntityBase
 {
     [MaxLength(40)]
     public required string Name { get; set; }
