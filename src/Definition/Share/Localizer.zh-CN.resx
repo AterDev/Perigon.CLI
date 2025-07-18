@@ -450,4 +450,19 @@
   <data name="List" xml:space="preserve">
     <value>列表</value>
   </data>
+  <data name="Variable" xml:space="preserve">
+    <value>变量</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>键</value>
+  </data>
+  <data name="Context" xml:space="preserve">
+    <value>上下文</value>
+  </data>
+  <data name="EntityClass" xml:space="preserve">
+    <value>实体类</value>
+  </data>
+  <data name="DtoModel" xml:space="preserve">
+    <value>Dto模型</value>
+  </data>
 </root>

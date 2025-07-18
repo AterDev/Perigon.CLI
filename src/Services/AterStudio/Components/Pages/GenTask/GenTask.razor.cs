@@ -26,15 +26,17 @@ public partial class GenTask
 
     protected override async Task OnInitializedAsync()
     {
+        CheckProject();
         await LoadActionsAsync();
         isLoading = false;
     }
 
     private async Task LoadActionsAsync()
     {
-        var page = await GenActionManager.ToPageAsync(new GenActionFilterDto());
-        // 假设分页属性为 Records 或 Data
-        GenActions = page.Data ?? new List<GenActionItemDto>();
+        var page = await GenActionManager.ToPageAsync(
+            new GenActionFilterDto { PageIndex = 1, PageSize = 100 }
+        );
+        GenActions = page.Data ?? [];
         if (GenActions.Count > 0)
         {
             SelectedAction = GenActions[0];
@@ -67,34 +69,40 @@ public partial class GenTask
 
     private async Task OpenAddActionDialogAsync()
     {
-        var parameters = new DialogParameters();
-        var dialog = await DialogService.ShowDialogAsync<UpsertGenAction>(parameters);
+        var parameters = new DialogParameters { Modal = false };
+        var dialog = await DialogService.ShowDialogAsync<UpsertGenTaskDialog>(parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            ToastService.ShowSuccess(Lang(Localizer.Save, Localizer.Success));
             await LoadActionsAsync();
         }
     }
 
-    private async Task OpenEditActionDialogAsync()
+    private async Task OpenEditActionDialogAsync(GenActionItemDto item)
     {
         if (SelectedAction == null)
             return;
-        var parameters = new DialogParameters { { "Model", SelectedAction } };
-        var dialog = await DialogService.ShowDialogAsync<UpsertGenAction>(parameters);
+        var parameters = new DialogParameters { Modal = false };
+        var dialog = await DialogService.ShowDialogAsync<UpsertGenTaskDialog>(item, parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            ToastService.ShowSuccess(Lang(Localizer.Save, Localizer.Success));
             await LoadActionsAsync();
         }
     }
 
-    private async Task DeleteActionAsync()
+    private async Task DeleteActionAsync(GenActionItemDto item)
     {
-        if (SelectedAction == null)
+        if (item == null)
             return;
-        await GenActionManager.DeleteAsync(new List<Guid> { SelectedAction.Id }, false);
-        await LoadActionsAsync();
+        var res = await GenActionManager.DeleteAsync([item.Id], false);
+        if (res)
+        {
+            ToastService.ShowSuccess(Lang(Localizer.Save, Localizer.Success));
+            await LoadActionsAsync();
+        }
     }
 
     private async Task OpenAddStepDialogAsync()

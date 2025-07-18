@@ -13,7 +13,7 @@ builder.AddMiddlewareServices();
 builder.Services.AddManagers();
 
 // 模块服务
-builder.AddModules();
+// builder.AddModules();
 
 WebApplication app = builder.Build();
 

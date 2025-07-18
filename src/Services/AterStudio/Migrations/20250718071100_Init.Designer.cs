@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AterStudio.Migrations
 {
     [DbContext(typeof(CommandDbContext))]
-    [Migration("20250520073907_Init")]
+    [Migration("20250718071100_Init")]
     partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.6");
 
             modelBuilder.Entity("Entity.StudioMod.ApiDocInfo", b =>
                 {
@@ -140,7 +140,7 @@ namespace AterStudio.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("SourceType")
+                    b.Property<int>("SourceType")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UpdatedTime")
@@ -173,50 +173,10 @@ namespace AterStudio.Migrations
                     b.ToTable("GenActionGenSteps");
                 });
 
-            modelBuilder.Entity("Entity.StudioMod.GenActionTpl", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ActionContent")
-                        .IsRequired()
-                        .HasMaxLength(10001024)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UpdatedTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GenActionTpls");
-                });
-
             modelBuilder.Entity("Entity.StudioMod.GenStep", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Content")
-                        .HasMaxLength(100000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedTime")
@@ -226,9 +186,6 @@ namespace AterStudio.Migrations
                     b.Property<string>("FileType")
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("GenStepType")
-                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
@@ -246,11 +203,11 @@ namespace AterStudio.Migrations
                         .HasMaxLength(400)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Path")
-                        .HasMaxLength(400)
+                    b.Property<Guid>("ProjectId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<string>("TemplatePath")
+                        .HasMaxLength(400)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedTime")
@@ -608,7 +565,7 @@ namespace AterStudio.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
-                            b1.Property<string>("ApplicationPath")
+                            b1.Property<string>("CommonModPath")
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
@@ -637,7 +594,7 @@ namespace AterStudio.Migrations
                             b1.Property<bool?>("IsSplitController")
                                 .HasColumnType("INTEGER");
 
-                            b1.Property<string>("MicroservicePath")
+                            b1.Property<string>("ServicePath")
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 

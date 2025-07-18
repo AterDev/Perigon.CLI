@@ -24,7 +24,7 @@ public class InitDataTask
         }
         catch (Exception e)
         {
-            logger.LogError("Init db failed:{message}", e.Message);
+            logger.LogError("❌ Init db failed:{message}", e.Message);
             await context.Database.EnsureDeletedAsync();
             await context.Database.MigrateAsync();
         }

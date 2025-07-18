@@ -29,23 +29,6 @@ namespace AterStudio.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GenActionTpls",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 60, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    ActionContent = table.Column<string>(type: "TEXT", maxLength: 10001024, nullable: false),
-                    CreatedTime = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedTime = table.Column<string>(type: "TEXT", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GenActionTpls", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -100,7 +83,7 @@ namespace AterStudio.Migrations
                     Description = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
                     EntityPath = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: true),
                     OpenApiPath = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: true),
-                    SourceType = table.Column<int>(type: "INTEGER", nullable: true),
+                    SourceType = table.Column<int>(type: "INTEGER", nullable: false),
                     ProjectId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ActionStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedTime = table.Column<string>(type: "TEXT", nullable: false),
@@ -125,11 +108,9 @@ namespace AterStudio.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Content = table.Column<string>(type: "TEXT", maxLength: 100000, nullable: true),
                     OutputContent = table.Column<string>(type: "TEXT", maxLength: 100000, nullable: true),
-                    Path = table.Column<string>(type: "TEXT", maxLength: 400, nullable: true),
+                    TemplatePath = table.Column<string>(type: "TEXT", maxLength: 400, nullable: true),
                     OutputPath = table.Column<string>(type: "TEXT", maxLength: 400, nullable: true),
-                    GenStepType = table.Column<int>(type: "INTEGER", nullable: false),
                     FileType = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
                     ProjectId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedTime = table.Column<string>(type: "TEXT", nullable: false),
@@ -318,9 +299,6 @@ namespace AterStudio.Migrations
 
             migrationBuilder.DropTable(
                 name: "GenActionGenSteps");
-
-            migrationBuilder.DropTable(
-                name: "GenActionTpls");
 
             migrationBuilder.DropTable(
                 name: "ModelProperties");

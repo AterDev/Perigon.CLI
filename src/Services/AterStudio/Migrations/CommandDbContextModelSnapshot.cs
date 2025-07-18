@@ -137,7 +137,7 @@ namespace AterStudio.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("SourceType")
+                    b.Property<int>("SourceType")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UpdatedTime")

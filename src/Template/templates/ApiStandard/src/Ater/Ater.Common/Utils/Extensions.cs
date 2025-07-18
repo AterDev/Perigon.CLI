@@ -31,7 +31,7 @@ public static partial class Extensions
     }
 
     /// <summary>
-    /// 类型转换
+    /// 映射到新类型
     /// </summary>
     /// <typeparam name="TSource">源类型</typeparam>
     /// <typeparam name="TDestination">目标类型</typeparam>

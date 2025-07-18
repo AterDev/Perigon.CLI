@@ -105,7 +105,7 @@ public class GenActionManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         return await base.DeleteAsync(ids, softDelete);
     }
@@ -183,7 +183,7 @@ public class GenActionManager(
         var actionRunModel = new ActionRunModel { Variables = [.. variables] };
 
         // 解析模型
-        if (action.SourceType is GenSourceType.EntityCLass or GenSourceType.DtoModel)
+        if (action.SourceType is GenSourceType.EntityClass or GenSourceType.DtoModel)
         {
             // 兼容dto名称
             if (action.SourceType is GenSourceType.DtoModel && dto.ModelInfo != null)
@@ -344,7 +344,7 @@ public class GenActionManager(
             entityFiles = _codeAnalysis.GetEntityFiles(entityPath!, filePaths);
         }
 
-        if (sourceType == GenSourceType.EntityCLass)
+        if (sourceType == GenSourceType.EntityClass)
         {
             return entityFiles
                 .Select(q => new ModelFileItemDto { Name = q.Name, FullName = q.FullName })
