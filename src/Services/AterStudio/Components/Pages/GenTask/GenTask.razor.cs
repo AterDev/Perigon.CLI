@@ -20,9 +20,9 @@ public partial class GenTask
     DataFile? SelectedFile { get; set; }
 
     private bool isLoading = true;
-    private List<GenActionItemDto> GenActions { get; set; } = new();
+    private List<GenActionItemDto> GenActions { get; set; } = [];
     private GenActionItemDto? SelectedAction { get; set; }
-    private List<GenStepItemDto> GenSteps { get; set; } = new();
+    private List<GenStepItemDto> GenSteps { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,14 +57,10 @@ public partial class GenTask
 
     private async Task LoadStepsAsync()
     {
-        if (SelectedAction != null)
-        {
-            GenSteps = await GenActionManager.GetStepsAsync(SelectedAction.Id) ?? new();
-        }
-        else
-        {
-            GenSteps.Clear();
-        }
+        var page = await GenStepManager.ToPageAsync(
+            new GenStepFilterDto { PageIndex = 1, PageSize = 100 }
+        );
+        GenSteps = page.Data ?? [];
     }
 
     private async Task OpenAddActionDialogAsync()
@@ -97,10 +93,21 @@ public partial class GenTask
     {
         if (item == null)
             return;
+
+        var dialog = await DialogService.ShowConfirmationAsync(
+            Lang(Localizer.ConfirmDeleteMessage),
+            Lang(Localizer.Confirm),
+            Lang(Localizer.Cancel),
+            Lang(Localizer.Delete, Localizer.Task)
+        );
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+
         var res = await GenActionManager.DeleteAsync([item.Id], false);
         if (res)
         {
-            ToastService.ShowSuccess(Lang(Localizer.Save, Localizer.Success));
+            ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
             await LoadActionsAsync();
         }
     }
@@ -109,8 +116,8 @@ public partial class GenTask
     {
         if (SelectedAction == null)
             return;
-        var parameters = new DialogParameters { { "ActionId", SelectedAction.Id } };
-        var dialog = await DialogService.ShowDialogAsync<UpsertGenStep>(parameters);
+        var parameters = new DialogParameters { Modal = false };
+        var dialog = await DialogService.ShowDialogAsync<UpsertGenStepDialog>(parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
@@ -120,8 +127,8 @@ public partial class GenTask
 
     private async Task OpenEditStepDialogAsync(GenStepItemDto step)
     {
-        var parameters = new DialogParameters { { "Model", step } };
-        var dialog = await DialogService.ShowDialogAsync<UpsertGenStep>(parameters);
+        var parameters = new DialogParameters { Modal = false };
+        var dialog = await DialogService.ShowDialogAsync<UpsertGenStepDialog>(step, parameters);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
@@ -131,7 +138,23 @@ public partial class GenTask
 
     private async Task DeleteStepAsync(GenStepItemDto step)
     {
-        await GenStepManager.DeleteAsync(new List<Guid> { step.Id }, false);
-        await LoadStepsAsync();
+        if (step == null)
+            return;
+
+        var dialog = await DialogService.ShowConfirmationAsync(
+            Lang(Localizer.ConfirmDeleteMessage),
+            Lang(Localizer.Confirm),
+            Lang(Localizer.Cancel),
+            Lang(Localizer.Delete, Localizer.Step)
+        );
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+        var res = await GenStepManager.DeleteAsync([step.Id], false);
+        if (res)
+        {
+            ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
+            await LoadActionsAsync();
+        }
     }
 }

@@ -76,12 +76,18 @@ public class LocalFileHelper
     /// </summary>
     /// <param name="directoryName">目录名称（非完整路径）</param>
     /// <param name="extension">可选后缀名（如 .txt）</param>
-    public List<DataFile> GetFiles(string directoryName, string? extension = null)
+    public List<DataFile> GetFiles(string directoryName = "", string? extension = null)
     {
         var dirPath = Path.Combine(RootPath, directoryName);
         if (!Directory.Exists(dirPath))
             throw new DirectoryNotFoundException($"Directory not found: {dirPath}");
-        var files = Directory.GetFiles(dirPath);
+        var files = Directory.GetFiles(
+            dirPath,
+            "*",
+            string.IsNullOrWhiteSpace(directoryName)
+                ? SearchOption.AllDirectories
+                : SearchOption.TopDirectoryOnly
+        );
         var result = new List<DataFile>();
         foreach (var file in files)
         {

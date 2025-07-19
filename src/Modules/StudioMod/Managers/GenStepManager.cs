@@ -86,7 +86,7 @@ public class GenStepManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         return await base.DeleteAsync(ids, softDelete);
     }

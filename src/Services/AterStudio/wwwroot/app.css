@@ -164,6 +164,8 @@ fluent-card:hover .delete-action {
 
 
 .upsert-file-dialog {
-    width: 800px;
-    height: 800px;
+    min-width: 600px;
+    min-height: 400px;
+    height: auto;
+    width: auto;
 }

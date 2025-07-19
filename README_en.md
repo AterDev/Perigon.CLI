@@ -98,11 +98,3 @@ Or use `ater [command] --help` to view specific command help information.
 
 [in progress](https://www.dusi.dev/docs/Ater.Dry)
 
-
-## 🙏 致谢
-
-<p align="left">
-  <a href="https://www.jetbrains.com/?from=your-repo-name">
-    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo" width="100"/>
-  </a>
-</p>

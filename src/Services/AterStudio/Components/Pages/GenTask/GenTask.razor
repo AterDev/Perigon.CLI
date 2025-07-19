@@ -62,9 +62,13 @@
           <FluentStack Orientation="Orientation.Horizontal"
                        HorizontalAlignment="HorizontalAlignment.SpaceBetween"
                        VerticalAlignment="VerticalAlignment.Center">
-            <FluentLabel Typo="Typography.H5">@SelectedAction?.Name</FluentLabel>
-            <FluentStack Orientation="Orientation.Horizontal">
 
+            <FluentStack>
+              <FluentLabel Typo="Typography.H5">@Lang(Localizer.Step, Localizer.List)</FluentLabel>
+            </FluentStack>
+
+            <FluentStack Orientation="Orientation.Horizontal"
+                         HorizontalAlignment="HorizontalAlignment.Right">
               <FluentButton Appearance="Appearance.Stealth"
                             Title="@Lang(Localizer.Add, Localizer.Step)"
                             OnClick="OpenAddStepDialogAsync"
@@ -78,23 +82,26 @@
                         RowSize="DataGridRowSize.Medium"
                         AutoFit="true">
           <PropertyColumn Property="@(s => s.Name)"
-                          Title="@Lang(Localizer.Step, Localizer.Name)"
-                          Width="180px" />
-          <PropertyColumn Property="@(s => s.TemplatePath)"
-                          Title="@Lang(Localizer.Template, Localizer.Path)" />
+                          Title="@Lang(Localizer.Step, Localizer.Name)" />
+
+          <TemplateColumn Title="@Lang(Localizer.Template)">
+            @if (!string.IsNullOrWhiteSpace(context.TemplatePath))
+            {
+              @context.TemplatePath.Replace(ProjectContext.SolutionPath!, "")
+            }
+          </TemplateColumn>
           <PropertyColumn Property="@(s => s.OutputPath)"
                           Title="@Lang(Localizer.OutputPath, Localizer.Path)" />
-          @*           <PropertyColumn Property="@(s => s.FileType)"
-                          Title="@Lang(Localizer.File, Localizer.Type)" Width="100px" /> *@
+
           <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
             <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
               <FluentButton Appearance="Appearance.Stealth"
                             OnClick="@(() => OpenEditStepDialogAsync(context))"
-                            IconStart="@(new Icons.Regular.Size24.Edit())"
+                            IconStart="@(new Icons.Regular.Size20.Edit())"
                             Title="@Lang(Localizer.Edit)" />
               <FluentButton Appearance="Appearance.Stealth"
                             OnClick="@(() => DeleteStepAsync(context))"
-                            IconStart="@(new Icons.Regular.Size24.Delete().WithColor(Color.Warning))"
+                            IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
                             Title="@Lang(Localizer.Delete)" />
             </FluentStack>
           </TemplateColumn>

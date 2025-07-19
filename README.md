@@ -93,12 +93,3 @@ ater studio
 ## 📄 文档
 
 [进行中](https://www.dusi.dev/docs/Ater.Dry)
-
-
-## 🙏 致谢
-
-<p align="left">
-  <a href="https://www.jetbrains.com/?from=ater.dry.cli">
-    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo" width="100"/>
-  </a>
-</p>
