@@ -1,0 +1,139 @@
+@using StudioMod.Models.GenActionDtos
+@inherits PageBase
+@implements IDialogContentComponent<GenActionItemDto>
+
+<FluentDialogHeader>
+  <FluentLabel Typo="Typography.PaneHeader">
+    @Lang(Localizer.Execute, Localizer.Task)
+  </FluentLabel>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+  <FluentStack>
+    @if (Content.SourceType == GenSourceType.OpenAPI)
+    {
+      <FluentAutocomplete TOption="ApiDocInfo"
+                          Label="@Lang(Localizer.Select,Localizer.OpenApiEndpoint)"
+                          Placeholder="@Lang(Localizer.Select,Localizer.OpenApiEndpoint)"
+                          OnOptionsSearch="OnOpenApiSearch"
+                          OptionText="@(item=>item.Name)"
+                          OptionValue="@(item=>item.Id.ToString())"
+                          @bind-SelectedOption="SelectedApiDoc"
+                          AutoComplete="false"
+                          Required
+                          MaxAutoHeight="260px"
+                          Autofocus="true"
+                          Multiple="false" />
+    }
+    else
+    {
+      <FluentAutocomplete TOption="ModelFileItemDto"
+                          Label="@Lang(Localizer.Select,Localizer.Model)"
+                          Placeholder="@Lang(Localizer.Select,Localizer.Model)"
+                          OnOptionsSearch="OnModelSearch"
+                          OptionText="@(item=>item.Name)"
+                          OptionValue="@(item=>item.FullName)"
+                          @bind-SelectedOption="SelectedModel"
+                          AutoComplete="false"
+                          Required
+                          MaxAutoHeight="260px"
+                          Autofocus="true"
+                          Multiple="false" />
+    }
+  </FluentStack>
+
+</FluentDialogBody>
+
+<FluentDialogFooter>
+  <FluentStack Orientation="Orientation.Horizontal"
+               HorizontalAlignment="HorizontalAlignment.Right">
+    <FluentButton Appearance="Appearance.Accent"
+                  OnClick="()=>ExecuteAsync()">
+      @Lang(Localizer.Execute)
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Neutral"
+                  OnClick="()=>Dialog.CancelAsync()">
+      @Lang(Localizer.Cancel)
+    </FluentButton>
+  </FluentStack>
+</FluentDialogFooter>
+
+
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = default!;
+  [Parameter]
+  public GenActionItemDto Content { get; set; } = default!;
+
+  [Inject]
+  GenActionManager GenActionManager { get; set; } = default!;
+
+  [Inject]
+  ApiDocInfoManager ApiDocInfoManager { get; set; } = default!;
+
+  GenActionRunDto Model { get; set; } = new GenActionRunDto();
+
+  List<ModelFileItemDto> ModelFiles { get; set; } = [];
+  List<ModelFileItemDto> FilteredModelFiles { get; set; } = [];
+  ModelFileItemDto? SelectedModel { get; set; }
+
+  List<ApiDocInfo> ApiDocs { get; set; } = [];
+  List<ApiDocInfo> FilteredApiDocs { get; set; } = [];
+  ApiDocInfo? SelectedApiDoc { get; set; }
+
+  GenActionRunDto RunDto { get; set; } = new();
+
+
+  bool IsProcessing { get; set; } = false;
+
+  protected override async Task OnInitializedAsync()
+  {
+    if (Content.SourceType == GenSourceType.OpenAPI)
+    {
+      ApiDocs = await ApiDocInfoManager.ToListAsync();
+    }
+    else
+    {
+      ModelFiles = GenActionManager.GetModelFile(Content.SourceType);
+      FilteredModelFiles = ModelFiles;
+    }
+  }
+
+  private void OnModelSearch(OptionsSearchEventArgs<ModelFileItemDto> e)
+  {
+    e.Items = ModelFiles.Where(m => m.Name.Contains(e.Text, StringComparison.OrdinalIgnoreCase));
+  }
+
+  private void OnOpenApiSearch(OptionsSearchEventArgs<ApiDocInfo> e)
+  {
+    e.Items = ApiDocs.Where(m => m.Name.Contains(e.Text, StringComparison.OrdinalIgnoreCase));
+  }
+
+  private async Task ExecuteAsync()
+  {
+    IsProcessing = true;
+    await Task.Yield();
+
+    RunDto.Id = Content.Id;
+    RunDto.OnlyOutput = false;
+
+    if (Content.SourceType == GenSourceType.OpenAPI)
+    {
+      RunDto.SourceFilePath = SelectedApiDoc?.Path;
+    }
+    else
+    {
+      RunDto.SourceFilePath = SelectedModel?.FullName ?? string.Empty;
+    }
+    var res = await GenActionManager.ExecuteActionAsync(RunDto);
+    if (res.IsSuccess)
+    {
+      await Dialog.CloseAsync(res.OutputFiles);
+    }
+    else
+    {
+      ToastService.ShowError(res.ErrorMsg ?? "");
+    }
+    IsProcessing = false;
+  }
+}

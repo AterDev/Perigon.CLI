@@ -89,6 +89,18 @@ public partial class GenTask
         }
     }
 
+    private async Task OpenExecuteTaskDialog(GenActionItemDto item)
+    {
+        if (item == null)
+            return;
+        var parameters = new DialogParameters { Modal = false };
+
+        var dialog = await DialogService.ShowDialogAsync<ExecuteTaskDialog>(item, parameters);
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+    }
+
     private async Task DeleteActionAsync(GenActionItemDto item)
     {
         if (item == null)

@@ -11,6 +11,7 @@ public class GenAction : EntityBase
     /// action name
     /// </summary>
     [MaxLength(40)]
+    [Required]
     public required string Name { get; set; }
 
     [MaxLength(200)]

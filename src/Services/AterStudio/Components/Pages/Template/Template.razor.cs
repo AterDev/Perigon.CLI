@@ -1,5 +1,4 @@
 using AterStudio.Components.Shared;
-using AterStudio.Components.Shared.Models;
 using CodeGenerator.Helper;
 using Entity;
 
@@ -104,6 +103,13 @@ public partial class Template
         {
             ToastService.ShowError(Lang(Localizer.MustSelectOption));
         }
+    }
+
+    private async Task OpenHelpDialogAsync()
+    {
+        var dialog = await DialogService.ShowDialogAsync<HelpDialog>(
+            new DialogParameters { Width = "auto", Modal = false }
+        );
     }
 
     private async Task OpenAddFileDialogAsync()

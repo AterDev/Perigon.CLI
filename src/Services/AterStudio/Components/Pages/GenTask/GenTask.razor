@@ -20,43 +20,7 @@
                   BarSize="5"
                   Style="height:calc(100vh - 56px)">
     <Panel1>
-      <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
-        <FluentToolbar Class="w-100 bg-bottom-2">
-          <FluentStack Orientation="Orientation.Horizontal"
-                       HorizontalAlignment="HorizontalAlignment.SpaceBetween"
-                       VerticalAlignment="VerticalAlignment.Center">
-            <FluentLabel Typo="Typography.Subject">@Lang(Localizer.Task, Localizer.List)</FluentLabel>
-            <FluentButton Appearance="Appearance.Stealth"
-                          Title="@Lang(Localizer.Add, Localizer.Task)"
-                          OnClick="OpenAddActionDialogAsync"
-                          IconStart="@(new Icons.Regular.Size20.Add())" />
-          </FluentStack>
-        </FluentToolbar>
-        <FluentDataGrid Class="w-100"
-                        Items="@GenActions.AsQueryable()"
-                        RowSize="DataGridRowSize.Medium"
-                        AutoFit="true">
-          <PropertyColumn Property="@(s => s.Name)"
-                          Title="@Lang(Localizer.Name)" />
-          <PropertyColumn Property="@(s => Lang(s.SourceType.ToString()))"
-                          Title="@Lang(Localizer.Context, Localizer.Type)" />
 
-          <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
-            <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
-              <FluentButton Appearance="Appearance.Stealth"
-                            OnClick="@(() => OpenEditActionDialogAsync(context))"
-                            IconStart="@(new Icons.Regular.Size20.Edit())"
-                            Title="@Lang(Localizer.Edit)" />
-              <FluentButton Appearance="Appearance.Stealth"
-                            OnClick="@(() => DeleteActionAsync(context))"
-                            IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
-                            Title="@Lang(Localizer.Delete)" />
-            </FluentStack>
-          </TemplateColumn>
-        </FluentDataGrid>
-      </FluentStack>
-    </Panel1>
-    <Panel2>
       <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="px-1" VerticalGap="4">
         <FluentToolbar Class="w-100 bg-bottom-2">
           <FluentStack Orientation="Orientation.Horizontal"
@@ -80,18 +44,18 @@
         <FluentDataGrid Class="w-100"
                         Items="@GenSteps.AsQueryable()"
                         RowSize="DataGridRowSize.Medium"
-                        AutoFit="true">
+                        MultiLine="true">
           <PropertyColumn Property="@(s => s.Name)"
                           Title="@Lang(Localizer.Step, Localizer.Name)" />
 
           <TemplateColumn Title="@Lang(Localizer.Template)">
             @if (!string.IsNullOrWhiteSpace(context.TemplatePath))
             {
-              @context.TemplatePath.Replace(ProjectContext.SolutionPath!, "")
+              @Path.GetFileName(context.TemplatePath)
             }
           </TemplateColumn>
-          <PropertyColumn Property="@(s => s.OutputPath)"
-                          Title="@Lang(Localizer.OutputPath, Localizer.Path)" />
+          @*           <PropertyColumn Property="@(s => s.OutputPath)"
+                          Title="@Lang(Localizer.OutputPath, Localizer.Path)" /> *@
 
           <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
             <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
@@ -101,6 +65,48 @@
                             Title="@Lang(Localizer.Edit)" />
               <FluentButton Appearance="Appearance.Stealth"
                             OnClick="@(() => DeleteStepAsync(context))"
+                            IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
+                            Title="@Lang(Localizer.Delete)" />
+            </FluentStack>
+          </TemplateColumn>
+        </FluentDataGrid>
+      </FluentStack>
+    </Panel1>
+    <Panel2>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+        <FluentToolbar Class="w-100 bg-bottom-2">
+          <FluentStack Orientation="Orientation.Horizontal"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                       VerticalAlignment="VerticalAlignment.Center">
+            <FluentLabel Typo="Typography.Subject">@Lang(Localizer.Task, Localizer.List)</FluentLabel>
+            <FluentButton Appearance="Appearance.Stealth"
+                          Title="@Lang(Localizer.Add, Localizer.Task)"
+                          OnClick="OpenAddActionDialogAsync"
+                          IconStart="@(new Icons.Regular.Size20.Add())" />
+          </FluentStack>
+        </FluentToolbar>
+        <FluentDataGrid Class="w-100"
+                        Items="@GenActions.AsQueryable()"
+                        RowSize="DataGridRowSize.Medium">
+          <PropertyColumn Property="@(s => s.Name)"
+                          Title="@Lang(Localizer.Task, Localizer.Name)" />
+          <PropertyColumn Property="@(s => Lang(s.SourceType.ToString()))"
+                          Title="@Lang(Localizer.Context, Localizer.Type)" />
+
+          <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+            <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+
+              <FluentButton Appearance="Appearance.Stealth"
+                            OnClick="@(() => OpenExecuteTaskDialog(context))"
+                            IconStart="@(new Icons.Regular.Size20.Play())"
+                            Title="@Lang(Localizer.Execute)" />
+
+              <FluentButton Appearance="Appearance.Stealth"
+                            OnClick="@(() => OpenEditActionDialogAsync(context))"
+                            IconStart="@(new Icons.Regular.Size20.Edit())"
+                            Title="@Lang(Localizer.Edit)" />
+              <FluentButton Appearance="Appearance.Stealth"
+                            OnClick="@(() => DeleteActionAsync(context))"
                             IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
                             Title="@Lang(Localizer.Delete)" />
             </FluentStack>

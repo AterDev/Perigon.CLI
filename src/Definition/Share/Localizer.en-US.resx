@@ -465,4 +465,16 @@
   <data name="DtoModel" xml:space="preserve">
     <value>Dto Model</value>
   </data>
+  <data name="Execute" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="MustSelectItem" xml:space="preserve">
+    <value>You must select {0} </value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
 </root>

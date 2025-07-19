@@ -1,0 +1,181 @@
+@implements IDialogContentComponent
+@inherits PageBase
+<FluentDialogHeader>
+  <FluentLabel Typo="Typography.PaneHeader">
+    @Lang(Localizer.Template, Localizer.Variable) @Lang(Localizer.Description)
+  </FluentLabel>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+  <FluentStack Orientation="Orientation.Horizontal"
+               Class="help">
+    <div class="d-flex flex-column help">
+      <h4>内置结构</h4>
+      <table class="default mb-2">
+        <tr>
+          <th>属性</th>
+          <th>说明</th>
+        </tr>
+        <tr>
+          <td>命名空间</td>
+          <td>&#64;Namespace</td>
+        </tr>
+        <tr>
+          <td>模型名称</td>
+          <td>&#64;ModelName</td>
+        </tr>
+        <tr>
+          <td>类型描述</td>
+          <td>&#64;Description</td>
+        </tr>
+        <tr>
+          <td>换行</td>
+          <td>&#64;NewLine</td>
+        </tr>
+        <tr>
+          <td>实体属性</td>
+          <td>&#64;PropertyInfos</td>
+        </tr>
+        <tr>
+          <td>变量列表</td>
+          <td>&#64;Variables</td>
+        </tr>
+      </table>
+      <h4>当数据类型为实体时</h4>
+      <table class="mb-2">
+        <tr>
+          <td>添加DTO</td>
+          <td>&#64;AddPropertyInfos</td>
+        </tr>
+        <tr>
+          <td>更新DTO</td>
+          <td>&#64;UpdatePropertyInfos</td>
+        </tr>
+        <tr>
+          <td>列表DTO</td>
+          <td>&#64;ItemPropertyInfos</td>
+        </tr>
+        <tr>
+          <td>详情DTO</td>
+          <td>&#64;DetailPropertyInfos</td>
+        </tr>
+        <tr>
+          <td>筛选DTO</td>
+          <td>&#64;FilterPropertyInfos</td>
+        </tr>
+      </table>
+      <h4>&#64;Variables变量</h4>
+      <table class="default">
+        <tr>
+          <th>属性</th>
+          <th>说明</th>
+        </tr>
+        <tr>
+          <td>模型名称(CamelPascal)</td>
+          <td>ModelName</td>
+        </tr>
+        <tr>
+          <td>模型名称(a-b-c)</td>
+          <td>ModelNameHyphen</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="d-flex flex-column">
+      <h4>&#64;PropertyInfos变量</h4>
+      <table class="mb-2">
+        <tr>
+          <th>属性</th>
+          <th>说明</th>
+        </tr>
+        <tr>
+          <td>类型</td>
+          <td>Type</td>
+        </tr>
+        <tr>
+          <td>名称</td>
+          <td>Name</td>
+        </tr>
+        <tr>
+          <td>显示名称</td>
+          <td>DisplayName</td>
+        </tr>
+        <tr>
+          <td>是否数组</td>
+          <td>IsList</td>
+        </tr>
+        <tr>
+          <td>是否公开</td>
+          <td>IsPublic</td>
+        </tr>
+        <tr>
+          <td>是否导航属性</td>
+          <td>IsNavigation</td>
+        </tr>
+        <tr>
+          <td>是否枚举</td>
+          <td>IsEnum</td>
+        </tr>
+        <tr>
+          <td>xml注释</td>
+          <td>CommentXml</td>
+        </tr>
+        <tr>
+          <td>注释摘要</td>
+          <td>CommentSummary</td>
+        </tr>
+        <tr>
+          <td>是否必须</td>
+          <td>IsRequired</td>
+        </tr>
+        <tr>
+          <td>是否可空</td>
+          <td>IsNullable</td>
+        </tr>
+        <tr>
+          <td>最小长度</td>
+          <td>MinLength</td>
+        </tr>
+        <tr>
+          <td>最大长度</td>
+          <td>MaxLength</td>
+        </tr>
+      </table>
+
+      <h4>String扩展函数</h4>
+      <table>
+        <tr>
+          <th>方法</th>
+          <th>示例</th>
+        </tr>
+        <tr>
+          <td>ToHyphen</td>
+          <td>str.ToHyphen()</td>
+        </tr>
+        <tr>
+          <td>ToSnakeLower</td>
+          <td>str.ToSnakeLower()</td>
+        </tr>
+        <tr>
+          <td>ToPascalCase</td>
+          <td>str.ToPascalCase()</td>
+        </tr>
+        <tr>
+          <td>ToCamelCase</td>
+          <td>str.ToCamelCase()</td>
+        </tr>
+      </table>
+    </div>
+  </FluentStack>
+
+
+
+</FluentDialogBody>
+
+<FluentDialogFooter>
+  <FluentButton OnClick="() => Dialog.CloseAsync()">@Lang(Localizer.Confirm)</FluentButton>
+</FluentDialogFooter>
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+}

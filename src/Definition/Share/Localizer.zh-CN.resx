@@ -465,4 +465,16 @@
   <data name="DtoModel" xml:space="preserve">
     <value>Dto模型</value>
   </data>
+  <data name="Execute" xml:space="preserve">
+    <value>执行</value>
+  </data>
+  <data name="MustSelectItem" xml:space="preserve">
+    <value>必须选择 {0} </value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>模型</value>
+  </data>
 </root>

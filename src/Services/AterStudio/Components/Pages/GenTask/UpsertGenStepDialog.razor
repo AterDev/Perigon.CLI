@@ -35,7 +35,7 @@
                             Multiple="false"
                             Placeholder="Select a template"
                             MaxAutoHeight="260px"
-                            OnOptionsSearch="@OnSearchAsync"
+                            OnOptionsSearch="@OnSearch"
                             OptionText="@(item => item.Name)"
                             OptionValue="@(item => item.FullPath)"
                             @bind-SelectedOption="@SelectedTemplate" />
@@ -107,7 +107,7 @@
     editContext = new EditContext(Model);
   }
 
-  private void OnSearchAsync(OptionsSearchEventArgs<DataFile> e)
+  private void OnSearch(OptionsSearchEventArgs<DataFile> e)
   {
     e.Items = Templates.Where(i => i.FullPath.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
                           .OrderBy(i => i.Name);

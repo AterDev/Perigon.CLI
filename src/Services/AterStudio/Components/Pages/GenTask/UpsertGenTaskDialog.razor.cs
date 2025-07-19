@@ -2,10 +2,11 @@ using Ater.Common.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using StudioMod.Models.GenActionDtos;
+using StudioMod.Models.GenStepDtos;
 
 namespace AterStudio.Components.Pages.GenTask;
 
-public partial class UpsertGenTaskDialog
+public partial class UpsertGenTaskDialog : IDisposable
 {
     [CascadingParameter]
     FluentDialog Dialog { get; set; } = null!;
@@ -18,12 +19,19 @@ public partial class UpsertGenTaskDialog
     [Inject]
     GenActionManager GenActionManager { get; set; } = null!;
 
+    [Inject]
+    GenStepManager GenStepManager { get; set; } = null!;
+
     EditContext? editContext;
+
+    List<GenStepItemDto> GenSteps { get; set; } = [];
+    List<GenStepItemDto> FilteredGenSteps { get; set; } = [];
+    IEnumerable<GenStepItemDto> SelectedGenSteps { get; set; } = [];
 
     GenAction Model { get; set; } = new() { Name = string.Empty };
     IEnumerable<GenSourceType> SourceTypes { get; set; } = Enum.GetValues<GenSourceType>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (Content != null)
         {
@@ -31,9 +39,32 @@ public partial class UpsertGenTaskDialog
             Model.Name = Content.Name;
             Model.Description = Content.Description;
             Model.SourceType = Content.SourceType;
-            Model.Variables = Content.Variables ?? new List<Variable>();
+            Model.Variables = Content.Variables ?? [];
+
+            SelectedGenSteps = await GenActionManager.GetStepsAsync(Content.Id);
         }
+
+        var page = await GenStepManager.ToPageAsync(
+            new GenStepFilterDto { PageIndex = 1, PageSize = 100 }
+        );
+        GenSteps = page.Data ?? [];
         editContext = new EditContext(Model);
+        editContext.OnFieldChanged += EditContext_OnFieldChanged;
+    }
+
+    private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        if (editContext is not null)
+        {
+            editContext.Validate();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (editContext != null)
+            editContext.OnFieldChanged -= EditContext_OnFieldChanged;
     }
 
     private void AddVariable()
@@ -46,11 +77,22 @@ public partial class UpsertGenTaskDialog
         Model.Variables.Remove(variable);
     }
 
+    private void OnStepSearch(OptionsSearchEventArgs<GenStepItemDto> e)
+    {
+        e.Items = GenSteps
+            .Where(i => i.Name.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(i => i.Name);
+    }
+
     private async Task SaveAsync()
     {
         if (!editContext!.Validate())
         {
-            ToastService.ShowError(Lang(Localizer.FormValidFailed));
+            return;
+        }
+        if (!SelectedGenSteps.Any())
+        {
+            ToastService.ShowError(Localizer.Get(Localizer.MustSelectItem, Localizer.Step));
             return;
         }
         Model.ProjectId = ProjectContext.ProjectId!.Value;
@@ -64,10 +106,13 @@ public partial class UpsertGenTaskDialog
                 );
                 return;
             }
-            entity = entity.Merge(Model);
+            entity.Merge(Model);
             var res = await GenActionManager.UpdateAsync(entity!);
             if (res)
             {
+                // steps
+                var stepIds = SelectedGenSteps.Select(s => s.Id).ToList();
+                await GenActionManager.AddStepsAsync(Model.Id, stepIds);
                 await Dialog.CloseAsync(Model);
             }
             else
@@ -82,9 +127,13 @@ public partial class UpsertGenTaskDialog
                     !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)
                 )
                 .ToList();
+
             var res = await GenActionManager.AddAsync(Model);
             if (res)
             {
+                // steps
+                var stepIds = SelectedGenSteps.Select(s => s.Id).ToList();
+                await GenActionManager.AddStepsAsync(Model.Id, stepIds);
                 await Dialog.CloseAsync(Model);
             }
             else
@@ -98,4 +147,25 @@ public partial class UpsertGenTaskDialog
     {
         await Dialog.CancelAsync();
     }
+}
+
+public class StepItemComparer : IEqualityComparer<GenStepItemDto>
+{
+    public static readonly StepItemComparer Instance = new();
+
+    public bool Equals(GenStepItemDto? x, GenStepItemDto? y)
+    {
+        if (ReferenceEquals(x, y))
+        {
+            return true;
+        }
+
+        if (x is null || y is null)
+        {
+            return false;
+        }
+        return x.Name == y.Name && x.TemplatePath == y.TemplatePath;
+    }
+
+    public int GetHashCode(GenStepItemDto obj) => HashCode.Combine(obj.Name, obj.TemplatePath);
 }

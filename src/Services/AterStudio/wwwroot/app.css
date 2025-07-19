@@ -162,10 +162,32 @@ fluent-card:hover .delete-action {
     word-break: break-word;
 }
 
-
 .upsert-file-dialog {
     min-width: 600px;
     min-height: 400px;
     height: auto;
     width: auto;
 }
+
+.help table {
+    border-collapse: collapse;
+    margin: 0;
+}
+
+    .help table th {
+        text-align: left;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 24px;
+        border: 1px solid gray;
+        padding-left: 8px;
+    }
+
+    .help table td {
+        margin: 0;
+        padding-left: 8px;
+        text-align: left;
+        font-size: 14px;
+        line-height: 24px;
+        border: 1px solid gray;
+    }

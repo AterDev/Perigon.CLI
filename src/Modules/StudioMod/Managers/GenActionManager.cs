@@ -131,6 +131,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> AddStepsAsync(Guid id, List<Guid> stepIds)
     {
+        CommandContext.ChangeTracker.Clear();
         await Database.BeginTransactionAsync();
         try
         {
