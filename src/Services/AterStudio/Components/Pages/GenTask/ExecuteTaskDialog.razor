@@ -48,6 +48,7 @@
   <FluentStack Orientation="Orientation.Horizontal"
                HorizontalAlignment="HorizontalAlignment.Right">
     <FluentButton Appearance="Appearance.Accent"
+                  Disabled="@IsProcessing"
                   OnClick="()=>ExecuteAsync()">
       @Lang(Localizer.Execute)
     </FluentButton>
@@ -112,7 +113,6 @@
   private async Task ExecuteAsync()
   {
     IsProcessing = true;
-    await Task.Yield();
 
     RunDto.Id = Content.Id;
     RunDto.OnlyOutput = false;
@@ -125,15 +125,18 @@
     {
       RunDto.SourceFilePath = SelectedModel?.FullName ?? string.Empty;
     }
-    var res = await GenActionManager.ExecuteActionAsync(RunDto);
-    if (res.IsSuccess)
-    {
-      await Dialog.CloseAsync(res.OutputFiles);
-    }
-    else
-    {
-      ToastService.ShowError(res.ErrorMsg ?? "");
-    }
-    IsProcessing = false;
+
+      var res = await GenActionManager.ExecuteActionAsync(RunDto);
+      if (res.IsSuccess)
+      {
+        await Dialog.CloseAsync(res.OutputFiles);
+      }
+      else
+      {
+        ToastService.ShowError(res.ErrorMsg ?? "");
+      }
+      IsProcessing = false;
+    
+
   }
 }

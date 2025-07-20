@@ -440,7 +440,9 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
 
     protected async Task<int> SaveChangesAsync()
     {
-        return await CommandContext.SaveChangesAsync();
+        var res = await CommandContext.SaveChangesAsync();
+        CommandContext.ChangeTracker.Clear();
+        return res;
     }
 
     /// <summary>

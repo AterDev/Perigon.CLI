@@ -3,8 +3,8 @@ using CodeGenerator.Helper;
 using CodeGenerator.Models;
 using Entity;
 
-
 namespace Share.Services;
+
 /// <summary>
 /// 代码解析服务
 /// </summary>
@@ -21,36 +21,44 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
     public List<EntityFile> GetEntityFiles(string entityPath, List<string> filePaths)
     {
         var entityFiles = new ConcurrentBag<EntityFile>();
-        Parallel.ForEach(filePaths, path =>
-        {
-            string content = File.ReadAllText(path);
-            var compilation = new CompilationHelper(entityPath);
-            compilation.LoadContent(content);
-            if (compilation.IsEntityClass())
+        Parallel.ForEach(
+            filePaths,
+            path =>
             {
-                var comment = RegexSource.SummaryCommentRegex()
-                    .Match(content)?.Groups[1]?.Value.Trim();
-                comment = comment?.Replace("/", "").Trim();
+                string content = File.ReadAllText(path);
+                var compilation = new CompilationHelper(entityPath);
+                compilation.LoadContent(content);
+                if (compilation.IsEntityClass())
+                {
+                    var comment = RegexSource
+                        .SummaryCommentRegex()
+                        .Match(content)
+                        ?.Groups[1]
+                        ?.Value.Trim();
+                    comment = comment?.Replace("/", "").Trim();
 
-                var entityFile = new EntityFile
-                {
-                    Name = Path.GetFileName(path),
-                    FullName = path,
-                    Content = content,
-                    Comment = comment,
-                };
-                var moduleAttribution = compilation.GetClassAttribution("Module");
-                if (moduleAttribution != null && moduleAttribution.Count != 0)
-                {
-                    var argument = moduleAttribution.Last().ArgumentList?.Arguments.FirstOrDefault();
-                    if (argument != null)
+                    var entityFile = new EntityFile
                     {
-                        entityFile.ModuleName = compilation.GetArgumentValue(argument);
+                        Name = Path.GetFileName(path),
+                        FullName = path,
+                        Content = content,
+                        Comment = comment,
+                    };
+                    var moduleAttribution = compilation.GetClassAttribution("Module");
+                    if (moduleAttribution != null && moduleAttribution.Count != 0)
+                    {
+                        var argument = moduleAttribution
+                            .Last()
+                            .ArgumentList?.Arguments.FirstOrDefault();
+                        if (argument != null)
+                        {
+                            entityFile.ModuleName = compilation.GetArgumentValue(argument);
+                        }
                     }
+                    entityFiles.Add(entityFile);
                 }
-                entityFiles.Add(entityFile);
             }
-        });
+        );
         return [.. entityFiles];
     }
 
@@ -59,18 +67,21 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
     /// </summary>
     /// <param name="entityFiles"></param>
     /// <returns></returns>
-    public List<EntityInfo> GetEntityInfos(List<string> entityFiles)
+    public async Task<List<EntityInfo>> GetEntityInfosAsync(List<string> entityFiles)
     {
         var entityInfos = new ConcurrentBag<EntityInfo>();
-        Parallel.ForEach(entityFiles, entityFile =>
-        {
-            var parse = new EntityParseHelper(entityFile);
-            var entityInfo = parse.ParseEntityAsync().Result;
-            if (entityInfo != null)
+        await Parallel.ForEachAsync(
+            entityFiles,
+            async (entityFile, token) =>
             {
-                entityInfos.Add(entityInfo);
+                var parse = new EntityParseHelper(entityFile);
+                var entityInfo = await parse.ParseEntityAsync();
+                if (entityInfo != null)
+                {
+                    entityInfos.Add(entityInfo);
+                }
             }
-        });
+        );
         return [.. entityInfos];
     }
 
@@ -86,14 +97,18 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
     /// <returns></returns>
     public static List<string> GetEntityFilePaths(string entityAssemblyPath)
     {
-        return Directory.GetFiles(entityAssemblyPath, "*.cs", SearchOption.AllDirectories)
-            .Where(f => !(f.EndsWith(".g.cs")
+        return Directory
+            .GetFiles(entityAssemblyPath, "*.cs", SearchOption.AllDirectories)
+            .Where(f =>
+                !(
+                    f.EndsWith(".g.cs")
                     || f.EndsWith(".AssemblyAttributes.cs")
                     || f.EndsWith(".AssemblyInfo.cs")
                     || f.EndsWith(ConstVal.GlobalUsingsFile)
                     || f.EndsWith("EntityBase.cs")
-                    || f.EndsWith("Modules.cs"))
-                    ).ToList();
+                    || f.EndsWith("Modules.cs")
+                )
+            )
+            .ToList();
     }
-
 }

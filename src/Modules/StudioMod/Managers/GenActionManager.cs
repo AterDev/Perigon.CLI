@@ -131,7 +131,6 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> AddStepsAsync(Guid id, List<Guid> stepIds)
     {
-        CommandContext.ChangeTracker.Clear();
         await Database.BeginTransactionAsync();
         try
         {
@@ -203,9 +202,10 @@ public class GenActionManager(
             }
             else if (dto.SourceFilePath.NotEmpty())
             {
-                var entityInfo = _codeAnalysis
-                    .GetEntityInfos([dto.SourceFilePath])
-                    .FirstOrDefault();
+                var entityInfo = (
+                    await _codeAnalysis.GetEntityInfosAsync([dto.SourceFilePath])
+                ).FirstOrDefault();
+
                 if (entityInfo != null)
                 {
                     actionRunModel.ModelName = entityInfo.Name;
@@ -241,7 +241,7 @@ public class GenActionManager(
                             .Where(q => matchFiles.Any(m => Path.GetFileName(q).EndsWith(m)))
                             .ToList();
 
-                        var dtoInfos = _codeAnalysis.GetEntityInfos(dtoFiles);
+                        var dtoInfos = await _codeAnalysis.GetEntityInfosAsync(dtoFiles);
 
                         actionRunModel.AddPropertyInfos =
                             dtoInfos.FirstOrDefault(q => q.Name.EndsWith("AddDto"))?.PropertyInfos

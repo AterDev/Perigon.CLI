@@ -1,4 +1,3 @@
-using BlazorMonaco.Editor;
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
 
@@ -23,7 +22,6 @@ public partial class EntityList
 
     private FluentDialog _dialog = default!;
     private PaginationState pagination = new() { ItemsPerPage = 20 };
-    private StandaloneCodeEditor editor = default!;
 
     private IQueryable<EntityFile>? EntityFiles { get; set; }
     private IQueryable<EntityFile>? FilteredEntityFiles { get; set; }
@@ -31,7 +29,7 @@ public partial class EntityList
     private List<SubProjectInfo> Services { get; set; } = [];
 
     string moduleFilter = string.Empty;
-    private StandaloneEditorConstructionOptions options = default!;
+
     string entityName = string.Empty;
     private bool Hidden { get; set; } = true;
 
@@ -47,20 +45,6 @@ public partial class EntityList
         GetModules();
         GetServices();
         isLoading = false;
-        options = new StandaloneEditorConstructionOptions
-        {
-            Language = "csharp",
-            Theme = "vs-dark",
-            AutomaticLayout = true,
-            ReadOnly = false,
-            Minimap = new EditorMinimapOptions() { Enabled = false },
-            FontSize = 14,
-            LineNumbers = "on",
-            ScrollBeyondLastLine = false,
-            WordWrap = "on",
-            WrappingStrategy = "advanced",
-        };
-        await base.OnInitializedAsync();
     }
 
     private void GetServices()
@@ -208,19 +192,6 @@ public partial class EntityList
         {
             ToastService.ShowError(Lang(Localizer.MustSelectOption));
         }
-    }
-
-    private async Task EditCodeAsync(EntityFile entity)
-    {
-        entityName = entity.Name;
-        await editor.SetValue(entity.Content);
-        Hidden = false;
-    }
-
-    private StandaloneEditorConstructionOptions SetCodeEditorOptions(StandaloneCodeEditor editor)
-    {
-        this.editor = editor;
-        return options;
     }
 
     private void OnSearch()

@@ -174,9 +174,7 @@
                             Sortable="true">
               <FluentStack Orientation="Orientation.Horizontal"
                            VerticalAlignment="VerticalAlignment.Center">
-                <FluentButton Appearance="Appearance.Lightweight"
-                              Title="@Lang(Localizer.ClickToView)"
-                              OnClick="@(_ => EditCodeAsync(context))">
+                <FluentButton Appearance="Appearance.Lightweight">
                   @context.Name
                 </FluentButton>
               </FluentStack>
@@ -217,19 +215,3 @@
     <FluentProgressRing></FluentProgressRing>
   }
 </FluentStack>
-
-
-<FluentDialog @ref="_dialog"
-              @bind-Hidden="@Hidden"
-              Style="--dialog-width:800px"
-              Modal="true">
-  <FluentDialogHeader ShowDismiss="true">
-    <FluentLabel Typo="Typography.PaneHeader">@entityName</FluentLabel>
-  </FluentDialogHeader>
-  <StandaloneCodeEditor CssClass="vh-75" ConstructionOptions="SetCodeEditorOptions" />
-  <FluentDialogFooter Style="text-align:end">
-    <FluentStack HorizontalAlignment="HorizontalAlignment.End">
-      <FluentButton OnClick="_dialog.Hide">@Lang(Localizer.Close)</FluentButton>
-    </FluentStack>
-  </FluentDialogFooter>
-</FluentDialog>
