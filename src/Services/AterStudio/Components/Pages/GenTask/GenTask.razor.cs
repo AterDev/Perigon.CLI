@@ -99,6 +99,22 @@ public partial class GenTask
         var result = await dialog.Result;
         if (result.Cancelled)
             return;
+
+        if (result.Data is List<ModelFileItemDto> data)
+        {
+            ToastService.ShowSuccess(Lang(Localizer.Execute, Localizer.Success));
+            MessageService.ShowMessageBar(options =>
+            {
+                options.Intent = MessageIntent.Success;
+                options.Title = Lang(Localizer.Execute) + item.Name;
+                options.Body = string.Join(
+                    "\n",
+                    data.Select(f => f.FullName.Replace(ProjectContext.SolutionPath ?? "", ""))
+                );
+                options.Timestamp = DateTime.Now;
+                options.Section = App.MESSAGES_NOTIFICATION_CENTER;
+            });
+        }
     }
 
     private async Task DeleteActionAsync(GenActionItemDto item)
@@ -133,6 +149,7 @@ public partial class GenTask
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            ToastService.ShowSuccess(Lang(Localizer.Add, Localizer.Success));
             await LoadStepsAsync();
         }
     }
@@ -144,6 +161,7 @@ public partial class GenTask
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
+            ToastService.ShowSuccess(Lang(Localizer.Edit, Localizer.Success));
             await LoadStepsAsync();
         }
     }

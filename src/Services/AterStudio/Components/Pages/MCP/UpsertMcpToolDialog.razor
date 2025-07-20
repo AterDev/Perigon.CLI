@@ -1,0 +1,132 @@
+@using System.ComponentModel.DataAnnotations
+@using Entity.StudioMod
+@inherits PageBase
+@implements IDialogContentComponent<McpTool>
+
+<FluentDialogHeader ShowDismiss="false">
+    <FluentLabel Typo="Typography.Subject">
+        @if (IsEdit)
+        {
+            <span>编辑MCP工具: @Content.Name</span>
+        }
+        else
+        {
+            <span>新增MCP工具</span>
+        }
+    </FluentLabel>
+</FluentDialogHeader>
+
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.Name"
+                         Label="名称"
+                         Placeholder="名称 (最多40字)"
+                         Class="w-100"
+                         Maxlength="40"
+                         Required />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.Description"
+                         Label="描述"
+                         Placeholder="描述 (最多300字)"
+                         Class="w-100"
+                         Maxlength="300"
+                         Required />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.PromptPath"
+                         Label="Prompt路径"
+                         Placeholder="Prompt文件路径 (最多300字)"
+                         Class="w-100"
+                         Maxlength="300"
+                         Required />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="TemplatePathsString"
+                         Label="模板路径"
+                         Placeholder="用逗号分隔多个路径"
+                         Class="w-100" />
+    </FluentStack>
+</FluentStack>
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent"
+                  Type="ButtonType.Button"
+                  OnClick="SaveAsync">
+        确认
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Neutral"
+                  OnClick="CancelAsync">
+        取消
+    </FluentButton>
+</FluentDialogFooter>
+
+@code {
+    [CascadingParameter]
+    FluentDialog Dialog { get; set; } = null!;
+
+    [Parameter]
+    public McpTool Content { get; set; } = default!;
+    [Parameter]
+    public EventCallback<bool> OnSaved { get; set; }
+
+    [Inject]
+    private McpToolManager McpToolManager { get; set; } = null!;
+
+    private McpTool Model { get; set; } = new McpTool { Name = string.Empty, Description = string.Empty, PromptPath = string.Empty };
+    private bool IsEdit => Content.Id != Guid.Empty;
+    private string TemplatePathsString { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if (IsEdit)
+        {
+            Model = new McpTool
+            {
+                Id = Content.Id,
+                Name = Content.Name,
+                Description = Content.Description,
+                PromptPath = Content.PromptPath,
+                TemplatePaths = Content.TemplatePaths?.ToArray() ?? [],
+                CreatedTime = Content.CreatedTime,
+                UpdatedTime = Content.UpdatedTime,
+                IsDeleted = Content.IsDeleted
+            };
+            TemplatePathsString = string.Join(", ", Model.TemplatePaths ?? []);
+        }
+        else
+        {
+            Model = new McpTool { Name = string.Empty, Description = string.Empty, PromptPath = string.Empty };
+            TemplatePathsString = string.Empty;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Model.Name) || Model.Name.Length > 40 ||
+            string.IsNullOrWhiteSpace(Model.Description) || Model.Description.Length > 300 ||
+            string.IsNullOrWhiteSpace(Model.PromptPath) || Model.PromptPath.Length > 300)
+        {
+            ToastService.ShowError("表单校验失败");
+            return;
+        }
+        Model.TemplatePaths = TemplatePathsString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        bool result;
+        if (IsEdit)
+        {
+            result = await McpToolManager.UpdateAsync(Model);
+        }
+        else
+        {
+            result = await McpToolManager.AddAsync(Model) != null;
+        }
+        await Dialog.CloseAsync(result);
+        if (OnSaved.HasDelegate)
+        {
+            await OnSaved.InvokeAsync(result);
+        }
+    }
+    private async Task CancelAsync()
+    {
+        await Dialog.CancelAsync();
+    }
+}

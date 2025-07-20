@@ -1,71 +1,60 @@
-@page "/create-project"
+@page "/create"
+@using Share.Models.CommandDtos
+@inherits PageBase
 
-<FluentStack Orientation="Orientation.Vertical" VerticalGap="36">
-  <h2>创建新解决方案</h2>
-  <FluentStack Orientation="Orientation.Vertical">
-    <FluentLabel Typo="Typography.H3">基本信息</FluentLabel>
-    <div>
-      <FluentTextField Label="解决方案名称" @bind-Value="ProjectName" Required="true" />
-    </div>
-    <div>
-      <FluentTextField Label="路径" @bind-Value="Path" Required="true" />
-    </div>
-    <FluentSwitch @bind-Value=IsLight>使用轻量模板</FluentSwitch>
+<FluentStack Orientation="Orientation.Vertical"
+             VerticalGap="12"
+             Class="p-2">
+  <FluentLabel Typo="Typography.PaneHeader">
+    @Lang(Localizer.Create, Localizer.Solution)
+  </FluentLabel>
+
+  <FluentLabel Typo="Typography.H3">基本信息</FluentLabel>
+  <FluentStack Orientation="Orientation.Vertical"
+               VerticalGap="2">
+    <FluentTextField Label="@Lang(Localizer.Solution, Localizer.Name)"
+                     @bind-Value="AddDto.Name"
+                     Required="true" />
+  </FluentStack>
+  <FluentStack Orientation="Orientation.Vertical"
+               VerticalGap="2">
+    <FluentTextField Label="@Lang(Localizer.Path)"
+                     @bind-Value="AddDto.Path"
+                     Required="true" />
   </FluentStack>
 
+  <FluentLabel Typo="Typography.H3">选项配置</FluentLabel>
   <FluentStack Orientation="Orientation.Vertical">
-    <FluentLabel Typo="Typography.H3">选项配置</FluentLabel>
     <FluentStack>
-      <div>
-        <FluentSelect Items="@(Enum.GetValues<DbType>())"
-                      @bind-SelectedOption="@Db"
-                      Label="数据库类型" />
-      </div>
-      <div>
-        <FluentSelect Items="@(Enum.GetValues<CacheType>())"
-                      @bind-SelectedOption="@Cahce"
-                      Label="缓存类型" />
-      </div>
-      <div>
-        <FluentTextField Label="默认密码" @bind-Value="Password" />
-      </div>
+      @* <FluentSelect Items="@(Enum.GetValues<DbType>())"
+                    @bind-SelectedOption="@Db"
+                    Label="数据库类型" />
+      <FluentSelect Items="@(Enum.GetValues<CacheType>())"
+                    @bind-SelectedOption="@Cahce"
+                    Label="缓存类型" /> *@
+      <FluentTextField Label="默认密码" @bind-Value="AddDto.DefaultPassword" />
     </FluentStack>
   </FluentStack>
 
   <FluentStack Orientation="Orientation.Vertical">
-    <FluentLabel Typo="Typography.H3">连接字符串</FluentLabel>
-    <div style="width: 100%;">
-      <FluentTextField Label="读数据库" @bind-Value="ReadDbConnectionString" Style="width: 100%;" />
-    </div>
-    <div style="width: 100%;">
-      <FluentTextField Label="写数据库" @bind-Value="WriteDbConnectionString" Style="width: 100%;" />
-    </div>
-    <div style="width: 100%;">
-      <FluentTextField Label="缓存连接" @bind-Value="CacheConnectionString" Style="width: 100%;" />
-    </div>
+    <FluentLabel Typo="Typography.H3">
+      @Lang(Localizer.DbConnectionString)
+    </FluentLabel>
+    <FluentTextField Label="读数据库" @bind-Value="AddDto.CommandDbConnStrings" />
+    <FluentTextField Label="写数据库" @bind-Value="AddDto.QueryDbConnStrings" />
+    <FluentTextField Label="缓存连接" @bind-Value="AddDto.CacheConnStrings" />
   </FluentStack>
 </FluentStack>
+
 @code {
-  public string? ProjectName { get; set; }
-  public string? Path { get; set; }
-  public string Password { get; set; } = "123456";
-  public string ReadDbConnectionString { get; set; } = "Server=localhost;Port=5432;Database=MyProjectName;User Id=postgres;Password=root;";
-  public string WriteDbConnectionString { get; set; } = "Server=localhost;Port=5432;Database=MyProjectName;User Id=postgres;Password=root;";
-  public string CacheConnectionString { get; set; } = "localhost:6379";
-  public bool IsLight { get; set; }
+  CreateSolutionDto AddDto { get; set; } = null!;
 
-  public DbType Db { get; set; } = DbType.PostgreSql;
-  public CacheType Cahce { get; set; } = CacheType.Redis;
-
-  public enum DbType
+  protected override void OnInitialized()
   {
-    PostgreSql,
-    SqlServer,
-  }
-
-  public enum CacheType
-  {
-    Redis,
-    Memory
+    AddDto = new CreateSolutionDto
+    {
+      Name = string.Empty,
+      Path = string.Empty,
+    };
   }
 }

@@ -7,80 +7,80 @@
 <PageTitle>@Lang(Localizer.Solution)</PageTitle>
 
 <FluentStack Orientation="Orientation.Vertical">
-    <FluentToolbar Class="w-100">
-        <FluentButton Appearance="Appearance.Stealth"
-                      IconStart="@(new Icons.Regular.Size24.OpenFolder())"
-                      OnClick="AddLocalProject">
-            @Lang(Localizer.Load, Localizer.Project)
-        </FluentButton>
-        <FluentButton Appearance="Appearance.Stealth"
-                      IconStart="@(new Icons.Regular.Size24.Add())"
-                      onclick='()=>NavigationManager.NavigateTo("/create-project")'>
-            @Lang(Localizer.Create, Localizer.Solution)
-        </FluentButton>
-    </FluentToolbar>
+  <FluentToolbar Class="w-100">
+    <FluentButton Appearance="Appearance.Stealth"
+                  IconStart="@(new Icons.Regular.Size24.OpenFolder())"
+                  OnClick="AddLocalProject">
+      @Lang(Localizer.Load, Localizer.Project)
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Stealth"
+                  IconStart="@(new Icons.Regular.Size24.Add())"
+                  onclick='()=>NavigationManager.NavigateTo("/create")'>
+      @Lang(Localizer.Create, Localizer.Solution)
+    </FluentButton>
+  </FluentToolbar>
 
-    @if (projects.Count == 0)
-    {
-        <FluentStack HorizontalAlignment="HorizontalAlignment.Center"
-                     Orientation="Orientation.Vertical">
-            <FluentLabel Typo="Typography.H6">
-                @Lang(Localizer.AddNewSolution)
-            </FluentLabel>
-        </FluentStack>
-    }
-    else
-    {
-        <FluentStack Orientation="Orientation.Horizontal"
-                     HorizontalAlignment="HorizontalAlignment.Start"
-                     HorizontalGap="12"
-                     Wrap="true"
-                     Class="px-2"
-                     VerticalGap="8">
-            @foreach (var project in projects)
-            {
-                <FluentCard Style="min-width:300px;" Class="col">
-                    <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
-                        <FluentStack Orientation="Orientation.Horizontal"
-                                     VerticalAlignment="VerticalAlignment.Center">
-                            @if (project.SolutionType == SolutionType.DotNet)
-                            {
-                                <img src="assets/logo_net.svg" height="30" width="30">
-                            }
-                            @if (project.SolutionType == SolutionType.Node)
-                            {
-                                <img src="assets/nodejs.svg" height="30" width="30">
-                            }
-                            <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
+  @if (projects.Count == 0)
+  {
+    <FluentStack HorizontalAlignment="HorizontalAlignment.Center"
+                 Orientation="Orientation.Vertical">
+      <FluentLabel Typo="Typography.H6">
+        @Lang(Localizer.AddNewSolution)
+      </FluentLabel>
+    </FluentStack>
+  }
+  else
+  {
+    <FluentStack Orientation="Orientation.Horizontal"
+                 HorizontalAlignment="HorizontalAlignment.Start"
+                 HorizontalGap="12"
+                 Wrap="true"
+                 Class="px-2"
+                 VerticalGap="8">
+      @foreach (var project in projects)
+      {
+        <FluentCard Style="min-width:300px;" Class="col">
+          <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center">
+              @if (project.SolutionType == SolutionType.DotNet)
+              {
+                <img src="assets/logo_net.svg" height="30" width="30">
+              }
+              @if (project.SolutionType == SolutionType.Node)
+              {
+                <img src="assets/nodejs.svg" height="30" width="30">
+              }
+              <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
 
-                            <FluentButton Id="setting_btn"
-                                          IconStart="@(new Icons.Regular.Size24.Settings())"
-                                          Appearance="Appearance.Stealth">
-                            </FluentButton>
-                            <FluentTooltip Anchor="setting_btn" Position="TooltipPosition.Right">
-                                @Lang(Localizer.Project, Localizer.Setting)
-                            </FluentTooltip>
-                        </FluentStack>
+              <FluentButton Id="setting_btn"
+                            IconStart="@(new Icons.Regular.Size24.Settings())"
+                            Appearance="Appearance.Stealth">
+              </FluentButton>
+              <FluentTooltip Anchor="setting_btn" Position="TooltipPosition.Right">
+                @Lang(Localizer.Project, Localizer.Setting)
+              </FluentTooltip>
+            </FluentStack>
 
-                        <FluentLabel Typo="Typography.Subject" Color="Color.Accent">@project.Name</FluentLabel>
-                        <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
-                        <FluentStack Orientation="Orientation.Horizontal"
-                                     VerticalAlignment="VerticalAlignment.Center"
-                                     HorizontalAlignment="HorizontalAlignment.End">
+            <FluentLabel Typo="Typography.Subject" Color="Color.Accent">@project.Name</FluentLabel>
+            <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.End">
 
-                            <FluentButton Class="delete-action"
-                                          IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Warning))"
-                                          Appearance="Appearance.Stealth"
-                                          OnClick="()=>DeleteProject(project)" />
+              <FluentButton Class="delete-action"
+                            IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Warning))"
+                            Appearance="Appearance.Stealth"
+                            OnClick="()=>DeleteProject(project)" />
 
-                            <FluentButton Appearance="Appearance.Lightweight"
-                                          OnClick='()=>ToSolution(project.Id)'>
-                                @Lang(Localizer.Enter, Localizer.Workbench)
-                            </FluentButton>
-                        </FluentStack>
-                    </FluentStack>
-                </FluentCard>
-            }
-        </FluentStack>
-    }
+              <FluentButton Appearance="Appearance.Lightweight"
+                            OnClick='()=>ToSolution(project.Id)'>
+                @Lang(Localizer.Enter, Localizer.Workbench)
+              </FluentButton>
+            </FluentStack>
+          </FluentStack>
+        </FluentCard>
+      }
+    </FluentStack>
+  }
 </FluentStack>

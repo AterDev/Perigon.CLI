@@ -153,7 +153,10 @@ public partial class EntityList
                 {
                     options.Intent = MessageIntent.Success;
                     options.Title = Lang(Localizer.Generate) + commandType.ToString();
-                    options.Body = string.Join("\n", files.Select(f => f.FullName));
+                    options.Body = string.Join(
+                        "\n",
+                        files.Select(f => f.FullName.Replace(ProjectContext.SolutionPath ?? "", ""))
+                    );
                     options.Timestamp = DateTime.Now;
                     options.Section = App.MESSAGES_NOTIFICATION_CENTER;
                 });
