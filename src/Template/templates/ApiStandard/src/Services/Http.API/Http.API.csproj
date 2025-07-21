@@ -19,10 +19,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference
+      Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
     <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\Modules\TestMod\TestMod.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Middleware\" />
