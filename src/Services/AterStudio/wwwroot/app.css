@@ -48,8 +48,17 @@ body {
 .w-100 {
     width: 100% !important;
 }
+
 .w-240 {
     width: 240px !important;
+}
+
+.w-480 {
+    width: 480px !important;
+}
+
+.w-600 {
+    width: 600px !important;
 }
 
 .h-100 {

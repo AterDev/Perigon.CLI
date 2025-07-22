@@ -40,25 +40,25 @@ public class ModuleInfo
             //},
             new ModuleInfo
             {
-                Name = "客户模块",
+                Name = "Customer",
                 Value = Customer,
                 Description = Localizer.CustomerModuleDes,
             },
             new ModuleInfo
             {
-                Name = "文件管理模块",
+                Name = "FileManage",
                 Value = FileManager,
                 Description = Localizer.FileManagerModuleDes,
             },
             new ModuleInfo
             {
-                Name = "订单模块",
+                Name = "Order",
                 Value = Order,
                 Description = Localizer.OrderModuleDes,
             },
             new ModuleInfo
             {
-                Name = "内容管理模块",
+                Name = "CMS",
                 Value = CMS,
                 Description = Localizer.CMSModuleDes,
             },

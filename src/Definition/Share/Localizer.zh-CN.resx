@@ -489,4 +489,13 @@
   <data name="Configuration" xml:space="preserve">
     <value>配置</value>
   </data>
+  <data name="Database" xml:space="preserve">
+    <value>数据库</value>
+  </data>
+  <data name="Read" xml:space="preserve">
+    <value>读</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>写</value>
+  </data>
 </root>

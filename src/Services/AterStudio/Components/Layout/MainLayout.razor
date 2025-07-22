@@ -6,15 +6,21 @@
 <FluentLayout>
   <FluentHeader Class="header" Height="56" Style="background:var(--neutral-layer-2)">
     <ChildContent>
-      <FluentStack>
-        <FluentNavLink Href="/">
-          <FluentLabel Typo="Typography.H5">
-            Ater Studio
-          </FluentLabel>
+      <FluentStack Orientation="Orientation.Horizontal"
+                   VerticalAlignment="VerticalAlignment.Center">
+        <FluentNavLink Href="/" Class="align-content-center align-items-center">
+          <FluentButton Appearance="Appearance.Neutral"
+                        BackgroundColor="rgba(0, 0, 0, 0)">
+            <FluentLabel Typo="Typography.Subject">
+              Ater Studio
+
+            </FluentLabel>
+          </FluentButton>
         </FluentNavLink>
       </FluentStack>
       <FluentSpacer />
-      <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center"
+      <FluentStack Orientation="Orientation.Horizontal"
+                   VerticalAlignment="VerticalAlignment.Center"
                    HorizontalAlignment="HorizontalAlignment.Center">
         <FluentNavLink Href="/">
           <FluentButton Appearance="Appearance.Neutral"
@@ -34,7 +40,6 @@
       <FluentStack Orientation="Orientation.Horizontal"
                    VerticalAlignment="VerticalAlignment.Center"
                    HorizontalAlignment="HorizontalAlignment.End">
-
 
         <FluentButton BackgroundColor="var(--neutral-layer-2)">
           <FluentIcon Value="@(new Icons.Regular.Size24.DocumentOnePageSparkle())" Color="Color.Neutral" />

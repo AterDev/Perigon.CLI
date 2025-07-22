@@ -2,65 +2,146 @@
 @using Share.Models.CommandDtos
 @inherits PageBase
 
-<FluentStack Orientation="Orientation.Vertical"
-             VerticalGap="12"
-             Class="p-2">
-  <FluentLabel Typo="Typography.PaneHeader">
-    @Lang(Localizer.Create, Localizer.Solution)
-  </FluentLabel>
+<PageTitle>@Lang(Localizer.Create, Localizer.Solution)</PageTitle>
 
-  <FluentLabel Typo="Typography.H4">@Lang(Localizer.Base, Localizer.Info)</FluentLabel>
-
+<div style="width:800px">
   <FluentStack Orientation="Orientation.Vertical"
-               VerticalGap="2">
-    <FluentTextField Label="@Lang(Localizer.Solution, Localizer.Name)"
-                     Class="w-240"
-                     Placeholder="@Lang(Localizer.Solution, Localizer.Name)"
-                     @bind-Value="AddDto.Name"
-                     Required="true" />
-  </FluentStack>
-  <FluentStack Orientation="Orientation.Vertical"
-               VerticalGap="2">
-    <FluentTextField Label="@Lang(Localizer.Local, Localizer.Path)"
-                     @bind-Value="AddDto.Path"
-                     Class="w-240"
-                     Placeholder="@Lang(Localizer.Local,Localizer.Path)"
-                     Required="true" />
-  </FluentStack>
+               VerticalGap="12"
+               Class="p-2">
+    <FluentLabel Typo="Typography.PageTitle">
+      ✨ @Lang(Localizer.Create, Localizer.Solution)
+    </FluentLabel>
 
-  <FluentLabel>
-    @if (!string.IsNullOrWhiteSpace(AddDto.Path))
+    <FluentLabel Typo="Typography.H3">🤟 @Lang(Localizer.Base, Localizer.Info)</FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentTextField Label="@Lang(Localizer.Solution, Localizer.Name)"
+                       Class="w-240"
+                       AutoComplete="off"
+                       Placeholder="@Lang(Localizer.Solution, Localizer.Name)"
+                       @bind-Value="AddDto.Name"
+                       Required="true" />
+    </FluentStack>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentTextField Label="@Lang(Localizer.Local, Localizer.Path)"
+                       @bind-Value="AddDto.Path"
+                       Class="w-240"
+                       AutoComplete="off"
+                       Placeholder="@Lang(Localizer.Local,Localizer.Path)"
+                       Required="true" />
+    </FluentStack>
+
+    <FluentLabel>
+      @if (!string.IsNullOrWhiteSpace(AddDto.Path))
+      {
+        <span>@AddDto.Path/@AddDto.Name</span>
+      }
+    </FluentLabel>
+
+    <FluentDivider Class="w-100" />
+    <FluentLabel Typo="Typography.H3">
+      📚 @Lang(Localizer.Component, Localizer.Configuration)
+    </FluentLabel>
+
+    <FluentLabel Typo="Typography.Subject">@Lang(Localizer.DatabaseProvider)</FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentSelect TOption="DBType"
+                    Items="@(Enum.GetValues<DBType>())"
+                    Width="240px"
+                    @bind-SelectedOption="@AddDto.DBType" />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+
+      <FluentTextField Label="@Lang(Localizer.Write, Localizer.Database)"
+                       Placeholder="@Lang(Localizer.Write, Localizer.Database)"
+                       Class="w-100"
+                       AutoComplete="off"
+                       @bind-Value="AddDto.CommandDbConnStrings" />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentTextField Label="@Lang(Localizer.Read, Localizer.Database)"
+                       Placeholder="@Lang(Localizer.Read, Localizer.Database)"
+                       Class="w-100"
+                       AutoComplete="off"
+                       @bind-Value="AddDto.QueryDbConnStrings" />
+    </FluentStack>
+
+    <FluentSpacer></FluentSpacer>
+    <FluentLabel Typo="Typography.Subject">@Lang(Localizer.CacheType)</FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentSelect TOption="CacheType"
+                    Items="@(Enum.GetValues<CacheType>())"
+                    @bind-SelectedOption="@AddDto.CacheType"
+                    Width="240px" />
+    </FluentStack>
+    @if (AddDto.CacheType != CacheType.Memory)
     {
-      <span>@AddDto.Path/@AddDto.Name</span>
+      <FluentStack Orientation="Orientation.Vertical"
+                   VerticalGap="2">
+        <FluentTextField Label="@Lang(Localizer.CacheConnectionString)"
+                         Class="w-100"
+                         AutoComplete="off"
+                         Placeholder="@Lang(Localizer.CacheConnectionString)"
+                         @bind-Value="AddDto.CacheConnStrings" />
+      </FluentStack>
     }
-  </FluentLabel>
+    <FluentDivider Class="w-100"></FluentDivider>
 
-  <FluentDivider Orientation="Orientation.Horizontal" Class="w-100" />
-  <FluentLabel Typo="Typography.H3">@Lang(Localizer.Component, Localizer.Configuration)</FluentLabel>
-  <FluentStack Orientation="Orientation.Vertical">
-    <FluentStack>
-      @* <FluentSelect Items="@(Enum.GetValues<DbType>())"
-                    @bind-SelectedOption="@Db"
-                    Label="数据库类型" />
-      <FluentSelect Items="@(Enum.GetValues<CacheType>())"
-                    @bind-SelectedOption="@Cahce"
-                    Label="缓存类型" /> *@
-      <FluentTextField Label="默认密码" @bind-Value="AddDto.DefaultPassword" />
+    <FluentLabel Typo="Typography.H3">
+      🏛️ @Lang(Localizer.Modules)
+    </FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentSelect TOption="ModuleInfo"
+                    Label="@Lang(Localizer.Select,Localizer.Modules)"
+                    Items="@ModuleInfos.AsEnumerable()"
+                    Id="people-listbox2"
+                    Multiple="true"
+                    OptionValue="@(p => p.Value.ToString())"
+                    @bind-SelectedOptions="@SelectedModules">
+        <OptionTemplate>
+          <FluentStack Orientation="Orientation.Horizontal"
+                       Class="w-100"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+            <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
+              @context.Name
+            </FluentLabel>
+            <FluentLabel Typo="Typography.Subject">
+              (@Lang(context.Description))
+            </FluentLabel>
+          </FluentStack>
+
+        </OptionTemplate>
+      </FluentSelect>
+    </FluentStack>
+
+    <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
+      <FluentStack HorizontalAlignment="HorizontalAlignment.Right">
+        <FluentButton Appearance="Appearance.Accent">
+          🎊@Lang(Localizer.Create, Localizer.Solution)
+        </FluentButton>
+      </FluentStack>
     </FluentStack>
   </FluentStack>
 
-  <FluentStack Orientation="Orientation.Vertical">
-    <FluentLabel Typo="Typography.H3">
-      @Lang(Localizer.DbConnectionString)
-    </FluentLabel>
-    <FluentTextField Label="读数据库" @bind-Value="AddDto.CommandDbConnStrings" />
-    <FluentTextField Label="写数据库" @bind-Value="AddDto.QueryDbConnStrings" />
-    <FluentTextField Label="缓存连接" @bind-Value="AddDto.CacheConnStrings" />
-  </FluentStack>
-</FluentStack>
+</div>
+
 
 @code {
   CreateSolutionDto AddDto { get; set; } = null!;
+  List<ModuleInfo> ModuleInfos = ModuleInfo.GetModules();
+
+  IEnumerable<ModuleInfo> SelectedModules = [];
 
   protected override void OnInitialized()
   {
@@ -68,6 +149,11 @@
     {
       Name = string.Empty,
       Path = string.Empty,
+      CacheType = CacheType.Memory,
+      CommandDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=root;",
+      QueryDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=root;",
+      DBType = DBType.PostgreSQL,
+
     };
   }
 
