@@ -10,8 +10,4 @@
     <ItemGroup>
         <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Controllers\" />
-    </ItemGroup>
 </Project>

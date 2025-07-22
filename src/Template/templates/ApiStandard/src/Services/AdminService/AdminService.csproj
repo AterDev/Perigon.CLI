@@ -16,8 +16,6 @@
       ReferenceOutputAssembly="false"
     />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
   </ItemGroup>
 </Project>

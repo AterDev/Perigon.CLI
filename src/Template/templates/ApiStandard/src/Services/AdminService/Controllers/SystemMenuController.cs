@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Share.Implement;
 using SystemMod.Models.SystemMenuDtos;
-namespace SystemMod.Controllers.AdminControllers;
+
+namespace AdminService.Controllers;
 
 /// <summary>
 /// 系统菜单
@@ -16,7 +17,7 @@ public class SystemMenuController(
     ILogger<SystemMenuController> logger,
     IWebHostEnvironment env,
     SystemMenuManager manager
-        ) : AdminControllerBase<SystemMenuManager>(localizer, manager, user, logger)
+) : AdminControllerBase<SystemMenuManager>(localizer, manager, user, logger)
 {
     private readonly IWebHostEnvironment _env = env;
 
@@ -40,7 +41,10 @@ public class SystemMenuController(
     [ApiExplorerSettings(IgnoreApi = true)]
     [HttpPost("sync/{token}")]
     [AllowAnonymous]
-    public async Task<ActionResult<bool>> SyncSystemMenus(string token, List<SystemMenuSyncDto> menus)
+    public async Task<ActionResult<bool>> SyncSystemMenus(
+        string token,
+        List<SystemMenuSyncDto> menus
+    )
     {
         if (_env.IsProduction())
         {
@@ -112,6 +116,5 @@ public class SystemMenuController(
         }
         ;
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
-
     }
 }

@@ -1,7 +1,7 @@
 using Ater.Common.Models;
-using Share.Implement;
 using SystemMod.Models.SystemPermissionGroupDtos;
-namespace SystemMod.Controllers.AdminControllers;
+
+namespace AdminService.Controllers;
 
 /// <see cref="SystemPermissionGroupManager"/>
 [Authorize(WebConst.SuperAdmin)]
@@ -10,16 +10,17 @@ public class SystemPermissionGroupController(
     UserContext user,
     ILogger<SystemPermissionGroupController> logger,
     SystemPermissionGroupManager manager
-        ) : AdminControllerBase<SystemPermissionGroupManager>(localizer, manager, user, logger)
+) : AdminControllerBase<SystemPermissionGroupManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
-    public async Task<ActionResult<PageList<SystemPermissionGroupItemDto>>> FilterAsync(SystemPermissionGroupFilterDto filter)
+    public async Task<ActionResult<PageList<SystemPermissionGroupItemDto>>> FilterAsync(
+        SystemPermissionGroupFilterDto filter
+    )
     {
         return await _manager.ToPageAsync(filter);
     }
@@ -43,7 +44,10 @@ public class SystemPermissionGroupController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemPermissionGroupUpdateDto dto)
+    public async Task<ActionResult<bool?>> UpdateAsync(
+        [FromRoute] Guid id,
+        SystemPermissionGroupUpdateDto dto
+    )
     {
         SystemPermissionGroup? current = await _manager.GetCurrentAsync(id);
         if (current == null)
@@ -60,7 +64,9 @@ public class SystemPermissionGroupController(
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<SystemPermissionGroupDetailDto?>> GetDetailAsync([FromRoute] Guid id)
+    public async Task<ActionResult<SystemPermissionGroupDetailDto?>> GetDetailAsync(
+        [FromRoute] Guid id
+    )
     {
         var res = await _manager.FindAsync<SystemPermissionGroupDetailDto>(d => d.Id == id);
         return res == null ? NotFound() : res;

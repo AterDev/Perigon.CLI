@@ -10,11 +10,14 @@ public class CreateSolutionDto
     /// <summary>
     /// 名称
     /// </summary>
+    [Required]
     [MaxLength(50)]
     public required string Name { get; set; }
+
     /// <summary>
     /// 路径
     /// </summary>
+    [Required]
     [MaxLength(300)]
     public required string Path { get; set; }
 
@@ -47,25 +50,25 @@ public class CreateSolutionDto
     /// 是否包含验证授权服务
     /// </summary>
     public bool HasIdentityServer { get; set; }
-    /// <summary>
-    /// 是否包含任务管理服务
-    /// </summary>
-    public bool HasTaskManager { get; set; }
+
     /// <summary>
     /// 写数据库连接字符串
     /// </summary>
     [MaxLength(300)]
     public string? CommandDbConnStrings { get; set; }
+
     /// <summary>
     /// 读数据库连接字符串
     /// </summary>
     [MaxLength(300)]
     public string? QueryDbConnStrings { get; set; }
+
     /// <summary>
     /// 缓存连接字符串
     /// </summary>
     [MaxLength(200)]
     public string? CacheConnStrings { get; set; }
+
     /// <summary>
     /// 缓存实例名称
     /// </summary>
@@ -88,12 +91,14 @@ public enum DBType
     /// </summary>
     [Description("PostgreSQL")]
     PostgreSQL,
+
     /// <summary>
     /// SQLServer
     /// </summary>
     [Description("SQLServer")]
     SQLServer,
 }
+
 public enum CacheType
 {
     /// <summary>
@@ -101,13 +106,15 @@ public enum CacheType
     /// </summary>
     [Description("Redis")]
     Redis,
+
     /// <summary>
     /// Memory
     /// </summary>
     [Description("Memory")]
     Memory,
+
     [Description("Hybrid")]
-    Hybrid
+    Hybrid,
 }
 
 /// <summary>
@@ -119,11 +126,13 @@ public enum FrontType
     /// 无
     /// </summary>
     None,
+
     /// <summary>
     /// Angular
     /// </summary>
     [Description("Angular")]
     Angular,
+
     /// <summary>
     /// Blazor
     /// </summary>

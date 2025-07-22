@@ -1,6 +1,6 @@
-using Ater.Common.Options;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
+
 namespace Ater.Web.Convention.Services;
 
 /// <summary>
@@ -9,7 +9,8 @@ namespace Ater.Web.Convention.Services;
 public class CacheService(
     HybridCache cache,
     IOptions<CacheOption> options,
-    IOptions<ComponentOption> component)
+    IOptions<ComponentOption> component
+)
 {
     //public HybridCache Cache { get; init; } = cache;
 
@@ -37,18 +38,19 @@ public class CacheService(
         T data,
         int? expiration = null,
         int? localExpiration = null,
-        HybridCacheEntryFlags? flags = null)
+        HybridCacheEntryFlags? flags = null
+    )
     {
         var cacheOption = options.Value;
         var entryOption = new HybridCacheEntryOptions()
         {
-            Expiration = expiration.HasValue ?
-                TimeSpan.FromSeconds(expiration.Value) :
-                TimeSpan.FromMinutes(cacheOption.Expiration),
+            Expiration = expiration.HasValue
+                ? TimeSpan.FromSeconds(expiration.Value)
+                : TimeSpan.FromMinutes(cacheOption.Expiration),
             Flags = flags ?? GetGlobalCacheFlags(cacheOption),
-            LocalCacheExpiration = localExpiration.HasValue ?
-                TimeSpan.FromMinutes(localExpiration.Value) :
-                TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration)
+            LocalCacheExpiration = localExpiration.HasValue
+                ? TimeSpan.FromMinutes(localExpiration.Value)
+                : TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration),
         };
         await cache.SetAsync(key, data, entryOption);
     }
@@ -71,13 +73,25 @@ public class CacheService(
     /// <returns></returns>
     public async Task<T?> GetValueAsync<T>(string key, CancellationToken cancellation = default)
     {
-        var cachedValue = await cache.GetOrCreateAsync<T?>(key, cancel => default, cancellationToken: cancellation);
+        var cachedValue = await cache.GetOrCreateAsync<T?>(
+            key,
+            cancel => default,
+            cancellationToken: cancellation
+        );
         return cachedValue;
     }
 
-    public async Task<T> GetOrCreateAsync<T>(string key, Func<CancellationToken, ValueTask<T>> factory, CancellationToken cancellation = default)
+    public async Task<T> GetOrCreateAsync<T>(
+        string key,
+        Func<CancellationToken, ValueTask<T>> factory,
+        CancellationToken cancellation = default
+    )
     {
-        var cachedValue = await cache.GetOrCreateAsync(key, factory, cancellationToken: cancellation);
+        var cachedValue = await cache.GetOrCreateAsync(
+            key,
+            factory,
+            cancellationToken: cancellation
+        );
         return cachedValue;
     }
 
@@ -88,8 +102,7 @@ public class CacheService(
         {
             CacheType.Memory => HybridCacheEntryFlags.DisableDistributedCache,
             CacheType.Redis => HybridCacheEntryFlags.DisableLocalCache,
-            _ => HybridCacheEntryFlags.None
+            _ => HybridCacheEntryFlags.None,
         };
-
     }
 }

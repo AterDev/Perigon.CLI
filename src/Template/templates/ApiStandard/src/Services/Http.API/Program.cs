@@ -1,5 +1,3 @@
-using Http.API.Worker;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
@@ -24,13 +22,4 @@ app.MapDefaultEndpoints();
 // 使用中间件
 app.UseMiddlewareServices();
 
-using (app)
-{
-    // 在启动前执行初始化操作
-    await using (var scope = app.Services.CreateAsyncScope())
-    {
-        IServiceProvider provider = scope.ServiceProvider;
-        await Initialize.InitAsync(provider);
-    }
-    app.Run();
-}
+await app.RunAsync();

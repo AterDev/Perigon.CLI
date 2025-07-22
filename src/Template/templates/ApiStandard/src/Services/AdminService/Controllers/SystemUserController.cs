@@ -1,12 +1,12 @@
+using Ater.Common.Models;
 using Ater.Common.Options;
+using Ater.Web.Convention.Services;
 using CommonMod.Managers;
 using Microsoft.AspNetCore.RateLimiting;
 using Share.Models.Auth;
-using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
-using SystemMod.Services;
 
-namespace SystemMod.Controllers.AdminControllers;
+namespace AdminService.Controllers;
 
 /// <summary>
 /// 系统用户
@@ -21,7 +21,8 @@ public class SystemUserController(
     IConfiguration config,
     EmailManager emailManager,
     SystemLogService logService,
-    SystemRoleManager roleManager) : AdminControllerBase<SystemUserManager>(localizer, manager, user, logger)
+    SystemRoleManager roleManager
+) : AdminControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
@@ -98,7 +99,9 @@ public class SystemUserController(
             if (user.SystemRoles != null)
             {
                 menus = await _roleManager.GetSystemMenusAsync([.. user.SystemRoles]);
-                permissionGroups = await _roleManager.GetPermissionGroupsAsync([.. user.SystemRoles]);
+                permissionGroups = await _roleManager.GetPermissionGroupsAsync(
+                    [.. user.SystemRoles]
+                );
             }
 
             AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
@@ -112,31 +115,48 @@ public class SystemUserController(
             var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
             // 若会话过期时间为0，则使用jwt过期时间
 
-            var expiredSeconds = loginPolicy.SessionExpiredSeconds == 0
-                ? jwtToken.ExpiresIn
-                : loginPolicy.SessionExpiredSeconds;
+            var expiredSeconds =
+                loginPolicy.SessionExpiredSeconds == 0
+                    ? jwtToken.ExpiresIn
+                    : loginPolicy.SessionExpiredSeconds;
 
             // 缓存
             await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
-            await _cache.SetValueAsync(jwtToken.RefreshToken, user.Id.ToString(), jwtToken.RefreshExpiresIn);
+            await _cache.SetValueAsync(
+                jwtToken.RefreshToken,
+                user.Id.ToString(),
+                jwtToken.RefreshExpiresIn
+            );
 
-            await _logService.NewLog("登录", UserActionType.Login, "登录成功", user.UserName, user.Id);
+            await _logService.NewLog(
+                "登录",
+                UserActionType.Login,
+                "登录成功",
+                user.UserName,
+                user.Id
+            );
             return new AuthResult
             {
                 Id = user.Id,
                 Username = user.UserName,
                 Menus = menus,
-                Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
+                Roles =
+                    user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
                 PermissionGroups = permissionGroups,
                 AccessToken = jwtToken.AccessToken,
                 ExpiresIn = jwtToken.ExpiresIn,
                 RefreshToken = jwtToken.RefreshToken,
-
             };
         }
         else
         {
-            await _logService.NewLog("登录", UserActionType.Login, "登录失败:" + _manager.ErrorStatus, user.UserName, user.Id);
+            await _logService.NewLog(
+                "登录",
+                UserActionType.Login,
+                "登录失败:" + _manager.ErrorStatus,
+                user.UserName,
+                user.Id
+            );
             return Problem(errorCode: _manager.ErrorStatus);
         }
     }
@@ -200,7 +220,9 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPost("filter")]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<PageList<SystemUserItemDto>>> FilterAsync(SystemUserFilterDto filter)
+    public async Task<ActionResult<PageList<SystemUserItemDto>>> FilterAsync(
+        SystemUserFilterDto filter
+    )
     {
         return await _manager.ToPageAsync(filter);
     }
@@ -229,7 +251,9 @@ public class SystemUserController(
     public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
     {
         SystemUser? current = await _manager.GetCurrentAsync(id);
-        return current == null ? NotFound(ErrorKeys.NotFoundResource) : await _manager.UpdateAsync(current, dto);
+        return current == null
+            ? NotFound(ErrorKeys.NotFoundResource)
+            : await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>

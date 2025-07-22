@@ -21,4 +21,14 @@ app.MapDefaultEndpoints();
 
 // 使用中间件
 app.UseMiddlewareServices();
-app.Run();
+
+using (app)
+{
+    // 在启动前执行初始化操作
+    await using (var scope = app.Services.CreateAsyncScope())
+    {
+        IServiceProvider provider = scope.ServiceProvider;
+        await SystemMod.InitModule.InitializeAsync(provider);
+    }
+    app.Run();
+}

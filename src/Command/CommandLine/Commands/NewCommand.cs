@@ -24,7 +24,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
         var solutionType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title(localizer.Get(Localizer.SelectSolutionType))
-                .AddChoices([Localizer.SolutionTypeStandard, Localizer.SolutionTypeMini])
+                .AddChoices([Localizer.SolutionTypeStandard])
         );
 
         // 2. 选择数据库类型
@@ -132,7 +132,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
         {
             OutputHelper.Info("creating solution!");
 
-            // TODO:具体创建逻辑
+            // 具体创建逻辑
             var dto = new CreateSolutionDto
             {
                 Name = settings.Name,

@@ -1,7 +1,8 @@
 using Ater.Common.Models;
 using Share.Implement;
 using SystemMod.Models.SystemPermissionDtos;
-namespace SystemMod.Controllers.AdminControllers;
+
+namespace AdminService.Controllers;
 
 /// <summary>
 /// 权限
@@ -13,9 +14,10 @@ public class SystemPermissionController(
     ILogger<SystemPermissionController> logger,
     SystemPermissionManager manager,
     SystemPermissionGroupManager systemPermissionGroupManager
-        ) : AdminControllerBase<SystemPermissionManager>(localizer, manager, user, logger)
+) : AdminControllerBase<SystemPermissionManager>(localizer, manager, user, logger)
 {
-    private readonly SystemPermissionGroupManager _systemPermissionGroupManager = systemPermissionGroupManager;
+    private readonly SystemPermissionGroupManager _systemPermissionGroupManager =
+        systemPermissionGroupManager;
 
     /// <summary>
     /// 筛选 ✅
@@ -23,7 +25,9 @@ public class SystemPermissionController(
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
-    public async Task<ActionResult<PageList<SystemPermissionItemDto>>> FilterAsync(SystemPermissionFilterDto filter)
+    public async Task<ActionResult<PageList<SystemPermissionItemDto>>> FilterAsync(
+        SystemPermissionFilterDto filter
+    )
     {
         return await _manager.ToPageAsync(filter);
     }
@@ -51,7 +55,10 @@ public class SystemPermissionController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemPermissionUpdateDto dto)
+    public async Task<ActionResult<bool?>> UpdateAsync(
+        [FromRoute] Guid id,
+        SystemPermissionUpdateDto dto
+    )
     {
         SystemPermission? current = await _manager.GetCurrentAsync(id);
         if (current == null)
@@ -61,7 +68,10 @@ public class SystemPermissionController(
         ;
         if (dto.SystemPermissionGroupId != null && current.Group.Id != dto.SystemPermissionGroupId)
         {
-            SystemPermissionGroup? systemPermissionGroup = await _systemPermissionGroupManager.GetCurrentAsync(dto.SystemPermissionGroupId.Value);
+            SystemPermissionGroup? systemPermissionGroup =
+                await _systemPermissionGroupManager.GetCurrentAsync(
+                    dto.SystemPermissionGroupId.Value
+                );
             if (systemPermissionGroup == null)
             {
                 return NotFound("不存在的权限组");
@@ -94,6 +104,5 @@ public class SystemPermissionController(
         // 注意删除权限
         SystemPermission? entity = await _manager.GetCurrentAsync(id);
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
-
     }
 }

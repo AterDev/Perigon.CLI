@@ -2,7 +2,8 @@ using Ater.Common.Models;
 using Ater.Common.Utils;
 using Share.Implement;
 using SystemMod.Models.SystemConfigDtos;
-namespace SystemMod.Controllers.AdminControllers;
+
+namespace AdminService.Controllers;
 
 /// <summary>
 /// 系统配置
@@ -13,16 +14,17 @@ public class SystemConfigController(
     UserContext user,
     ILogger<SystemConfigController> logger,
     SystemConfigManager manager
-        ) : AdminControllerBase<SystemConfigManager>(localizer, manager, user, logger)
+) : AdminControllerBase<SystemConfigManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 获取配置列表 ✅
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
-    public async Task<ActionResult<PageList<SystemConfigItemDto>>> FilterAsync(SystemConfigFilterDto filter)
+    public async Task<ActionResult<PageList<SystemConfigItemDto>>> FilterAsync(
+        SystemConfigFilterDto filter
+    )
     {
         return await _manager.ToPageAsync(filter);
     }
@@ -36,6 +38,7 @@ public class SystemConfigController(
     {
         return await _manager.GetEnumConfigsAsync();
     }
+
     /// <summary>
     /// 新增 ✅
     /// </summary>
@@ -55,7 +58,10 @@ public class SystemConfigController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemConfigUpdateDto dto)
+    public async Task<ActionResult<bool?>> UpdateAsync(
+        [FromRoute] Guid id,
+        SystemConfigUpdateDto dto
+    )
     {
         SystemConfig? current = await _manager.GetCurrentAsync(id);
         if (current == null)

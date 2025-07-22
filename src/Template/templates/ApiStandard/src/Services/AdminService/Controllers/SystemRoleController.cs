@@ -1,7 +1,8 @@
 using Ater.Common.Models;
 using Share.Implement;
 using SystemMod.Models.SystemRoleDtos;
-namespace SystemMod.Controllers.AdminControllers;
+
+namespace AdminService.Controllers;
 
 /// <summary>
 /// 系统角色
@@ -13,16 +14,17 @@ public class SystemRoleController(
     UserContext user,
     ILogger<SystemRoleController> logger,
     SystemRoleManager manager
-        ) : AdminControllerBase<SystemRoleManager>(localizer, manager, user, logger)
+) : AdminControllerBase<SystemRoleManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
-    public async Task<ActionResult<PageList<SystemRoleItemDto>>> FilterAsync(SystemRoleFilterDto filter)
+    public async Task<ActionResult<PageList<SystemRoleItemDto>>> FilterAsync(
+        SystemRoleFilterDto filter
+    )
     {
         return await _manager.ToPageAsync(filter);
     }
@@ -63,7 +65,9 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut("menus")]
-    public async Task<ActionResult<SystemRole?>> UpdateMenusAsync([FromBody] SystemRoleSetMenusDto dto)
+    public async Task<ActionResult<SystemRole?>> UpdateMenusAsync(
+        [FromBody] SystemRoleSetMenusDto dto
+    )
     {
         SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
         if (current == null)
@@ -80,7 +84,9 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut("permissionGroups")]
-    public async Task<ActionResult<SystemRole?>> UpdatePermissionGroupsAsync([FromBody] SystemRoleSetPermissionGroupsDto dto)
+    public async Task<ActionResult<SystemRole?>> UpdatePermissionGroupsAsync(
+        [FromBody] SystemRoleSetPermissionGroupsDto dto
+    )
     {
         SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
         if (current == null)

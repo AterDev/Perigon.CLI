@@ -9,21 +9,34 @@
     @Lang(Localizer.Create, Localizer.Solution)
   </FluentLabel>
 
-  <FluentLabel Typo="Typography.H3">基本信息</FluentLabel>
+  <FluentLabel Typo="Typography.H4">@Lang(Localizer.Base, Localizer.Info)</FluentLabel>
+
   <FluentStack Orientation="Orientation.Vertical"
                VerticalGap="2">
     <FluentTextField Label="@Lang(Localizer.Solution, Localizer.Name)"
+                     Class="w-240"
+                     Placeholder="@Lang(Localizer.Solution, Localizer.Name)"
                      @bind-Value="AddDto.Name"
                      Required="true" />
   </FluentStack>
   <FluentStack Orientation="Orientation.Vertical"
                VerticalGap="2">
-    <FluentTextField Label="@Lang(Localizer.Path)"
+    <FluentTextField Label="@Lang(Localizer.Local, Localizer.Path)"
                      @bind-Value="AddDto.Path"
+                     Class="w-240"
+                     Placeholder="@Lang(Localizer.Local,Localizer.Path)"
                      Required="true" />
   </FluentStack>
 
-  <FluentLabel Typo="Typography.H3">选项配置</FluentLabel>
+  <FluentLabel>
+    @if (!string.IsNullOrWhiteSpace(AddDto.Path))
+    {
+      <span>@AddDto.Path/@AddDto.Name</span>
+    }
+  </FluentLabel>
+
+  <FluentDivider Orientation="Orientation.Horizontal" Class="w-100" />
+  <FluentLabel Typo="Typography.H3">@Lang(Localizer.Component, Localizer.Configuration)</FluentLabel>
   <FluentStack Orientation="Orientation.Vertical">
     <FluentStack>
       @* <FluentSelect Items="@(Enum.GetValues<DbType>())"
@@ -56,5 +69,12 @@
       Name = string.Empty,
       Path = string.Empty,
     };
+  }
+
+  private void Create()
+  {
+
+
+
   }
 }

@@ -477,4 +477,16 @@
   <data name="Model" xml:space="preserve">
     <value>模型</value>
   </data>
+  <data name="Base" xml:space="preserve">
+    <value>基础</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Component" xml:space="preserve">
+    <value>组件</value>
+  </data>
+  <data name="Configuration" xml:space="preserve">
+    <value>配置</value>
+  </data>
 </root>
