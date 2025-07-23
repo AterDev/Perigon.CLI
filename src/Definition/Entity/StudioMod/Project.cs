@@ -60,37 +60,11 @@ public class ProjectConfig
     public string EntityPath { get; set; } = PathConst.EntityPath;
     public string EntityFrameworkPath { get; set; } = PathConst.EntityFrameworkPath;
     public string CommonModPath { get; set; } = PathConst.CommonModPath;
+    public string ModulePath { get; set; } = PathConst.ModulesPath;
     public string ApiPath { get; set; } = PathConst.APIPath;
     public string ServicePath { get; set; } = PathConst.ServicesPath;
     public string SolutionPath { get; set; } = "";
     public bool IsLight { get; private set; } = false;
-    public ControllerType ControllerType { get; set; } = ControllerType.Client;
-
-    /// <summary>
-    /// 是否拆分
-    /// </summary>
-    public bool? IsSplitController { get; set; } = false;
-}
-
-public enum ControllerType
-{
-    /// <summary>
-    /// 用户端
-    /// </summary>
-    [Description("用户端")]
-    Client,
-
-    /// <summary>
-    /// 管理端
-    /// </summary>
-    [Description("管理端")]
-    Admin,
-
-    /// <summary>
-    /// 用户和管理端
-    /// </summary>
-    [Description("用户端和管理端")]
-    Both,
 }
 
 public enum SolutionType

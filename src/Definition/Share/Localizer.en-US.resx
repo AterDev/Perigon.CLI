@@ -130,7 +130,7 @@
     <value>Cache Type</value>
   </data>
   <data name="CMSModuleDes" xml:space="preserve">
-    <value>Content manager System Module</value>
+    <value>Content Manager System</value>
   </data>
   <data name="CommandSelectTip" xml:space="preserve">
     <value>[gray](Press [blue]&lt;space&gt;[/] to toggle a option, [green]&lt;enter&gt;[/] to accept) [/]</value>
@@ -142,7 +142,7 @@
     <value>Create solution success!</value>
   </data>
   <data name="CustomerModuleDes" xml:space="preserve">
-    <value>Customer Information Module</value>
+    <value>Customer Information Management</value>
   </data>
   <data name="DatabaseProvider" xml:space="preserve">
     <value>Database Provider</value>
@@ -178,7 +178,7 @@
     <value>Create new .NET solution</value>
   </data>
   <data name="OrderModuleDes" xml:space="preserve">
-    <value>Order Management Module</value>
+    <value>Order Management</value>
   </data>
   <data name="Project" xml:space="preserve">
     <value>Project</value>
@@ -497,5 +497,8 @@
   </data>
   <data name="Write" xml:space="preserve">
     <value>Write</value>
+  </data>
+  <data name="EntityFramework" xml:space="preserve">
+    <value>EntityFramework</value>
   </data>
 </root>

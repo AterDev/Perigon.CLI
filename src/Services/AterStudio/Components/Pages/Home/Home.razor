@@ -54,12 +54,11 @@
               <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
 
               <FluentButton Id="setting_btn"
+                            Title="@Lang(Localizer.Project, Localizer.Setting)"
+                            OnClick="()=>OpenConfigDialogAsync(project)"
                             IconStart="@(new Icons.Regular.Size24.Settings())"
                             Appearance="Appearance.Stealth">
               </FluentButton>
-              <FluentTooltip Anchor="setting_btn" Position="TooltipPosition.Right">
-                @Lang(Localizer.Project, Localizer.Setting)
-              </FluentTooltip>
             </FluentStack>
 
             <FluentLabel Typo="Typography.Subject" Color="Color.Accent">@project.Name</FluentLabel>

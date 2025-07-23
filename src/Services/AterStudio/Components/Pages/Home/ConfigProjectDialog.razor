@@ -1,0 +1,130 @@
+@inherits PageBase
+@implements IDialogContentComponent<Project>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">@Content.DisplayName</FluentLabel>
+  <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
+    @Lang(Localizer.Edit, Localizer.Configuration)
+  </FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.EntityPath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.Entity,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.Entity,Localizer.Directory)"
+                         Class="w-100" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.EntityFrameworkPath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.EntityFramework,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.EntityFramework,Localizer.Directory)"
+                         Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.SharePath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.DtoModel,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.DtoModel,Localizer.Directory)"
+                         Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.ModulePath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.Modules,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.Modules,Localizer.Directory)"
+                         Class="w-100" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.ServicePath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.Service,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.Service,Localizer.Directory)"
+                         Class="w-100" />
+      </FluentStack>
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Confirm)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+  [Parameter]
+  public Project Content { get; set; } = null!;
+
+  [Inject]
+  ProjectManager Manager { get; set; } = null!;
+
+  ProjectConfig dto = new();
+  EditContext? editContext;
+  bool formValid { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    if (Content != null)
+    {
+      dto = Content.Config;
+    }
+    editContext = new EditContext(dto);
+    editContext.OnFieldChanged += HandleFieldChanged;
+    await Task.CompletedTask;
+  }
+
+  private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    if (editContext is not null)
+    {
+      formValid = editContext.Validate();
+      StateHasChanged();
+    }
+  }
+
+  public void Dispose()
+  {
+    if (editContext is not null)
+    {
+      editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+  }
+
+  private async Task SaveAsync()
+  {
+    if (!editContext!.Validate())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+    var project = await Manager.GetCurrentAsync(Content.Id);
+    var res = await Manager.UpdateConfigAsync(project, dto);
+    if (res)
+    {
+      await Dialog.CloseAsync();
+    }
+    else
+    {
+      ToastService.ShowError(Lang(Localizer.Save, Localizer.Failed));
+    }
+  }
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

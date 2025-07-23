@@ -97,21 +97,24 @@ public enum DBType
     /// </summary>
     [Description("SQLServer")]
     SQLServer,
+
+    [Description("Else")]
+    Else,
 }
 
 public enum CacheType
 {
     /// <summary>
-    /// Redis
-    /// </summary>
-    [Description("Redis")]
-    Redis,
-
-    /// <summary>
     /// Memory
     /// </summary>
     [Description("Memory")]
     Memory,
+
+    /// <summary>
+    /// Redis
+    /// </summary>
+    [Description("Redis")]
+    Redis,
 
     [Description("Hybrid")]
     Hybrid,

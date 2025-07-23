@@ -35,6 +35,23 @@ public partial class Home
         projects = await ProjectManager.ListAsync();
     }
 
+    private async Task OpenConfigDialogAsync(Project project)
+    {
+        DialogParameters parameters = new()
+        {
+            Width = "400px",
+
+            Modal = true,
+        };
+        var dialog = await DialogService.ShowDialogAsync<ConfigProjectDialog>(project, parameters);
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+
+        ToastService.ShowSuccess(Lang(Localizer.Save, Localizer.Success));
+        await GetProjectListAsync();
+    }
+
     private async Task DeleteProject(Project project)
     {
         var dialog = await DialogService.ShowConfirmationAsync(
