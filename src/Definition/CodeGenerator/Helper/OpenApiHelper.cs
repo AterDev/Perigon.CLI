@@ -1,18 +1,19 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Text.Json.Nodes;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace CodeGenerator.Helper;
+
 public class OpenApiHelper
 {
-
     /// <summary>
     /// 获取枚举扩展数据
     /// </summary>
     /// <param name="extension"></param>
     /// <returns></returns>
-    public static FrozenDictionary<string, int>? ParseEnumExtension(KeyValuePair<string, IOpenApiExtension> extension)
+    public static FrozenDictionary<string, int>? ParseEnumExtension(
+        KeyValuePair<string, IOpenApiExtension> extension
+    )
     {
         if (extension.Value != null)
         {
@@ -21,12 +22,12 @@ public class OpenApiHelper
             {
                 return data.ToFrozenDictionary(
                     x => x!["name"]?.GetValue<string>() ?? "",
-                    x => x!["value"]?.GetValue<int>() ?? 0);
+                    x => x!["value"]?.GetValue<int>() ?? 0
+                );
             }
         }
         return default;
     }
-
 
     /// <summary>
     /// 获取转换成ts的类型
@@ -45,9 +46,7 @@ public class OpenApiHelper
 
             case JsonSchemaType.Integer:
                 // 看是否为enum
-                type = prop.Enum.Count > 0
-                    ? prop.Reference?.Id
-                    : "number";
+                type = prop.Enum.Count > 0 ? prop.Reference?.Id : "number";
                 break;
             case JsonSchemaType.Number:
                 type = "number";
@@ -69,9 +68,10 @@ public class OpenApiHelper
                 }
                 break;
             case JsonSchemaType.Array:
-                type = prop.Items.Reference != null
-                    ? prop.Items.Reference.Id + "[]"
-                    : ConvertToTypescriptType(prop.Items) + "[]";
+                type =
+                    prop.Items.Reference != null
+                        ? prop.Items.Reference.Id + "[]"
+                        : ConvertToTypescriptType(prop.Items) + "[]";
                 break;
             default:
                 type = prop.Reference?.Id ?? "any";
@@ -92,4 +92,3 @@ public class OpenApiHelper
         return type ?? "any";
     }
 }
-

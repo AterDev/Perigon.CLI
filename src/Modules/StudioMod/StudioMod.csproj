@@ -1,20 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
-        <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Services\" />
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
+    <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,8 +1,7 @@
-﻿using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace CodeGenerator.Generate;
+
 /// <summary>
 /// generate csharp model file
 /// </summary>
@@ -10,20 +9,28 @@ public class CsharpModelGenerate : GenerateBase
 {
     public static List<string> EnumModels { get; set; } = [];
     public Dictionary<string, string?> ModelDictionary { get; set; } = [];
+
     public CsharpModelGenerate(OpenApiDocument openApi)
     {
-        foreach (KeyValuePair<string, OpenApiPathItem> path in openApi.Paths)
+        foreach (KeyValuePair<string, IOpenApiPathItem> path in openApi.Paths)
         {
-            foreach (KeyValuePair<OperationType, OpenApiOperation> operation in path.Value.Operations)
-            {
-                string? tag = operation.Value.Tags.FirstOrDefault()?.Name;
+            if (path.Value.Operations == null)
+                continue;
 
-                OpenApiSchema? requestSchema = operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema;
-                OpenApiSchema? responseSchema = operation.Value.Responses.FirstOrDefault().Value
-                     ?.Content.FirstOrDefault().Value
-                     ?.Schema;
-                (string? RequestType, string? requestRefType) = CSHttpClientGenerate.GetCsharpParamType(requestSchema);
-                (string? ResponseType, string? responseRefType) = CSHttpClientGenerate.GetCsharpParamType(responseSchema);
+            foreach (var operation in path.Value.Operations)
+            {
+                string? tag = operation.Value.Tags?.FirstOrDefault()?.Name;
+                IOpenApiSchema? requestSchema = operation
+                    .Value.RequestBody?.Content?.Values.FirstOrDefault()
+                    ?.Schema;
+                IOpenApiSchema? responseSchema = operation
+                    .Value.Responses?.FirstOrDefault()
+                    .Value?.Content?.FirstOrDefault()
+                    .Value?.Schema;
+                (string? RequestType, string? requestRefType) =
+                    CSHttpClientGenerate.GetCsharpParamType(requestSchema);
+                (string? ResponseType, string? responseRefType) =
+                    CSHttpClientGenerate.GetCsharpParamType(responseSchema);
 
                 // 存储对应的Tag
                 // 请求dto
@@ -56,11 +63,12 @@ public class CsharpModelGenerate : GenerateBase
             }
         }
     }
+
     /// <summary>
     /// 获取相关联的模型
     /// </summary>
     /// <returns></returns>
-    public Dictionary<string, string?>? GetRelationModels(OpenApiSchema? schema, string? tag = "")
+    public Dictionary<string, string?>? GetRelationModels(IOpenApiSchema? schema, string? tag = "")
     {
         if (schema == null)
         {
@@ -71,46 +79,48 @@ public class CsharpModelGenerate : GenerateBase
         // 父类
         if (schema.AllOf != null)
         {
-            OpenApiSchema? parent = schema.AllOf.FirstOrDefault();
+            IOpenApiSchema? parent = schema.AllOf.FirstOrDefault();
             if (parent != null)
             {
-                if (!dic.ContainsKey(parent.Reference.Id))
-                {
-                    dic.Add(parent.Reference.Id, null);
-                }
-
+                //if (!dic.ContainsKey(parent.Reference.Id))
+                //{
+                //    dic.Add(parent.Reference.Id, null);
+                //}
             }
         }
         // 属性中的类型
-        List<OpenApiSchema> props = schema.Properties.Where(p => p.Value.OneOf != null)
-            .Select(s => s.Value).ToList();
+        var props = schema
+            .Properties.Where(p => p.Value.OneOf != null)
+            .Select(s => s.Value)
+            .ToList();
         if (props != null)
         {
-            foreach (OpenApiSchema? prop in props)
+            foreach (IOpenApiSchema? prop in props)
             {
                 if (prop.OneOf.Any())
                 {
-                    if (!dic.ContainsKey(prop.OneOf.FirstOrDefault()!.Reference.Id))
-                    {
-                        dic.Add(prop.OneOf.FirstOrDefault()!.Reference.Id, tag);
-                    }
-
+                    //if (!dic.ContainsKey(prop.OneOf.FirstOrDefault()!.Reference.Id))
+                    //{
+                    //    dic.Add(prop.OneOf.FirstOrDefault()!.Reference.Id, tag);
+                    //}
                 }
             }
         }
         // 数组
-        List<OpenApiSchema> arr = schema.Properties.Where(p => p.Value.Type == "array")
-            .Select(s => s.Value).ToList();
+        List<IOpenApiSchema> arr = schema
+            .Properties.Where(p => p.Value.Type == JsonSchemaType.Array)
+            .Select(s => s.Value)
+            .ToList();
         if (arr != null)
         {
-            foreach (OpenApiSchema? item in arr)
+            foreach (IOpenApiSchema? item in arr)
             {
                 if (item.Items.OneOf.Any())
                 {
-                    if (!dic.ContainsKey(item.Items.OneOf.FirstOrDefault()!.Reference.Id))
-                    {
-                        dic.Add(item.Items.OneOf.FirstOrDefault()!.Reference.Id, tag);
-                    }
+                    //if (!dic.ContainsKey(item.Items.OneOf.FirstOrDefault()!.Reference.Id))
+                    //{
+                    //    dic.Add(item.Items.OneOf.FirstOrDefault()!.Reference.Id, tag);
+                    //}
                 }
             }
         }
@@ -145,7 +155,7 @@ public class CsharpModelGenerate : GenerateBase
         {
             FullName = path ?? "",
             Content = modelContent,
-            ModelName = schemaKey
+            ModelName = schemaKey,
         };
         return file;
     }
@@ -157,7 +167,8 @@ public class CsharpModelGenerate : GenerateBase
     /// <returns></returns>
     private string? GetDirName(string searchKey)
     {
-        return ModelDictionary.Where(m => m.Key.StartsWith(searchKey))
+        return ModelDictionary
+            .Where(m => m.Key.StartsWith(searchKey))
             .Select(m => m.Value)
             .FirstOrDefault();
     }
@@ -174,16 +185,14 @@ public class CsharpModelGenerate : GenerateBase
         string comment = "";
         string propertyString = "";
         string extendString = "";
-        string importString = "";// 需要导入的关联接口
+        string importString = ""; // 需要导入的关联接口
 
         // 不在控制器中的类型，则在根目录生成，相对目录也从根目录开始
-        if (string.IsNullOrEmpty(GetDirName(name)))
-        {
-        }
+        if (string.IsNullOrEmpty(GetDirName(name))) { }
 
         if (schema.AllOf.Count > 0)
         {
-            string? extend = schema.AllOf.First()?.Reference?.Id;
+            string? extend = schema.AllOf.FirstOrDefault().Reference?.Id;
             if (!string.IsNullOrEmpty(extend))
             {
                 extendString = " : " + extend + "";
@@ -192,18 +201,18 @@ public class CsharpModelGenerate : GenerateBase
                 {
                     string? dirName = GetDirName(name);
                     dirName = dirName.NotEmpty() ? dirName!.ToHyphen() + "/" : "";
-                    importString += @$"using {nspName}.Models;"
-                        + Environment.NewLine;
+                    importString += @$"using {nspName}.Models;" + Environment.NewLine;
                 }
             }
         }
         if (!string.IsNullOrEmpty(schema.Description))
         {
-            comment = $"""
-                /// <summary>
-                /// {schema.Description}
-                /// </summary>
-                """ + Environment.NewLine;
+            comment =
+                $"""
+                    /// <summary>
+                    /// {schema.Description}
+                    /// </summary>
+                    """ + Environment.NewLine;
         }
         List<CSProperty> props = GetCSProperties(schema);
         bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
@@ -212,18 +221,16 @@ public class CsharpModelGenerate : GenerateBase
             propertyString += p.ToProperty(preferenceNull);
         });
         // 去重
-        var importsProps = props.Where(p => !string.IsNullOrEmpty(p.Reference))
+        var importsProps = props
+            .Where(p => !string.IsNullOrEmpty(p.Reference))
             .GroupBy(p => p.Reference)
-            .Select(g => new
-            {
-                g.First().IsEnum,
-                g.First().Reference
-            })
+            .Select(g => new { g.First().IsEnum, g.First().Reference })
             .ToList();
 
         string namespaceString = $"namespace {nspName}.Models;" + Environment.NewLine;
 
-        res = @$"{importString}{namespaceString}{comment}public class {name} {extendString}{{
+        res =
+            @$"{importString}{namespaceString}{comment}public class {name} {extendString}{{
 {propertyString}
 }}
 ";
@@ -243,19 +250,20 @@ public class CsharpModelGenerate : GenerateBase
         string propertyString = "";
         if (!string.IsNullOrEmpty(schema.Description))
         {
-            comment = $"""
-                /// <summary>
-                /// {schema.Description.ReplaceLineEndings("")}
-                /// </summary>
-                """ + Environment.NewLine;
+            comment =
+                $"""
+                    /// <summary>
+                    /// {schema.Description.ReplaceLineEndings("")}
+                    /// </summary>
+                    """ + Environment.NewLine;
         }
         // 先判断x-enumData
-        KeyValuePair<string, IOpenApiExtension> enumData = schema.Extensions
-            .Where(e => e.Key == "x-enumData")
+        KeyValuePair<string, IOpenApiExtension> enumData = schema
+            .Extensions.Where(e => e.Key == "x-enumData")
             .FirstOrDefault();
 
-        KeyValuePair<string, IOpenApiExtension> enumNames = schema.Extensions
-            .Where(e => e.Key == "x-enumNames")
+        KeyValuePair<string, IOpenApiExtension> enumNames = schema
+            .Extensions.Where(e => e.Key == "x-enumNames")
             .FirstOrDefault();
 
         if (enumData.Value is OpenApiArray values)
@@ -266,7 +274,7 @@ public class CsharpModelGenerate : GenerateBase
                 string enumName = ((OpenApiString)obj["name"]).Value ?? "";
                 int enumValue = ((OpenApiInteger)obj["value"]).Value;
                 string enumDesc = ((OpenApiString)obj["description"]).Value ?? "";
-                propertyString += $"""  
+                propertyString += $"""
                         [Description("{enumDesc}")]
                         {enumName} = {enumValue},
 
@@ -275,7 +283,8 @@ public class CsharpModelGenerate : GenerateBase
         }
 
         string namespaceString = $"namespace {nspName}.Models;" + Environment.NewLine;
-        res = @$"using System.ComponentModel;
+        res =
+            @$"using System.ComponentModel;
 {namespaceString}{comment}public enum {name} {{
 {propertyString}
 }}
@@ -309,18 +318,19 @@ public class CsharpModelGenerate : GenerateBase
 
                 if (!string.IsNullOrEmpty(prop.Value.Description))
                 {
-                    propComments = $"""
-                            /// <summary>
-                            /// {prop.Value.Description}
-                            /// </summary>
-                        """ + Environment.NewLine;
+                    propComments =
+                        $"""
+                                /// <summary>
+                                /// {prop.Value.Description}
+                                /// </summary>
+                            """ + Environment.NewLine;
                 }
                 CSProperty property = new CSProperty()
                 {
                     Comments = propComments,
                     IsNullable = prop.Value.Nullable,
                     Name = name,
-                    Type = type
+                    Type = type,
                 };
                 // 是否是关联属性
                 OpenApiSchema? refType = prop.Value.OneOf?.FirstOrDefault();
@@ -347,8 +357,7 @@ public class CsharpModelGenerate : GenerateBase
                     property.Reference = prop.Value.Reference.Id;
                 }
 
-                if (prop.Value.Enum.Any() ||
-                    (refType != null && refType.Enum.Any()))
+                if (prop.Value.Enum.Any() || (refType != null && refType.Enum.Any()))
                 {
                     property.IsEnum = true;
                 }
@@ -358,8 +367,10 @@ public class CsharpModelGenerate : GenerateBase
             }
         }
         // 重写的属性去重
-        List<CSProperty?> res = tsProperties.GroupBy(p => p.Name)
-            .Select(s => s.FirstOrDefault()).ToList();
+        List<CSProperty?> res = tsProperties
+            .GroupBy(p => p.Name)
+            .Select(s => s.FirstOrDefault())
+            .ToList();
         return res!;
     }
 }
@@ -392,6 +403,7 @@ public class CSProperty
             defaultValue = " = [];";
         }
 
-        return $"{Comments}    public {type} {Name?.ToPascalCase()} {{ get; set; }}{defaultValue}" + Environment.NewLine;
+        return $"{Comments}    public {type} {Name?.ToPascalCase()} {{ get; set; }}{defaultValue}"
+            + Environment.NewLine;
     }
 }

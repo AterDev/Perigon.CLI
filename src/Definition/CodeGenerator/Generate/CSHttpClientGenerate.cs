@@ -1,16 +1,15 @@
-﻿using System.Data;
-
-using Microsoft.OpenApi.Extensions;
-using Microsoft.OpenApi.Models;
+using System.Data;
+using Microsoft.OpenApi;
 
 namespace CodeGenerator.Generate;
+
 /// <summary>
 /// c#请求客户端生成
 /// </summary>
 public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     protected OpenApiPaths PathsPairs { get; } = openApi.Paths;
     protected List<OpenApiTag> ApiTags { get; } = [.. openApi.Tags];
@@ -31,7 +30,8 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     public static string GetClient(List<GenFileInfo> infos, string namespaceName, string className)
     {
         string tplContent = GetTplContent("RequestService.CsharpClient.tpl");
-        tplContent = tplContent.Replace("${Namespace}", namespaceName)
+        tplContent = tplContent
+            .Replace("${Namespace}", namespaceName)
             .Replace("#@ClassName#", className);
 
         string propsString = "";
@@ -39,11 +39,16 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 
         infos.ForEach(info =>
         {
-            propsString += @$"    public {info.ModelName}Service {info.ModelName} {{ get; init; }}" + Environment.NewLine;
-            initPropsString += $"        {info.ModelName} = new {info.ModelName}Service(http);" + Environment.NewLine;
+            propsString +=
+                @$"    public {info.ModelName}Service {info.ModelName} {{ get; init; }}"
+                + Environment.NewLine;
+            initPropsString +=
+                $"        {info.ModelName} = new {info.ModelName}Service(http);"
+                + Environment.NewLine;
         });
 
-        tplContent = tplContent.Replace("//[@Properties]", propsString)
+        tplContent = tplContent
+            .Replace("//[@Properties]", propsString)
             .Replace("//[@InitProperties]", initPropsString);
 
         return tplContent;
@@ -111,7 +116,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         List<RequestServiceFunction> functions = GetAllRequestFunctions();
 
         // 先以tag分组
-        List<IGrouping<string?, RequestServiceFunction>> funcGroups = functions.GroupBy(f => f.Tag).ToList();
+        List<IGrouping<string?, RequestServiceFunction>> funcGroups = functions
+            .GroupBy(f => f.Tag)
+            .ToList();
         foreach (IGrouping<string?, RequestServiceFunction>? group in funcGroups)
         {
             // 查询该标签包含的所有方法
@@ -122,16 +129,13 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
             {
                 Description = currentTag.Description?.Replace("\r\n", ","),
                 Name = currentTag.Name!,
-                Functions = tagFunctions
+                Functions = tagFunctions,
             };
 
             string content = ToRequestService(serviceFile, namespaceName);
 
             string fileName = currentTag.Name + "RestService.cs";
-            GenFileInfo file = new(fileName, content)
-            {
-                ModelName = currentTag.Name
-            };
+            GenFileInfo file = new(fileName, content) { ModelName = currentTag.Name };
             files.Add(file);
         }
         return files;
@@ -153,7 +157,6 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         return files;
     }
 
-
     public static string ToRequestService(RequestServiceFile serviceFile, string namespaceName)
     {
         List<RequestServiceFunction>? functions = serviceFile.Functions;
@@ -162,25 +165,26 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         if (functions != null)
         {
             functionstr = string.Join("\n", functions.Select(ToRequestFunction).ToArray());
-
         }
         string result = $$"""
-        using {{namespaceName}}.Models;
-        namespace {{namespaceName}}.Services;
-        /// <summary>
-        /// {{serviceFile.Description}}
-        /// </summary>
-        public class {{serviceFile.Name}}RestService(IHttpClientFactory httpClientFactory) : BaseService(httpClientFactory)
-        {
-        {{functionstr}}
-        }
-        """;
+            using {{namespaceName}}.Models;
+            namespace {{namespaceName}}.Services;
+            /// <summary>
+            /// {{serviceFile.Description}}
+            /// </summary>
+            public class {{serviceFile.Name}}RestService(IHttpClientFactory httpClientFactory) : BaseService(httpClientFactory)
+            {
+            {{functionstr}}
+            }
+            """;
         return result;
     }
 
     public static string ToRequestFunction(RequestServiceFunction function)
     {
-        function.ResponseType = string.IsNullOrWhiteSpace(function.ResponseType) ? "object" : function.ResponseType;
+        function.ResponseType = string.IsNullOrWhiteSpace(function.ResponseType)
+            ? "object"
+            : function.ResponseType;
 
         // 函数名处理，去除tag前缀，然后格式化
         function.Name = function.Name.Replace(function.Tag + "_", "");
@@ -192,16 +196,18 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 
         if (function.Params?.Count > 0)
         {
-            paramsString = string.Join(", ",
-                function.Params.OrderByDescending(p => p.IsRequired)
-                    .Select(p => p.IsRequired
-                        ? p.Type + " " + p.Name
-                        : p.Type + "? " + p.Name)
-                .ToArray());
+            paramsString = string.Join(
+                ", ",
+                function
+                    .Params.OrderByDescending(p => p.IsRequired)
+                    .Select(p => p.IsRequired ? p.Type + " " + p.Name : p.Type + "? " + p.Name)
+                    .ToArray()
+            );
             function.Params.ForEach(p =>
             {
                 //<param name="dto"></param>
-                paramsComments += $"    /// <param name=\"{p.Name}\">{p.Description ?? p.Type} </param>\n";
+                paramsComments +=
+                    $"    /// <param name=\"{p.Name}\">{p.Description ?? p.Type} </param>\n";
             });
         }
         if (!string.IsNullOrEmpty(function.RequestType))
@@ -221,31 +227,40 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         }
         // 注释生成
         string comments = $"""
-             /// <summary>
-             /// {function.Description ?? function.Name}
-             /// </summary>
-         {paramsComments}    /// <returns></returns>
-         """;
+                /// <summary>
+                /// {function.Description ?? function.Name}
+                /// </summary>
+            {paramsComments}    /// <returns></returns>
+            """;
 
         // 构造请求url
         List<string?>? paths = function.Params?.Where(p => p.InPath).Select(p => p.Name)?.ToList();
         // 需要拼接的参数,特殊处理文件上传
-        List<string?>? reqParams = function.Params?.Where(p => !p.InPath && p.Type != "IForm")
-            .Select(p => p.Name)?.ToList();
+        List<string?>? reqParams = function
+            .Params?.Where(p => !p.InPath && p.Type != "IForm")
+            .Select(p => p.Name)
+            ?.ToList();
 
         if (reqParams != null)
         {
             string queryParams = "";
-            queryParams = string.Join("&", reqParams.Select(p =>
-            {
-                return $"{p}={{{p}}}";
-            }).ToArray());
+            queryParams = string.Join(
+                "&",
+                reqParams
+                    .Select(p =>
+                    {
+                        return $"{p}={{{p}}}";
+                    })
+                    .ToArray()
+            );
             if (!string.IsNullOrEmpty(queryParams))
             {
                 function.Path += "?" + queryParams;
             }
         }
-        FunctionParams? file = function.Params?.Where(p => p.Type!.Equals("FormData")).FirstOrDefault();
+        FunctionParams? file = function
+            .Params?.Where(p => p.Type!.Equals("FormData"))
+            .FirstOrDefault();
         if (file != null)
         {
             dataString = $", {file.Name}";
@@ -253,19 +268,23 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 
         string returnType = function.ResponseType == "IFile" ? "Stream" : function.ResponseType;
 
-        string method = function.ResponseType == "IFile"
-            ? $"DownloadFileAsync(url{dataString})"
-            : $"{function.Method}JsonAsync<{function.ResponseType}?>(url{dataString})";
+        string method =
+            function.ResponseType == "IFile"
+                ? $"DownloadFileAsync(url{dataString})"
+                : $"{function.Method}JsonAsync<{function.ResponseType}?>(url{dataString})";
 
-        method = function.RequestType == "IFile" ? $"UploadFileAsync<{function.ResponseType}?>(url, new StreamContent(data))" : method;
+        method =
+            function.RequestType == "IFile"
+                ? $"UploadFileAsync<{function.ResponseType}?>(url, new StreamContent(data))"
+                : method;
         string res = $$"""
-        {{comments}}
-            public async Task<{{returnType}}?> {{function.Name.ToPascalCase()}}Async({{paramsString}}) {
-                var url = $"{{function.Path}}";
-                return await {{method}};
-            }
+            {{comments}}
+                public async Task<{{returnType}}?> {{function.Name.ToPascalCase()}}Async({{paramsString}}) {
+                    var url = $"{{function.Path}}";
+                    return await {{method}};
+                }
 
-        """;
+            """;
         return res;
     }
 
@@ -277,9 +296,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     {
         List<RequestServiceFunction> functions = [];
         // 处理所有方法
-        foreach (KeyValuePair<string, OpenApiPathItem> path in PathsPairs)
+        foreach (KeyValuePair<string, IOpenApiPathItem> path in PathsPairs)
         {
-            foreach (KeyValuePair<OperationType, OpenApiOperation> operation in path.Value.Operations)
+            foreach (var operation in path.Value.Operations)
             {
                 RequestServiceFunction function = new()
                 {
@@ -289,24 +308,31 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     Path = path.Key,
                     Tag = operation.Value.Tags.FirstOrDefault()?.Name,
                 };
-                (function.RequestType, function.RequestRefType) = GetCsharpParamType(operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema);
-                (function.ResponseType, function.ResponseRefType) = GetCsharpParamType(operation.Value.Responses.FirstOrDefault().Value
-                    ?.Content.FirstOrDefault().Value
-                    ?.Schema);
-                function.Params = operation.Value.Parameters?.Select(p =>
-                {
-                    string? location = p.In?.GetDisplayName();
-                    bool? inpath = location?.ToLower()?.Equals("path");
-                    (string type, string? _) = GetCsharpParamType(p.Schema);
-                    return new FunctionParams
+                (function.RequestType, function.RequestRefType) = GetCsharpParamType(
+                    operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
+                );
+                (function.ResponseType, function.ResponseRefType) = GetCsharpParamType(
+                    operation
+                        .Value.Responses.FirstOrDefault()
+                        .Value?.Content.FirstOrDefault()
+                        .Value?.Schema
+                );
+                function.Params = operation
+                    .Value.Parameters?.Select(p =>
                     {
-                        Description = p.Description,
-                        Name = p.Name,
-                        InPath = inpath ?? false,
-                        IsRequired = p.Required,
-                        Type = type
-                    };
-                }).ToList();
+                        string? location = p.In?.GetDisplayName();
+                        bool? inpath = location?.ToLower()?.Equals("path");
+                        (string type, string? _) = GetCsharpParamType(p.Schema);
+                        return new FunctionParams
+                        {
+                            Description = p.Description,
+                            Name = p.Name,
+                            InPath = inpath ?? false,
+                            IsRequired = p.Required,
+                            Type = type,
+                        };
+                    })
+                    .ToList();
 
                 functions.Add(function);
             }
@@ -319,7 +345,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     /// </summary>
     /// <param name="schema"></param>
     /// <returns></returns>
-    public static (string type, string? refType) GetCsharpParamType(OpenApiSchema? schema)
+    public static (string type, string? refType) GetCsharpParamType(IOpenApiSchema? schema)
     {
         if (schema == null)
         {
@@ -354,8 +380,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     {
                         "int32" => "int",
                         "int64" => "long",
-                        _ => "int"
-
+                        _ => "int",
                     };
                     refType = type;
                 }
@@ -385,7 +410,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     refType = itemType switch
                     {
                         JsonSchemaType.Integer => "int",
-                        _ => itemType
+                        _ => itemType,
                     };
                     type = $"List<{refType}>";
                 }
@@ -409,7 +434,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                 // TODO:object  字典
                 if (schema.AdditionalProperties != null)
                 {
-                    (string inType, string? inRefType) = GetCsharpParamType(schema.AdditionalProperties);
+                    (string inType, string? inRefType) = GetCsharpParamType(
+                        schema.AdditionalProperties
+                    );
                     refType = inRefType;
                     type = $"Dictionary<string, {inType}>";
                 }
