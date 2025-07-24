@@ -3,7 +3,7 @@ using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
 using Entity;
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi;
 
 namespace Share.Services;
 
@@ -171,7 +171,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateWebRequestAsync(
+    public async Task<List<GenFileInfo>?> GenerateWebRequestAsync(
         string url = "",
         string outputPath = "",
         RequestClientType type = RequestClientType.NgHttp
@@ -180,34 +180,13 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         _logger.LogInformation("🚀 Generating ts models and {type} request services...", type);
         var files = new List<GenFileInfo>();
 
-        // 1 parse openApi json from url
-        string openApiContent = "";
-
         string docName = string.Empty;
-        if (url.StartsWith("http://") || url.StartsWith("https://"))
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(url);
+        if (apiDocument == null)
         {
-            HttpClientHandler handler = new()
-            {
-                ServerCertificateCustomValidationCallback = (
-                    sender,
-                    certificate,
-                    chain,
-                    sslPolicyErrors
-                ) => true,
-            };
-            using HttpClient http = new(handler);
-
-            openApiContent = await http.GetStringAsync(url);
-            docName = url.Split('/').Reverse().First();
-            docName = Path.GetFileNameWithoutExtension(docName);
+            OutputHelper.Error($"OpenApi document is parsed failed: {url}");
+            return null;
         }
-        else
-        {
-            openApiContent = File.ReadAllText(url);
-        }
-        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
-
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
 
         // base service
         string content = RequestGenerate.GetBaseService(type);
@@ -224,7 +203,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         // 枚举pipe
         if (type == RequestClientType.NgHttp)
         {
-            var schemas = apiDocument!.Components.Schemas;
+            var schemas = apiDocument.Components?.Schemas;
             dir = Path.Combine(outputPath, "pipe", docName);
             Directory.CreateDirectory(dir);
             var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
@@ -428,19 +407,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         var projectName = docName.ToPascalCase() + "API";
         outputPath = Path.Combine(outputPath, projectName);
 
-        string openApiContent = "";
-        if (docUrl.StartsWith("http://") || docUrl.StartsWith("https://"))
-        {
-            using HttpClient http = new();
-            openApiContent = await http.GetStringAsync(docUrl);
-        }
-        else
-        {
-            openApiContent = File.ReadAllText(docUrl);
-        }
-        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
-
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(docUrl);
         var gen = new CSHttpClientGenerate(apiDocument!);
 
         string nspName = new DirectoryInfo(outputPath).Name;

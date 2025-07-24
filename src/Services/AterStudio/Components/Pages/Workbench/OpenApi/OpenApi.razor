@@ -110,8 +110,8 @@
                                        HorizontalGap="4"
                                        VerticalAlignment="VerticalAlignment.Center">
                             <FluentLabel Typo="Typography.Subject"
-                                         style="@GetApiTypeColor(api.OperationType)">
-                              @(api.OperationType.ToString().Substring(0, 1))
+                                         style="@GetApiTypeColor(api.HttpMethod)">
+                              @(api.HttpMethod.ToString().Substring(0, 1))
                             </FluentLabel>
                             <FluentLabel Typo="Typography.Subject">
                               @(api.Summary ?? api.Router)
@@ -141,8 +141,8 @@
                                HorizontalGap="8"
                                VerticalAlignment="VerticalAlignment.Center">
                     <FluentLabel Typo="Typography.H4"
-                                 style="@GetApiTypeColor(CurrentApi.OperationType)">
-                      @(CurrentApi.OperationType.ToString().Substring(0, 1))
+                                 style="@GetApiTypeColor(CurrentApi.HttpMethod)">
+                      @(CurrentApi.HttpMethod.ToString().Substring(0, 1))
                     </FluentLabel>
                     <FluentLabel Typo="Typography.H4">
                       @CurrentApi.Router

@@ -1,5 +1,5 @@
 using CodeGenerator.Models;
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi;
 using StudioMod.Models.ApiDocInfoDtos;
 
 namespace StudioMod.Managers;
@@ -54,48 +54,15 @@ public class ApiDocInfoManager(
     {
         ApiDocInfo? apiDocInfo = await GetCurrentAsync(id);
         string path = apiDocInfo!.Path;
-        string openApiContent = "";
 
-        if (!isFresh && apiDocInfo.Content.NotEmpty())
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(path);
+
+        if (apiDocument == null)
         {
-            openApiContent = apiDocInfo.Content;
-        }
-        else
-        {
-            try
-            {
-                if (path.StartsWith("http://") || path.StartsWith("https://"))
-                {
-                    HttpClientHandler handler = new()
-                    {
-                        ServerCertificateCustomValidationCallback = (
-                            sender,
-                            certificate,
-                            chain,
-                            sslPolicyErrors
-                        ) => true,
-                    };
-                    using HttpClient http = new(handler);
-                    http.Timeout = TimeSpan.FromSeconds(60);
-                    openApiContent = await http.GetStringAsync(path);
-                }
-                else
-                {
-                    openApiContent = File.ReadAllText(path);
-                }
-                apiDocInfo.Content = openApiContent;
-                await SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMsg = $"{path} 请求失败！" + ex.Message;
-                return default;
-            }
+            ErrorMsg = $"parse {path} faield!";
+            return null;
         }
 
-        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
-
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
         var helper = new OpenApiService(apiDocument);
         return new ApiDocContent
         {
@@ -110,26 +77,19 @@ public class ApiDocInfoManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<string> ExportDocAsync(Guid id)
+    public async Task<string?> ExportDocAsync(Guid id)
     {
         ApiDocInfo? apiDocInfo = await FindAsync(id);
         if (apiDocInfo == null)
             return string.Empty;
         string path = apiDocInfo.Path;
-        string openApiContent = "";
-        if (path.StartsWith("http://") || path.StartsWith("https://"))
-        {
-            using HttpClient http = new();
-            http.Timeout = TimeSpan.FromSeconds(60);
-            openApiContent = await http.GetStringAsync(path);
-        }
-        else
-        {
-            openApiContent = File.ReadAllText(path);
-        }
-        openApiContent = openApiContent.Replace("«", "").Replace("»", "");
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(path);
 
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
+        if (apiDocument == null)
+        {
+            ErrorMsg = $"parse {path} faield!";
+            return null;
+        }
 
         var helper = new OpenApiService(apiDocument);
         var groups = helper.RestApiGroups;
@@ -147,7 +107,7 @@ public class ApiDocInfoManager(
                 sb.AppendLine("|---------|---------|");
                 sb.AppendLine($"|接口说明|{api.Summary}|");
                 sb.AppendLine($"|接口地址|{api.Router}|");
-                sb.AppendLine($"|接口方法|{api.OperationType.ToString()}|");
+                sb.AppendLine($"|接口方法|{api.HttpMethod.ToString()}|");
                 sb.AppendLine();
 
                 sb.AppendLine("#### 请求内容");

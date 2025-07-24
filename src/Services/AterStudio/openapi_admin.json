@@ -2879,7 +2879,7 @@
         "type": "integer",
         "nullable": true
       },
-      "OperationType": {
+      "HttpMethod": {
         "type": "integer",
         "x-enumNames": [
           "Get",
@@ -3209,8 +3209,8 @@
         ],
         "type": "object",
         "properties": {
-          "operationType": {
-            "$ref": "#/components/schemas/OperationType"
+          "HttpMethod": {
+            "$ref": "#/components/schemas/HttpMethod"
           },
           "router": {
             "type": "string"

@@ -177,10 +177,7 @@ public class CodeTools(
         var roots = await server.RequestRootsAsync(
             new ModelContextProtocol.Protocol.ListRootsRequestParams
             {
-                Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata
-                {
-                    ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools"),
-                },
+                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools"),
             }
         );
 

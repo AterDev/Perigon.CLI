@@ -2,7 +2,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using AterStudio.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace AterStudio;
 
@@ -72,7 +71,7 @@ public static class ServiceCollectionExtension
             "admin",
             options =>
             {
-                options.AddSchemaTransformer<EnumOpenApiTransformer>();
+                //options.AddSchemaTransformer<EnumOpenApiTransformer>();
             }
         );
         services.AddLocalizer();

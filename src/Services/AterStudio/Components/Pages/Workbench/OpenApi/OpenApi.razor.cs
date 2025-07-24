@@ -1,8 +1,6 @@
 using Ater.Common.Utils;
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
-using Microsoft.OpenApi.Models;
 using StudioMod.Models.ApiDocInfoDtos;
 
 namespace AterStudio.Components.Pages.Workbench.OpenApi;
@@ -307,18 +305,18 @@ public partial class OpenApi
 
     private String GetApiTip(RestApiInfo api)
     {
-        return $"{nameof(api.OperationType).ToUpper()} {api.Router}";
+        return $"{nameof(api.HttpMethod).ToUpper()} {api.Router}";
     }
 
-    private string GetApiTypeColor(OperationType type)
+    private string GetApiTypeColor(HttpMethod type)
     {
-        var color = type switch
+        var color = type.Method switch
         {
-            OperationType.Get => "#318deb",
-            OperationType.Post => "#14cc78",
-            OperationType.Put => "#fca130",
-            OperationType.Patch => "#fca130",
-            OperationType.Delete => "#f93e3e",
+            "GET" => "#318deb",
+            "POST" => "#14cc78",
+            "PUT" => "#fca130",
+            "PATCH" => "#fca130",
+            "DELETE" => "#f93e3e",
             _ => "#888888",
         };
 

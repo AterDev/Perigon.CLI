@@ -1,8 +1,5 @@
 using System.ComponentModel;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Extensions;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
+using System.Text.Json.Nodes;
 
 namespace CodeGenerator.Generate;
 
@@ -13,7 +10,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 {
     protected OpenApiPaths PathsPairs { get; } = openApi.Paths;
     protected List<OpenApiTag> ApiTags { get; } = [.. openApi.Tags];
-    public IDictionary<string, OpenApiSchema> Schemas { get; set; } = openApi.Components.Schemas;
+    public IDictionary<string, IOpenApiSchema> Schemas { get; set; } = openApi.Components.Schemas;
     public OpenApiDocument OpenApi { get; set; } = openApi;
 
     public RequestClientType LibType { get; set; } = RequestClientType.NgHttp;
@@ -58,11 +55,9 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     {
         List<RequestServiceFunction> functions = [];
         // 处理所有方法
-        foreach (KeyValuePair<string, OpenApiPathItem> path in PathsPairs)
+        foreach (var path in PathsPairs)
         {
-            foreach (
-                KeyValuePair<OperationType, OpenApiOperation> operation in path.Value.Operations
-            )
+            foreach (KeyValuePair<HttpMethod, OpenApiOperation> operation in path.Value.Operations)
             {
                 RequestServiceFunction function = new()
                 {
@@ -76,10 +71,10 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 {
                     function.Name = operation.Key + "_" + path.Key.Split("/").LastOrDefault();
                 }
-                (function.RequestType, function.RequestRefType) = GetTypescriptParamType(
+                (function.RequestType, function.RequestRefType) = OpenApiHelper.GetParamType(
                     operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
                 );
-                (function.ResponseType, function.ResponseRefType) = GetTypescriptParamType(
+                (function.ResponseType, function.ResponseRefType) = OpenApiHelper.GetParamType(
                     operation
                         .Value.Responses.FirstOrDefault()
                         .Value?.Content.FirstOrDefault()
@@ -90,7 +85,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                     {
                         string? location = p.In?.GetDisplayName();
                         bool? inpath = location?.ToLower()?.Equals("path");
-                        (string type, string? _) = GetTypescriptParamType(p.Schema);
+                        (string type, string? _) = OpenApiHelper.GetParamType(p.Schema);
                         return new FunctionParams
                         {
                             Description = p.Description,
@@ -113,7 +108,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// </summary>
     /// <param name="tags"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GetServices(IList<OpenApiTag> tags)
+    public List<GenFileInfo> GetServices(ISet<OpenApiTag> tags)
     {
         if (TsModelFiles.Count == 0)
         {
@@ -189,7 +184,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     {
         TSModelGenerate tsGen = new(OpenApi);
         List<GenFileInfo> files = [];
-        foreach (KeyValuePair<string, OpenApiSchema> item in Schemas)
+        foreach (KeyValuePair<string, IOpenApiSchema> item in Schemas)
         {
             var file = tsGen.GenerateInterfaceFile(item.Key, item.Value);
             files.Add(file);
@@ -203,13 +198,13 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     }
 
     public static string GetEnumPipeContent(
-        IDictionary<string, OpenApiSchema> schemas,
+        IDictionary<string, IOpenApiSchema> schemas,
         bool isNgModule = false
     )
     {
         string tplContent = TplContent.EnumPipeTpl(isNgModule);
         string codeBlocks = "";
-        foreach (KeyValuePair<string, OpenApiSchema> item in schemas)
+        foreach (KeyValuePair<string, IOpenApiSchema> item in schemas)
         {
             if (item.Value.Enum.Count > 0)
             {
@@ -225,11 +220,11 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// enum function
     /// </summary>
     /// <returns></returns>
-    public static string GetEnumFunctionContent(IDictionary<string, OpenApiSchema> schemas)
+    public static string GetEnumFunctionContent(IDictionary<string, IOpenApiSchema> schemas)
     {
         var res = "";
         string codeBlocks = "";
-        foreach (KeyValuePair<string, OpenApiSchema> item in schemas)
+        foreach (KeyValuePair<string, IOpenApiSchema> item in schemas)
         {
             if (item.Value.Enum.Count > 0)
             {
@@ -250,7 +245,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         return res;
     }
 
-    public static string ToEnumSwitchString(string enumType, OpenApiSchema schema)
+    public static string ToEnumSwitchString(string enumType, IOpenApiSchema schema)
     {
         KeyValuePair<string, IOpenApiExtension> enumData = schema
             .Extensions.Where(e => e.Key == "x-enumData")
@@ -262,30 +257,33 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         }
 
         var caseStrings = "";
-        if (enumData.Value is OpenApiArray array)
-        {
-            if (array.Count == 0)
-            {
-                return string.Empty;
-            }
 
-            StringBuilder sb = new();
-            var whiteSpace = new string(' ', 12);
-            for (int i = 0; i < array.Count; i++)
+        if (enumData.Value is JsonNodeExtension extension)
+        {
+            if (extension.Node is JsonArray array)
             {
-                OpenApiObject item = (OpenApiObject)array[i];
-                var value = ((OpenApiInteger)item["value"]).Value;
-                var description = ((OpenApiString)item["description"]).Value;
-                string caseString = string.Format(
-                    "{0}case {1}: result = '{2}'; break;",
-                    whiteSpace,
-                    value,
-                    description
-                );
-                sb.AppendLine(caseString);
+                if (array.Count == 0)
+                {
+                    return string.Empty;
+                }
+                StringBuilder sb = new();
+                var whiteSpace = new string(' ', 12);
+                for (int i = 0; i < array.Count; i++)
+                {
+                    var item = array[i];
+                    var value = item["value"]?.GetValue<int>();
+                    var description = item["description"]?.GetValue<string>();
+                    string caseString = string.Format(
+                        "{0}case {1}: result = '{2}'; break;",
+                        whiteSpace,
+                        value,
+                        description
+                    );
+                    sb.AppendLine(caseString);
+                }
+                sb.Append($"{whiteSpace}default: result = '默认'; break;");
+                caseStrings = sb.ToString();
             }
-            sb.Append($"{whiteSpace}default: result = '默认'; break;");
-            caseStrings = sb.ToString();
         }
         return $$"""
                   case '{{enumType}}':
@@ -297,119 +295,6 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                     break;
 
             """;
-    }
-
-    /// <summary>
-    /// 解析参数及类型
-    /// </summary>
-    /// <param name="schema"></param>
-    /// <returns></returns>
-    public static (string type, string? refType) GetTypescriptParamType(OpenApiSchema? schema)
-    {
-        if (schema == null)
-        {
-            return (string.Empty, string.Empty);
-        }
-
-        string? type = "any";
-        string? refType = schema.Reference?.Id;
-        if (schema.Reference != null)
-        {
-            return (schema.Reference.Id, schema.Reference.Id);
-        }
-        // 常规类型
-        switch (schema.Type)
-        {
-            case JsonSchemaType.Boolean:
-                type = "boolean";
-                break;
-            case JsonSchemaType.Integer:
-            case JsonSchemaType.Number:
-                // 看是否为enum
-                if (schema.Enum.Count > 0)
-                {
-                    if (schema.Reference != null)
-                    {
-                        type = schema.Reference.Id;
-                        refType = schema.Reference.Id;
-                    }
-                }
-                else
-                {
-                    type = "number";
-                    refType = "number";
-                }
-                break;
-
-            case JsonSchemaType.String:
-                type = "string";
-                if (!string.IsNullOrWhiteSpace(schema.Format))
-                {
-                    type = schema.Format switch
-                    {
-                        "binary" => "FormData",
-                        "date-time" => "string",
-                        _ => "string",
-                    };
-                }
-                break;
-
-            case JsonSchemaType.Array:
-                if (schema.Items.Reference != null)
-                {
-                    refType = schema.Items.Reference.Id;
-                    type = refType + "[]";
-                }
-                else if (schema.Items.Type != null)
-                {
-                    // 基础类型处理
-                    var itemType = schema.Items.Type;
-                    refType = itemType switch
-                    {
-                        JsonSchemaType.Integer => "number",
-                        _ => itemType,
-                    };
-                    type = refType + "[]";
-                }
-                else if (schema.Items.OneOf?.FirstOrDefault()?.Reference != null)
-                {
-                    refType = schema.Items.OneOf?.FirstOrDefault()!.Reference.Id;
-                    type = refType + "[]";
-                }
-                break;
-            case JsonSchemaType.Object:
-                OpenApiSchema obj = schema.Properties.FirstOrDefault().Value;
-                if (obj != null)
-                {
-                    if (obj.Format == "binary")
-                    {
-                        type = "FormData";
-                    }
-                }
-                // TODO:object  字典
-                if (schema.AdditionalProperties != null)
-                {
-                    (string inType, string? inRefType) = GetTypescriptParamType(
-                        schema.AdditionalProperties
-                    );
-                    refType = inRefType;
-                    type = $"Map<string, {inType}>";
-                }
-                break;
-            case JsonSchemaType.Null:
-                type = "FormData";
-                break;
-            default:
-                break;
-        }
-        // 引用对象
-        if (schema.OneOf.Count > 0)
-        {
-            // 获取引用对象名称
-            type = schema.OneOf.First()?.Reference.Id ?? type;
-            refType = schema.OneOf.First()?.Reference.Id;
-        }
-        return (type, refType);
     }
 
     public string ToAxiosRequestService(RequestServiceFile serviceFile)

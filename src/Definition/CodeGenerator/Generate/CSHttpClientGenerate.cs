@@ -1,5 +1,4 @@
 using System.Data;
-using Microsoft.OpenApi;
 
 namespace CodeGenerator.Generate;
 
@@ -13,7 +12,8 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     /// </summary>
     protected OpenApiPaths PathsPairs { get; } = openApi.Paths;
     protected List<OpenApiTag> ApiTags { get; } = [.. openApi.Tags];
-    public IDictionary<string, OpenApiSchema> Schemas { get; set; } = openApi.Components.Schemas;
+    public IDictionary<string, OpenApiSchema> Schemas { get; set; } =
+        (IDictionary<string, OpenApiSchema>)openApi.Components.Schemas;
     public OpenApiDocument OpenApi { get; set; } = openApi;
 
     public static string GetBaseService(string namespaceName)
@@ -308,21 +308,22 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     Path = path.Key,
                     Tag = operation.Value.Tags.FirstOrDefault()?.Name,
                 };
-                (function.RequestType, function.RequestRefType) = GetCsharpParamType(
+                (function.RequestType, function.RequestRefType) = OpenApiHelper.GetCsharpParamType(
                     operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
                 );
-                (function.ResponseType, function.ResponseRefType) = GetCsharpParamType(
-                    operation
-                        .Value.Responses.FirstOrDefault()
-                        .Value?.Content.FirstOrDefault()
-                        .Value?.Schema
-                );
+                (function.ResponseType, function.ResponseRefType) =
+                    OpenApiHelper.GetCsharpParamType(
+                        operation
+                            .Value.Responses.FirstOrDefault()
+                            .Value?.Content.FirstOrDefault()
+                            .Value?.Schema
+                    );
                 function.Params = operation
                     .Value.Parameters?.Select(p =>
                     {
                         string? location = p.In?.GetDisplayName();
                         bool? inpath = location?.ToLower()?.Equals("path");
-                        (string type, string? _) = GetCsharpParamType(p.Schema);
+                        (string type, string? _) = OpenApiHelper.GetCsharpParamType(p.Schema);
                         return new FunctionParams
                         {
                             Description = p.Description,
@@ -338,123 +339,5 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
             }
         }
         return functions;
-    }
-
-    /// <summary>
-    /// 获取C#参数类型
-    /// </summary>
-    /// <param name="schema"></param>
-    /// <returns></returns>
-    public static (string type, string? refType) GetCsharpParamType(IOpenApiSchema? schema)
-    {
-        if (schema == null)
-        {
-            return (string.Empty, string.Empty);
-        }
-
-        string? type = "object";
-        string? refType = schema.Reference?.Id;
-        if (schema.Reference != null)
-        {
-            return (schema.Reference.Id, schema.Reference.Id);
-        }
-        // 常规类型
-        switch (schema.Type)
-        {
-            case JsonSchemaType.Boolean:
-                type = "bool";
-                break;
-            case JsonSchemaType.Integer:
-                // 看是否为enum
-                if (schema.Enum.Count > 0)
-                {
-                    if (schema.Reference != null)
-                    {
-                        type = schema.Reference.Id;
-                        refType = schema.Reference.Id;
-                    }
-                }
-                else
-                {
-                    type = schema.Format switch
-                    {
-                        "int32" => "int",
-                        "int64" => "long",
-                        _ => "int",
-                    };
-                    refType = type;
-                }
-                break;
-
-            case JsonSchemaType.String:
-                type = schema.Format switch
-                {
-                    "binary" => "IFile",
-                    "date-time" => "DateTimeOffset",
-                    "uuid" => "Guid",
-                    "date" => "DateOnly",
-                    _ => "string",
-                };
-                break;
-
-            case JsonSchemaType.Array:
-                if (schema.Items.Reference != null)
-                {
-                    refType = schema.Items.Reference.Id;
-                    type = $"List<{refType}>";
-                }
-                else if (schema.Items.Type != null)
-                {
-                    // 基础类型处理
-                    var itemType = schema.Items.Type;
-                    refType = itemType switch
-                    {
-                        JsonSchemaType.Integer => "int",
-                        _ => itemType,
-                    };
-                    type = $"List<{refType}>";
-                }
-                else if (schema.Items.OneOf?.FirstOrDefault()?.Reference != null)
-                {
-                    refType = schema.Items.OneOf?.FirstOrDefault()!.Reference.Id;
-                    type = $"List<{refType}>";
-                }
-                break;
-
-            case JsonSchemaType.Object:
-                OpenApiSchema obj = schema.Properties.FirstOrDefault().Value;
-                if (obj != null)
-                {
-                    if (obj.Format == "binary")
-                    {
-                        type = "IFile";
-                    }
-                }
-
-                // TODO:object  字典
-                if (schema.AdditionalProperties != null)
-                {
-                    (string inType, string? inRefType) = GetCsharpParamType(
-                        schema.AdditionalProperties
-                    );
-                    refType = inRefType;
-                    type = $"Dictionary<string, {inType}>";
-                }
-                break;
-
-            //case JsonSchemaType.Null:
-            //    type = "IFile";
-            //    break;
-            default:
-                break;
-        }
-        // 引用对象
-        if (schema.OneOf.Count > 0)
-        {
-            // 获取引用对象名称
-            type = schema.OneOf.First()?.Reference.Id ?? type;
-            refType = schema.OneOf.First()?.Reference.Id;
-        }
-        return (type, refType);
     }
 }

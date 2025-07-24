@@ -1,4 +1,4 @@
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi;
 using Share.Services;
 
 namespace CodeGenerator.Test;
@@ -16,14 +16,14 @@ public class FunctionTest
     }
 
     [Fact]
-    public void Should_parse_openApi()
+    public async Task Should_parse_openApiAsync()
     {
         string filePath = PathHelper.GetProjectFilePath(@"Data\openapi.json");
         string openApiContent = File.ReadAllText(filePath);
         // 过滤特殊符号
         openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(filePath);
         var helper = new OpenApiService(apiDocument);
         var apis = helper.RestApiGroups;
         Assert.NotNull(helper.RestApiGroups);
