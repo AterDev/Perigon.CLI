@@ -3,8 +3,6 @@ using AterStudio.Components.Pages;
 using AterStudio.Worker;
 using Share.Services;
 
-//TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddSimpleConsole(options =>

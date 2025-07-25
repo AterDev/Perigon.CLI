@@ -1,6 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
 using AterStudio.Components;
 
 namespace AterStudio;
@@ -15,44 +12,16 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddMiddlewareServices(this WebApplicationBuilder builder)
     {
         builder.Services.ConfigureWebMiddleware(builder.Configuration);
-
-        builder
-            .Services.AddControllers()
-            .ConfigureApiBehaviorOptions(o =>
-            {
-                o.InvalidModelStateResponseFactory = context =>
-                {
-                    return new CustomBadRequest(context, null);
-                };
-            })
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-                options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-                options.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-            });
         return builder.Services;
     }
 
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
-        // 异常统一处理
-        app.UseExceptionHandler(ExceptionHandler.Handler());
-        app.UseCors(WebConst.Default);
-        app.MapOpenApi();
-
         app.UseStaticFiles();
-        app.UseRouting();
-        app.UseAuthentication();
-        app.UseAuthorization();
-
         app.UseAntiforgery();
         app.MapStaticAssets();
-        app.MapControllers();
         app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
-        app.MapFallbackToFile("index.html");
         return app;
     }
 
@@ -67,15 +36,7 @@ public static class ServiceCollectionExtension
         IConfiguration configuration
     )
     {
-        services.AddOpenApi(
-            "admin",
-            options =>
-            {
-                //options.AddSchemaTransformer<EnumOpenApiTransformer>();
-            }
-        );
         services.AddLocalizer();
-
         return services;
     }
 
