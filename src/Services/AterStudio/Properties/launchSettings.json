@@ -1,33 +1,11 @@
-﻿{
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:2929",
-      "sslPort": 44336
-    }
-  },
+{
   "profiles": {
-    "Watc Run": {
-      "commandName": "Executable",
-      "executablePath": "dotnet",
-      "commandLineArgs": "watch run",
-      "workingDirectory": "."
-    },
-    "AterStudio": {
+    "https": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5278",
+      "applicationUrl": "https://localhost:5278",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       }
     }
   }

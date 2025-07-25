@@ -1,5 +1,4 @@
 using Ater.Common.Models;
-using Share.Implement;
 using SystemMod.Models.SystemRoleDtos;
 
 namespace AdminService.Controllers;
@@ -14,7 +13,7 @@ public class SystemRoleController(
     UserContext user,
     ILogger<SystemRoleController> logger,
     SystemRoleManager manager
-) : AdminControllerBase<SystemRoleManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemRoleManager>(localizer, manager, user, logger)
 {
     /// <summary>
     /// 筛选 ✅

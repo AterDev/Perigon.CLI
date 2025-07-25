@@ -22,7 +22,7 @@ public class SystemUserController(
     EmailManager emailManager,
     SystemLogService logService,
     SystemRoleManager roleManager
-) : AdminControllerBase<SystemUserManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;

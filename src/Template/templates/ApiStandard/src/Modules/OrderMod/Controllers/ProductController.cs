@@ -1,5 +1,6 @@
 using OrderMod.Models.ProductDtos;
 using Share.Implement;
+
 namespace OrderMod.Controllers;
 
 /// <summary>
@@ -11,9 +12,8 @@ public class ProductController(
     UserContext user,
     ILogger<ProductController> logger,
     ProductManager manager
-        ) : ClientControllerBase<ProductManager>(localizer, manager, user, logger)
+) : RestControllerBase<ProductManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 产品列表 ✅
     /// </summary>

@@ -1,7 +1,4 @@
 using Ater.Common.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Share.Implement;
 using SystemMod.Models.SystemMenuDtos;
 
 namespace AdminService.Controllers;
@@ -17,7 +14,7 @@ public class SystemMenuController(
     ILogger<SystemMenuController> logger,
     IWebHostEnvironment env,
     SystemMenuManager manager
-) : AdminControllerBase<SystemMenuManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemMenuManager>(localizer, manager, user, logger)
 {
     private readonly IWebHostEnvironment _env = env;
 

@@ -1,6 +1,7 @@
 using Ater.Common.Models;
 using FileManagerMod.Models.FileDataDtos;
 using Share.Implement;
+
 namespace FileManagerMod.Controllers;
 
 /// <summary>
@@ -12,9 +13,8 @@ public class FileDataController(
     UserContext user,
     ILogger<FileDataController> logger,
     FileDataManager manager
-        ) : ClientControllerBase<FileDataManager>(localizer, manager, user, logger)
+) : RestControllerBase<FileDataManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>
@@ -73,8 +73,16 @@ public class FileDataController(
         }
 
         var contentType = "application/octet-stream;charset=utf-8";
-        string encodedFileName = System.Web.HttpUtility.UrlEncode(res.FileName, System.Text.Encoding.UTF8);
-        Response.Headers.Append(new KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>("Content-Disposition", $"attachment; filename={encodedFileName}"));
+        string encodedFileName = System.Web.HttpUtility.UrlEncode(
+            res.FileName,
+            System.Text.Encoding.UTF8
+        );
+        Response.Headers.Append(
+            new KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>(
+                "Content-Disposition",
+                $"attachment; filename={encodedFileName}"
+            )
+        );
         return new FileContentResult(res.Content, contentType);
     }
 

@@ -10,7 +10,7 @@ public class SystemPermissionGroupController(
     UserContext user,
     ILogger<SystemPermissionGroupController> logger,
     SystemPermissionGroupManager manager
-) : AdminControllerBase<SystemPermissionGroupManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemPermissionGroupManager>(localizer, manager, user, logger)
 {
     /// <summary>
     /// 筛选 ✅

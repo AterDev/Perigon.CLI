@@ -385,8 +385,7 @@ export class EnumTextPipeModule { }
 
     public static string ServiceLaunchSettingsTpl(string serviceName)
     {
-        var httpPort = Random.Shared.Next(5000, 5300);
-        var httpsPort = Random.Shared.Next(7000, 7300);
+        var httpsPort = Random.Shared.Next(7100, 8000);
 
         return $$"""
             {
@@ -394,9 +393,9 @@ export class EnumTextPipeModule { }
               "profiles": {
                 "{{serviceName}}": {
                   "commandName": "Project",
-                  "launchBrowser": true,
-                  "launchUrl": "openapi/admin.json",
-                  "applicationUrl": "http://localhost:{{httpPort}};https://localhost:{{httpsPort}}",
+                  "launchBrowser": false,
+                  "launchUrl": "openapi/v1.json",
+                  "applicationUrl": "https://localhost:{{httpsPort}}",
                   "environmentVariables": {
                     "ASPNETCORE_ENVIRONMENT": "Development"
                   }

@@ -9,14 +9,14 @@
     }
   },
   "profiles": {
-    "Http.API": {
+    "https": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "openapi/admin.json",
+      "launchUrl": "openapi/v1.json",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5002;https://localhost:15002"
+      "applicationUrl": "https://localhost:7000"
     },
     "Docker": {
       "commandName": "Docker",

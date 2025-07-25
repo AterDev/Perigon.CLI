@@ -1,6 +1,7 @@
 using OrderMod.Models.OrderDtos;
 using Share;
 using Share.Implement;
+
 namespace OrderMod.Controllers;
 
 /// <summary>
@@ -11,9 +12,9 @@ public class OrderController(
     Localizer localizer,
     UserContext user,
     ILogger<OrderController> logger,
-    OrderManager manager) : ClientControllerBase<OrderManager>(localizer, manager, user, logger)
+    OrderManager manager
+) : RestControllerBase<OrderManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 订单列表 ✅
     /// </summary>

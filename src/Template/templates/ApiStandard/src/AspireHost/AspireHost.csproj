@@ -1,24 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0" />
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <UserSecretsId>a56db14e-ae84-4411-a0ab-6e8f2896f1c2</UserSecretsId>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.0" />
-        <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.0" />
-        <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.3.0" />
-        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
-      <ProjectReference Include="..\Services\Http.API\Http.API.csproj" />
-      <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />
-    </ItemGroup>
-
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.3.0" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>a56db14e-ae84-4411-a0ab-6e8f2896f1c2</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.3.2" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
+    <ProjectReference Include="..\Services\Http.API\Http.API.csproj" />
+    <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />
+  </ItemGroup>
 </Project>

@@ -24,19 +24,14 @@ var cache = builder
 #endregion
 
 
-builder
-    .AddProject<Projects.Http_API>("http-api")
-    .WithExternalHttpEndpoints()
+var migration = builder
+    .AddProject<Projects.MigrationService>("migrationservice")
     .WithReference(devDb)
     .WaitFor(devDb)
     .WithReference(cache)
     .WaitFor(cache);
 
-builder
-    .AddProject<Projects.MigrationService>("migrationservice")
-    .WaitFor(devDb)
-    .WithReference(devDb);
-
-builder.AddProject<Projects.AdminService>("adminservice");
+builder.AddProject<Projects.Http_API>("http-api").WaitFor(migration);
+builder.AddProject<Projects.AdminService>("adminservice").WaitFor(migration);
 
 builder.Build().Run();

@@ -1,6 +1,4 @@
 using Ater.Common.Models;
-using Share;
-using Share.Implement;
 using SystemMod.Models.SystemLogsDtos;
 
 namespace AdminService.Controllers;
@@ -14,7 +12,7 @@ public class SystemLogsController(
     UserContext user,
     ILogger<SystemLogsController> logger,
     SystemLogsManager manager
-) : AdminControllerBase<SystemLogsManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemLogsManager>(localizer, manager, user, logger)
 {
     /// <summary>
     /// 筛选 ✅

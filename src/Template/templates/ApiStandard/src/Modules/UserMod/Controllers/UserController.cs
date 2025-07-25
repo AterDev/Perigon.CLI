@@ -17,7 +17,8 @@ public class UserController(
     CacheService cache,
     JwtService jwtService,
     EmailManager emailManager,
-    IConfiguration config) : ClientControllerBase<UserManager>(localizer, manager, user, logger)
+    IConfiguration config
+) : RestControllerBase<UserManager>(localizer, manager, user, logger)
 {
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
@@ -147,8 +148,16 @@ public class UserController(
             var refreshToken = JwtService.GetRefreshToken();
 
             // 缓存
-            await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, jwtService.ExpiredSecond);
-            await _cache.SetValueAsync(refreshToken, user.Id.ToString(), jwtService.RefreshExpiredSecond);
+            await _cache.SetValueAsync(
+                WebConst.LoginCachePrefix + user.Id.ToString(),
+                true,
+                jwtService.ExpiredSecond
+            );
+            await _cache.SetValueAsync(
+                refreshToken,
+                user.Id.ToString(),
+                jwtService.RefreshExpiredSecond
+            );
 
             return new LoginResult
             {
@@ -157,7 +166,7 @@ public class UserController(
                 AccessToken = token,
                 ExpiresIn = jwtService.ExpiredSecond,
                 RefreshToken = refreshToken,
-                Username = user.UserName
+                Username = user.UserName,
             };
         }
         else
@@ -192,8 +201,16 @@ public class UserController(
         var newRefreshToken = JwtService.GetRefreshToken();
 
         // 缓存
-        await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, jwtService.ExpiredSecond);
-        await _cache.SetValueAsync(newRefreshToken, user.Id.ToString(), jwtService.RefreshExpiredSecond);
+        await _cache.SetValueAsync(
+            WebConst.LoginCachePrefix + user.Id.ToString(),
+            true,
+            jwtService.ExpiredSecond
+        );
+        await _cache.SetValueAsync(
+            newRefreshToken,
+            user.Id.ToString(),
+            jwtService.RefreshExpiredSecond
+        );
         return new AccessTokenDto
         {
             AccessToken = token,
@@ -261,7 +278,8 @@ public class UserController(
     public async Task<ActionResult<bool?>> GetDetailAsync()
     {
         User? res = await _manager.FindAsync(_user.UserId);
-        return res == null ? NotFound(ErrorKeys.NotFoundResource)
+        return res == null
+            ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.DeleteAsync([_user.UserId], true);
     }
 }

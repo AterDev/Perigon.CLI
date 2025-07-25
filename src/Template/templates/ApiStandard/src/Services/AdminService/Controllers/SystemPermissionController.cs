@@ -14,7 +14,7 @@ public class SystemPermissionController(
     ILogger<SystemPermissionController> logger,
     SystemPermissionManager manager,
     SystemPermissionGroupManager systemPermissionGroupManager
-) : AdminControllerBase<SystemPermissionManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemPermissionManager>(localizer, manager, user, logger)
 {
     private readonly SystemPermissionGroupManager _systemPermissionGroupManager =
         systemPermissionGroupManager;

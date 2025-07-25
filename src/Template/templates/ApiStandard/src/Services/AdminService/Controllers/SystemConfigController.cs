@@ -1,6 +1,4 @@
 using Ater.Common.Models;
-using Ater.Common.Utils;
-using Share.Implement;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace AdminService.Controllers;
@@ -14,7 +12,7 @@ public class SystemConfigController(
     UserContext user,
     ILogger<SystemConfigController> logger,
     SystemConfigManager manager
-) : AdminControllerBase<SystemConfigManager>(localizer, manager, user, logger)
+) : RestControllerBase<SystemConfigManager>(localizer, manager, user, logger)
 {
     /// <summary>
     /// 获取配置列表 ✅
