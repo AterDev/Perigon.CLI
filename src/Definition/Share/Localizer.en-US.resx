@@ -501,4 +501,7 @@
   <data name="EntityFramework" xml:space="preserve">
     <value>EntityFramework</value>
   </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
 </root>

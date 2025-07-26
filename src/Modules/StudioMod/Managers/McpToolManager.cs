@@ -9,7 +9,7 @@ public class McpToolManager(DataAccessContext<McpTool> dataContext, ILogger<McpT
     /// <returns></returns>
     public async Task<List<McpTool>> ListAsync()
     {
-        var tools = await Query.ToListAsync();
+        var tools = await ToListAsync();
         return tools;
     }
 }

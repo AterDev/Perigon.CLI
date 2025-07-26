@@ -6,57 +6,58 @@
 @page "/codegen/mcp"
 @inherits PageBase
 
-<PageTitle>MCP工具管理</PageTitle>
+<PageTitle>@Lang(Localizer.MCP, Localizer.Tools)@Lang(Localizer.List)</PageTitle>
 
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="8">
-    <FluentToolbar Class="w-100">
-        <FluentStack Orientation="Orientation.Horizontal"
-                     HorizontalAlignment="HorizontalAlignment.SpaceBetween"
-                     VerticalAlignment="VerticalAlignment.Center">
-            <FluentLabel Typo="Typography.Subject">MCP工具列表</FluentLabel>
-            <FluentStack Orientation="Orientation.Horizontal">
-                <FluentButton Appearance="Appearance.Accent"
-                              IconStart="@(new Icons.Regular.Size24.Add())"
-                              OnClick="OpenAddDialog">
-                    新增工具
-                </FluentButton>
-                <FluentButton Appearance="Appearance.Stealth"
-                              IconStart="@(new Icons.Regular.Size24.ArrowSync())"
-                              OnClick="LoadMcpTools">
-                    刷新
-                </FluentButton>
-            </FluentStack>
-        </FluentStack>
-    </FluentToolbar>
+  <FluentToolbar Class="w-100 bg-bottom-2">
+    <FluentStack Orientation="Orientation.Horizontal"
+                 HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                 VerticalAlignment="VerticalAlignment.Center">
 
-    <FluentDataGrid Class="w-100"
-                    Items="@McpTools.AsQueryable()"
-                    RowSize="DataGridRowSize.Medium"
-                    AutoFit="true"
-                    @bind-SelectedItem="SelectedMcpTool">
-        <PropertyColumn Property="@(t => t.Name)" Title="名称" />
-        <PropertyColumn Property="@(t => t.Description)" Title="描述" />
-        <PropertyColumn Property="@(t => t.PromptPath)" Title="Prompt路径" />
-        <TemplateColumn Title="模板路径">
-            @string.Join(", ", context.TemplatePaths ?? Array.Empty<string>())
-        </TemplateColumn>
-        <TemplateColumn Title="操作" Align="Align.Start">
-            <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
-                <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(() => OpenEditDialog(context))"
-                              IconStart="@(new Icons.Regular.Size20.Edit())"
-                              Title="编辑" />
-                <FluentButton Appearance="Appearance.Stealth"
-                              OnClick="@(() => DeleteMcpTool(context))"
-                              IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
-                              Title="删除" />
-            </FluentStack>
-        </TemplateColumn>
-    </FluentDataGrid>
+      <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentLabel Typo="Typography.Subject">
+          @Lang(Localizer.MCP, Localizer.List)
+        </FluentLabel>
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Horizontal"
+                   HorizontalAlignment="HorizontalAlignment.Right"
+                   VerticalAlignment="VerticalAlignment.Center">
+        <FluentButton Appearance="Appearance.Stealth"
+                      IconStart="@(new Icons.Regular.Size24.Add())"
+                      Title="@Lang(Localizer.Add,Localizer.Tools)"
+                      OnClick="OpenAddDialogAsync">
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Stealth"
+                      Title="@Lang(Localizer.Refresh)"
+                      IconStart="@(new Icons.Regular.Size24.ArrowSync())"
+                      OnClick="LoadMcpToolsAsync">
+        </FluentButton>
+      </FluentStack>
+    </FluentStack>
+  </FluentToolbar>
+
+  <FluentDataGrid Class="w-100"
+                  Items="@McpTools.AsQueryable()"
+                  RowSize="DataGridRowSize.Medium"
+                  @bind-SelectedItem="SelectedMcpTool">
+    <PropertyColumn Property="@(t => t.Name)" Title="@Lang(Localizer.Name)" />
+    <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Name)" />
+    <PropertyColumn Property="@(t => t.PromptPath)" Title="@Lang(Localizer.Prompt, Localizer.Path)" />
+    <TemplateColumn Title="@Lang(Localizer.Template, Localizer.Path)">
+      @string.Join(", ", context.TemplatePaths ?? Array.Empty<string>())
+    </TemplateColumn>
+    <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+      <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+        <FluentButton Appearance="Appearance.Stealth"
+                      OnClick="@(() => OpenEditDialogAsync(context))"
+                      IconStart="@(new Icons.Regular.Size20.Edit())"
+                      Title="@Lang(Localizer.Edit)" />
+        <FluentButton Appearance="Appearance.Stealth"
+                      OnClick="@(() => DeleteMcpTool(context))"
+                      IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
+                      Title="@Lang(Localizer.Delete)" />
+      </FluentStack>
+    </TemplateColumn>
+  </FluentDataGrid>
 </FluentStack>
-
-<FluentDialog @bind-Hidden="DialogHidden"
-              Style="--dialog-width:500px"
-              Modal="true">
-    <UpsertMcpToolDialog Content="DialogContent" OnSaved="OnDialogSaved" />
-</FluentDialog>

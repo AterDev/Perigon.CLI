@@ -20,41 +20,45 @@ public partial class MCP
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadMcpTools();
+        await LoadMcpToolsAsync();
     }
 
-    private async Task LoadMcpTools()
+    private async Task LoadMcpToolsAsync()
     {
         McpTools = await McpToolManager.ListAsync();
+
+        Console.WriteLine(ToJson(McpTools));
         SelectedMcpTool = null;
         StateHasChanged();
     }
 
-    private void OpenAddDialog()
+    private async Task OpenAddDialogAsync()
     {
-        DialogContent = new McpTool
+        var dialog = await DialogService.ShowDialogAsync<UpsertMcpToolDialog>(
+            new DialogParameters { Width = "400px", Modal = false }
+        );
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
         {
-            Name = string.Empty,
-            Description = string.Empty,
-            PromptPath = string.Empty,
-        };
-        DialogHidden = false;
+            ToastService.ShowSuccess(Lang(Localizer.Add, Localizer.Success));
+            await LoadMcpToolsAsync();
+        }
     }
 
-    private void OpenEditDialog(McpTool tool)
+    private async Task OpenEditDialogAsync(McpTool tool)
     {
-        DialogContent = new McpTool
+        var dialog = await DialogService.ShowDialogAsync<UpsertMcpToolDialog>(
+            tool,
+            new DialogParameters { Width = "400px", Modal = false }
+        );
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
         {
-            Id = tool.Id,
-            Name = tool.Name,
-            Description = tool.Description,
-            PromptPath = tool.PromptPath,
-            TemplatePaths = tool.TemplatePaths?.ToArray() ?? [],
-            CreatedTime = tool.CreatedTime,
-            UpdatedTime = tool.UpdatedTime,
-            IsDeleted = tool.IsDeleted,
-        };
-        DialogHidden = false;
+            ToastService.ShowSuccess(Lang(Localizer.Edit, Localizer.Success));
+            await LoadMcpToolsAsync();
+        }
     }
 
     private async Task DeleteMcpTool(McpTool tool)
@@ -69,7 +73,7 @@ public partial class MCP
         if (!result.Cancelled)
         {
             await McpToolManager.DeleteAsync([tool.Id], false);
-            await LoadMcpTools();
+            await LoadMcpToolsAsync();
             ToastService.ShowSuccess("删除成功");
         }
     }
@@ -79,7 +83,7 @@ public partial class MCP
         DialogHidden = true;
         if (saved)
         {
-            await LoadMcpTools();
+            await LoadMcpToolsAsync();
             ToastService.ShowSuccess("保存成功");
         }
     }
