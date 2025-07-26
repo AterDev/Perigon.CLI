@@ -40,12 +40,29 @@
   <FluentDataGrid Class="w-100"
                   Items="@McpTools.AsQueryable()"
                   RowSize="DataGridRowSize.Medium"
+                  MultiLine="true"
                   @bind-SelectedItem="SelectedMcpTool">
     <PropertyColumn Property="@(t => t.Name)" Title="@Lang(Localizer.Name)" />
     <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Name)" />
-    <PropertyColumn Property="@(t => t.PromptPath)" Title="@Lang(Localizer.Prompt, Localizer.Path)" />
+
+    <TemplateColumn Title="@Lang(Localizer.Prompt, Localizer.Path)">
+      <div class="flex items-center">
+        @context.PromptPath.Replace(ProjectContext.SolutionPath ?? "", "")
+      </div>
+    </TemplateColumn>
+
     <TemplateColumn Title="@Lang(Localizer.Template, Localizer.Path)">
-      @string.Join(", ", context.TemplatePaths ?? Array.Empty<string>())
+      <div class="flex items-center">
+        @if (context.TemplatePaths.Count() > 0)
+        {
+          foreach (var item in context.TemplatePaths)
+          {
+            <span>@item.Replace(ProjectContext.SolutionPath ?? "", "") </span>
+            <br>
+          }
+        }
+      </div>
+
     </TemplateColumn>
     <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
       <FluentStack HorizontalAlignment="HorizontalAlignment.Start">

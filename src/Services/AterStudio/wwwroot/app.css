@@ -203,3 +203,8 @@ fluent-card:hover .delete-action {
         line-height: 24px;
         border: 1px solid gray;
     }
+
+
+.fluent-data-grid-row .multiline-text {
+    align-content: center !important;
+}

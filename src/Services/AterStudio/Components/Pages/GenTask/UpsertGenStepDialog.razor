@@ -50,7 +50,7 @@
         <FluentLabel Typo="Typography.Body"
                      Color="Color.Neutral"
                      Class="mt-1">
-          Support @Lang(Localizer.Variable): <span>@@{ModelName}或@@{ModelNameHyphen}</span>
+          Support @Lang(Localizer.Variable): <span>@@{ModelName} or @@{ModelNameHyphen}</span>
         </FluentLabel>
       </FluentStack>
 
@@ -87,7 +87,6 @@
   GenStep Model { get; set; } = new() { Name = string.Empty, OutputPath = "src/" };
 
   List<DataFile> Templates { get; set; } = [];
-  List<DataFile> FilteredTemplates { get; set; } = [];
 
   DataFile? SelectedTemplate { get; set; }
 

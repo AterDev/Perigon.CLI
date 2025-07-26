@@ -26,8 +26,6 @@ public partial class MCP
     private async Task LoadMcpToolsAsync()
     {
         McpTools = await McpToolManager.ListAsync();
-
-        Console.WriteLine(ToJson(McpTools));
         SelectedMcpTool = null;
         StateHasChanged();
     }
@@ -64,10 +62,10 @@ public partial class MCP
     private async Task DeleteMcpTool(McpTool tool)
     {
         var dialog = await DialogService.ShowConfirmationAsync(
-            "删除MCP工具",
-            "确认",
-            "取消",
-            "确认要删除该工具吗？"
+            Lang(Localizer.ConfirmDeleteMessage),
+            Lang(Localizer.Confirm),
+            Lang(Localizer.Cancel),
+            Lang(Localizer.Delete, Localizer.Tools)
         );
         var result = await dialog.Result;
         if (!result.Cancelled)
