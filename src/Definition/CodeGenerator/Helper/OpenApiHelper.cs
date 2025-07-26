@@ -1,31 +1,9 @@
-using System.Collections.Frozen;
 using System.Text.Json.Nodes;
 
 namespace CodeGenerator.Helper;
 
 public class OpenApiHelper
 {
-    /// <summary>
-    /// 获取枚举扩展数据
-    /// </summary>
-    public static FrozenDictionary<string, int>? ParseEnumExtension(
-        KeyValuePair<string, IOpenApiExtension> extension
-    )
-    {
-        if (extension.Value != null)
-        {
-            var data = extension.Value as JsonNode as JsonArray;
-            if (data != null && data.Count > 0)
-            {
-                return data.ToFrozenDictionary(
-                    x => x!["name"]?.GetValue<string>() ?? "",
-                    x => x!["value"]?.GetValue<int>() ?? 0
-                );
-            }
-        }
-        return default;
-    }
-
     /// <summary>
     /// 获取转换成ts的类型
     /// </summary>
@@ -38,7 +16,7 @@ public class OpenApiHelper
                 type = "boolean";
                 break;
             case JsonSchemaType.Integer:
-                type = prop.Enum.Count > 0 ? prop.DynamicRef : "number";
+                type = prop.Enum?.Count > 0 ? prop.DynamicRef : "number";
                 break;
             case JsonSchemaType.Number:
                 type = "number";
@@ -61,7 +39,7 @@ public class OpenApiHelper
                 break;
             case JsonSchemaType.Array:
                 type =
-                    prop.Items.DynamicRef != null
+                    prop.Items?.DynamicRef != null
                         ? prop.Items.DynamicRef + "[]"
                         : ConvertToTypescriptType(prop.Items) + "[]";
                 break;
@@ -69,7 +47,7 @@ public class OpenApiHelper
                 type = prop.DynamicRef ?? "any";
                 break;
         }
-        if (prop.OneOf.Count > 0)
+        if (prop.OneOf?.Count > 0)
         {
             type = prop.OneOf.First()?.DynamicRef;
         }
@@ -101,7 +79,7 @@ public class OpenApiHelper
                 type = "boolean";
                 break;
             case JsonSchemaType.Integer:
-                if (schema.Enum.Count > 0)
+                if (schema.Enum?.Count > 0)
                 {
                     if (schema.DynamicRef != null)
                     {
@@ -131,7 +109,7 @@ public class OpenApiHelper
                 }
                 break;
             case JsonSchemaType.Array:
-                if (schema.Items.DynamicRef != null)
+                if (schema.Items?.DynamicRef != null)
                 {
                     refType = schema.Items.DynamicRef;
                     type = refType + "[]";
@@ -153,7 +131,7 @@ public class OpenApiHelper
                 }
                 break;
             case JsonSchemaType.Object:
-                if (schema.Properties.Count > 0)
+                if (schema.Properties?.Count > 0)
                 {
                     var obj = schema.Properties.FirstOrDefault().Value;
                     if (obj != null && obj.Format == "binary")
@@ -174,7 +152,7 @@ public class OpenApiHelper
             default:
                 break;
         }
-        if (schema.OneOf.Count > 0)
+        if (schema.OneOf?.Count > 0)
         {
             type = schema.OneOf.First()?.DynamicRef ?? type;
             refType = schema.OneOf.First()?.DynamicRef;
@@ -236,7 +214,7 @@ public class OpenApiHelper
             default:
                 break;
         }
-        if (schema.OneOf.Count > 0)
+        if (schema.OneOf?.Count > 0)
         {
             type = schema.OneOf.First()?.DynamicRef ?? type;
             refType = schema.OneOf.First()?.DynamicRef;
@@ -250,11 +228,11 @@ public class OpenApiHelper
     public static List<PropertyInfo> ParseProperties(IOpenApiSchema schema, bool forCsharp = false)
     {
         var properties = new List<PropertyInfo>();
-        if (schema.AllOf.Count > 1)
+        if (schema.AllOf?.Count > 1)
         {
             properties.AddRange(ParseProperties(schema.AllOf[1], forCsharp));
         }
-        if (schema.Properties.Count > 0)
+        if (schema.Properties?.Count > 0)
         {
             foreach (var prop in schema.Properties)
             {
@@ -267,7 +245,7 @@ public class OpenApiHelper
                 string? refType = forCsharp
                     ? GetCsharpParamType(prop.Value).refType
                     : prop.Value.DynamicRef;
-                bool isEnum = prop.Value.Enum.Count > 0;
+                bool isEnum = prop.Value.Enum?.Count > 0;
                 bool isList = prop.Value.Type == JsonSchemaType.Array;
                 properties.Add(
                     new PropertyInfo
@@ -291,14 +269,18 @@ public class OpenApiHelper
     public static List<PropertyInfo> GetEnumProperties(IOpenApiSchema schema)
     {
         var result = new List<PropertyInfo>();
-        var extEnumData = schema.Extensions.FirstOrDefault(e => e.Key == "x-enumData");
-        if (extEnumData.Value != null)
+        var extEnumData = schema.Extensions?.FirstOrDefault(e => e.Key == "x-enumData");
+        if (extEnumData.HasValue)
         {
-            var data = extEnumData.Value as JsonNodeExtension;
+            var data = extEnumData.Value.Value as JsonNodeExtension;
             if (data?.Node is JsonArray array)
             {
                 foreach (var item in array)
                 {
+                    if (item is not JsonObject itemObj)
+                    {
+                        continue;
+                    }
                     var name = item["name"]?.GetValue<string>() ?? string.Empty;
                     var value = item["value"]?.GetValue<int>() ?? 0;
                     var desc = item["description"]?.GetValue<string>();

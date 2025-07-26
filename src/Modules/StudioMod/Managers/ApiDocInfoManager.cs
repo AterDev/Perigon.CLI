@@ -54,22 +54,28 @@ public class ApiDocInfoManager(
     {
         ApiDocInfo? apiDocInfo = await GetCurrentAsync(id);
         string path = apiDocInfo!.Path;
-
-        var (apiDocument, _) = await OpenApiDocument.LoadAsync(path);
-
-        if (apiDocument == null)
+        try
         {
-            ErrorMsg = $"parse {path} faield!";
+            var (apiDocument, _) = await OpenApiDocument.LoadAsync(path);
+
+            if (apiDocument == null)
+            {
+                ErrorMsg = $"parse {path} faield!";
+                return null;
+            }
+            var helper = new OpenApiService(apiDocument);
+            return new ApiDocContent
+            {
+                TypeMeta = helper.ModelInfos,
+                OpenApiTags = helper.OpenApiTags,
+                RestApiGroups = helper.RestApiGroups,
+            };
+        }
+        catch (Exception ex)
+        {
+            ErrorMsg = ex.Message;
             return null;
         }
-
-        var helper = new OpenApiService(apiDocument);
-        return new ApiDocContent
-        {
-            TypeMeta = helper.ModelInfos,
-            OpenApiTags = helper.OpenApiTags,
-            RestApiGroups = helper.RestApiGroups,
-        };
     }
 
     /// <summary>

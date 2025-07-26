@@ -73,6 +73,10 @@ public partial class OpenApi
                 FilteredModelList = ModelList;
                 Tags = res?.OpenApiTags ?? [];
             }
+            else
+            {
+                ToastService.ShowError(_manager.ErrorMsg);
+            }
             if (CurrentApi is not null)
             {
                 CurrentApi = RestApiGroups

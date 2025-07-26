@@ -23,14 +23,15 @@ public class OpenApiService
     /// <summary>
     /// tag信息
     /// </summary>
-    public List<ApiDocTag> OpenApiTags { get; set; }
+    public List<ApiDocTag> OpenApiTags { get; set; } = [];
 
     public OpenApiService(OpenApiDocument openApi)
     {
         OpenApi = openApi;
-        OpenApiTags = openApi
-            .Tags.Select(s => new ApiDocTag { Name = s.Name, Description = s.Description })
-            .ToList();
+        OpenApiTags =
+            openApi
+                .Tags?.Select(s => new ApiDocTag { Name = s.Name, Description = s.Description })
+                .ToList() ?? [];
         ModelInfos = ParseModels();
         RestApiGroups = GetRestApiGroups();
     }
@@ -186,12 +187,16 @@ public class OpenApiService
     public List<TypeMeta> ParseModels()
     {
         List<TypeMeta> models = [];
+        if (OpenApi.Components?.Schemas == null)
+        {
+            return models;
+        }
 
         foreach (var schema in OpenApi.Components.Schemas)
         {
             string name = schema.Key;
-            string description =
-                schema.Value.AllOf.LastOrDefault()?.Description ?? schema.Value.Description;
+            string? description =
+                schema.Value.Description ?? schema.Value.AllOf?.LastOrDefault()?.Description;
             description = description?.Replace("\n", " ") ?? "";
             List<PropertyInfo> props = OpenApiHelper.ParseProperties(schema.Value);
 

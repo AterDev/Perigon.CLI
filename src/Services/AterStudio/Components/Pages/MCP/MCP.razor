@@ -46,9 +46,7 @@
     <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Name)" />
 
     <TemplateColumn Title="@Lang(Localizer.Prompt, Localizer.Path)">
-      <div class="flex items-center">
-        @context.PromptPath.Replace(ProjectContext.SolutionPath ?? "", "")
-      </div>
+      @context.PromptPath?.Replace(ProjectContext.SolutionPath ?? "", "")
     </TemplateColumn>
 
     <TemplateColumn Title="@Lang(Localizer.Template, Localizer.Path)">
