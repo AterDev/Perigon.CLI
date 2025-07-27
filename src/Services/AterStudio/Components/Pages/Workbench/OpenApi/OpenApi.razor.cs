@@ -87,11 +87,24 @@ public partial class OpenApi
         }
     }
 
+    private async Task OnDocSelectedAsync(ApiDocInfoItemDto doc)
+    {
+        IsLoading = true;
+        CurrentDoc = doc;
+        RestApiGroups.Clear();
+        ModelList.Clear();
+        FilteredModelList.Clear();
+        Tags.Clear();
+        CurrentApi = null;
+        await GetDocContentAsync(true);
+
+        IsLoading = false;
+    }
+
     private void SelectApi(RestApiInfo api)
     {
         CurrentApi = api;
-        // TODO: OperationId
-        SelectedNav = api.Router;
+        SelectedNav = api.OperationId ?? api.Router;
     }
 
     private void SelectModel(TypeMeta model)

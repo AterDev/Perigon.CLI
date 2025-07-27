@@ -30,7 +30,11 @@ public class OpenApiService
         OpenApi = openApi;
         OpenApiTags =
             openApi
-                .Tags?.Select(s => new ApiDocTag { Name = s.Name, Description = s.Description })
+                .Tags?.Select(s => new ApiDocTag
+                {
+                    Name = s.Name ?? "",
+                    Description = s.Description,
+                })
                 .ToList() ?? [];
         ModelInfos = ParseModels();
         RestApiGroups = GetRestApiGroups();
@@ -45,28 +49,31 @@ public class OpenApiService
         List<RestApiInfo> apiInfos = [];
         foreach (var path in OpenApi.Paths)
         {
-            foreach (KeyValuePair<HttpMethod, OpenApiOperation> operation in path.Value.Operations)
+            if (path.Value.Operations == null || !path.Value.Operations.Any())
+            {
+                continue;
+            }
+            foreach (var operation in path.Value.Operations)
             {
                 RestApiInfo apiInfo = new()
                 {
-                    Summary = operation.Value.Summary,
+                    Summary = operation.Value?.Summary,
                     HttpMethod = operation.Key,
-                    OperationId = operation.Value.OperationId,
+                    OperationId = operation.Value?.OperationId ?? operation.Key + path.Key,
                     Router = path.Key,
-                    Tag = operation.Value.Tags.FirstOrDefault()?.Name,
+                    Tag = operation.Value?.Tags?.FirstOrDefault()?.Name,
                 };
 
                 // 处理请求内容
-                OpenApiRequestBody requestBody = (OpenApiRequestBody)operation.Value.RequestBody;
-                IList<OpenApiParameter> requestParameters =
-                    (IList<OpenApiParameter>)operation.Value.Parameters;
-                OpenApiResponses responseBody = operation.Value.Responses;
+                var requestBody = operation.Value?.RequestBody;
+                var requestParameters = operation.Value?.Parameters;
+                var responseBody = operation.Value?.Responses;
 
                 // 请求类型
                 if (requestBody != null)
                 {
-                    (string RequestType, string? RequestRefType) = OpenApiHelper.GetParamType(
-                        requestBody.Content.Values.FirstOrDefault()?.Schema
+                    (string RequestType, string? RequestRefType) = OpenApiHelper.ParseParamTSType(
+                        requestBody.Content?.Values.FirstOrDefault()?.Schema
                     );
                     // 关联的类型
                     var model = ModelInfos.FirstOrDefault(m => m.Name == RequestRefType);
@@ -95,8 +102,8 @@ public class OpenApiService
                 // 响应类型
                 if (responseBody != null)
                 {
-                    (string ResponseType, string? ResponseRefType) = OpenApiHelper.GetParamType(
-                        responseBody.FirstOrDefault().Value?.Content.FirstOrDefault().Value?.Schema
+                    (string ResponseType, string? ResponseRefType) = OpenApiHelper.ParseParamTSType(
+                        responseBody.FirstOrDefault().Value?.Content?.FirstOrDefault().Value?.Schema
                     );
                     // 关联的类型
                     var model = ModelInfos.FirstOrDefault(m => m.Name == ResponseRefType);
@@ -134,11 +141,11 @@ public class OpenApiService
                         {
                             string? location = p.In?.GetDisplayName();
                             bool? inpath = location?.ToLower()?.Equals("path");
-                            (string type, string? _) = OpenApiHelper.GetParamType(p.Schema);
+                            (string type, string? _) = OpenApiHelper.ParseParamTSType(p.Schema);
                             return new PropertyInfo
                             {
                                 CommentSummary = p.Description,
-                                Name = p.Name,
+                                Name = p.Name ?? "",
                                 IsRequired = p.Required,
                                 Type = type,
                             };
@@ -198,7 +205,22 @@ public class OpenApiService
             string? description =
                 schema.Value.Description ?? schema.Value.AllOf?.LastOrDefault()?.Description;
             description = description?.Replace("\n", " ") ?? "";
-            List<PropertyInfo> props = OpenApiHelper.ParseProperties(schema.Value);
+            List<PropertyInfo> props = OpenApiHelper.ParseProperties(schema.Value, true);
+
+            // 处理Required内容
+            if (schema.Value.Required != null)
+            {
+                schema
+                    .Value.Required.ToList()
+                    .ForEach(required =>
+                    {
+                        var prop = props.FirstOrDefault(p => p.Name == required);
+                        if (prop != null)
+                        {
+                            prop.IsRequired = true;
+                        }
+                    });
+            }
 
             var model = new TypeMeta()
             {
@@ -208,7 +230,7 @@ public class OpenApiService
             };
             // 判断是否为枚举类
             var enumNode = schema.Value.Enum;
-            if (enumNode.Any())
+            if (enumNode?.Count > 0)
             {
                 model.IsEnum = true;
                 model.PropertyInfos = OpenApiHelper.GetEnumProperties(schema.Value);

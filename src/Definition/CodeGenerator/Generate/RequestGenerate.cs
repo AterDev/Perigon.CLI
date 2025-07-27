@@ -9,12 +9,12 @@ namespace CodeGenerator.Generate;
 public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 {
     protected OpenApiPaths PathsPairs { get; } = openApi.Paths;
-    protected List<OpenApiTag> ApiTags { get; } = [.. openApi.Tags];
-    public IDictionary<string, IOpenApiSchema> Schemas { get; set; } = openApi.Components.Schemas;
+    protected ISet<OpenApiTag>? ApiTags { get; } = openApi.Tags;
+    public IDictionary<string, IOpenApiSchema>? Schemas { get; set; } = openApi.Components?.Schemas;
     public OpenApiDocument OpenApi { get; set; } = openApi;
 
     public RequestClientType LibType { get; set; } = RequestClientType.NgHttp;
-    public string? Server { get; set; } = openApi.Servers.FirstOrDefault()?.Url;
+    public string? Server { get; set; } = openApi.Servers?.FirstOrDefault()?.Url;
 
     public List<GenFileInfo> TsModelFiles { get; set; } = [];
 
@@ -57,35 +57,39 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         // 处理所有方法
         foreach (var path in PathsPairs)
         {
-            foreach (KeyValuePair<HttpMethod, OpenApiOperation> operation in path.Value.Operations)
+            if (path.Value.Operations == null || !path.Value.Operations.Any())
+            {
+                continue;
+            }
+            foreach (var operation in path.Value.Operations)
             {
                 RequestServiceFunction function = new()
                 {
-                    Description = operation.Value.Summary,
+                    Description = operation.Value?.Summary,
                     Method = operation.Key.ToString(),
-                    Name = operation.Value.OperationId,
+                    Name = operation.Value?.OperationId ?? operation.Key.ToString() + path.Key,
                     Path = path.Key,
-                    Tag = operation.Value.Tags.FirstOrDefault()?.Name,
+                    Tag = operation.Value?.Tags?.FirstOrDefault()?.Name,
                 };
                 if (string.IsNullOrWhiteSpace(function.Name))
                 {
                     function.Name = operation.Key + "_" + path.Key.Split("/").LastOrDefault();
                 }
-                (function.RequestType, function.RequestRefType) = OpenApiHelper.GetParamType(
-                    operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
+                (function.RequestType, function.RequestRefType) = OpenApiHelper.ParseParamTSType(
+                    operation.Value?.RequestBody?.Content?.Values.FirstOrDefault()?.Schema
                 );
-                (function.ResponseType, function.ResponseRefType) = OpenApiHelper.GetParamType(
+                (function.ResponseType, function.ResponseRefType) = OpenApiHelper.ParseParamTSType(
                     operation
-                        .Value.Responses.FirstOrDefault()
-                        .Value?.Content.FirstOrDefault()
+                        .Value?.Responses?.FirstOrDefault()
+                        .Value?.Content?.FirstOrDefault()
                         .Value?.Schema
                 );
                 function.Params = operation
-                    .Value.Parameters?.Select(p =>
+                    .Value?.Parameters?.Select(p =>
                     {
                         string? location = p.In?.GetDisplayName();
                         bool? inpath = location?.ToLower()?.Equals("path");
-                        (string type, string? _) = OpenApiHelper.GetParamType(p.Schema);
+                        (string type, string? _) = OpenApiHelper.ParseParamTSType(p.Schema);
                         return new FunctionParams
                         {
                             Description = p.Description,
@@ -247,18 +251,16 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
     public static string ToEnumSwitchString(string enumType, IOpenApiSchema schema)
     {
-        KeyValuePair<string, IOpenApiExtension> enumData = schema
-            .Extensions.Where(e => e.Key == "x-enumData")
-            .FirstOrDefault();
+        var enumData = schema.Extensions?.Where(e => e.Key == "x-enumData").FirstOrDefault();
         // 过滤没有注释的内容
-        if (enumData.Value == null)
+        if (enumData?.Value == null)
         {
             return string.Empty;
         }
 
         var caseStrings = "";
 
-        if (enumData.Value is JsonNodeExtension extension)
+        if (enumData.Value.Value is JsonNodeExtension extension)
         {
             if (extension.Node is JsonArray array)
             {

@@ -59,24 +59,39 @@ public class OpenApiHelper
     }
 
     /// <summary>
-    /// 统一获取参数类型和引用类型（TypeScript风格）
+    /// parse params type
     /// </summary>
-    public static (string type, string? refType) GetParamType(IOpenApiSchema? schema)
+    /// <param name="schema"></param>
+    /// <returns>
+    /// <![CDATA[type is full type name,like: List<Type>,Map<string, Type>]]>,
+    /// refType is the reference type name,like: Type
+    /// </returns>
+    public static (string type, string? refType) ParseParamTSType(IOpenApiSchema? schema)
     {
         if (schema == null)
         {
             return (string.Empty, string.Empty);
         }
         string type = "any";
-        string? refType = schema.DynamicRef;
-        if (schema.DynamicRef != null)
+        string? refType = "any";
+        if (schema is OpenApiSchemaReference reference)
         {
-            return (schema.DynamicRef, schema.DynamicRef);
+            return (reference.Reference.Id ?? "any", reference.Reference.Id);
         }
-        switch (schema.Type)
+        if (schema.Type == JsonSchemaType.Null)
+        {
+            return (type, refType);
+        }
+        var removeNullType = schema.Type.GetValueOrDefault();
+        if (removeNullType.HasFlag(JsonSchemaType.Null))
+        {
+            // remove null type
+            removeNullType &= ~JsonSchemaType.Null;
+        }
+        switch (removeNullType)
         {
             case JsonSchemaType.Boolean:
-                type = "boolean";
+                refType = type = "boolean";
                 break;
             case JsonSchemaType.Integer:
                 if (schema.Enum?.Count > 0)
@@ -89,18 +104,17 @@ public class OpenApiHelper
                 }
                 else
                 {
-                    type = "number";
-                    refType = "number";
+                    refType = type = "number";
                 }
                 break;
             case JsonSchemaType.Number:
-                type = "number";
+                refType = type = "number";
                 break;
             case JsonSchemaType.String:
-                type = "string";
+                type = refType = "string";
                 if (!string.IsNullOrWhiteSpace(schema.Format))
                 {
-                    type = schema.Format switch
+                    refType = type = schema.Format switch
                     {
                         "binary" => "FormData",
                         "date-time" => "string",
@@ -109,12 +123,12 @@ public class OpenApiHelper
                 }
                 break;
             case JsonSchemaType.Array:
-                if (schema.Items?.DynamicRef != null)
+                if (schema.Items is OpenApiSchemaReference enumReference)
                 {
-                    refType = schema.Items.DynamicRef;
+                    refType = enumReference.Reference.Id ?? "any";
                     type = refType + "[]";
                 }
-                else if (schema.Items.Type != null)
+                else if (schema.Items?.Type != null)
                 {
                     var itemType = schema.Items.Type;
                     refType = itemType switch
@@ -124,7 +138,7 @@ public class OpenApiHelper
                     };
                     type = refType + "[]";
                 }
-                else if (schema.Items.OneOf?.FirstOrDefault()?.DynamicRef != null)
+                else if (schema.Items?.OneOf?.FirstOrDefault()?.DynamicRef != null)
                 {
                     refType = schema.Items.OneOf?.FirstOrDefault()!.DynamicRef;
                     type = refType + "[]";
@@ -136,18 +150,17 @@ public class OpenApiHelper
                     var obj = schema.Properties.FirstOrDefault().Value;
                     if (obj != null && obj.Format == "binary")
                     {
-                        type = "FormData";
+                        type = refType = "FormData";
                     }
                 }
                 if (schema.AdditionalProperties != null)
                 {
-                    (string inType, string? inRefType) = GetParamType(schema.AdditionalProperties);
+                    (string inType, string? inRefType) = ParseParamTSType(
+                        schema.AdditionalProperties
+                    );
                     refType = inRefType;
                     type = $"Map<string, {inType}>";
                 }
-                break;
-            case JsonSchemaType.Null:
-                type = "FormData";
                 break;
             default:
                 break;
@@ -161,41 +174,65 @@ public class OpenApiHelper
     }
 
     /// <summary>
-    /// 获取C#类型（用于CsharpModelGenerate）
+    /// parse params type
     /// </summary>
-    public static (string type, string? refType) GetCsharpParamType(IOpenApiSchema? schema)
+    /// <param name="schema"></param>
+    /// <returns>
+    /// <![CDATA[type is full type name,like: List<Type>,Map<string, Type>]]>,
+    /// refType is the reference type name,like: Type
+    /// </returns>
+    public static (string type, string? refType) ParseParamAsCSharp(IOpenApiSchema? schema)
     {
         if (schema == null)
         {
             return ("object", null);
         }
         string type = "object";
-        string? refType = schema.DynamicRef;
-        if (schema.DynamicRef != null)
+        string refType = "object";
+        if (schema is OpenApiSchemaReference reference)
         {
-            return (schema.DynamicRef, schema.DynamicRef);
+            return (reference.Reference.Id ?? "object", reference.Reference.Id);
         }
-        switch (schema.Type)
+        if (schema.Type == JsonSchemaType.Null)
+        {
+            return (type, refType);
+        }
+        var removeNullType = schema.Type.GetValueOrDefault();
+        if (removeNullType.HasFlag(JsonSchemaType.Null))
+        {
+            // remove null type
+            removeNullType &= ~JsonSchemaType.Null;
+        }
+        switch (removeNullType)
         {
             case JsonSchemaType.Boolean:
-                type = "bool";
+                type = refType = "bool";
                 break;
             case JsonSchemaType.Integer:
-                type = "int";
+                type = refType = "int";
                 break;
             case JsonSchemaType.Number:
-                type = "double";
+                type = refType = "double";
                 break;
             case JsonSchemaType.String:
-                type = "string";
+                type = refType = "string";
+                if (!string.IsNullOrWhiteSpace(schema.Format))
+                {
+                    refType = type = schema.Format switch
+                    {
+                        "binary" => "IFile",
+                        "date-time" => "DateTimeOffset",
+                        _ => "string",
+                    };
+                }
                 break;
             case JsonSchemaType.Array:
-                if (schema.Items.DynamicRef != null)
+                if (schema.Items is OpenApiSchemaReference enumReference)
                 {
-                    refType = schema.Items.DynamicRef;
+                    refType = enumReference.Reference.Id ?? "object";
                     type = $"List<{refType}>";
                 }
-                else if (schema.Items.Type != null)
+                else if (schema.Items?.Type != null)
                 {
                     var itemType = schema.Items.Type;
                     refType = itemType switch
@@ -203,13 +240,29 @@ public class OpenApiHelper
                         JsonSchemaType.Integer => "int",
                         JsonSchemaType.Number => "double",
                         JsonSchemaType.Boolean => "bool",
+                        JsonSchemaType.String => "string",
                         _ => "object",
                     };
                     type = $"List<{refType}>";
                 }
                 break;
             case JsonSchemaType.Object:
-                type = "object";
+                if (schema.Properties?.Count > 0)
+                {
+                    var obj = schema.Properties.FirstOrDefault().Value;
+                    if (obj != null && obj.Format == "binary")
+                    {
+                        type = "IFile";
+                    }
+                }
+                if (schema.AdditionalProperties != null)
+                {
+                    (string inType, string? inRefType) = ParseParamTSType(
+                        schema.AdditionalProperties
+                    );
+                    refType = inRefType;
+                    type = $"Dictionary<string, {inType}>";
+                }
                 break;
             default:
                 break;
@@ -223,30 +276,52 @@ public class OpenApiHelper
     }
 
     /// <summary>
-    /// 统一属性提取（TypeScript/C#）
+    /// parse properties from OpenAPI schema
+    /// default use C# types, set useTypescript to true for TypeScript types
     /// </summary>
-    public static List<PropertyInfo> ParseProperties(IOpenApiSchema schema, bool forCsharp = false)
+    public static List<PropertyInfo> ParseProperties(
+        IOpenApiSchema schema,
+        bool useTypescript = false
+    )
     {
         var properties = new List<PropertyInfo>();
         if (schema.AllOf?.Count > 1)
         {
-            properties.AddRange(ParseProperties(schema.AllOf[1], forCsharp));
+            properties.AddRange(ParseProperties(schema.AllOf[1], useTypescript));
         }
         if (schema.Properties?.Count > 0)
         {
             foreach (var prop in schema.Properties)
             {
-                string type = forCsharp
-                    ? GetCsharpParamType(prop.Value).type
-                    : ConvertToTypescriptType(prop.Value);
+                var (type, refType) = useTypescript
+                    ? ParseParamTSType(prop.Value)
+                    : ParseParamAsCSharp(prop.Value);
                 string name = prop.Key;
                 string? desc = prop.Value.Description;
                 bool isNullable = prop.Value.Required == null;
-                string? refType = forCsharp
-                    ? GetCsharpParamType(prop.Value).refType
-                    : prop.Value.DynamicRef;
+
                 bool isEnum = prop.Value.Enum?.Count > 0;
                 bool isList = prop.Value.Type == JsonSchemaType.Array;
+
+                var isNavigation = false;
+                var navigationName = string.Empty;
+                var isRequired = true;
+
+                if (prop.Value.Type.Value.HasFlag(JsonSchemaType.Null))
+                {
+                    isRequired = false;
+                }
+
+                if (prop.Value is OpenApiSchemaReference reference)
+                {
+                    isNavigation = true;
+                    navigationName = reference.Reference.Id ?? type;
+                }
+                else if (type != refType)
+                {
+                    isNavigation = true;
+                    navigationName = refType ?? type;
+                }
                 properties.Add(
                     new PropertyInfo
                     {
@@ -256,6 +331,9 @@ public class OpenApiHelper
                         CommentSummary = desc,
                         IsEnum = isEnum,
                         IsList = isList,
+                        IsNavigation = isNavigation,
+                        NavigationName = navigationName,
+                        IsRequired = isRequired,
                     }
                 );
             }

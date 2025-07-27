@@ -16,21 +16,25 @@ public class TSModelGenerate : GenerateBase
         OpenApi = openApi;
         foreach (var path in openApi.Paths)
         {
+            if (path.Value.Operations == null || !path.Value.Operations.Any())
+            {
+                continue;
+            }
             foreach (KeyValuePair<HttpMethod, OpenApiOperation> operation in path.Value.Operations)
             {
                 string? tag = operation.Value.Tags.FirstOrDefault()?.Name;
 
                 var requestSchema = operation
-                    .Value.RequestBody?.Content.Values.FirstOrDefault()
+                    .Value.RequestBody?.Content?.Values.FirstOrDefault()
                     ?.Schema;
                 var responseSchema = operation
-                    .Value.Responses.FirstOrDefault()
-                    .Value?.Content.FirstOrDefault()
+                    .Value?.Responses?.FirstOrDefault()
+                    .Value?.Content?.FirstOrDefault()
                     .Value?.Schema;
-                (string? RequestType, string? requestRefType) = OpenApiHelper.GetParamType(
+                (string? RequestType, string? requestRefType) = OpenApiHelper.ParseParamTSType(
                     requestSchema
                 );
-                (string? ResponseType, string? responseRefType) = OpenApiHelper.GetParamType(
+                (string? ResponseType, string? responseRefType) = OpenApiHelper.ParseParamTSType(
                     responseSchema
                 );
 
@@ -92,16 +96,16 @@ public class TSModelGenerate : GenerateBase
         }
         // 属性中的类型
         var props = schema
-            .Properties.Where(p => p.Value.OneOf != null)
+            .Properties?.Where(p => p.Value.OneOf != null)
             .Select(s => s.Value)
             .ToList();
         if (props != null)
         {
-            foreach (OpenApiSchema? prop in props)
+            foreach (var prop in props)
             {
-                if (prop.OneOf.Any())
+                if (prop.OneOf?.Count > 0)
                 {
-                    if (!dic.ContainsKey(prop.OneOf.FirstOrDefault()!.DynamicRef))
+                    if (!dic.ContainsKey(prop.OneOf?.FirstOrDefault()!.DynamicRef))
                     {
                         dic.Add(prop.OneOf.FirstOrDefault()!.DynamicRef, tag);
                     }
@@ -109,19 +113,19 @@ public class TSModelGenerate : GenerateBase
             }
         }
         // 数组
-        List<IOpenApiSchema> arr = schema
-            .Properties.Where(p => p.Value.Type == JsonSchemaType.Array)
+        var arr = schema
+            .Properties?.Where(p => p.Value.Type == JsonSchemaType.Array)
             .Select(s => s.Value)
             .ToList();
         if (arr != null)
         {
             foreach (IOpenApiSchema? item in arr)
             {
-                if (item.Items.OneOf.Any())
+                if (item.Items?.OneOf?.Count > 0)
                 {
-                    if (!dic.ContainsKey(item.Items.OneOf.FirstOrDefault()!.DynamicRef))
+                    if (!dic.ContainsKey(item.Items?.OneOf?.FirstOrDefault()?.DynamicRef))
                     {
-                        dic.Add(item.Items.OneOf.FirstOrDefault()!.DynamicRef, tag);
+                        dic.Add(item.Items?.OneOf?.FirstOrDefault()?.DynamicRef, tag);
                     }
                 }
             }
@@ -140,7 +144,7 @@ public class TSModelGenerate : GenerateBase
         string fileName = schemaKey.ToHyphen() + ".model.ts";
         string tsContent;
         string? path = GetDirName(schemaKey)?.ToHyphen();
-        if (schema.Enum.Count > 0)
+        if (schema.Enum?.Count > 0)
         {
             tsContent = ToEnumString(schema, schemaKey);
             path = "enum";
@@ -278,15 +282,13 @@ public class TSModelGenerate : GenerateBase
 ";
         }
         // 先判断x-enumData
-        KeyValuePair<string, IOpenApiExtension> enumData = schema
-            .Extensions.Where(e => e.Key == "x-enumData")
-            .FirstOrDefault();
+        var enumData = schema.Extensions?.Where(e => e.Key == "x-enumData").FirstOrDefault();
 
-        KeyValuePair<string, IOpenApiExtension> enumNames = schema
-            .Extensions.Where(e => e.Key == "x-enumNames")
-            .FirstOrDefault();
-
-        var data = enumData.Value as JsonNodeExtension;
+        if (enumData == null)
+        {
+            return $"{comment}export enum {name} {{}}";
+        }
+        var data = enumData.Value.Value as JsonNodeExtension;
         if (data?.Node is JsonArray array)
         {
             foreach (var item in array)
@@ -350,16 +352,16 @@ public class TSModelGenerate : GenerateBase
                     Type = type,
                 };
                 // 是否是关联属性
-                OpenApiSchema? refType = (OpenApiSchema?)(prop.Value.OneOf?.FirstOrDefault());
+                var refType = prop.Value.OneOf?.FirstOrDefault();
                 // 列表中的类型
                 if (prop.Value.Items?.DynamicRef != null)
                 {
-                    refType = (OpenApiSchema?)prop.Value.Items;
+                    refType = prop.Value.Items;
                 }
 
-                if (prop.Value.Items?.OneOf.Count > 0)
+                if (prop.Value.Items?.OneOf?.Count > 0)
                 {
-                    refType = (OpenApiSchema?)prop.Value.Items.OneOf.FirstOrDefault();
+                    refType = prop.Value.Items?.OneOf.FirstOrDefault();
                 }
 
                 if (refType?.DynamicRef != null)
@@ -372,7 +374,7 @@ public class TSModelGenerate : GenerateBase
                     property.Reference = prop.Value.DynamicRef;
                 }
 
-                if (prop.Value.Enum.Any() || (refType != null && refType.Enum.Any()))
+                if (prop.Value.Enum?.Count > 0 || (refType != null && refType.Enum?.Count > 0))
                 {
                     property.IsEnum = true;
                 }

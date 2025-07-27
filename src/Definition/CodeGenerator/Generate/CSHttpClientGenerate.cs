@@ -308,11 +308,11 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     Path = path.Key,
                     Tag = operation.Value.Tags.FirstOrDefault()?.Name,
                 };
-                (function.RequestType, function.RequestRefType) = OpenApiHelper.GetCsharpParamType(
+                (function.RequestType, function.RequestRefType) = OpenApiHelper.ParseParamAsCSharp(
                     operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
                 );
                 (function.ResponseType, function.ResponseRefType) =
-                    OpenApiHelper.GetCsharpParamType(
+                    OpenApiHelper.ParseParamAsCSharp(
                         operation
                             .Value.Responses.FirstOrDefault()
                             .Value?.Content.FirstOrDefault()
@@ -323,7 +323,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     {
                         string? location = p.In?.GetDisplayName();
                         bool? inpath = location?.ToLower()?.Equals("path");
-                        (string type, string? _) = OpenApiHelper.GetCsharpParamType(p.Schema);
+                        (string type, string? _) = OpenApiHelper.ParseParamAsCSharp(p.Schema);
                         return new FunctionParams
                         {
                             Description = p.Description,

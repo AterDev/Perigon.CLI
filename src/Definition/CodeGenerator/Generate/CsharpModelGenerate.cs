@@ -25,10 +25,10 @@ public class CsharpModelGenerate : GenerateBase
                     .Value.Responses?.FirstOrDefault()
                     .Value?.Content?.FirstOrDefault()
                     .Value?.Schema;
-                (string? RequestType, string? requestRefType) = OpenApiHelper.GetCsharpParamType(
+                (string? RequestType, string? requestRefType) = OpenApiHelper.ParseParamAsCSharp(
                     requestSchema
                 );
-                (string? ResponseType, string? responseRefType) = OpenApiHelper.GetCsharpParamType(
+                (string? ResponseType, string? responseRefType) = OpenApiHelper.ParseParamAsCSharp(
                     responseSchema
                 );
 

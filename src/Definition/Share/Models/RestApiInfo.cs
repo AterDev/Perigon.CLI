@@ -8,7 +8,7 @@ public class RestApiInfo
     /// <summary>
     /// 请求方式
     /// </summary>
-    public HttpMethod? HttpMethod { get; set; }
+    public HttpMethod HttpMethod { get; set; } = HttpMethod.Get;
 
     /// <summary>
     /// 路由
