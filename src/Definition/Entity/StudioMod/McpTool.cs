@@ -13,9 +13,13 @@ public class McpTool : EntityBase
     [MaxLength(300)]
     public required string Description { get; set; }
 
-    [Required]
     [MaxLength(300)]
     public required string PromptPath { get; set; }
 
     public string[] TemplatePaths { get; set; } = [];
+
+    public Project Project { get; set; } = default!;
+
+    [ForeignKey(nameof(Project))]
+    public Guid ProjectId { get; set; }
 }

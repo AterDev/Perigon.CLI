@@ -97,6 +97,8 @@
 
   [Inject]
   private McpToolManager McpToolManager { get; set; } = null!;
+  [Inject]
+  private McpToolsManager Mcp { get; set; } = null!;
 
   RenderFragment MaxMessage =>@<span>only select 5 template</span>;
 
@@ -126,7 +128,9 @@
         TemplatePaths = Content.TemplatePaths?.ToArray() ?? [],
         CreatedTime = Content.CreatedTime,
         UpdatedTime = Content.UpdatedTime,
-        IsDeleted = Content.IsDeleted
+        IsDeleted = Content.IsDeleted,
+        ProjectId = ProjectContext.ProjectId!.Value
+
       };
 
       SelectedPrompt = PromptFiles.FirstOrDefault(i => i.FullPath == Model.PromptPath);
@@ -134,7 +138,13 @@
     }
     else
     {
-      Model = new McpTool { Name = string.Empty, Description = string.Empty, PromptPath = string.Empty };
+      Model = new McpTool
+      {
+        Name = string.Empty,
+        Description = string.Empty,
+        PromptPath = string.Empty,
+        ProjectId = ProjectContext.ProjectId!.Value
+      };
     }
     EditContext = new EditContext(Model);
     EditContext.OnFieldChanged += OnFieldChanged;
@@ -186,36 +196,39 @@
     Model.PromptPath = SelectedPrompt.FullPath;
     Model.TemplatePaths = SelectedTemplates.Select(t => t.FullPath).ToArray();
 
-    if (IsEdit)
-    {
-      var entity = await McpToolManager.GetCurrentAsync(Model.Id);
-      if (entity != null)
-      {
-        entity.Merge(Model);
-        var res = await McpToolManager.UpdateAsync(entity);
-        if (res)
-        {
-          await Dialog.CloseAsync(entity);
-        }
-        else
-        {
-          ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
-        }
-      }
 
-    }
-    else
-    {
-      var res = await McpToolManager.AddAsync(Model);
-      if (res)
-      {
-        await Dialog.CloseAsync(Model);
-      }
-      else
-      {
-        ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
-      }
-    }
+    Mcp.Test();
+
+    // if (IsEdit)
+    // {
+    //   var entity = await McpToolManager.GetCurrentAsync(Model.Id);
+    //   if (entity != null)
+    //   {
+    //     entity.Merge(Model);
+    //     var res = await McpToolManager.UpdateAsync(entity);
+    //     if (res)
+    //     {
+    //       await Dialog.CloseAsync(entity);
+    //     }
+    //     else
+    //     {
+    //       ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
+    //     }
+    //   }
+
+    // }
+    // else
+    // {
+    //   var res = await McpToolManager.AddAsync(Model);
+    //   if (res)
+    //   {
+    //     await Dialog.CloseAsync(Model);
+    //   }
+    //   else
+    //   {
+    //     ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
+    //   }
+    // }
   }
 
   private async Task CancelAsync()

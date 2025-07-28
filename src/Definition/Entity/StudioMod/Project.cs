@@ -45,6 +45,8 @@ public class Project : EntityBase
     public ICollection<GenAction> GenActions { get; set; } = [];
 
     public ICollection<GenStep> GenSteps { get; set; } = [];
+
+    public ICollection<McpTool> McpTools { get; set; }
 }
 
 /// <summary>

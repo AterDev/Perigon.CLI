@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
@@ -6,8 +7,8 @@ namespace StudioMod.Managers;
 
 public class McpToolManager(
     DataAccessContext<McpTool> dataContext,
-    ILogger<McpToolManager> logger,
-    IMcpServer mcpServer
+    IServiceScopeFactory factory,
+    ILogger<McpToolManager> logger
 ) : ManagerBase<McpTool>(dataContext, logger)
 {
     /// <summary>
@@ -35,7 +36,12 @@ public class McpToolManager(
         var res = await base.AddAsync(entity);
         if (res)
         {
+            var mcpServer = factory.CreateScope().ServiceProvider.GetService<IMcpServer>();
             // 动态添加工具
+            if (mcpServer == null)
+            {
+                return true;
+            }
             mcpServer.ServerOptions.Capabilities!.Tools!.ToolCollection!.Add(
                 McpServerTool.Create(
                     () =>
@@ -74,6 +80,11 @@ public class McpToolManager(
 
         if (res)
         {
+            var mcpServer = factory.CreateScope().ServiceProvider.GetService<IMcpServer>();
+            if (mcpServer == null)
+            {
+                return true;
+            }
             // 动态更新工具
             if (
                 mcpServer.ServerOptions.Capabilities!.Tools!.ToolCollection!.TryGetPrimitive(
@@ -121,6 +132,11 @@ public class McpToolManager(
         var res = await base.DeleteAsync([id]);
         if (res)
         {
+            var mcpServer = factory.CreateScope().ServiceProvider.GetService<IMcpServer>();
+            if (mcpServer == null)
+            {
+                return true;
+            }
             // 动态删除工具
             if (
                 mcpServer.ServerOptions.Capabilities!.Tools!.ToolCollection!.TryGetPrimitive(
