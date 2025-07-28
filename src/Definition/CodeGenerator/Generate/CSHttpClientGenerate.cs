@@ -11,9 +11,8 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     ///
     /// </summary>
     protected OpenApiPaths PathsPairs { get; } = openApi.Paths;
-    protected List<OpenApiTag> ApiTags { get; } = [.. openApi.Tags];
-    public IDictionary<string, OpenApiSchema> Schemas { get; set; } =
-        (IDictionary<string, OpenApiSchema>)openApi.Components.Schemas;
+    protected ISet<OpenApiTag>? ApiTags { get; } = openApi.Tags;
+    public IDictionary<string, IOpenApiSchema>? Schemas { get; set; } = openApi.Components?.Schemas;
     public OpenApiDocument OpenApi { get; set; } = openApi;
 
     public static string GetBaseService(string namespaceName)
@@ -123,7 +122,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         {
             // 查询该标签包含的所有方法
             List<RequestServiceFunction> tagFunctions = [.. group];
-            OpenApiTag? currentTag = ApiTags.Where(t => t.Name == group.Key).FirstOrDefault();
+            OpenApiTag? currentTag = ApiTags?.Where(t => t.Name == group.Key).FirstOrDefault();
             currentTag ??= new OpenApiTag { Name = group.Key, Description = group.Key };
             RequestServiceFile serviceFile = new()
             {
@@ -150,7 +149,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     {
         CsharpModelGenerate csGen = new(OpenApi);
         List<GenFileInfo> files = [];
-        foreach (KeyValuePair<string, OpenApiSchema> item in Schemas)
+        if (Schemas == null)
+            return files;
+        foreach (var item in Schemas)
         {
             files.Add(csGen.GenerateModelFile(item.Key, item.Value, nspName));
         }
@@ -296,26 +297,28 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     {
         List<RequestServiceFunction> functions = [];
         // 处理所有方法
-        foreach (KeyValuePair<string, IOpenApiPathItem> path in PathsPairs)
+        foreach (var path in PathsPairs)
         {
+            if (path.Value.Operations == null)
+                continue;
             foreach (var operation in path.Value.Operations)
             {
                 RequestServiceFunction function = new()
                 {
                     Description = operation.Value.Summary,
                     Method = operation.Key.ToString(),
-                    Name = operation.Value.OperationId,
+                    Name = operation.Value.OperationId ?? operation.Key.ToString() + path.Key,
                     Path = path.Key,
-                    Tag = operation.Value.Tags.FirstOrDefault()?.Name,
+                    Tag = operation.Value.Tags?.FirstOrDefault()?.Name,
                 };
                 (function.RequestType, function.RequestRefType) = OpenApiHelper.ParseParamAsCSharp(
-                    operation.Value.RequestBody?.Content.Values.FirstOrDefault()?.Schema
+                    operation.Value.RequestBody?.Content?.Values.FirstOrDefault()?.Schema
                 );
                 (function.ResponseType, function.ResponseRefType) =
                     OpenApiHelper.ParseParamAsCSharp(
                         operation
-                            .Value.Responses.FirstOrDefault()
-                            .Value?.Content.FirstOrDefault()
+                            .Value.Responses?.FirstOrDefault()
+                            .Value?.Content?.FirstOrDefault()
                             .Value?.Schema
                     );
                 function.Params = operation

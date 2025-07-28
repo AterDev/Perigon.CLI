@@ -5,60 +5,6 @@ namespace CodeGenerator.Helper;
 public class OpenApiHelper
 {
     /// <summary>
-    /// 获取转换成ts的类型
-    /// </summary>
-    public static string ConvertToTypescriptType(IOpenApiSchema prop)
-    {
-        string? type = "any";
-        switch (prop.Type)
-        {
-            case JsonSchemaType.Boolean:
-                type = "boolean";
-                break;
-            case JsonSchemaType.Integer:
-                type = prop.Enum?.Count > 0 ? prop.DynamicRef : "number";
-                break;
-            case JsonSchemaType.Number:
-                type = "number";
-                break;
-            case JsonSchemaType.String:
-                switch (prop.Format)
-                {
-                    case "guid":
-                        break;
-                    case "binary":
-                        type = "formData";
-                        break;
-                    case "date-time":
-                        type = "Date";
-                        break;
-                    default:
-                        type = "string";
-                        break;
-                }
-                break;
-            case JsonSchemaType.Array:
-                type =
-                    prop.Items?.DynamicRef != null
-                        ? prop.Items.DynamicRef + "[]"
-                        : ConvertToTypescriptType(prop.Items) + "[]";
-                break;
-            default:
-                type = prop.DynamicRef ?? "any";
-                break;
-        }
-        if (prop.OneOf?.Count > 0)
-        {
-            type = prop.OneOf.First()?.DynamicRef;
-        }
-        if (prop.Required == null || prop.DynamicRef != null)
-        {
-            type += " | null";
-        }
-        return type ?? "any";
-    }
-
-    /// <summary>
     /// parse params type
     /// </summary>
     /// <param name="schema"></param>
@@ -260,17 +206,20 @@ public class OpenApiHelper
                     (string inType, string? inRefType) = ParseParamTSType(
                         schema.AdditionalProperties
                     );
-                    refType = inRefType;
+                    refType = inRefType ?? refType;
                     type = $"Dictionary<string, {inType}>";
                 }
                 break;
             default:
                 break;
         }
-        if (schema.OneOf?.Count > 0)
+        if (
+            schema.OneOf != null
+            && schema.OneOf.FirstOrDefault() is OpenApiSchemaReference reference1
+        )
         {
-            type = schema.OneOf.First()?.DynamicRef ?? type;
-            refType = schema.OneOf.First()?.DynamicRef;
+            type = reference1.Reference.Id ?? type;
+            refType = reference1.Reference.Id ?? refType;
         }
         return (type, refType);
     }
@@ -298,16 +247,16 @@ public class OpenApiHelper
                     : ParseParamAsCSharp(prop.Value);
                 string name = prop.Key;
                 string? desc = prop.Value.Description;
+                var schemaType = prop.Value.Type;
                 bool isNullable = prop.Value.Required == null;
-
                 bool isEnum = prop.Value.Enum?.Count > 0;
-                bool isList = prop.Value.Type == JsonSchemaType.Array;
+                bool isList = schemaType == JsonSchemaType.Array;
 
                 var isNavigation = false;
                 var navigationName = string.Empty;
                 var isRequired = true;
 
-                if (prop.Value.Type.Value.HasFlag(JsonSchemaType.Null))
+                if (schemaType.HasValue && schemaType.Value.HasFlag(JsonSchemaType.Null))
                 {
                     isRequired = false;
                 }

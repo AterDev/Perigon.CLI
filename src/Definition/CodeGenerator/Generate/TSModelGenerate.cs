@@ -1,5 +1,3 @@
-using System.Text.Json.Nodes;
-
 namespace CodeGenerator.Generate;
 
 /// <summary>
@@ -16,16 +14,16 @@ public class TSModelGenerate : GenerateBase
         OpenApi = openApi;
         foreach (var path in openApi.Paths)
         {
-            if (path.Value.Operations == null || !path.Value.Operations.Any())
+            if (path.Value.Operations == null || path.Value.Operations.Count == 0)
             {
                 continue;
             }
-            foreach (KeyValuePair<HttpMethod, OpenApiOperation> operation in path.Value.Operations)
+            foreach (var operation in path.Value.Operations)
             {
-                string? tag = operation.Value.Tags.FirstOrDefault()?.Name;
+                string? tag = operation.Value?.Tags?.FirstOrDefault()?.Name;
 
                 var requestSchema = operation
-                    .Value.RequestBody?.Content?.Values.FirstOrDefault()
+                    .Value?.RequestBody?.Content?.Values.FirstOrDefault()
                     ?.Schema;
                 var responseSchema = operation
                     .Value?.Responses?.FirstOrDefault()
@@ -85,12 +83,15 @@ public class TSModelGenerate : GenerateBase
         // 父类
         if (schema.AllOf != null)
         {
-            OpenApiSchema? parent = (OpenApiSchema?)schema.AllOf.FirstOrDefault();
-            if (parent != null)
+            var parent = schema.AllOf.FirstOrDefault();
+            if (parent != null && parent is OpenApiSchemaReference reference)
             {
-                if (!dic.ContainsKey(parent.DynamicRef))
+                if (reference.Reference.Id != null)
                 {
-                    dic.Add(parent.DynamicRef, null);
+                    if (!dic.ContainsKey(reference.Reference.Id))
+                    {
+                        dic.Add(reference.Reference.Id, null);
+                    }
                 }
             }
         }
@@ -103,11 +104,15 @@ public class TSModelGenerate : GenerateBase
         {
             foreach (var prop in props)
             {
-                if (prop.OneOf?.Count > 0)
+                if (
+                    prop.OneOf?.Count > 0
+                    && prop.OneOf.FirstOrDefault() is OpenApiSchemaReference reference
+                )
                 {
-                    if (!dic.ContainsKey(prop.OneOf?.FirstOrDefault()!.DynamicRef))
+                    var refId = reference.Reference.Id ?? "";
+                    if (!dic.ContainsKey(refId))
                     {
-                        dic.Add(prop.OneOf.FirstOrDefault()!.DynamicRef, tag);
+                        dic.Add(refId, tag);
                     }
                 }
             }
@@ -121,11 +126,16 @@ public class TSModelGenerate : GenerateBase
         {
             foreach (IOpenApiSchema? item in arr)
             {
-                if (item.Items?.OneOf?.Count > 0)
+                if (
+                    item.Items?.OneOf != null
+                    && item.Items.OneOf.Count > 0
+                    && item.OneOf?.FirstOrDefault() is OpenApiSchemaReference reference
+                )
                 {
-                    if (!dic.ContainsKey(item.Items?.OneOf?.FirstOrDefault()?.DynamicRef))
+                    var refId = reference.Reference.Id ?? "";
+                    if (!dic.ContainsKey(refId))
                     {
-                        dic.Add(item.Items?.OneOf?.FirstOrDefault()?.DynamicRef, tag);
+                        dic.Add(refId, tag);
                     }
                 }
             }
@@ -200,9 +210,12 @@ public class TSModelGenerate : GenerateBase
             relatePath = "../";
         }
 
-        if (schema.AllOf.Count > 0)
+        if (
+            schema.AllOf?.Count > 0
+            && schema.AllOf.FirstOrDefault() is OpenApiSchemaReference reference
+        )
         {
-            string? extend = schema.AllOf.First()?.DynamicRef;
+            string? extend = reference.Reference.Id;
             if (!string.IsNullOrEmpty(extend))
             {
                 extendString = "extends " + extend + " ";
@@ -225,16 +238,30 @@ public class TSModelGenerate : GenerateBase
  */
 ";
         }
-        List<TsProperty> props = GetTsProperties(schema);
-        props.ForEach(p =>
+        var props = OpenApiHelper.ParseProperties(schema, false);
+        bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
+        var tsProps = new List<TsProperty>();
+        foreach (var p in props)
         {
-            propertyString += p.ToProperty();
-        });
+            var tsProperty = new TsProperty
+            {
+                Type = p.Type,
+                Name = p.Name,
+                IsEnum = p.IsEnum,
+                Reference = p.NavigationName ?? string.Empty,
+                IsNullable = p.IsNullable,
+                Comments = $"/** {p.CommentSummary} */",
+            };
+            tsProps.Add(tsProperty);
+            propertyString += tsProperty.ToProperty();
+        }
+
         // 去重
-        var importsProps = props
+        var importsProps = tsProps
             .Where(p => !string.IsNullOrEmpty(p.Reference))
-            .GroupBy(p => p.Reference)
-            .Select(g => new { g.First().IsEnum, g.First().Reference })
+            .DistinctBy(p => p.Reference)
+            //.GroupBy(p => p.Reference)
+            //.Select(g => new { g.First().IsEnum, g.First().Reference })
             .ToList();
         importsProps.ForEach(ip =>
         {
@@ -288,20 +315,15 @@ public class TSModelGenerate : GenerateBase
         {
             return $"{comment}export enum {name} {{}}";
         }
-        var data = enumData.Value.Value as JsonNodeExtension;
-        if (data?.Node is JsonArray array)
-        {
-            foreach (var item in array)
-            {
-                var propertyName = item["name"]?.GetValue<string>() ?? string.Empty;
-                var value = item["value"]?.GetValue<int>() ?? 0;
-                var desc = item["description"]?.GetValue<string>();
-                propertyString += $"""
-                      /** {desc} */
-                      {propertyName} = {value},
 
-                    """;
-            }
+        var enumProps = OpenApiHelper.GetEnumProperties(schema);
+        foreach (var item in enumProps)
+        {
+            propertyString += $"""
+                  /** {item.CommentSummary} */
+                  {item.Name} = {item.DefaultValue},
+
+                """;
         }
 
         res =
@@ -310,85 +332,6 @@ public class TSModelGenerate : GenerateBase
 }}
 ";
         return res;
-    }
-
-    /// <summary>
-    /// 获取所有属性
-    /// </summary>
-    /// <param name="schema"></param>
-    /// <returns></returns>
-    public static List<TsProperty> GetTsProperties(IOpenApiSchema schema)
-    {
-        List<TsProperty> tsProperties = [];
-        // 继承的需要递归 从AllOf中获取属性
-        if (schema.AllOf.Count > 1)
-        {
-            // 自己的属性在1中
-            tsProperties.AddRange(GetTsProperties(schema.AllOf[1]));
-        }
-
-        if (schema.Properties.Count > 0)
-        {
-            // 泛型处理
-            foreach (var prop in schema.Properties)
-            {
-                string type = OpenApiHelper.ConvertToTypescriptType(prop.Value);
-                string propComments = "";
-                string name = prop.Key;
-
-                if (!string.IsNullOrEmpty(prop.Value.Description))
-                {
-                    propComments =
-                        @$"  /**
-   * {prop.Value.Description}
-   */
-";
-                }
-                TsProperty property = new()
-                {
-                    Comments = propComments,
-                    IsNullable = !prop.Value.Required.Any(),
-                    Name = name,
-                    Type = type,
-                };
-                // 是否是关联属性
-                var refType = prop.Value.OneOf?.FirstOrDefault();
-                // 列表中的类型
-                if (prop.Value.Items?.DynamicRef != null)
-                {
-                    refType = prop.Value.Items;
-                }
-
-                if (prop.Value.Items?.OneOf?.Count > 0)
-                {
-                    refType = prop.Value.Items?.OneOf.FirstOrDefault();
-                }
-
-                if (refType?.DynamicRef != null)
-                {
-                    property.Reference = refType.DynamicRef;
-                }
-
-                if (prop.Value.DynamicRef != null)
-                {
-                    property.Reference = prop.Value.DynamicRef;
-                }
-
-                if (prop.Value.Enum?.Count > 0 || (refType != null && refType.Enum?.Count > 0))
-                {
-                    property.IsEnum = true;
-                }
-
-                // 可空处理
-                tsProperties.Add(property);
-            }
-        }
-        // 重写的属性去重
-        List<TsProperty?> res = tsProperties
-            .GroupBy(p => p.Name)
-            .Select(s => s.FirstOrDefault())
-            .ToList();
-        return res!;
     }
 }
 

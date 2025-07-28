@@ -24,7 +24,7 @@ public class FunctionTest
         openApiContent = openApiContent.Replace("«", "").Replace("»", "");
 
         var (apiDocument, _) = await OpenApiDocument.LoadAsync(filePath);
-        var helper = new OpenApiService(apiDocument);
+        var helper = new OpenApiService(apiDocument!);
         var apis = helper.RestApiGroups;
         Assert.NotNull(helper.RestApiGroups);
     }

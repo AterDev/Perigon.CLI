@@ -97,16 +97,19 @@ public class CodeTools(
                 outputPath,
                 clientType
             );
-
-            codeGenService.GenerateFiles(genFiles);
-            var resDes = new StringBuilder();
-            resDes.AppendLine("生成的文件如下:");
-            foreach (var file in genFiles)
+            if (genFiles != null)
             {
-                resDes.AppendLine(file.FullName);
+                codeGenService.GenerateFiles(genFiles);
+                var resDes = new StringBuilder();
+                resDes.AppendLine("生成的文件如下:");
+                foreach (var file in genFiles)
+                {
+                    resDes.AppendLine(file.FullName);
+                }
+                resDes.AppendLine("");
+                return resDes.ToString();
             }
-            resDes.AppendLine("");
-            return resDes.ToString();
+            return "No validate files generated!";
         }
         catch (Exception ex)
         {

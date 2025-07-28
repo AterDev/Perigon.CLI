@@ -204,36 +204,42 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         if (type == RequestClientType.NgHttp)
         {
             var schemas = apiDocument.Components?.Schemas;
-            dir = Path.Combine(outputPath, "pipe", docName);
-            Directory.CreateDirectory(dir);
-            var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
-            bool isNgModule = false;
-            if (File.Exists(enumTextPath))
+            if (schemas != null)
             {
-                using (StreamReader reader = new(enumTextPath))
+                dir = Path.Combine(outputPath, "pipe", docName);
+                Directory.CreateDirectory(dir);
+                var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
+                bool isNgModule = false;
+                if (File.Exists(enumTextPath))
                 {
-                    string? firstLine = reader.ReadLine();
-                    string? secondLine = reader.ReadLine();
-                    if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
+                    using (StreamReader reader = new(enumTextPath))
                     {
-                        isNgModule = true;
-                    }
+                        string? firstLine = reader.ReadLine();
+                        string? secondLine = reader.ReadLine();
+                        if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
+                        {
+                            isNgModule = true;
+                        }
 
-                    if (!string.IsNullOrWhiteSpace(secondLine) && secondLine.Contains("NgModule"))
-                    {
-                        isNgModule = true;
+                        if (
+                            !string.IsNullOrWhiteSpace(secondLine)
+                            && secondLine.Contains("NgModule")
+                        )
+                        {
+                            isNgModule = true;
+                        }
                     }
                 }
+                string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
+
+                files.Add(
+                    new GenFileInfo("enum-text.pipe.ts", pipeContent)
+                    {
+                        FullName = enumTextPath,
+                        IsCover = true,
+                    }
+                );
             }
-            string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
-
-            files.Add(
-                new GenFileInfo("enum-text.pipe.ts", pipeContent)
-                {
-                    FullName = enumTextPath,
-                    IsCover = true,
-                }
-            );
         }
         // request services
         var ngGen = new RequestGenerate(apiDocument!) { LibType = type };
@@ -247,13 +253,16 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         });
         files.AddRange(tsModels);
         // 获取请求服务并生成文件
-        var services = ngGen.GetServices(apiDocument!.Tags);
-        services.ForEach(s =>
+        if (apiDocument.Tags != null)
         {
-            dir = Path.Combine(outputPath, "services", docName, s.FullName);
-            s.FullName = Path.Combine(dir, s.Name);
-        });
-        files.AddRange(services);
+            var services = ngGen.GetServices(apiDocument.Tags);
+            services.ForEach(s =>
+            {
+                dir = Path.Combine(outputPath, "services", docName, s.FullName);
+                s.FullName = Path.Combine(dir, s.Name);
+            });
+            files.AddRange(services);
+        }
         return files;
     }
 

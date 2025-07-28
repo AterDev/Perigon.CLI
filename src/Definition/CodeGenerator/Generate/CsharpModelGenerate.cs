@@ -78,11 +78,14 @@ public class CsharpModelGenerate : GenerateBase
         if (schema.AllOf != null)
         {
             var parent = schema.AllOf.FirstOrDefault();
-            if (parent != null && parent.DynamicRef != null)
+            if (parent != null && parent is OpenApiSchemaReference reference)
             {
-                if (!dic.ContainsKey(parent.DynamicRef))
+                if (reference.Reference.Id != null)
                 {
-                    dic.Add(parent.DynamicRef, null);
+                    if (!dic.ContainsKey(reference.Reference.Id))
+                    {
+                        dic.Add(reference.Reference.Id, null);
+                    }
                 }
             }
         }
@@ -95,9 +98,12 @@ public class CsharpModelGenerate : GenerateBase
         {
             foreach (var prop in props)
             {
-                if (prop.OneOf.Count > 0 && prop.OneOf.FirstOrDefault()?.DynamicRef != null)
+                if (
+                    prop.OneOf?.Count > 0
+                    && prop.OneOf.FirstOrDefault() is OpenApiSchemaReference reference
+                )
                 {
-                    var refId = prop.OneOf.FirstOrDefault()!.DynamicRef;
+                    var refId = reference.Reference.Id ?? "";
                     if (!dic.ContainsKey(refId))
                     {
                         dic.Add(refId, tag);
@@ -117,10 +123,10 @@ public class CsharpModelGenerate : GenerateBase
                 if (
                     item.Items?.OneOf != null
                     && item.Items.OneOf.Count > 0
-                    && item.Items.OneOf.FirstOrDefault()?.DynamicRef != null
+                    && item.OneOf?.FirstOrDefault() is OpenApiSchemaReference reference
                 )
                 {
-                    var refId = item.Items.OneOf.FirstOrDefault()!.DynamicRef;
+                    var refId = reference.Reference.Id ?? "";
                     if (!dic.ContainsKey(refId))
                     {
                         dic.Add(refId, tag);
@@ -134,13 +140,13 @@ public class CsharpModelGenerate : GenerateBase
     /// <summary>
     /// 生成模型类文件
     /// </summary>
-    public GenFileInfo GenerateModelFile(string schemaKey, OpenApiSchema schema, string nspName)
+    public GenFileInfo GenerateModelFile(string schemaKey, IOpenApiSchema schema, string nspName)
     {
         string fileName = schemaKey.ToPascalCase() + ".cs";
         string modelContent;
         string? dirName = GetDirName(schemaKey);
         string path = Path.Combine("Models", dirName ?? "");
-        if (schema.Enum.Count > 0)
+        if (schema.Enum?.Count > 0)
         {
             modelContent = ToEnumString(schema, schemaKey, nspName);
             EnumModels.Add(schemaKey);
@@ -169,17 +175,23 @@ public class CsharpModelGenerate : GenerateBase
     /// <summary>
     /// 将 Schemas 转换成 csharp class
     /// </summary>
-    public string ToClassModelString(OpenApiSchema schema, string name = "", string nspName = "")
+    public string ToClassModelString(IOpenApiSchema schema, string name = "", string nspName = "")
     {
         string res = "";
         string comment = "";
         string propertyString = "";
         string extendString = "";
         string importString = "";
-        if (string.IsNullOrEmpty(GetDirName(name))) { }
-        if (schema.AllOf.Count > 0)
+        if (string.IsNullOrEmpty(GetDirName(name)))
         {
-            string? extend = schema.AllOf.FirstOrDefault().DynamicRef;
+            // TODO:
+        }
+        if (
+            schema.AllOf?.Count > 0
+            && schema.AllOf.FirstOrDefault() is OpenApiSchemaReference reference
+        )
+        {
+            string? extend = reference.Reference.Id;
             if (!string.IsNullOrEmpty(extend))
             {
                 extendString = " : " + extend + "";
@@ -200,7 +212,7 @@ public class CsharpModelGenerate : GenerateBase
                     /// </summary>
                     """ + Environment.NewLine;
         }
-        var props = OpenApiHelper.ParseProperties(schema, true);
+        var props = OpenApiHelper.ParseProperties(schema, false);
         bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
         foreach (var p in props)
         {
@@ -227,7 +239,7 @@ public class CsharpModelGenerate : GenerateBase
     /// <summary>
     /// 生成enum
     /// </summary>
-    public static string ToEnumString(OpenApiSchema schema, string name = "", string nspName = "")
+    public static string ToEnumString(IOpenApiSchema schema, string name = "", string nspName = "")
     {
         string res = "";
         string comment = "";

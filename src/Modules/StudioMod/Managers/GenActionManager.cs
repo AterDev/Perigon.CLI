@@ -277,7 +277,10 @@ public class GenActionManager(
                 foreach (var step in action.GenSteps)
                 {
                     var content = string.Empty;
-                    var filePath = Path.Combine(_projectContext.SolutionPath!, step.TemplatePath);
+                    var filePath = Path.Combine(
+                        _projectContext.SolutionPath!,
+                        step.TemplatePath ?? ""
+                    );
                     if (File.Exists(filePath))
                     {
                         content = File.ReadAllText(filePath);

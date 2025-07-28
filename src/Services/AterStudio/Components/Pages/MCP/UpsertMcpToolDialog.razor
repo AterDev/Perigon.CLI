@@ -97,8 +97,6 @@
 
   [Inject]
   private McpToolManager McpToolManager { get; set; } = null!;
-  [Inject]
-  private McpToolsManager Mcp { get; set; } = null!;
 
   RenderFragment MaxMessage =>@<span>only select 5 template</span>;
 
@@ -196,39 +194,36 @@
     Model.PromptPath = SelectedPrompt.FullPath;
     Model.TemplatePaths = SelectedTemplates.Select(t => t.FullPath).ToArray();
 
+    if (IsEdit)
+    {
+      var entity = await McpToolManager.GetCurrentAsync(Model.Id);
+      if (entity != null)
+      {
+        entity.Merge(Model);
+        var res = await McpToolManager.UpdateAsync(entity);
+        if (res)
+        {
+          await Dialog.CloseAsync(entity);
+        }
+        else
+        {
+          ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
+        }
+      }
 
-    Mcp.Test();
-
-    // if (IsEdit)
-    // {
-    //   var entity = await McpToolManager.GetCurrentAsync(Model.Id);
-    //   if (entity != null)
-    //   {
-    //     entity.Merge(Model);
-    //     var res = await McpToolManager.UpdateAsync(entity);
-    //     if (res)
-    //     {
-    //       await Dialog.CloseAsync(entity);
-    //     }
-    //     else
-    //     {
-    //       ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
-    //     }
-    //   }
-
-    // }
-    // else
-    // {
-    //   var res = await McpToolManager.AddAsync(Model);
-    //   if (res)
-    //   {
-    //     await Dialog.CloseAsync(Model);
-    //   }
-    //   else
-    //   {
-    //     ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
-    //   }
-    // }
+    }
+    else
+    {
+      var res = await McpToolManager.AddAsync(Model);
+      if (res)
+      {
+        await Dialog.CloseAsync(Model);
+      }
+      else
+      {
+        ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
+      }
+    }
   }
 
   private async Task CancelAsync()

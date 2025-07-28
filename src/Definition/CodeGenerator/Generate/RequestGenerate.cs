@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json.Nodes;
 
 namespace CodeGenerator.Generate;
 
@@ -186,6 +185,8 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// <returns></returns>
     public List<GenFileInfo> GetTSInterfaces()
     {
+        if (Schemas == null)
+            return [];
         TSModelGenerate tsGen = new(OpenApi);
         List<GenFileInfo> files = [];
         foreach (KeyValuePair<string, IOpenApiSchema> item in Schemas)
@@ -210,7 +211,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         string codeBlocks = "";
         foreach (KeyValuePair<string, IOpenApiSchema> item in schemas)
         {
-            if (item.Value.Enum.Count > 0)
+            if (item.Value.Enum?.Count > 0)
             {
                 codeBlocks += ToEnumSwitchString(item.Key, item.Value);
             }
@@ -230,7 +231,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         string codeBlocks = "";
         foreach (KeyValuePair<string, IOpenApiSchema> item in schemas)
         {
-            if (item.Value.Enum.Count > 0)
+            if (item.Value.Enum?.Count > 0)
             {
                 codeBlocks += ToEnumSwitchString(item.Key, item.Value);
             }
@@ -251,42 +252,28 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
     public static string ToEnumSwitchString(string enumType, IOpenApiSchema schema)
     {
-        var enumData = schema.Extensions?.Where(e => e.Key == "x-enumData").FirstOrDefault();
-        // 过滤没有注释的内容
-        if (enumData?.Value == null)
-        {
-            return string.Empty;
-        }
-
         var caseStrings = "";
+        var enumProps = OpenApiHelper.GetEnumProperties(schema);
 
-        if (enumData.Value.Value is JsonNodeExtension extension)
+        StringBuilder sb = new();
+        var whiteSpace = new string(' ', 12);
+
+        if (enumProps == null || enumProps.Count == 0)
         {
-            if (extension.Node is JsonArray array)
-            {
-                if (array.Count == 0)
-                {
-                    return string.Empty;
-                }
-                StringBuilder sb = new();
-                var whiteSpace = new string(' ', 12);
-                for (int i = 0; i < array.Count; i++)
-                {
-                    var item = array[i];
-                    var value = item["value"]?.GetValue<int>();
-                    var description = item["description"]?.GetValue<string>();
-                    string caseString = string.Format(
-                        "{0}case {1}: result = '{2}'; break;",
-                        whiteSpace,
-                        value,
-                        description
-                    );
-                    sb.AppendLine(caseString);
-                }
-                sb.Append($"{whiteSpace}default: result = '默认'; break;");
-                caseStrings = sb.ToString();
-            }
+            return "";
         }
+        foreach (var prop in enumProps)
+        {
+            string caseString = string.Format(
+                "{0}case {1}: result = '{2}'; break;",
+                whiteSpace,
+                prop.DefaultValue,
+                prop.CommentSummary
+            );
+            sb.AppendLine(caseString);
+        }
+        sb.Append($"{whiteSpace}default: result = '默认'; break;");
+        caseStrings = sb.ToString();
         return $$"""
                   case '{{enumType}}':
                     {
