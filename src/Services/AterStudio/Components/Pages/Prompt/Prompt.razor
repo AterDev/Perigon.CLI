@@ -80,6 +80,7 @@
               @* 添加新文件 *@
               <FluentButton Appearance="Appearance.Stealth"
                             OnClick="OpenAddFileDialogAsync"
+                            Disabled="SelectedDirectory == null"
                             IconStart="@(new Icons.Regular.Size24.Add())"
                             Title="@Lang(Localizer.Add, Localizer.File)" />
             </FluentStack>

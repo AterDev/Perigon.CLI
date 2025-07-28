@@ -114,20 +114,6 @@ public class CodeTools(
         }
     }
 
-    [McpServerTool, Description("当生成form表单时，给出详细生成说明")]
-    public string? GenerateForm()
-    {
-        var message = Prompts.GenerateForm();
-        var res = $"""
-            <prompt>
-            </prompt>
-            {message}
-            """;
-
-        //logger.LogInformation(res);
-        return res;
-    }
-
     /// <summary>
     /// 生成服务
     /// </summary>

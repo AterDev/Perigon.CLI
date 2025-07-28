@@ -75,14 +75,4 @@ public partial class MCP
             ToastService.ShowSuccess("删除成功");
         }
     }
-
-    private async Task OnDialogSaved(bool saved)
-    {
-        DialogHidden = true;
-        if (saved)
-        {
-            await LoadMcpToolsAsync();
-            ToastService.ShowSuccess("保存成功");
-        }
-    }
 }

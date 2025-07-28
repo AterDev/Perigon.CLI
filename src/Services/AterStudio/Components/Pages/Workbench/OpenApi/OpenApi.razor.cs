@@ -225,6 +225,7 @@ public partial class OpenApi
             return;
 
         await GetApiDocsAsync();
+        StateHasChanged();
     }
 
     private async Task OpenEditOpenApiDialog()
