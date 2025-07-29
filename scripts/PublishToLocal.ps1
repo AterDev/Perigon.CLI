@@ -7,9 +7,11 @@ param (
 $location = Get-Location
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 
+$dotnetVersion = "net9.0"
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
 $studioPath = Join-Path $location "../src/Services/AterStudio";
-$dotnetVersion = "net9.0"
+$shareDllsFile = Join-Path $commandLineDir "ShareDlls.txt"
+
 
 try {
     Set-Location $location
@@ -60,7 +62,6 @@ try {
         dotnet publish -c release -o ./publish -p:GenerateDocumentationFile=false -p:DebugType=None
         # 移除部分 dll文件，减少体积
         # 读取ShareDlls.txt，获取dll列表
-        $shareDllsFile = Join-Path $location "ShareDlls.txt"
         if (Test-Path $shareDllsFile) {
             $shareDlls = Get-Content -Path $shareDllsFile
             foreach ($dll in $shareDlls) {

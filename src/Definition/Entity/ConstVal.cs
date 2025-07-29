@@ -37,9 +37,8 @@ public static class ConstVal
     public const string ControllersDir = "Controllers";
     public const string SrcDir = "src";
     public const string TemplateDir = "templates";
-
+    public const string ShareDlls = "ShareDlls.txt";
     public const string ServicesDir = "Services";
-
     public const string StudioDir = "DryStudio";
 
     // names

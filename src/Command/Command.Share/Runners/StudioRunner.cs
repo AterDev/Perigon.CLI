@@ -82,80 +82,21 @@ public class StudioRunner
     /// </summary>
     public static void UpdateStudio()
     {
-        string[] copyFiles =
-        [
-            "Ater.Common",
-            "Ater.Web.Convention",
-            "CodeGenerator",
-            "Entity",
-            "EntityFramework",
-            "Humanizer",
-            "Mapster.Core",
-            "Mapster",
-            "Microsoft.AspNetCore.Razor.Language",
-            "Microsoft.Build",
-            "Microsoft.Build.Framework",
-            "Microsoft.Build.Locator",
-            "Microsoft.Build.Tasks.Core",
-            "Microsoft.Build.Utilities.Core",
-            "Microsoft.CodeAnalysis.CSharp",
-            "Microsoft.CodeAnalysis.CSharp.Workspaces",
-            "Microsoft.CodeAnalysis",
-            "Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler",
-            "Microsoft.CodeAnalysis.Workspaces",
-            "Microsoft.CodeAnalysis.Workspaces.MSBuild",
-            "Microsoft.Data.Sqlite",
-            "Microsoft.EntityFrameworkCore.Abstractions",
-            "Microsoft.EntityFrameworkCore",
-            "Microsoft.EntityFrameworkCore.Relational",
-            "Microsoft.EntityFrameworkCore.Sqlite",
-            "Microsoft.Extensions.DependencyModel",
-            "Microsoft.IdentityModel.Abstractions",
-            "Microsoft.IdentityModel.JsonWebTokens",
-            "Microsoft.IdentityModel.Logging",
-            "Microsoft.IdentityModel.Tokens",
-            "Microsoft.NET.StringTools",
-            "Microsoft.OpenApi",
-            "Microsoft.OpenApi.Readers",
-            "Microsoft.VisualStudio.Setup.Configuration.Interop",
-            "Newtonsoft.Json",
-            "RazorEngineCore",
-            "Share",
-            "SharpYaml",
-            "Spectre.Console",
-            "SQLitePCLRaw.batteries_v2",
-            "SQLitePCLRaw.core",
-            "SQLitePCLRaw.provider.e_sqlite3",
-            "System.CodeDom",
-            "System.Composition.AttributedModel",
-            "System.Composition.Convention",
-            "System.Composition.Hosting",
-            "System.Composition.Runtime",
-            "System.Composition.TypedParts",
-            "System.Configuration.ConfigurationManager",
-            "System.IdentityModel.Tokens.Jwt",
-            "System.Reflection.MetadataLoadContext",
-            "System.Resources.Extensions",
-            "System.Security.Cryptography.ProtectedData",
-            "System.Security.Permissions",
-            "System.Windows.Extensions",
-            "Microsoft.IO.Redist",
-            "System.Buffers",
-            "System.Collections.Immutable",
-            "System.CommandLine",
-            "System.Memory",
-            "System.Numerics.Vectors",
-            "System.Runtime.CompilerServices.Unsafe",
-            "System.Threading.Tasks.Extensions",
-            "Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost",
-            "Share.resources",
-        ];
+        string[] copyFiles = [];
 
         string version = AssemblyHelper.GetCurrentToolVersion();
         string toolRootPath = AssemblyHelper.GetToolPath();
         string zipPath = Path.Combine(toolRootPath, ConstVal.StudioZip);
         string templatePath = Path.Combine(toolRootPath, ConstVal.TemplateZip);
-
+        string shareDllsPath = Path.Combine(toolRootPath, ConstVal.ShareDlls);
+        if (File.Exists(shareDllsPath))
+        {
+            copyFiles = File.ReadAllLines(shareDllsPath);
+        }
+        else
+        {
+            OutputHelper.Warning($"not found {ConstVal.ShareDlls} in:{toolRootPath}");
+        }
         if (!File.Exists(zipPath))
         {
             OutputHelper.Error($"not found studio.zip in:{toolRootPath}");
@@ -205,14 +146,10 @@ public class StudioRunner
                         .ToList()
                         .ForEach(file =>
                         {
-                            string sourceFile = Path.Combine(toolRootPath, file + ".dll");
+                            string sourceFile = Path.Combine(toolRootPath, file);
                             if (File.Exists(sourceFile))
                             {
-                                File.Copy(
-                                    sourceFile,
-                                    Path.Combine(studioPath, file + ".dll"),
-                                    true
-                                );
+                                File.Copy(sourceFile, Path.Combine(studioPath, file), true);
                             }
                             else
                             {

@@ -1,68 +1,70 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<TargetFramework>net9.0</TargetFramework>
-		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>ater</ToolCommandName>
-		<PackageOutputPath>./nupkg</PackageOutputPath>
-		<AssemblyVersion>10.0.0</AssemblyVersion>
-		<PackageId>ater.dry.copilot</PackageId>
-		<Version>10.0.0-beta1</Version>
-		<Description> DRY代码生成助手</Description>
-		<Authors>NilTor</Authors>
-		<Company>Atersoft</Company>
-		<Copyright>Atersoft</Copyright>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/AterDev/cli.git</RepositoryUrl>
-		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageReleaseNotes></PackageReleaseNotes>
-		<PackageIcon>logo.jpg</PackageIcon>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<AssemblyName>$(MSBuildProjectName)</AssemblyName>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageTags>ater;cli;code generate;angular;webapi;asp.net core</PackageTags>
-		<Nullable>enable</Nullable>
-		<Title>Ater.Dry</Title>
-		<PublishTrimmed>False</PublishTrimmed>
-		<SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugType>None</DebugType>
-		<DebugSymbols>false</DebugSymbols>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Include="studio.zip" Condition="Exists('studio.zip')">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Include="template.zip" Condition="Exists('template.zip')">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Spectre.Console.Cli" Version="0.50.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-		<None Include="logo.jpg">
-			<Pack>True</Pack>
-			<PackagePath>
-			</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="nupkg\" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\Command.Share\Command.Share.csproj" />
-	</ItemGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>ater</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <AssemblyVersion>10.0.0</AssemblyVersion>
+    <PackageId>ater.dry.copilot</PackageId>
+    <Version>10.0.0-beta1</Version>
+    <Description> DRY代码生成助手</Description>
+    <Authors>NilTor</Authors>
+    <Company>Atersoft</Company>
+    <Copyright>Atersoft</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/AterDev/cli.git</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageIcon>logo.jpg</PackageIcon>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>ater;cli;code generate;angular;webapi;asp.net core</PackageTags>
+    <Nullable>enable</Nullable>
+    <Title>Ater.Dry</Title>
+    <PublishTrimmed>False</PublishTrimmed>
+    <SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>None</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="studio.zip" Condition="Exists('studio.zip')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="template.zip" Condition="Exists('template.zip')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="shareDlls.txt" Condition="Exists('shareDlls.txt')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console.Cli" Version="0.50.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="logo.jpg">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="nupkg\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Command.Share\Command.Share.csproj" />
+  </ItemGroup>
 </Project>

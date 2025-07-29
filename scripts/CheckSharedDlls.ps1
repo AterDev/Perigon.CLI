@@ -1,7 +1,8 @@
-$location = (Get-Location).Path
+$location = Get-Location
 
 $commandLineDir = Join-Path $location "..\src\Command\CommandLine"
 $studioDir = Join-Path $location "..\src\Services\AterStudio"
+$shareDllsFile = Join-Path $commandLineDir "ShareDlls.txt"
 
 # 清静publish 
 Remove-Item -Path (Join-Path $commandLineDir "publish") -Recurse -Force -ErrorAction SilentlyContinue
@@ -10,7 +11,6 @@ Remove-Item -Path (Join-Path $studioDir "publish") -Recurse -Force -ErrorAction 
 ## 构建项目
 dotnet publish  (Join-Path $commandLineDir "CommandLine.csproj") -c Release -o (Join-Path $commandLineDir "publish")
 dotnet publish  (Join-Path $studioDir "AterStudio.csproj") -c Release -o (Join-Path $studioDir "publish")
-
 
 ## 检查共享的 DLL 文件
 $path1 = "../src/Command/CommandLine/publish"
@@ -33,7 +33,7 @@ $shareDlls = $set1.Where({ $set2.Contains($_) })
 Write-Host "Total common DLL files: $($shareDlls.Count)"
 
 ## 保存到文件
-$shareDllsFile = Join-Path $location "ShareDlls.txt"
+
 $shareDlls | Out-File -FilePath $shareDllsFile -Encoding UTF8
 
 # common的总大小
