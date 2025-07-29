@@ -4,6 +4,7 @@ using Entity;
 using Share.Models.CommandDtos;
 
 namespace Share.Services;
+
 /// <summary>
 ///  command service
 /// </summary>
@@ -14,13 +15,20 @@ public class CommandService(CommandDbContext context)
 
     public async Task<Guid?> AddProjectAsync(string name, string path)
     {
-        var projectFilePath = Directory.GetFiles(path, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        var projectFilePath = Directory
+            .GetFiles(path, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
 
-        projectFilePath ??= Directory.GetFiles(path, $"*{ConstVal.SolutionXMLExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(path, $"*{ConstVal.SolutionXMLExtension}", SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
 
-        projectFilePath ??= Directory.GetFiles(path, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(path, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly).FirstOrDefault();
-
+        projectFilePath ??= Directory
+            .GetFiles(path, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(path, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
 
         var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
         var solutionName = Path.GetFileName(projectFilePath) ?? name;
@@ -30,7 +38,7 @@ public class CommandService(CommandDbContext context)
             DisplayName = name,
             Path = solutionPath,
             Name = solutionName,
-            SolutionType = solutionType
+            SolutionType = solutionType,
         };
         entity.Config.SolutionPath = solutionPath;
 
@@ -53,7 +61,11 @@ public class CommandService(CommandDbContext context)
         }
         else
         {
-            ProcessHelper.RunCommand("dotnet", $"new install ater.web.templates::{version}", out string msg);
+            ProcessHelper.RunCommand(
+                "dotnet",
+                $"new install ater.web.templates::{version}",
+                out string msg
+            );
             OutputHelper.Info(msg);
         }
 
@@ -61,7 +73,13 @@ public class CommandService(CommandDbContext context)
         {
             Directory.CreateDirectory(solutionPath);
         }
-        if (!ProcessHelper.RunCommand("dotnet", $"new ater-{templateType} -o {solutionPath} --force", out string error))
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"new ater-{templateType} -o {solutionPath} --force",
+                out string error
+            )
+        )
         {
             OutputHelper.Error(error);
             ErrorMsg = "Create failed, check the error output.";
@@ -93,11 +111,26 @@ public class CommandService(CommandDbContext context)
         }
 
         // 保存项目信息
-        var projectFilePath = Directory.GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(solutionPath, $"*{ConstVal.SolutionXMLExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(solutionPath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        projectFilePath ??= Directory.GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly).FirstOrDefault();
-
+        var projectFilePath = Directory
+            .GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(
+                solutionPath,
+                $"*{ConstVal.SolutionXMLExtension}",
+                SearchOption.TopDirectoryOnly
+            )
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(
+                solutionPath,
+                $"*{ConstVal.CSharpProjectExtension}",
+                SearchOption.TopDirectoryOnly
+            )
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
 
         var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
         var solutionName = Path.GetFileName(projectFilePath) ?? dto.Name;
@@ -106,7 +139,7 @@ public class CommandService(CommandDbContext context)
             DisplayName = dto.Name,
             Path = solutionPath,
             Name = solutionName,
-            SolutionType = solutionType
+            SolutionType = solutionType,
         };
         entity.Config.SolutionPath = solutionPath;
         await context.Projects.AddAsync(entity);
@@ -125,10 +158,10 @@ public class CommandService(CommandDbContext context)
         // 修改配置文件
         string configFile = Path.Combine(path, "src", apiName, "appsettings.json");
         string jsonString = File.ReadAllText(configFile);
-        JsonNode? jsonNode = JsonNode.Parse(jsonString, documentOptions: new JsonDocumentOptions
-        {
-            CommentHandling = JsonCommentHandling.Skip
-        });
+        JsonNode? jsonNode = JsonNode.Parse(
+            jsonString,
+            documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip }
+        );
         if (jsonNode != null)
         {
             JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Database", dto.DBType.ToString());
@@ -136,18 +169,34 @@ public class CommandService(CommandDbContext context)
 
             if (dto.CommandDbConnStrings.NotEmpty())
             {
-                JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CommandDb", dto.CommandDbConnStrings);
+                JsonHelper.AddOrUpdateJsonNode(
+                    jsonNode,
+                    "ConnectionStrings.CommandDb",
+                    dto.CommandDbConnStrings
+                );
             }
 
             if (dto.QueryDbConnStrings.NotEmpty())
             {
-                JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.QueryDb", dto.QueryDbConnStrings);
+                JsonHelper.AddOrUpdateJsonNode(
+                    jsonNode,
+                    "ConnectionStrings.QueryDb",
+                    dto.QueryDbConnStrings
+                );
             }
             if (dto.CacheConnStrings.NotEmpty())
             {
-                JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.Cache", dto.CacheConnStrings);
+                JsonHelper.AddOrUpdateJsonNode(
+                    jsonNode,
+                    "ConnectionStrings.Cache",
+                    dto.CacheConnStrings
+                );
             }
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CacheInstanceName", dto.CacheInstanceName ?? "Dev");
+            JsonHelper.AddOrUpdateJsonNode(
+                jsonNode,
+                "ConnectionStrings.CacheInstanceName",
+                dto.CacheInstanceName ?? "Dev"
+            );
 
             jsonString = jsonNode.ToString();
             File.WriteAllText(configFile, jsonString);

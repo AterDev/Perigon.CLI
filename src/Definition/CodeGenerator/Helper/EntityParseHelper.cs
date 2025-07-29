@@ -22,7 +22,7 @@ public class EntityParseHelper
     /// 程序集名称
     /// </summary>
     public string AssemblyName { get; set; }
-    public System.IO.FileInfo ProjectFile { get; set; }
+    public FileInfo ProjectFile { get; set; }
 
     /// <summary>
     /// 类原始注释
@@ -76,8 +76,8 @@ public class EntityParseHelper
     {
         FilePath = filePath;
 
-        System.IO.FileInfo fileInfo = new(filePath);
-        System.IO.FileInfo? projectFile =
+        FileInfo fileInfo = new(filePath);
+        FileInfo? projectFile =
             AssemblyHelper.FindProjectFile(fileInfo.Directory!, fileInfo.Directory!.Root)
             ?? throw new ArgumentException("can't find project file");
         ProjectFile = projectFile;
@@ -688,26 +688,6 @@ public class EntityParseHelper
     public string? GetParentClassName(INamedTypeSymbol typeSymbol)
     {
         return typeSymbol.BaseType?.Name;
-    }
-
-    public void GetParentProperties()
-    {
-        ClassDeclarationSyntax? classDeclarationSyntax = RootNodes!
-            .OfType<ClassDeclarationSyntax>()
-            .FirstOrDefault();
-        if (classDeclarationSyntax == null)
-            return;
-        var classSymbol = SemanticModel.GetDeclaredSymbol(classDeclarationSyntax!);
-
-        // get base class's properties
-        var baseType = classSymbol?.BaseType;
-        if (baseType == null)
-            return;
-        IEnumerable<ISymbol> baseProperties = baseType
-            .GetMembers()
-            .Where(m => m.Kind == SymbolKind.Property);
-
-        foreach (ISymbol? property in baseProperties) { }
     }
 
     /// <summary>

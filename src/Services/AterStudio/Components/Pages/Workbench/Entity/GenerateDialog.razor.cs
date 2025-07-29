@@ -1,6 +1,5 @@
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace AterStudio.Components.Pages.Workbench.Entity;
 

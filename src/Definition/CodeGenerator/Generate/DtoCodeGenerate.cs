@@ -3,6 +3,7 @@ using Entity;
 using Entity.StudioMod;
 
 namespace CodeGenerator.Generate;
+
 /// <summary>
 /// dto generate
 /// </summary>
@@ -10,6 +11,7 @@ public class DtoCodeGenerate
 {
     public EntityInfo EntityInfo { get; init; }
     public string KeyType { get; set; } = ConstVal.Guid;
+
     /// <summary>
     /// dto 输出的 程序集名称
     /// </summary>
@@ -23,7 +25,7 @@ public class DtoCodeGenerate
         {
             EntityKeyType.Int => "Int",
             EntityKeyType.String => "String",
-            _ => "Guid"
+            _ => "Guid",
         };
     }
 
@@ -64,12 +66,13 @@ public class DtoCodeGenerate
             EntityNamespace = EntityInfo.NamespaceName,
             Comment = FormatComment(EntityInfo.Comment, " Detail"),
             Tag = EntityInfo.Name,
-            Properties = EntityInfo.PropertyInfos?
-                .Where(p => p.Name is not ConstVal.IsDeleted)
-                .Where(p => !p.IsJsonIgnore)
-                .Where(p => !EntityInfo.IgnoreTypes.Contains(p.Type))
-                .Where(p => !(p.IsList && p.IsNavigation))
-                .ToList() ?? []
+            Properties =
+                EntityInfo
+                    .PropertyInfos?.Where(p => p.Name is not ConstVal.IsDeleted)
+                    .Where(p => !p.IsJsonIgnore)
+                    .Where(p => !EntityInfo.IgnoreTypes.Contains(p.Type))
+                    .Where(p => !(p.IsList && p.IsNavigation))
+                    .ToList() ?? [],
         };
 
         return dto;
@@ -88,13 +91,19 @@ public class DtoCodeGenerate
             EntityNamespace = EntityInfo.NamespaceName,
             Comment = FormatComment(EntityInfo.Comment, " ListItem"),
             Tag = EntityInfo.Name,
-            Properties = EntityInfo.PropertyInfos?
-                .Where(p => p.Name is not ConstVal.IsDeleted and not ConstVal.UpdatedTime)
-                .Where(p => !p.IsJsonIgnore && !EntityInfo.IgnoreTypes.Contains(p.Type))
-                .Where(p => !p.IsList
-                && (p.MaxLength is not (not null and >= 200))
-                && (!p.Name.EndsWith("Id") || p.Name.Equals("Id"))
-                && !p.IsNavigation).ToList() ?? []
+            Properties =
+                EntityInfo
+                    .PropertyInfos?.Where(p =>
+                        p.Name is not ConstVal.IsDeleted and not ConstVal.UpdatedTime
+                    )
+                    .Where(p => !p.IsJsonIgnore && !EntityInfo.IgnoreTypes.Contains(p.Type))
+                    .Where(p =>
+                        !p.IsList
+                        && (p.MaxLength is not (not null and >= 200))
+                        && (!p.Name.EndsWith("Id") || p.Name.Equals("Id"))
+                        && !p.IsNavigation
+                    )
+                    .ToList() ?? [],
         };
 
         return dto;
@@ -106,14 +115,10 @@ public class DtoCodeGenerate
     /// <returns></returns>
     public DtoInfo GetFilterDto()
     {
-        List<PropertyInfo>? referenceProps = EntityInfo.PropertyInfos?
-            .Where(p => p.IsNavigation && !p.IsList)
+        List<PropertyInfo>? referenceProps = EntityInfo
+            .PropertyInfos?.Where(p => p.IsNavigation && !p.IsList)
             .Where(p => !p.IsJsonIgnore)
-            .Select(s => new PropertyInfo()
-            {
-                Name = s.Name + "Id",
-                Type = KeyType + "?",
-            })
+            .Select(s => new PropertyInfo() { Name = s.Name + "Id", Type = KeyType + "?" })
             .ToList();
 
         DtoInfo dto = new()
@@ -124,9 +129,9 @@ public class DtoCodeGenerate
             Comment = FormatComment(EntityInfo.Comment, " Filter"),
             Tag = EntityInfo.Name,
             BaseType = ConstVal.FilterBase,
-            Properties = EntityInfo.GetFilterProperties()
-                .Select(p => p.Adapt<PropertyInfo>())
-                .ToList() ?? []
+            Properties =
+                EntityInfo.GetFilterProperties().Select(p => p.Adapt<PropertyInfo>()).ToList()
+                ?? [],
         };
 
         // 筛选条件调整为可空
@@ -148,10 +153,12 @@ public class DtoCodeGenerate
     public DtoInfo GetAddDto()
     {
         // 导航属性处理
-        List<PropertyInfo>? referenceProps = EntityInfo.PropertyInfos?
-            .Where(p => !p.IsJsonIgnore && !p.IsList)
-            .Where(p => p.IsNavigation &&
-                (p.IsRequired || !p.IsNullable || !string.IsNullOrWhiteSpace(p.DefaultValue)))
+        List<PropertyInfo>? referenceProps = EntityInfo
+            .PropertyInfos?.Where(p => !p.IsJsonIgnore && !p.IsList)
+            .Where(p =>
+                p.IsNavigation
+                && (p.IsRequired || !p.IsNullable || !string.IsNullOrWhiteSpace(p.DefaultValue))
+            )
             .Where(p => !p.Type.Equals("User") && !p.Type.Equals("SystemUser"))
             .Select(s => new PropertyInfo()
             {
@@ -170,14 +177,18 @@ public class DtoCodeGenerate
             EntityNamespace = EntityInfo.NamespaceName,
             Comment = FormatComment(EntityInfo.Comment, " AddDto"),
             Tag = EntityInfo.Name,
-            Properties = EntityInfo.PropertyInfos?.Where(p => !p.IsNavigation
-                && p.HasSet
-                && !EntityInfo.IgnoreTypes.Contains(p.Type)
-                && p.Name != ConstVal.Id
-                && p.Name != ConstVal.CreatedTime
-                && p.Name != ConstVal.UpdatedTime
-                && p.Name != ConstVal.IsDeleted)
-            .ToList() ?? []
+            Properties =
+                EntityInfo
+                    .PropertyInfos?.Where(p =>
+                        !p.IsNavigation
+                        && p.HasSet
+                        && !EntityInfo.IgnoreTypes.Contains(p.Type)
+                        && p.Name != ConstVal.Id
+                        && p.Name != ConstVal.CreatedTime
+                        && p.Name != ConstVal.UpdatedTime
+                        && p.Name != ConstVal.IsDeleted
+                    )
+                    .ToList() ?? [],
         };
 
         referenceProps?.ForEach(item =>
@@ -199,10 +210,12 @@ public class DtoCodeGenerate
     public DtoInfo GetUpdateDto()
     {
         // 导航属性处理
-        List<PropertyInfo>? referenceProps = EntityInfo.PropertyInfos?
-            .Where(p => !p.IsJsonIgnore)
-            .Where(p => p.IsNavigation &&
-                (p.IsRequired || !p.IsNullable || !string.IsNullOrWhiteSpace(p.DefaultValue)))
+        List<PropertyInfo>? referenceProps = EntityInfo
+            .PropertyInfos?.Where(p => !p.IsJsonIgnore)
+            .Where(p =>
+                p.IsNavigation
+                && (p.IsRequired || !p.IsNullable || !string.IsNullOrWhiteSpace(p.DefaultValue))
+            )
             .Where(p => !p.Type.Equals("User") && !p.Type.Equals("SystemUser"))
             .Select(s => new PropertyInfo()
             {
@@ -220,15 +233,19 @@ public class DtoCodeGenerate
             Comment = FormatComment(EntityInfo.Comment, " UpdateDTO"),
             Tag = EntityInfo.Name,
             // 处理非 required的都设置为 nullable
-            Properties = EntityInfo.PropertyInfos?.Where(p => !p.IsNavigation
-                    && p.HasSet
-                    && !EntityInfo.IgnoreTypes.Contains(p.Type)
-                    && p.Name != ConstVal.Id
-                    && p.Name != ConstVal.CreatedTime
-                    && p.Name != ConstVal.UpdatedTime
-                    && p.Name != ConstVal.IsDeleted)
-            .Select(p => p.Adapt<PropertyInfo>())
-            .ToList() ?? []
+            Properties =
+                EntityInfo
+                    .PropertyInfos?.Where(p =>
+                        !p.IsNavigation
+                        && p.HasSet
+                        && !EntityInfo.IgnoreTypes.Contains(p.Type)
+                        && p.Name != ConstVal.Id
+                        && p.Name != ConstVal.CreatedTime
+                        && p.Name != ConstVal.UpdatedTime
+                        && p.Name != ConstVal.IsDeleted
+                    )
+                    .Select(p => p.Adapt<PropertyInfo>())
+                    .ToList() ?? [],
         };
 
         referenceProps?.ForEach(item =>
@@ -248,13 +265,14 @@ public class DtoCodeGenerate
 
     public List<string> GetGlobalUsings()
     {
-        return [
-        "global using System;",
-        "global using System.Text.Json;",
-        "global using System.ComponentModel.DataAnnotations;",
-        $"global using {Namespace}.{ConstVal.ModelsDir};",
-        $"global using {ConstVal.CoreLibName}.{ConstVal.ModelsDir};",
-        $"global using {EntityInfo.NamespaceName};"
+        return
+        [
+            "global using System;",
+            "global using System.Text.Json;",
+            "global using System.ComponentModel.DataAnnotations;",
+            $"global using {Namespace}.{ConstVal.ModelsDir};",
+            $"global using {ConstVal.CoreLibName}.{ConstVal.ModelsDir};",
+            $"global using {EntityInfo.NamespaceName};",
         ];
     }
 }

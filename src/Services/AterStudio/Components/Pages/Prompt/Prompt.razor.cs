@@ -1,5 +1,4 @@
 using AterStudio.Components.Shared;
-using AterStudio.Components.Shared.Models;
 using CodeGenerator.Helper;
 using Entity;
 

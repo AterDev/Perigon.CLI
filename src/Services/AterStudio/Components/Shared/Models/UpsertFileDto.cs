@@ -14,11 +14,9 @@ public class UpsertFileDto
     {
         get
         {
-            if (string.IsNullOrEmpty(FileName))
-            {
-                return Path.Combine(RootPath, DirectoryName);
-            }
-            return Path.Combine(RootPath, DirectoryName, FileName + Suffix);
+            return string.IsNullOrEmpty(FileName)
+                ? Path.Combine(RootPath, DirectoryName)
+                : Path.Combine(RootPath, DirectoryName, FileName + Suffix);
         }
     }
 }

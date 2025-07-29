@@ -1,4 +1,5 @@
 namespace CommandLine;
+
 using System;
 using Spectre.Console.Cli;
 
@@ -11,18 +12,11 @@ public sealed class DITypeRegistrar : ITypeRegistrar
         _serviceProvider = serviceProvider;
     }
 
-    public void Register(Type service, Type implementation)
-    {
+    public void Register(Type service, Type implementation) { }
 
-    }
+    public void RegisterInstance(Type service, object implementation) { }
 
-    public void RegisterInstance(Type service, object implementation)
-    {
-    }
-
-    public void RegisterLazy(Type service, Func<object> factory)
-    {
-    }
+    public void RegisterLazy(Type service, Func<object> factory) { }
 
     public ITypeResolver Build()
     {

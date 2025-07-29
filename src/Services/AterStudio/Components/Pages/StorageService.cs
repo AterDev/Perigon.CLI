@@ -27,10 +27,8 @@ public class StorageService
 
     public T? GetParameter<T>(string key)
     {
-        if (Parameters.TryGetValue(key, out var value) && value is T typedValue)
-        {
-            return typedValue;
-        }
-        return default;
+        return Parameters.TryGetValue(key, out var value) && value is T typedValue
+            ? typedValue
+            : default;
     }
 }

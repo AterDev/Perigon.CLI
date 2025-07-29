@@ -115,9 +115,8 @@ public partial class OpenApi
 
     private void SearchApi()
     {
-        if (!string.IsNullOrWhiteSpace(ApiSearchKeyword))
-        {
-            FilteredRestApiGroups = RestApiGroups
+        FilteredRestApiGroups = !string.IsNullOrWhiteSpace(ApiSearchKeyword)
+            ? RestApiGroups
                 .Where(group =>
                     (
                         group.Name?.Contains(ApiSearchKeyword, StringComparison.OrdinalIgnoreCase)
@@ -163,19 +162,14 @@ public partial class OpenApi
                             )
                             .ToList() ?? [],
                 })
-                .ToList();
-        }
-        else
-        {
-            FilteredRestApiGroups = RestApiGroups;
-        }
+                .ToList()
+            : RestApiGroups;
     }
 
     private void SearchModel()
     {
-        if (!string.IsNullOrWhiteSpace(ModelSearchKeyword))
-        {
-            FilteredModelList = ModelList
+        FilteredModelList = !string.IsNullOrWhiteSpace(ModelSearchKeyword)
+            ? ModelList
                 .Where(model =>
                     (
                         model.Name?.Contains(ModelSearchKeyword, StringComparison.OrdinalIgnoreCase)
@@ -189,12 +183,8 @@ public partial class OpenApi
                     )
                         && model.IsEnum == false
                 )
-                .ToList();
-        }
-        else
-        {
-            FilteredModelList = ModelList;
-        }
+                .ToList()
+            : ModelList;
     }
 
     private void OpenModelInfoDialog(string modelName)

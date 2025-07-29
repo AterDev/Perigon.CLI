@@ -262,11 +262,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     public async Task<bool> AddAsync(TEntity entity)
     {
         await Command.AddAsync(entity);
-        if (AutoSave)
-        {
-            return await SaveChangesAsync() > 0;
-        }
-        return true;
+        return AutoSave ? await SaveChangesAsync() > 0 : true;
     }
 
     /// <summary>
@@ -277,11 +273,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
         Command.Update(entity);
-        if (AutoSave)
-        {
-            return await SaveChangesAsync() > 0;
-        }
-        return true;
+        return AutoSave ? await SaveChangesAsync() > 0 : true;
     }
 
     /// <summary>

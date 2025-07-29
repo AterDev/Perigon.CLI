@@ -20,7 +20,6 @@ public partial class EntityList
     bool IsCleaning { get; set; }
     bool BatchOpen { get; set; } = false;
 
-    private FluentDialog _dialog = default!;
     private PaginationState pagination = new() { ItemsPerPage = 20 };
 
     private IQueryable<EntityFile>? EntityFiles { get; set; }
@@ -86,17 +85,14 @@ public partial class EntityList
 
     private void FilterEntityFiles()
     {
-        if (string.IsNullOrWhiteSpace(SelectedModule))
-        {
-            FilteredEntityFiles = EntityFiles;
-        }
-        else
-        {
-            FilteredEntityFiles = EntityFiles?.Where(e =>
-                e.ModuleName != null
-                && e.ModuleName.Equals(SelectedModule, StringComparison.OrdinalIgnoreCase)
+        FilteredEntityFiles = string.IsNullOrWhiteSpace(SelectedModule)
+            ? EntityFiles
+            : (
+                EntityFiles?.Where(e =>
+                    e.ModuleName != null
+                    && e.ModuleName.Equals(SelectedModule, StringComparison.OrdinalIgnoreCase)
+                )
             );
-        }
     }
 
     private void GetModules()

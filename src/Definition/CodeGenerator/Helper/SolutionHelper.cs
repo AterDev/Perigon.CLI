@@ -1,15 +1,16 @@
-﻿using Microsoft.Build.Locator;
+using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.MSBuild;
 
 namespace CodeGenerator.Helper;
+
 /// <summary>
 /// 解决方案解析帮助类
 /// </summary>
 public class SolutionHelper : IDisposable
 {
     public MSBuildWorkspace Workspace { get; set; }
-    public Solution Solution { get; private set; }
+    public Solution? Solution { get; private set; }
 
     public SolutionHelper(string path)
     {
@@ -24,7 +25,6 @@ public class SolutionHelper : IDisposable
                 MSBuildLocator.RegisterDefaults();
             }
             Workspace = MSBuildWorkspace.Create();
-            Solution = Workspace.OpenSolutionAsync(path).Result;
         }
         catch (Exception ex)
         {
@@ -33,14 +33,19 @@ public class SolutionHelper : IDisposable
         }
     }
 
+    public async void OpenSolutionAsync(string path)
+    {
+        Solution = await Workspace.OpenSolutionAsync(path);
+    }
+
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="projectName"></param>
     /// <returns></returns>
-    public Microsoft.CodeAnalysis.Project? GetProject(string projectName)
+    public Project? GetProject(string projectName)
     {
-        return Solution.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
+        return Solution?.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
     }
 
     /// <summary>
@@ -48,13 +53,19 @@ public class SolutionHelper : IDisposable
     /// </summary>
     /// <param name="projectPath"></param>
     /// <returns></returns>
-    public bool AddExistProject(string projectPath)
+    public async Task<bool> AddExistProjectAsync(string projectPath)
     {
-        if (!File.Exists(projectPath))
+        if (Solution == null || !File.Exists(projectPath))
         {
             throw new FileNotFoundException("项目文件不存在:" + projectPath);
         }
-        if (!ProcessHelper.RunCommand("dotnet", $"sln {Solution.FilePath} add {projectPath}", out string _))
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"sln {Solution.FilePath} add {projectPath}",
+                out string _
+            )
+        )
         {
             return false;
         }
@@ -62,7 +73,7 @@ public class SolutionHelper : IDisposable
         {
             return false;
         }
-        Microsoft.CodeAnalysis.Project project = Workspace.OpenProjectAsync(projectPath).Result;
+        Project project = await Workspace.OpenProjectAsync(projectPath);
         // add opened project to solution
         Solution = project.Solution;
         return true;
@@ -73,9 +84,15 @@ public class SolutionHelper : IDisposable
     /// </summary>
     /// <param name="currentProject"></param>
     /// <param name="referenceProject"></param>
-    public bool AddProjectReference(Microsoft.CodeAnalysis.Project currentProject, Microsoft.CodeAnalysis.Project referenceProject)
+    public bool AddProjectReference(Project currentProject, Project referenceProject)
     {
-        if (!ProcessHelper.RunCommand("dotnet", $"add {currentProject.FilePath} reference {referenceProject.FilePath}", out string _))
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"add {currentProject.FilePath} reference {referenceProject.FilePath}",
+                out string _
+            )
+        )
         {
             return false;
         }
@@ -91,57 +108,82 @@ public class SolutionHelper : IDisposable
     /// <param name="projectName"></param>
     public void RenameNamespace(string oldName, string newName, string? projectName = null)
     {
-        IEnumerable<Microsoft.CodeAnalysis.Project> projects = Solution.Projects.GroupBy(p => p.AssemblyName)
+        if (Solution == null)
+        {
+            return;
+        }
+        IEnumerable<Project> projects = Solution
+            .Projects.GroupBy(p => p.AssemblyName)
             .Select(g => g.First());
         if (projectName != null)
         {
             projects = projects.Where(p => p.AssemblyName == projectName);
         }
-        Parallel.ForEach(projects, p =>
-        {
-            Parallel.ForEach(p.Documents, d =>
+        Parallel.ForEach(
+            projects,
+            p =>
             {
-                if (d.Folders.Count > 0 && d.Folders[0].Equals("obj"))
-                {
-                    return;
-                }
-                if (d.FilePath != null)
-                {
-                    string path = d.FilePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
-                    if (!File.Exists(path))
+                Parallel.ForEach(
+                    p.Documents,
+                    d =>
                     {
-                        return;
-                    }
-                    string content = File.ReadAllText(path);
+                        if (d.Folders.Count > 0 && d.Folders[0].Equals("obj"))
+                        {
+                            return;
+                        }
+                        if (d.FilePath != null)
+                        {
+                            string path = d.FilePath.Replace(
+                                Path.AltDirectorySeparatorChar,
+                                Path.DirectorySeparatorChar
+                            );
 
-                    string newNamespace = string.IsNullOrWhiteSpace(newName) ? string.Empty : "namespace " + newName;
-                    string newUsing = string.IsNullOrWhiteSpace(newName) ? string.Empty : "using " + newName;
-                    content = content.Replace("namespace " + oldName, newNamespace)
-                                     .Replace("using " + oldName, newUsing)
-                                     .Replace("cref=\"" + oldName, "cref=\"" + newName);
-                    File.WriteAllText(d.FilePath, content, new UTF8Encoding(false));
-                }
-            });
-        });
+                            if (!File.Exists(path))
+                            {
+                                return;
+                            }
+                            string content = File.ReadAllText(path);
+
+                            string newNamespace = string.IsNullOrWhiteSpace(newName)
+                                ? string.Empty
+                                : "namespace " + newName;
+                            string newUsing = string.IsNullOrWhiteSpace(newName)
+                                ? string.Empty
+                                : "using " + newName;
+                            content = content
+                                .Replace("namespace " + oldName, newNamespace)
+                                .Replace("using " + oldName, newUsing)
+                                .Replace("cref=\"" + oldName, "cref=\"" + newName);
+                            File.WriteAllText(d.FilePath, content, new UTF8Encoding(false));
+                        }
+                    }
+                );
+            }
+        );
     }
 
-    public void RemoveAttributes(string projectName, string attributeName)
+    public async Task RemoveAttributesAsync(string projectName, string attributeName)
     {
-        Microsoft.CodeAnalysis.Project? project = Solution.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
+        Project? project = Solution?.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
         if (project != null)
         {
             DocumentEditor editor;
-            List<Document> documents = project.Documents.Where(d => d.FilePath != null && d.FilePath.EndsWith(".cs")).ToList();
+            List<Document> documents = project
+                .Documents.Where(d => d.FilePath != null && d.FilePath.EndsWith(".cs"))
+                .ToList();
 
-            documents.ForEach(document =>
+            foreach (var document in documents)
             {
-                editor = DocumentEditor.CreateAsync(document).Result;
-                IEnumerable<AttributeSyntax> nodes = editor.OriginalRoot
-                    .DescendantNodes().OfType<AttributeSyntax>()
+                editor = await DocumentEditor.CreateAsync(document);
+                IEnumerable<AttributeSyntax> nodes = editor
+                    .OriginalRoot.DescendantNodes()
+                    .OfType<AttributeSyntax>()
                     .Where(a => a.Name.ToString() == attributeName);
 
-                if (nodes == null) { return; }
+                if (nodes == null)
+                {
+                    return;
+                }
                 foreach (AttributeSyntax? node in nodes)
                 {
                     editor.RemoveNode(node);
@@ -149,7 +191,7 @@ public class SolutionHelper : IDisposable
                 string newContent = CSharpAnalysisHelper.FormatChanges(editor.GetChangedRoot());
 
                 File.WriteAllText(document.FilePath!, newContent, new UTF8Encoding(false));
-            });
+            }
         }
     }
 
@@ -159,10 +201,16 @@ public class SolutionHelper : IDisposable
     /// <param name="projectName"></param>
     public bool RemoveProject(string projectName)
     {
-        Microsoft.CodeAnalysis.Project? project = Solution.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
+        Project? project = Solution?.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
         if (project != null)
         {
-            if (!ProcessHelper.RunCommand("dotnet", $"sln {Solution.FilePath} remove {project.FilePath}", out string _))
+            if (
+                !ProcessHelper.RunCommand(
+                    "dotnet",
+                    $"sln {Solution!.FilePath} remove {project.FilePath}",
+                    out string _
+                )
+            )
             {
                 return false;
             }
@@ -177,11 +225,13 @@ public class SolutionHelper : IDisposable
     /// </summary>
     /// <param name="pName"></param>
     /// <returns></returns>
-    public List<Microsoft.CodeAnalysis.Project>? GetReferenceProject(string pName)
+    public List<Project>? GetReferenceProject(string pName)
     {
-        Microsoft.CodeAnalysis.Project? project = Solution.Projects.FirstOrDefault(p => p.AssemblyName == pName);
-        if (project == null) return default;
-        List<Microsoft.CodeAnalysis.Project> projects = Solution.Projects.Where(p => p.AllProjectReferences.Any(r => r.ProjectId == project.Id))
+        Project? project = Solution?.Projects.FirstOrDefault(p => p.AssemblyName == pName);
+        if (project == null)
+            return default;
+        List<Project>? projects = Solution
+            ?.Projects.Where(p => p.AllProjectReferences.Any(r => r.ProjectId == project.Id))
             .ToList();
         return projects;
     }
@@ -191,17 +241,29 @@ public class SolutionHelper : IDisposable
     /// </summary>
     /// <param name="currentProject"></param>
     /// <param name="referenceProject"></param>
-    public bool RemoveProjectReference(Microsoft.CodeAnalysis.Project currentProject, Microsoft.CodeAnalysis.Project referenceProject)
+    public bool RemoveProjectReference(Project currentProject, Project referenceProject)
     {
-        if (!ProcessHelper.RunCommand("dotnet", $"remove {currentProject.FilePath} reference {referenceProject.FilePath}", out string _))
+        if (Solution == null)
+        {
+            return false;
+        }
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"remove {currentProject.FilePath} reference {referenceProject.FilePath}",
+                out string _
+            )
+        )
         {
             return false;
         }
 
-        Solution = Solution.RemoveProjectReference(currentProject.Id, new ProjectReference(referenceProject.Id));
+        Solution = Solution.RemoveProjectReference(
+            currentProject.Id,
+            new ProjectReference(referenceProject.Id)
+        );
         return true;
     }
-
 
     /// <summary>
     /// 移动文件
@@ -211,9 +273,14 @@ public class SolutionHelper : IDisposable
     /// <param name="newPath"></param>
     /// <param name="namespaceName"></param>
     /// <returns></returns>
-    public async Task MoveDocumentAsync(string projectName, string documentPath, string newPath, string? namespaceName = null)
+    public async Task MoveDocumentAsync(
+        string projectName,
+        string documentPath,
+        string newPath,
+        string? namespaceName = null
+    )
     {
-        Microsoft.CodeAnalysis.Project? project = Solution.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
+        Project? project = Solution?.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
         if (project == null)
         {
             await Console.Out.WriteLineAsync(" can't find project:" + projectName);
@@ -230,35 +297,44 @@ public class SolutionHelper : IDisposable
             SyntaxNode? unitRoot = await document.GetSyntaxRootAsync();
 
             // 同步命名空间
-            FileScopedNamespaceDeclarationSyntax? namespaceSyntax = unitRoot!.DescendantNodes()
-                .OfType<FileScopedNamespaceDeclarationSyntax>().FirstOrDefault();
+            FileScopedNamespaceDeclarationSyntax? namespaceSyntax = unitRoot!
+                .DescendantNodes()
+                .OfType<FileScopedNamespaceDeclarationSyntax>()
+                .FirstOrDefault();
 
             if (namespaceSyntax != null)
             {
-                var newNamespaceSyntax = namespaceSyntax.WithName(SyntaxFactory.ParseName(namespaceName));
+                var newNamespaceSyntax = namespaceSyntax.WithName(
+                    SyntaxFactory.ParseName(namespaceName)
+                );
                 unitRoot = unitRoot.ReplaceNode(namespaceSyntax, newNamespaceSyntax);
             }
 
             // 同步文件类名
-            ClassDeclarationSyntax? classSyntax = unitRoot!.DescendantNodes()
-                .OfType<ClassDeclarationSyntax>().FirstOrDefault();
+            ClassDeclarationSyntax? classSyntax = unitRoot!
+                .DescendantNodes()
+                .OfType<ClassDeclarationSyntax>()
+                .FirstOrDefault();
             if (classSyntax != null && oldClassName != newClassName)
             {
                 // use newClassName replace the oldClassName
-                var newClassSyntax = classSyntax.WithIdentifier(SyntaxFactory.Identifier(newClassName));
+                var newClassSyntax = classSyntax.WithIdentifier(
+                    SyntaxFactory.Identifier(newClassName)
+                );
                 unitRoot = unitRoot.ReplaceNode(classSyntax, newClassSyntax);
             }
 
-            document = document.WithSyntaxRoot(unitRoot)
-                .WithFilePath(newPath);
+            document = document.WithSyntaxRoot(unitRoot).WithFilePath(newPath);
 
             // update document to solution
-            Solution = Solution.WithDocumentSyntaxRoot(document.Id, unitRoot)
+            Solution = Solution!
+                .WithDocumentSyntaxRoot(document.Id, unitRoot)
                 .WithDocumentFilePath(document.Id, newPath);
 
             // move file
             File.Delete(documentPath);
-            await File.WriteAllTextAsync(newPath, document.GetTextAsync().Result!.ToString(), new UTF8Encoding(false));
+            var content = await document.GetTextAsync();
+            await File.WriteAllTextAsync(newPath, content.ToString(), new UTF8Encoding(false));
         }
     }
 
@@ -274,7 +350,7 @@ public class SolutionHelper : IDisposable
         {
             return;
         }
-        Microsoft.CodeAnalysis.Project? project = Solution.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
+        Project? project = Solution?.Projects.FirstOrDefault(p => p.AssemblyName == projectName);
         if (project == null)
         {
             await Console.Out.WriteLineAsync(" can't find project:" + projectName);
@@ -292,9 +368,13 @@ public class SolutionHelper : IDisposable
         }
     }
 
-
     public bool Save()
     {
+        if (Solution == null)
+        {
+            Console.WriteLine("Solution is not opened.");
+            return false;
+        }
         return Workspace.TryApplyChanges(Solution);
     }
 
@@ -304,5 +384,4 @@ public class SolutionHelper : IDisposable
         Workspace.Dispose();
         MSBuildLocator.Unregister();
     }
-
 }

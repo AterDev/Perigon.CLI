@@ -116,9 +116,9 @@ public class LocalFileHelper
     /// </summary>
     public string GetFileContent(string filePath)
     {
-        if (!File.Exists(filePath))
-            throw new FileNotFoundException($"File not found: {filePath}");
-        return File.ReadAllText(filePath);
+        return !File.Exists(filePath)
+            ? throw new FileNotFoundException($"File not found: {filePath}")
+            : File.ReadAllText(filePath);
     }
 
     /// <summary>

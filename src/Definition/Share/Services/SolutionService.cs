@@ -564,14 +564,12 @@ public class SolutionService(
                 res.Add(moduleInfo);
             }
         });
-        if (onlyWeb)
-        {
-            return res.Where(m =>
+        return onlyWeb
+            ? res.Where(m =>
                     m.ProjectType == ProjectType.WebAPI || m.ProjectType == ProjectType.Web
                 )
-                .ToList();
-        }
-        return res;
+                .ToList()
+            : res;
     }
 
     /// <summary>
