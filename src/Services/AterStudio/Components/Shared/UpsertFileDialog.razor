@@ -28,8 +28,9 @@
   </FluentStack>
   <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
     @* monaco editor *@
-    <StandaloneCodeEditor ConstructionOptions="EditorConstructionOptions"
-                          CssClass="upsert-file-dialog" />
+
+    <FluentTextArea @bind-Value="FileContent" Rows="20"></FluentTextArea>
+
 
   </FluentStack>
 </FluentStack>
@@ -53,10 +54,10 @@
   [Parameter]
   public UpsertFileDto Content { get; set; } = default!;
 
-  StandaloneCodeEditor editor = default!;
   LocalFileHelper fileHelper = default!;
 
   string FileName { get; set; } = string.Empty;
+  string FileContent { get; set; } = string.Empty;
 
   bool IsEdit => !string.IsNullOrEmpty(Content.FileName);
 
@@ -70,49 +71,10 @@
     }
   }
 
-  private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-  {
-    this.editor = editor;
-    var content = string.Empty;
-    if (IsEdit)
-    {
-      content = fileHelper.GetFileContent(Content.FullPath);
-    }
-
-    var language = Content.Suffix switch
-    {
-      ".js" => "javascript",
-      ".ts" => "typescript",
-      ".json" => "json",
-      ".css" => "css",
-      ".cs" => "csharp",
-      ".html" => "html",
-      ".razor" => "razor",
-      ".md" => "markdown",
-      _ => "markdown"
-    };
-
-    return new StandaloneEditorConstructionOptions
-    {
-      Language = language,
-      Theme = "vs-dark",
-      AutomaticLayout = true,
-      Minimap = new EditorMinimapOptions
-      {
-        Enabled = false
-      },
-      WordWrap = "on",
-      WrappingStrategy = "advanced",
-      ScrollBeyondLastLine = false,
-      Value = content,
-    };
-  }
-
   private async Task SaveAsync()
   {
-    var content = await this.editor.GetValue();
 
-    if (FileName.IsEmpty() || content.IsEmpty()
+    if (FileName.IsEmpty() || FileContent.IsEmpty()
     || FileName.Length > 100)
     {
       ToastService.ShowError(Lang(Localizer.FormValidFailed));
@@ -122,11 +84,11 @@
     var filePath = Path.Combine(Content.RootPath, Content.DirectoryName, FileName + Content.Suffix);
     if (IsEdit)
     {
-      fileHelper.UpdateFileContent(filePath, content);
+      fileHelper.UpdateFileContent(filePath, FileContent);
     }
     else
     {
-      fileHelper.AddFile(Content.DirectoryName, FileName + Content.Suffix, content);
+      fileHelper.AddFile(Content.DirectoryName, FileName + Content.Suffix, FileContent);
     }
     await Dialog.CloseAsync(true);
   }
