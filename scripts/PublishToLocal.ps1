@@ -10,7 +10,7 @@ $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEnco
 $dotnetVersion = "net9.0"
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
 $studioPath = Join-Path $location "../src/Services/AterStudio";
-$shareDllsFile = Join-Path $commandLineDir "ShareDlls.txt"
+$shareDllsFile = Join-Path $commandLinePath "ShareDlls.txt"
 
 
 try {
@@ -75,8 +75,7 @@ try {
             ".\publish\BuildHost-net472",
             ".\publish\BuildHost-netcore",
             ".\publish\runtimes",
-            ".\publish\AterStudio.exe",
-            ".\publish\openapi_admin.json"
+            ".\publish\AterStudio.exe"
         );
         foreach ($path in $pathsToRemove) {
             if (Test-Path $path) {
@@ -131,6 +130,10 @@ try {
 
     # 重新将文件压缩，不包含最外层目录
     Compress-Archive -Path "./nupkg/$Version/*" -DestinationPath "./nupkg/$newPackName" -CompressionLevel Optimal -Force
+
+    # 获取并输出文件大小
+    $fileSize = (Get-Item "./nupkg/$newPackName").Length
+    Write-Host "New package size: $([Math]::Round($fileSize / 1MB, 2)) MB"
 
     # 删除临时文件
     Remove-Item -Path "./nupkg/$Version" -Recurse -Force

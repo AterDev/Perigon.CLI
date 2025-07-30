@@ -7,7 +7,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <AssemblyVersion>10.0.0</AssemblyVersion>
     <PackageId>ater.dry.copilot</PackageId>
-    <Version>10.0.0-beta1</Version>
+    <Version>10.0.0-beta2</Version>
     <Description> DRY代码生成助手</Description>
     <Authors>NilTor</Authors>
     <Company>Atersoft</Company>
@@ -44,7 +44,7 @@
     <None Include="template.zip" Condition="Exists('template.zip')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="shareDlls.txt" Condition="Exists('shareDlls.txt')">
+    <None Include="ShareDlls.txt" Condition="Exists('ShareDlls.txt')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

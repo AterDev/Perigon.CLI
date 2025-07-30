@@ -19,6 +19,7 @@ public class StudioRunner
         string studioPath = AssemblyHelper.GetStudioPath();
         // 检查并更新
         string version = AssemblyHelper.GetCurrentToolVersion();
+        OutputHelper.Info($"current version:{version}");
         if (!File.Exists(Path.Combine(studioPath, $"{version}.txt")))
         {
             OutputHelper.Important($"find new version：{version}");

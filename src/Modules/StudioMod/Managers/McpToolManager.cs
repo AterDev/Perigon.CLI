@@ -47,7 +47,7 @@ public class McpToolManager(
                     () =>
                     {
                         var prompt = $"""
-                        根据以下 prompt和 template 内容生成代码，下面将提供prompt和tempalte的本地路径：
+                        根据以下 prompt和 template 内容生成代码，下面将提供prompt和template的本地路径：
                             <prompt>
                             {entity.PromptPath}
                             </prompt>
