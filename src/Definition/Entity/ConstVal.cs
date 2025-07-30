@@ -8,7 +8,7 @@ public static class ConstVal
     public const string CommandName = "ater";
     public const string Version = "10.0.0";
     public const string NetVersion = "net9.0";
-    public const string PackageId = "ater.dry";
+    public const string PackageId = "ater.dry.copilot";
 
     public const string Mini = "mini";
     public const string Standard = "standard";

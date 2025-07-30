@@ -123,7 +123,7 @@ public class StudioRunner
                             File.Copy(dbFile, tempDbFile, true);
                         }
                         Directory.Delete(studioPath, true);
-                        OutputHelper.Info($"delete {studioPath}");
+                        OutputHelper.Important($"delete {studioPath}");
                     }
 
                     // 解压
@@ -133,7 +133,7 @@ public class StudioRunner
                         ZipFile.ExtractToDirectory(templatePath, studioPath, true);
                     }
                     ZipFile.ExtractToDirectory(zipPath, studioPath, true);
-                    OutputHelper.Info($"extract {zipPath} to {studioPath}");
+                    OutputHelper.Important($"extract {zipPath} to {studioPath}");
 
                     if (File.Exists(tempDbFile))
                     {
@@ -142,7 +142,7 @@ public class StudioRunner
                     }
 
                     // copy其他文件
-                    OutputHelper.Info($"start copy {copyFiles.Length} files to {studioPath}");
+                    OutputHelper.Important($"start copy {copyFiles.Length} files to {studioPath}");
                     copyFiles
                         .ToList()
                         .ForEach(file =>
@@ -159,9 +159,11 @@ public class StudioRunner
                         });
 
                     string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
-                    CreateSymbolicLink(studioPath, runtimesDir);
+                    string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
+                    CreateSymbolicLink(targetDir, runtimesDir);
                     runtimesDir = Path.Combine(toolRootPath, "runtimes");
-                    CreateSymbolicLink(studioPath, runtimesDir);
+                    targetDir = Path.Combine(studioPath, "runtimes");
+                    CreateSymbolicLink(targetDir, runtimesDir);
 
                     // create version file
                     File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
@@ -177,13 +179,12 @@ public class StudioRunner
     /// <summary>
     /// 创建软链接
     /// </summary>
-    /// <param name="studioPath"></param>
+    /// <param name="targetDir"></param>
     /// <param name="runtimesDir"></param>
-    private static void CreateSymbolicLink(string studioPath, string runtimesDir)
+    private static void CreateSymbolicLink(string targetDir, string runtimesDir)
     {
         if (Directory.Exists(runtimesDir))
         {
-            string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
             if (Directory.Exists(targetDir))
             {
                 Directory.Delete(targetDir, true);
