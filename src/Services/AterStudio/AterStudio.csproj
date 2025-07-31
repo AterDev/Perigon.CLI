@@ -9,6 +9,7 @@
     <Version>10.0.0-beta2</Version>
     <SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
     <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
+    <CompressionEnabled>false</CompressionEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591</NoWarn>

@@ -2,7 +2,7 @@
 [CmdletBinding()]
 
 # 模块名称
-$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "SystemMod", "CustomerMod","UserMod")
+$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "CustomerMod","UserMod")
 
 # 路径定义
 $deployPath = Get-Location
@@ -62,16 +62,14 @@ if (Test-Path "$entityFrameworkPath/ModuleContextBase.cs") {
 }
 
 # copy Infrastructure
-$infrastructurePath = Join-Path $templatePath "templates" "ApiStandard" "src" "Ater"
-Copy-Item $infrastructurePath $destInfrastructure -Recurse -Force
-Remove-Item "$destInfrastructure/**/obj" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item "$destInfrastructure/**/bin" -Recurse -Force -ErrorAction SilentlyContinue
-
-
+# $infrastructurePath = Join-Path $templatePath "templates" "ApiStandard" "src" "Ater"
+# Copy-Item $infrastructurePath $destInfrastructure -Recurse -Force
+# Remove-Item "$destInfrastructure/**/obj" -Recurse -Force -ErrorAction SilentlyContinue
+# Remove-Item "$destInfrastructure/**/bin" -Recurse -Force -ErrorAction SilentlyContinue
 
 # zip
 $zipPath = Join-Path $commandLinePath "template.zip"
-Compress-Archive -Path $destModulesPath, $destInfrastructure -DestinationPath $zipPath -CompressionLevel Optimal -Force
+Compress-Archive -Path $destModulesPath -DestinationPath $zipPath -CompressionLevel Optimal -Force
 Write-Host "🗜️ $zipPath"
 
 # remove modules

@@ -50,7 +50,7 @@ try {
     $xml.Save($studioProjectPath)
 
     # pack modules
-    # & "./PackTemplate.ps1"
+    & "./PackTemplate.ps1"
 
     # build web project
     if ($withStudio -eq $true) {
@@ -93,6 +93,9 @@ try {
             Remove-Item $zipPath -Force
         }
         Compress-Archive -Path .\publish\*  -DestinationPath $zipPath -CompressionLevel Optimal -Force
+
+        # 删除发布目录
+        Remove-Item .\publish -R -Force
     }
 
     Set-Location $location
