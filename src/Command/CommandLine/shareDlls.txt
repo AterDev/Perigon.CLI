@@ -59,7 +59,6 @@ System.Composition.TypedParts.dll
 System.Configuration.ConfigurationManager.dll
 System.Formats.Nrbf.dll
 System.IdentityModel.Tokens.Jwt.dll
-System.Linq.Async.dll
 System.Reflection.MetadataLoadContext.dll
 System.Resources.Extensions.dll
 System.Security.Cryptography.ProtectedData.dll
