@@ -1,3 +1,4 @@
+using Ater.Web.Convention.Abstraction;
 using AterStudio;
 using AterStudio.Components.Pages;
 using AterStudio.Worker;
@@ -24,11 +25,14 @@ builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<SolutionService>();
-
 builder.Services.AddSingleton<StorageService>();
+
+builder.Services.AddSingleton<EntityTaskQueue<EventQueueModel<McpTool>>>();
 
 // add MCP Server
 builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
+
+//builder.Services.AddHostedService<McpHandlerService>();
 
 WebApplication app = builder.Build();
 app.MapMcp("mcp");
