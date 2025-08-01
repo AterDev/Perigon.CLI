@@ -1,13 +1,31 @@
-<div>
-  <h3>Error</h3>
-  <FluentStack Class="mt-2">
-    <FluentLabel Typo="Typography.Subject" Color="Color.Error">@Message</FluentLabel>
+@inherits PageBase
+
+<div class="p-1">
+  <FluentStack Orientation="Orientation.Vertical" VerticalGap="8">
+    <h3 class="mb-0">💀 Exception Error:</h3>
+    <FluentStack>
+      <FluentLabel Typo="Typography.H4" Color="Color.Error">@Message</FluentLabel>
+    </FluentStack>
   </FluentStack>
-  <FluentStack Class="mt-2">
-    <FluentHighlighter HighlightedText="line"
-                       Delimiters=" ,;"
-                       Text="@Details" />
-  </FluentStack>
+  <FluentDivider Class="w-100 my-1"></FluentDivider>
+  @foreach (var line in DetailLines)
+  {
+    <div>@FormatLines(line)</div>
+  }
+
+  <FluentDivider Class="w-100 mt-2"></FluentDivider>
+
+  <div class="mt-2">
+    <FluentStack Orientation="Orientation.Vertical">
+      <FluentLabel Typo="Typography.H3">🙋‍♂️ You can try:</FluentLabel>
+      <ul style="font-size:1rem">
+        <li>Refresh page and retry!</li>
+        <li>Submit a Issue in <a href="https://github.com/AterDev/ater.dry.cli">GitHub.</a></li>
+        <li>Send Email to <a href="mailto:zpty@outlook.com">Author</a> with detail information!</li>
+      </ul>
+    </FluentStack>
+
+  </div>
 </div>
 
 @code {
@@ -15,4 +33,32 @@
   public string Message { get; set; } = "An unexpected error occurred.";
   [Parameter]
   public string Details { get; set; } = string.Empty;
+
+  private List<string> DetailLines = [];
+
+
+  protected override void OnInitialized()
+  {
+    DetailLines = Details.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+  }
+
+
+  private MarkupString FormatLines(string line)
+  {
+    if (string.IsNullOrEmpty(line))
+    {
+      return new MarkupString(string.Empty);
+    }
+    var index = line.IndexOf(":line", StringComparison.Ordinal);
+    if (index > 0)
+    {
+      var inIndex = line.IndexOf(" in ", StringComparison.Ordinal);
+      if (inIndex > 0 && inIndex < index)
+      {
+        var filePath = line.Substring(inIndex + 4).Trim();
+        return new MarkupString($"{line.Substring(0, inIndex + 4)}<strong style='color:yellow'>{filePath}</strong>");
+      }
+    }
+    return new MarkupString(line);
+  }
 }
