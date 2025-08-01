@@ -1,17 +1,19 @@
 using Definition.Share.Models.UserDtos;
+using Modules.Manager;
 
 namespace Http.API.Controllers;
 
 /// <summary>
 /// 用户账户
 /// </summary>
-/// <see cref="Application.Manager.UserManager"/>
+/// <see cref="Modules.Manager.UserManager"/>
 public class UserController(
     IUserContext user,
     ILogger<UserController> logger,
     UserManager manager,
     CacheService cache,
-    IConfiguration config) : ClientControllerBase<UserManager>(manager, user, logger)
+    IConfiguration config
+) : ClientControllerBase<UserManager>(manager, user, logger)
 {
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
@@ -37,7 +39,7 @@ public class UserController(
             {
                 return BadRequest("邮箱不能为空");
             }
-            var key = AterConst.VerifyCodeCachePrefix + dto.Email;
+            var key = WebConst.VerifyCodeCachePrefix + dto.Email;
             var code = _cache.GetValue<string>(key);
             if (code == null)
             {
@@ -61,7 +63,8 @@ public class UserController(
     public async Task<ActionResult<LoginResult>> LoginAsync(LoginDto dto)
     {
         // 查询用户
-        User? user = await manager.Query.Db.Where(u => u.UserName.Equals(dto.UserName))
+        User? user = await manager
+            .Query.Db.Where(u => u.UserName.Equals(dto.UserName))
             .FirstOrDefaultAsync();
         if (user == null)
         {
@@ -71,7 +74,7 @@ public class UserController(
         // 可将 dto.VerifyCode 设置为必填，以强制验证
         if (dto.VerifyCode != null)
         {
-            var key = AterConst.VerifyCodeCachePrefix + user.Email;
+            var key = WebConst.VerifyCodeCachePrefix + user.Email;
             var cacheCode = _cache.GetValue<string>(key);
             if (cacheCode == null)
             {
@@ -85,40 +88,44 @@ public class UserController(
         if (HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
             // 获取Jwt配置
-            JwtOption jwtOption = _config.GetSection("Authentication:Jwt").Get<JwtOption>()
+            JwtOption jwtOption =
+                _config.GetSection("Authentication:Jwt").Get<JwtOption>()
                 ?? throw new ArgumentNullException("未找到Jwt选项!");
             var sign = jwtOption.Sign;
             var issuer = jwtOption.ValidIssuer;
             var audience = jwtOption.ValidAudiences;
 
             // 构建返回内容
-            if (!string.IsNullOrWhiteSpace(sign) &&
-                !string.IsNullOrWhiteSpace(issuer) &&
-                !string.IsNullOrWhiteSpace(audience))
+            if (
+                !string.IsNullOrWhiteSpace(sign)
+                && !string.IsNullOrWhiteSpace(issuer)
+                && !string.IsNullOrWhiteSpace(audience)
+            )
             {
                 // 设置角色或用户等级以区分权限
-                var roles = new List<string> { AterConst.User };
+                var roles = new List<string> { WebConst.User };
                 // 过期时间:minutes
                 var expired = 60 * 24;
-                JwtService jwt = new(sign, audience, issuer)
-                {
-                    TokenExpires = expired,
-                };
+                JwtService jwt = new(sign, audience, issuer) { TokenExpires = expired };
                 // 添加管理员用户标识
-                if (!roles.Contains(AterConst.User))
+                if (!roles.Contains(WebConst.User))
                 {
-                    roles.Add(AterConst.User);
+                    roles.Add(WebConst.User);
                 }
                 var token = jwt.GetToken(user.Id.ToString(), [.. roles]);
                 // 缓存登录状态
-                await _cache.SetValueAsync(AterConst.LoginCachePrefix + user.Id.ToString(), true, expired * 60);
+                await _cache.SetValueAsync(
+                    WebConst.LoginCachePrefix + user.Id.ToString(),
+                    true,
+                    expired * 60
+                );
 
                 return new LoginResult
                 {
                     Id = user.Id,
                     Roles = [.. roles],
                     Token = token,
-                    Username = user.UserName
+                    Username = user.UserName,
                 };
             }
             else
@@ -142,7 +149,7 @@ public class UserController(
         if (await manager.ExistAsync(id))
         {
             // 清除缓存状态
-            await _cache.RemoveAsync(AterConst.LoginCachePrefix + id.ToString());
+            await _cache.RemoveAsync(WebConst.LoginCachePrefix + id.ToString());
             return Ok();
         }
         return NotFound();
@@ -177,7 +184,8 @@ public class UserController(
         if (current == null)
         {
             return NotFound(ErrorMsg.NotFoundResource);
-        };
+        }
+        ;
         return await manager.UpdateAsync(current, dto);
     }
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace AterStudio.Components.Layout;
@@ -7,6 +8,8 @@ public partial class MainLayout : IDisposable
     public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
     private bool isDarkMode = false;
     private IDialogReference? _dialog;
+
+    private ErrorBoundary? _errorBoundary;
 
     protected override void OnInitialized()
     {

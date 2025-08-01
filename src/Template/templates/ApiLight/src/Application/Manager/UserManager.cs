@@ -1,13 +1,15 @@
 using Definition.Share.Models.UserDtos;
 
-namespace Application.Manager;
+namespace Modules.Manager;
+
 /// <summary>
 /// 用户账户
 /// </summary>
 public class UserManager(
     DataAccessContext<User> dataContext,
     ILogger<UserManager> logger,
-    IUserContext userContext) : ManagerBase<User, UserUpdateDto, UserFilterDto, UserItemDto>(dataContext, logger)
+    IUserContext userContext
+) : ManagerBase<User, UserUpdateDto, UserFilterDto, UserItemDto>(dataContext, logger)
 {
     private readonly IUserContext _userContext = userContext;
 
@@ -32,11 +34,7 @@ public class UserManager(
     /// <returns></returns>
     public async Task<User> RegisterAsync(RegisterDto dto)
     {
-        var user = new User
-        {
-            UserName = dto.UserName,
-            PasswordSalt = HashCrypto.BuildSalt()
-        };
+        var user = new User { UserName = dto.UserName, PasswordSalt = HashCrypto.BuildSalt() };
         user.PasswordHash = HashCrypto.GeneratePwd(dto.Password, user.PasswordSalt);
         if (dto.Email != null)
         {
@@ -53,11 +51,7 @@ public class UserManager(
     /// <returns></returns>
     public async Task<User> CreateNewEntityAsync(UserAddDto dto)
     {
-        var user = new User
-        {
-            UserName = dto.UserName,
-            PasswordSalt = HashCrypto.BuildSalt()
-        };
+        var user = new User { UserName = dto.UserName, PasswordSalt = HashCrypto.BuildSalt() };
         user.PasswordHash = HashCrypto.GeneratePwd(dto.Password, user.PasswordSalt);
         if (dto.Email != null)
         {
@@ -85,9 +79,17 @@ public class UserManager(
             .WhereNotNull(filter.Email, q => q.Email == filter.Email)
             .WhereNotNull(filter.PhoneNumber, q => q.PhoneNumber == filter.PhoneNumber)
             .WhereNotNull(filter.EmailConfirmed, q => q.EmailConfirmed == filter.EmailConfirmed)
-            .WhereNotNull(filter.PhoneNumberConfirmed, q => q.PhoneNumberConfirmed == filter.PhoneNumberConfirmed);
+            .WhereNotNull(
+                filter.PhoneNumberConfirmed,
+                q => q.PhoneNumberConfirmed == filter.PhoneNumberConfirmed
+            );
 
-        return await Query.FilterAsync<UserItemDto>(Queryable, filter.PageIndex, filter.PageSize, filter.OrderBy);
+        return await Query.FilterAsync<UserItemDto>(
+            Queryable,
+            filter.PageIndex,
+            filter.PageSize,
+            filter.OrderBy
+        );
     }
 
     /// <summary>

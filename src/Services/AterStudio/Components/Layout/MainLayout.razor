@@ -3,6 +3,7 @@
 @inject IMessageService MessageService
 @inject IDialogService DialogService
 @inject IJSRuntime JS
+@using AterStudio.Components.Shared
 <FluentLayout>
   <FluentHeader Class="header" Height="56" Style="background:var(--neutral-layer-2)">
     <ChildContent>
@@ -28,7 +29,7 @@
             @Localizer.Get(Localizer.Solution)
           </FluentButton>
         </FluentNavLink>
-@*         <FluentNavLink Href="/tools">
+        @*         <FluentNavLink Href="/tools">
           <FluentButton Appearance="Appearance.Neutral"
                         BackgroundColor="rgba(0, 0, 0, 0)">
             @Localizer.Get(Localizer.Tools)
@@ -89,8 +90,13 @@
     <FluentBodyContent Class="main-content">
       <div class="main-body-content">
         <FluentMessageBarProvider Section="MESSAGES_TOP" />
-        <ErrorBoundary>
-          @Body
+        <ErrorBoundary Context="ex" @ref="_errorBoundary">
+          <ChildContent>
+            @Body
+          </ChildContent>
+          <ErrorContent>
+            <Error Message="@ex.Message" Details="@ex.StackTrace"></Error>
+          </ErrorContent>
         </ErrorBoundary>
       </div>
     </FluentBodyContent>

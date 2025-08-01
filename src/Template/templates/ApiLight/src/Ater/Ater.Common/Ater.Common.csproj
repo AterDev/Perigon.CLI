@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>Ater.Common</PackageId>
+    <Title>Ater.Common</Title>
+    <Authors>niltor</Authors>
+    <Version>1.0.0-beta6</Version>
+    <PackageTags>helper;util;framework;ater;webapi</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
+    <PackageIcon>logo.jpg</PackageIcon>
+    <RepositoryUrl>https://github.com/AterDev/ater.dry.cli</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Mapster" Version="7.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\logo.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

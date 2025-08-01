@@ -9,10 +9,10 @@ $tmp = Join-Path $solutionPath "./.tmp"
 
 Write-Host "Clean files"
 # delete files
-$migrationPath = Join-Path $solutionPath "../src/Template/templates/ApiStandard/src/Definition/EntityFramework/Migrations"
-if (Test-Path $migrationPath) {
-    Remove-Item $migrationPath -Force -Recurse
-}
+# $migrationPath = Join-Path $solutionPath "../src/Template/templates/ApiStandard/src/Definition/EntityFramework/Migrations"
+# if (Test-Path $migrationPath) {
+#     Remove-Item $migrationPath -Force -Recurse
+# }
 
 if (!(Test-Path $tmp)) {
     New-Item -Path $tmp -ItemType Directory -Force | Out-Null

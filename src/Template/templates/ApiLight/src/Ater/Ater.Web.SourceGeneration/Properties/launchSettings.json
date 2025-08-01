@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Analyzer": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\Definition\\Share\\Share.csproj"
+    }
+  }
+}

@@ -1,7 +1,7 @@
-﻿using System.Text.Encodings.Web;
+using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using Definition.Share;
 using Http.API;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
@@ -25,14 +25,16 @@ public static class ServiceCollectionExtension
         builder.Services.AddManager();
 
         builder.Services.AddSingleton(typeof(CacheService));
-        builder.Services.AddControllers()
+        builder
+            .Services.AddControllers()
             .ConfigureApiBehaviorOptions(o =>
             {
                 o.InvalidModelStateResponseFactory = context =>
                 {
                     return new CustomBadRequest(context, null);
                 };
-            }).AddJsonOptions(options =>
+            })
+            .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
@@ -46,13 +48,13 @@ public static class ServiceCollectionExtension
         app.UseExceptionHandler(ExceptionHandler.Handler());
         if (app.Environment.IsProduction())
         {
-            app.UseCors(AterConst.Default);
+            app.UseCors(WebConst.Default);
             //app.UseHsts();
             app.UseHttpsRedirection();
         }
         else
         {
-            app.UseCors(AterConst.Default);
+            app.UseCors(WebConst.Default);
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -74,7 +76,10 @@ public static class ServiceCollectionExtension
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigWebComponents(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigWebComponents(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.AddSwagger();
         services.AddJwtAuthentication(configuration);
@@ -84,38 +89,44 @@ public static class ServiceCollectionExtension
     }
 
     /// <summary>
-    /// 添加 jwt 验证 
+    /// 添加 jwt 验证
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddJwtAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(cfg =>
-        {
-            cfg.SaveToken = true;
-            var sign = configuration.GetSection("Authentication")["Jwt:Sign"];
-            if (string.IsNullOrEmpty(sign))
+        services
+            .AddAuthentication(options =>
             {
-                throw new Exception("未找到有效的Jwt配置");
-            }
-            cfg.TokenValidationParameters = new TokenValidationParameters()
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(cfg =>
             {
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sign)),
-                ValidIssuer = configuration.GetSection("Authentication")["Jwt:ValidIssuer"],
-                ValidAudience = configuration.GetSection("Authentication")["Jwt:ValidAudiences"],
-                ValidateIssuer = true,
-                ValidateLifetime = true,
-                RequireExpirationTime = true,
-                ValidateIssuerSigningKey = true
-            };
-        });
+                cfg.SaveToken = true;
+                var sign = configuration.GetSection("Authentication")["Jwt:Sign"];
+                if (string.IsNullOrEmpty(sign))
+                {
+                    throw new Exception("未找到有效的Jwt配置");
+                }
+                cfg.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sign)),
+                    ValidIssuer = configuration.GetSection("Authentication")["Jwt:ValidIssuer"],
+                    ValidAudience = configuration.GetSection("Authentication")[
+                        "Jwt:ValidAudiences"
+                    ],
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    RequireExpirationTime = true,
+                    ValidateIssuerSigningKey = true,
+                };
+            });
         return services;
     }
 
@@ -126,40 +137,52 @@ public static class ServiceCollectionExtension
     /// <returns></returns>
     public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
-
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Description = "Please enter a valid token",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = "Bearer"
-            });
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+            c.AddSecurityDefinition(
+                "Bearer",
+                new OpenApiSecurityScheme
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type=ReferenceType.SecurityScheme,
-                            Id="Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer",
                 }
-            });
-            c.SwaggerDoc("client", new OpenApiInfo
-            {
-                Title = "MyProjectName client",
-                Description = "Client API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
-                Version = "v1"
-            });
-            var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly);
+            );
+            c.AddSecurityRequirement(
+                new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer",
+                            },
+                        },
+                        Array.Empty<string>()
+                    },
+                }
+            );
+            c.SwaggerDoc(
+                "client",
+                new OpenApiInfo
+                {
+                    Title = "MyProjectName client",
+                    Description =
+                        "Client API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
+                    Version = "v1",
+                }
+            );
+            var xmlFiles = Directory.GetFiles(
+                AppContext.BaseDirectory,
+                "*.xml",
+                SearchOption.TopDirectoryOnly
+            );
             foreach (var item in xmlFiles)
             {
                 try
@@ -170,17 +193,15 @@ public static class ServiceCollectionExtension
             }
             c.SupportNonNullableReferenceTypes();
             c.DescribeAllParametersInCamelCase();
-            c.CustomOperationIds((z) =>
-            {
-                var descriptor = (ControllerActionDescriptor)z.ActionDescriptor;
-                return $"{descriptor.ControllerName}_{descriptor.ActionName}";
-            });
+            c.CustomOperationIds(
+                (z) =>
+                {
+                    var descriptor = (ControllerActionDescriptor)z.ActionDescriptor;
+                    return $"{descriptor.ControllerName}_{descriptor.ActionName}";
+                }
+            );
             c.SchemaFilter<EnumSchemaFilter>();
-            c.MapType<DateOnly>(() => new OpenApiSchema
-            {
-                Type = "string",
-                Format = "date"
-            });
+            c.MapType<DateOnly>(() => new OpenApiSchema { Type = "string", Format = "date" });
         });
         return services;
     }
@@ -189,20 +210,27 @@ public static class ServiceCollectionExtension
     {
         services.AddCors(options =>
         {
-            options.AddPolicy(AterConst.Default, builder =>
-            {
-                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-            });
+            options.AddPolicy(
+                WebConst.Default,
+                builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                }
+            );
         });
         return services;
     }
 
     public static IServiceCollection AddAuthorize(this IServiceCollection services)
     {
-        services.AddAuthorizationBuilder()
-            .AddPolicy(AterConst.User, policy => policy.RequireRole(AterConst.User))
-            .AddPolicy(AterConst.AdminUser, policy => policy.RequireRole(AterConst.SuperAdmin, AterConst.AdminUser))
-            .AddPolicy(AterConst.SuperAdmin, policy => policy.RequireRole(AterConst.SuperAdmin));
+        services
+            .AddAuthorizationBuilder()
+            .AddPolicy(WebConst.User, policy => policy.RequireRole(WebConst.User))
+            .AddPolicy(
+                WebConst.AdminUser,
+                policy => policy.RequireRole(WebConst.SuperAdmin, WebConst.AdminUser)
+            )
+            .AddPolicy(WebConst.SuperAdmin, policy => policy.RequireRole(WebConst.SuperAdmin));
         return services;
     }
 }

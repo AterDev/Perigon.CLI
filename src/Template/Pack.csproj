@@ -1,13 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageType>Template</PackageType>
-        <PackageVersion>9.0.0-beta1</PackageVersion>
+        <PackageVersion>10.0.0-beta1</PackageVersion>
         <PackageId>ater.web.templates</PackageId>
         <Title>Ater Web Templates</Title>
-        <Authors>ater.niltor</Authors>
+        <Authors>ater.NilTor</Authors>
         <Description>
-            Templates to create ater.web framework.
-            基于ASP.NET Core的Web开发模板.
+            Well-structured fast development template based on ASP.NET Core / EF Core / Aspire
         </Description>
         <PackageTags>dotnet-new;templates;webapi;framework</PackageTags>
         <TargetFramework>netstandard2.1</TargetFramework>
@@ -29,7 +28,7 @@
         <NoDefaultExcludes>true</NoDefaultExcludes>
     </PropertyGroup>
     <ItemGroup>
-        <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\.vs\**;templates\**\node_modules\**;templates\**\.angular\**;templates\**\*.lock;templates\**\src\Modules\**;templates\**\.tmp\**;templates\**\src\ClientApp\**" />
+        <Content Include="templates\ApiStandard\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\.vs\**;templates\**\node_modules\**;templates\**\.angular\**;templates\**\*.lock;templates\**\src\Modules\**;templates\**\.tmp\**;templates\**\src\ClientApp\**" />
         <Compile Remove="**\*" />
     </ItemGroup>
     <ItemGroup>

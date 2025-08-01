@@ -1,0 +1,18 @@
+<div>
+  <h3>Error</h3>
+  <FluentStack Class="mt-2">
+    <FluentLabel Typo="Typography.Subject" Color="Color.Error">@Message</FluentLabel>
+  </FluentStack>
+  <FluentStack Class="mt-2">
+    <FluentHighlighter HighlightedText="line"
+                       Delimiters=" ,;"
+                       Text="@Details" />
+  </FluentStack>
+</div>
+
+@code {
+  [Parameter]
+  public string Message { get; set; } = "An unexpected error occurred.";
+  [Parameter]
+  public string Details { get; set; } = string.Empty;
+}

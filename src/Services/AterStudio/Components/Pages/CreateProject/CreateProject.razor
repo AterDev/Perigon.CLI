@@ -153,10 +153,10 @@
       Name = string.Empty,
       Path = string.Empty,
       CacheType = CacheType.Memory,
-      CommandDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=root;",
-      QueryDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=root;",
+      CommandDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=MyProjectName_DevSecret;",
+      QueryDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=MyProjectName_DevSecret;",
       DBType = DBType.PostgreSQL,
-
+      CacheConnStrings = "localhost:16379,password=MyProjectName_DevSecret"
     };
   }
 
