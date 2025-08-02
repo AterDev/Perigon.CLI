@@ -1,11 +1,12 @@
-using Entity.UserMod;
 using Ater.Common.Models;
+using Entity.UserMod;
 
-namespace Share.Models.UserDtos;
+namespace UserMod.UserDtos;
+
 /// <summary>
 /// 用户账户查询筛选
 /// </summary>
-/// <inheritdoc cref="Entity.UserMod.User"/>
+/// <inheritdoc cref="User"/>
 public class UserFilterDto : FilterBase
 {
     /// <summary>
@@ -13,10 +14,12 @@ public class UserFilterDto : FilterBase
     /// </summary>
     [MaxLength(40)]
     public string? UserName { get; set; }
+
     /// <summary>
     /// 用户类型
     /// </summary>
     public UserType? UserType { get; set; }
+
     /// <summary>
     /// 邮箱
     /// </summary>
@@ -25,5 +28,4 @@ public class UserFilterDto : FilterBase
     public bool? EmailConfirmed { get; set; }
     public string? PhoneNumber { get; set; }
     public bool? PhoneNumberConfirmed { get; set; }
-
 }

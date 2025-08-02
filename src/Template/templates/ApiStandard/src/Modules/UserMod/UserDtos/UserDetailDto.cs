@@ -1,10 +1,11 @@
 using Entity.UserMod;
 
-namespace Share.Models.UserDtos;
+namespace UserMod.UserDtos;
+
 /// <summary>
 /// 用户账户概要
 /// </summary>
-/// <inheritdoc cref="Entity.UserMod.User"/>
+/// <inheritdoc cref="User"/>
 public class UserDetailDto
 {
     /// <summary>
@@ -12,16 +13,19 @@ public class UserDetailDto
     /// </summary>
     [MaxLength(40)]
     public string UserName { get; set; } = default!;
+
     /// <summary>
     /// 用户类型
     /// </summary>
     public UserType UserType { get; set; } = UserType.Normal;
+
     /// <summary>
     /// 邮箱
     /// </summary>
     [MaxLength(100)]
     public string? Email { get; set; }
     public bool EmailConfirmed { get; set; }
+
     // [MaxLength(100)]
     // public string PasswordHash { get; set; } = default!;
     // [MaxLength(60)]
@@ -32,18 +36,20 @@ public class UserDetailDto
     public DateTimeOffset? LockoutEnd { get; set; }
     public bool LockoutEnabled { get; set; }
     public int AccessFailedCount { get; set; }
+
     /// <summary>
     /// 最后登录时间
     /// </summary>
     public DateTimeOffset? LastLoginTime { get; set; }
+
     /// <summary>
     /// 密码重试次数
     /// </summary>
     public int RetryCount { get; set; }
+
     /// <summary>
     /// 头像url
     /// </summary>
     [MaxLength(200)]
     public string? Avatar { get; set; }
-
 }

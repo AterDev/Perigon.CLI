@@ -46,6 +46,11 @@ public class CommandService(CommandDbContext context)
         return await context.SaveChangesAsync() > 0 ? entity.Id : null;
     }
 
+    /// <summary>
+    /// 创建解决方案
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
     public async Task<bool> CreateSolutionAsync(CreateSolutionDto dto)
     {
         // 生成项目
@@ -106,6 +111,8 @@ public class CommandService(CommandDbContext context)
                 Directory.Delete(appPath, true);
             }
         }
+
+        // TODO:模块的处理
 
         if (!dto.IsLight && dto.Modules.Count > 0)
         {

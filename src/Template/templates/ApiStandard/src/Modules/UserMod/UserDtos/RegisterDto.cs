@@ -1,6 +1,6 @@
 using Share.Constants;
 
-namespace Share.Models.UserDtos;
+namespace UserMod.UserDtos;
 
 /// <summary>
 /// 用户注册
@@ -26,6 +26,7 @@ public class RegisterDto
     /// 验证码
     /// </summary>
     public string? VerifyCode { get; set; }
+
     /// <summary>
     /// 密码
     /// </summary>

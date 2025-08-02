@@ -1,7 +1,7 @@
 using Entity.UserMod;
 using Microsoft.Extensions.Configuration;
 using Share.Models.Auth;
-using Share.Models.UserDtos;
+using UserMod.UserDtos;
 
 namespace UserMod.Controllers;
 

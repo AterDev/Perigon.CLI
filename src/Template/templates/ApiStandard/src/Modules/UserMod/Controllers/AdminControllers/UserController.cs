@@ -1,4 +1,5 @@
-using Share.Models.UserDtos;
+using UserMod.UserDtos;
+
 namespace UserMod.Controllers.AdminControllers;
 
 /// <summary>
@@ -11,9 +12,8 @@ public class UserController(
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager
-        ) : AdminControllerBase<UserManager>(localizer, manager, user, logger)
+) : AdminControllerBase<UserManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>
@@ -52,7 +52,9 @@ public class UserController(
     public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, UserUpdateDto dto)
     {
         var current = await _manager.GetOwnedAsync(id);
-        return current == null ? NotFound(ErrorKeys.NotFoundResource) : await _manager.UpdateAsync(current, dto);
+        return current == null
+            ? NotFound(ErrorKeys.NotFoundResource)
+            : await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>
@@ -78,8 +80,8 @@ public class UserController(
     {
         // 注意删除权限
         var res = await _manager.GetOwnedAsync(id);
-        return res == null ? NotFound(ErrorKeys.NotFoundResource)
+        return res == null
+            ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.DeleteAsync([id], true);
-
     }
 }

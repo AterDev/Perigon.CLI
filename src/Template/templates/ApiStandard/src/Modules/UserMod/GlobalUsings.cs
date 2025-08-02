@@ -1,3 +1,4 @@
+global using System.ComponentModel.DataAnnotations;
 global using Ater.Common.Models;
 global using Ater.Common.Utils;
 global using Ater.Web.Convention;
