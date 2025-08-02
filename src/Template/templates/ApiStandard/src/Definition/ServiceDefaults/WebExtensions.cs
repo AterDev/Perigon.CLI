@@ -69,6 +69,14 @@ public static class WebExtensions
                 options.AddSchemaTransformer<EnumOpenApiTransformer>();
             }
         );
+
+        services.AddOpenApi(
+            "admin",
+            options =>
+            {
+                options.AddSchemaTransformer<EnumOpenApiTransformer>();
+            }
+        );
         services.AddLocalizer();
         return services;
     }

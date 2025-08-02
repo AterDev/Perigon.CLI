@@ -1,70 +1,64 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <PackageType>Template</PackageType>
-        <PackageVersion>10.0.0-beta1</PackageVersion>
-        <PackageId>ater.web.templates</PackageId>
-        <Title>Ater Web Templates</Title>
-        <Authors>ater.NilTor</Authors>
-        <Description>
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageVersion>10.0.0-beta2</PackageVersion>
+    <PackageId>ater.web.templates</PackageId>
+    <Title>Ater Web Templates</Title>
+    <Authors>ater.NilTor</Authors>
+    <Description>
             Well-structured fast development template based on ASP.NET Core / EF Core / Aspire
         </Description>
-        <PackageTags>dotnet-new;templates;webapi;framework</PackageTags>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <IncludeContentInPack>true</IncludeContentInPack>
-        <IncludeBuildOutput>false</IncludeBuildOutput>
-        <ContentTargetFolders>content</ContentTargetFolders>
-        <PackageOutputPath>nuget</PackageOutputPath>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Product>ater.web</Product>
-        <PackageProjectUrl>https://github.com/AterDev/ater.web</PackageProjectUrl>
-        <PackageIcon>logo.jpg</PackageIcon>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/AterDev/ater.web</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageReleaseNotes>
+    <PackageTags>dotnet-new;templates;webapi;framework</PackageTags>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <PackageOutputPath>nuget</PackageOutputPath>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Product>ater.web</Product>
+    <PackageProjectUrl>https://github.com/AterDev/ater.web</PackageProjectUrl>
+    <PackageIcon>logo.jpg</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/AterDev/ater.web</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>
             - manager中的Query和Command不在为public，避免在控制器中滥用!
         </PackageReleaseNotes>
-        <NoWarn>$(NoWarn);NU5128;NU5110;NU5111</NoWarn>
-        <NoDefaultExcludes>true</NoDefaultExcludes>
-    </PropertyGroup>
-
-
-    <PropertyGroup>
-        <!-- 定义通用排除模式 -->
-        <CommonExcludes>**\bin\**;**\obj\**;**\.vs\**</CommonExcludes>
-        <NodeExcludes>**\node_modules\**;**\.angular\**;**\*.lock</NodeExcludes>
-        <SpecialExcludes>
+    <NoWarn>$(NoWarn);NU5128;NU5110;NU5111</NoWarn>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- 定义通用排除模式 -->
+    <CommonExcludes>**\bin\**;**\obj\**;**\.vs\**</CommonExcludes>
+    <NodeExcludes>**\node_modules\**;**\.angular\**;**\*.lock</NodeExcludes>
+    <SpecialExcludes>
             templates\ApiStandard\src\Definition\EntityFramework\DBProvider\ModuleContextBase.cs</SpecialExcludes>
-        <EntityExcludes>templates\ApiStandard\src\Definition\Entity\*\*</EntityExcludes>
-    </PropertyGroup>
-    <ItemGroup>
-        <!-- 定义排除模式数组 -->
-        <ExcludePatterns Include="$(CommonExcludes)" />
-        <ExcludePatterns Include="$(NodeExcludes)" />
-        <ExcludePatterns Include="$(SpecialExcludes)" />
-        <ExcludePatterns Include="$(EntityExcludes)" />
-        <ExcludePatterns Include="templates\**\src\Modules\**" />
-        <ExcludePatterns Include="templates\**\.tmp\**" />
-        <ExcludePatterns Include="templates\ApiStandard\src\ClientApp\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="templates\ApiStandard\**\*" Exclude="@(ExcludePatterns)" />
-        <Content Include="templates\ApiStandard\src\Modules\CommonMod\**"
-            Exclude="**\bin\**;**\obj\**" />
-        <Content Include="templates\ApiStandard\src\Modules\SystemMod\**"
-            Exclude="**\bin\**;**\obj\**" />
-        <Content Include="templates\ApiStandard\src\Definition\Entity\SystemMod\**"/>
-        <Compile Remove="**\*" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Update="logo.jpg">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-        <None Update="README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
+    <EntityExcludes>templates\ApiStandard\src\Definition\Entity\*\*</EntityExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- 定义排除模式数组 -->
+    <ExcludePatterns Include="$(CommonExcludes)" />
+    <ExcludePatterns Include="$(NodeExcludes)" />
+    <ExcludePatterns Include="$(SpecialExcludes)" />
+    <ExcludePatterns Include="$(EntityExcludes)" />
+    <ExcludePatterns Include="templates\**\src\Modules\**" />
+    <ExcludePatterns Include="templates\**\.tmp\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="templates\ApiStandard\**\*" Exclude="@(ExcludePatterns)" />
+    <Content Include="templates\ApiStandard\src\Modules\CommonMod\**" Exclude="**\bin\**;**\obj\**" />
+    <Content Include="templates\ApiStandard\src\Modules\SystemMod\**" Exclude="**\bin\**;**\obj\**" />
+    <Content Include="templates\ApiStandard\src\Definition\Entity\SystemMod\**" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="logo.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 </Project>

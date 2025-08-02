@@ -17,7 +17,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AterDev/cli.git</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
     <PackageIcon>logo.jpg</PackageIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
@@ -58,7 +59,8 @@
     </None>
     <None Include="logo.jpg">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>
+      </PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>

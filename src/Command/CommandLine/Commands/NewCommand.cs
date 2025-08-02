@@ -80,6 +80,12 @@ public class NewCommand(Localizer localizer, CommandService commandService)
                 .UseConverter(opt => $"{localizer.Get(opt.Description)}")
         );
 
+        var frontType = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title(localizer.Get(Localizer.SelectFrontType))
+                .AddChoices([Localizer.None, Localizer.Angular])
+        );
+
         // 9. 输入目录
         var defaultDirectory = "./";
         var targetDirectory = AnsiConsole.Prompt(
@@ -118,6 +124,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
             .AddRow(localizer.Get(Localizer.CacheType), cacheType)
             .AddRow(localizer.Get(Localizer.CacheConnectionString), cacheConnectionString ?? "")
             .AddRow(localizer.Get(Localizer.Modules), string.Join(", ", selectModules))
+            .AddRow(localizer.Get(Localizer.FrontEnd), frontType)
             .AddRow(localizer.Get(Localizer.Directory), targetDirectory);
 
         AnsiConsole.Write(summaryTable);
@@ -147,6 +154,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
                 CommandDbConnStrings = dbConnectionString,
                 QueryDbConnStrings = dbConnectionString,
                 CacheConnStrings = cacheConnectionString,
+                FrontType = frontType == Localizer.None ? FrontType.None : FrontType.Angular,
             };
             if (selectModules.Count > 0)
             {

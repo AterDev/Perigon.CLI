@@ -125,6 +125,18 @@
       </FluentSelect>
     </FluentStack>
 
+    <FluentDivider Class="w-100"></FluentDivider>
+    <FluentLabel Typo="Typography.H3">
+      🅰️ @Lang(Localizer.Else)
+    </FluentLabel>
+
+    <FluentLabel Typo="Typography.Subject">@Lang(Localizer.SelectFrontType)</FluentLabel>
+
+    <FluentSelect TOption="FrontType"
+                  Items="@(Enum.GetValues<FrontType>())"
+                  @bind-SelectedOption="@AddDto.FrontType"
+                  Width="240px" />
+
     <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
       <FluentStack HorizontalAlignment="HorizontalAlignment.Right">
         <FluentButton Appearance="Appearance.Accent"

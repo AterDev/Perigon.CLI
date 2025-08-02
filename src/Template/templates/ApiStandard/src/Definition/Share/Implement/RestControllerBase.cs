@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Share.Implement;
@@ -8,7 +9,27 @@ namespace Share.Implement;
 /// </summary>
 /// <typeparam name="TManager"></typeparam>
 [ApiExplorerSettings(GroupName = "v1")]
+[Authorize(Policy = WebConst.User)]
 public class RestControllerBase<TManager>(
+    Localizer localizer,
+    TManager manager,
+    UserContext user,
+    ILogger logger
+) : RestControllerBase(localizer)
+    where TManager : class
+{
+    protected readonly TManager _manager = manager;
+    protected readonly ILogger _logger = logger;
+    protected readonly UserContext _user = user;
+}
+
+/// <summary>
+/// RestApi base
+/// </summary>
+/// <typeparam name="TManager"></typeparam>
+[ApiExplorerSettings(GroupName = "admin")]
+[Authorize(Policy = WebConst.AdminUser)]
+public class AdminControllerBase<TManager>(
     Localizer localizer,
     TManager manager,
     UserContext user,

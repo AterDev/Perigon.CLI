@@ -504,4 +504,19 @@
   <data name="Refresh" xml:space="preserve">
     <value>刷新</value>
   </data>
+  <data name="SelectFrontType" xml:space="preserve">
+    <value>👇 选择你需要集成的前端框架</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Angular" xml:space="preserve">
+    <value>Angular 20</value>
+  </data>
+  <data name="FrontEnd" xml:space="preserve">
+    <value>前端</value>
+  </data>
+  <data name="Else" xml:space="preserve">
+    <value>其他</value>
+  </data>
 </root>

@@ -1,25 +1,16 @@
-# 模块名称
-$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "CustomerMod")
-
 $OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
 
 $location = Get-Location
 $solutionPath = Join-Path $location "../src/Template/templates/ApiStandard"
-$tmp = Join-Path $solutionPath "./.tmp"
 
 Write-Host "Clean files"
 # delete files
-# $migrationPath = Join-Path $solutionPath "../src/Template/templates/ApiStandard/src/Definition/EntityFramework/Migrations"
-# if (Test-Path $migrationPath) {
-#     Remove-Item $migrationPath -Force -Recurse
-# }
-
-if (!(Test-Path $tmp)) {
-    New-Item -Path $tmp -ItemType Directory -Force | Out-Null
+$migrationPath = Join-Path $solutionPath "../src/Template/templates/ApiStandard/src/Definition/EntityFramework/Migrations"
+if (Test-Path $migrationPath) {
+    Remove-Item $migrationPath -Force -Recurse
 }
 
 try {
-    Write-Host "find modules:"$modulesNames;
     Set-Location ../src/Template
     # pack
     dotnet pack -c release -o ./nuget
@@ -36,7 +27,6 @@ try {
 }
 catch {
     Write-Error $_.Exception.Message
-    Remove-Item $tmp -Force -Recurse
     Set-Location $location;
 }
 

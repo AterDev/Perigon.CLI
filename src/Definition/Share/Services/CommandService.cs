@@ -73,10 +73,16 @@ public class CommandService(CommandDbContext context)
         {
             Directory.CreateDirectory(solutionPath);
         }
+
+        var templateOptions = string.Empty;
+        if (dto.FrontType != FrontType.None)
+        {
+            templateOptions = $" --frontType {dto.FrontType.ToString()}";
+        }
         if (
             !ProcessHelper.RunCommand(
                 "dotnet",
-                $"new ater-{templateType} -o {solutionPath} --force",
+                $"new ater-{templateType} -o {solutionPath} --force {templateOptions}",
                 out string error
             )
         )

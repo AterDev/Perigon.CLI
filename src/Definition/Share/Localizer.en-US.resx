@@ -504,4 +504,19 @@
   <data name="Refresh" xml:space="preserve">
     <value>Refresh</value>
   </data>
+  <data name="SelectFrontType" xml:space="preserve">
+    <value>👇 Select which frontEnd framework you need</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Angular" xml:space="preserve">
+    <value>Angular 20</value>
+  </data>
+  <data name="FrontEnd" xml:space="preserve">
+    <value>FrontEnd</value>
+  </data>
+  <data name="Else" xml:space="preserve">
+    <value>Else</value>
+  </data>
 </root>
