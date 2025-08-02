@@ -1,5 +1,6 @@
+# 前端请求同步脚本示例
 $location = Get-Location
 
-dry ng http://localhost:5204/swagger/admin/swagger.json -o ../src/WebApp\src\app
+ater ng http://localhost:5204/openapi/v1.json -o ../src/WebApp\src\app
 
 Set-Location $location

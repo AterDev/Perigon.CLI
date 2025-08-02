@@ -27,8 +27,34 @@
         <NoWarn>$(NoWarn);NU5128;NU5110;NU5111</NoWarn>
         <NoDefaultExcludes>true</NoDefaultExcludes>
     </PropertyGroup>
+
+
+    <PropertyGroup>
+        <!-- 定义通用排除模式 -->
+        <CommonExcludes>**\bin\**;**\obj\**;**\.vs\**</CommonExcludes>
+        <NodeExcludes>**\node_modules\**;**\.angular\**;**\*.lock</NodeExcludes>
+        <SpecialExcludes>
+            templates\ApiStandard\src\Definition\EntityFramework\DBProvider\ModuleContextBase.cs</SpecialExcludes>
+        <EntityExcludes>templates\ApiStandard\src\Definition\Entity\*\*</EntityExcludes>
+    </PropertyGroup>
     <ItemGroup>
-        <Content Include="templates\ApiStandard\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\.vs\**;templates\**\node_modules\**;templates\**\.angular\**;templates\**\*.lock;templates\**\src\Modules\**;templates\**\.tmp\**;templates\**\src\ClientApp\**" />
+        <!-- 定义排除模式数组 -->
+        <ExcludePatterns Include="$(CommonExcludes)" />
+        <ExcludePatterns Include="$(NodeExcludes)" />
+        <ExcludePatterns Include="$(SpecialExcludes)" />
+        <ExcludePatterns Include="$(EntityExcludes)" />
+        <ExcludePatterns Include="templates\**\src\Modules\**" />
+        <ExcludePatterns Include="templates\**\.tmp\**" />
+        <ExcludePatterns Include="templates\ApiStandard\src\ClientApp\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="templates\ApiStandard\**\*" Exclude="@(ExcludePatterns)" />
+        <Content Include="templates\ApiStandard\src\Modules\CommonMod\**"
+            Exclude="**\bin\**;**\obj\**" />
+        <Content Include="templates\ApiStandard\src\Modules\SystemMod\**"
+            Exclude="**\bin\**;**\obj\**" />
+        <Content Include="templates\ApiStandard\src\Definition\Entity\SystemMod\**"/>
         <Compile Remove="**\*" />
     </ItemGroup>
     <ItemGroup>

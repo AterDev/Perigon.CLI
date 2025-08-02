@@ -1,6 +1,6 @@
+# csharp api请求生成脚本示例
 $location = Get-Location
 
-dry client http://localhost:5204/swagger/admin/swagger.json -o ../src/ApiClients
-dry client http://localhost:5204/swagger/client/swagger.json -o ../src/ApiClients
+ater client http://localhost:5204/openapi/v1.json -o ../src/ApiClients
 
 Set-Location $location

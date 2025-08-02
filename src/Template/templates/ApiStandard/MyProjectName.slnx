@@ -9,7 +9,6 @@
   </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts/EFMigrations.ps1" />
-    <File Path="scripts/RunAPI.ps1" />
     <File Path="scripts/UpdateMenus.ps1" />
   </Folder>
   <Folder Name="/src/">

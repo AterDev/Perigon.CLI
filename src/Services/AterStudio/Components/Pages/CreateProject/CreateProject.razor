@@ -166,6 +166,8 @@
     await Task.Yield();
     var res = await CommandService.CreateSolutionAsync(AddDto);
     ToastService.ShowSuccess(Lang(Localizer.Create, res ? Localizer.Success : Localizer.Failed));
+
+    NavigationManager.NavigateTo("/");
     IsProcessing = false;
   }
 }
