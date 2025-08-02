@@ -84,7 +84,7 @@ try {
         }
 
         # remove pdb and xml files
-        $files = Get-ChildItem -Path .\publish -Recurse -Include *.pdb, *.xml *.map
+        $files = Get-ChildItem -Path .\publish -Recurse -Include *.pdb, *.xml, *.map
         foreach ($file in $files) {
             Remove-Item $file.FullName -Force
         }

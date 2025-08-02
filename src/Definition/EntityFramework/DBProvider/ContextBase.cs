@@ -6,7 +6,7 @@ namespace EntityFramework.DBProvider;
 
 public class ContextBase(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<Project> Projects { get; set; }
+    public DbSet<Solution> Solutions { get; set; }
     public DbSet<ModelProperty> ModelProperties { get; set; }
     public DbSet<ApiDocInfo> ApiDocInfos { get; set; } = null!;
     public DbSet<GenAction> GenActions { get; set; } = null!;
@@ -17,7 +17,7 @@ public class ContextBase(DbContextOptions options) : DbContext(options)
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<Project>(e =>
+        builder.Entity<Solution>(e =>
         {
             e.OwnsOne(p => p.Config).ToJson();
             e.HasMany(p => p.GenActions).WithOne(a => a.Project).OnDelete(DeleteBehavior.Cascade);

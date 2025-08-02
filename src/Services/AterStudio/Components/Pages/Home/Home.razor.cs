@@ -5,7 +5,7 @@ namespace AterStudio.Components.Pages.Home;
 
 public partial class Home
 {
-    List<Project> projects = [];
+    List<Solution> projects = [];
 
     private async Task AddLocalProject(MouseEventArgs arg)
     {
@@ -32,10 +32,10 @@ public partial class Home
 
     private async Task GetProjectListAsync()
     {
-        projects = await ProjectManager.ListAsync();
+        projects = await SolutionManager.ListAsync();
     }
 
-    private async Task OpenConfigDialogAsync(Project project)
+    private async Task OpenConfigDialogAsync(Solution project)
     {
         DialogParameters parameters = new()
         {
@@ -52,7 +52,7 @@ public partial class Home
         await GetProjectListAsync();
     }
 
-    private async Task DeleteProject(Project project)
+    private async Task DeleteProject(Solution project)
     {
         var dialog = await DialogService.ShowConfirmationAsync(
             Lang(Localizer.ConfirmDeleteMessage),
@@ -64,7 +64,7 @@ public partial class Home
         var result = await dialog.Result;
         if (result.Cancelled)
             return;
-        await ProjectManager.DeleteAsync([project.Id], false);
+        await SolutionManager.DeleteAsync([project.Id], false);
         await GetProjectListAsync();
     }
 

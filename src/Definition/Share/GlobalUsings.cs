@@ -13,5 +13,5 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
 global using Share.Helper;
 global using Share.Models;
-global using Project = Entity.StudioMod.Project;
 global using PropertyInfo = CodeGenerator.Models.PropertyInfo;
+global using Solution = Entity.StudioMod.Solution;

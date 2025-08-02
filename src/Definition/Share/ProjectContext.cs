@@ -10,7 +10,7 @@ public class ProjectContext : IProjectContext
 {
     public Guid? ProjectId { get; set; }
     public string? ProjectName { get; set; }
-    public Project? Project { get; set; }
+    public Solution? Project { get; set; }
     public string? SolutionPath { get; set; }
     public string? SharePath { get; set; }
     public string? CommonModPath { get; set; }
@@ -35,7 +35,7 @@ public class ProjectContext : IProjectContext
             if (Guid.TryParse(id, out Guid projectId))
             {
                 ProjectId = projectId;
-                Project = _context.Projects.Find(projectId);
+                Project = _context.Solutions.Find(projectId);
                 if (Project != null)
                 {
                     SolutionPath = Project.Path;
@@ -64,7 +64,7 @@ public class ProjectContext : IProjectContext
     public async Task SetProjectByIdAsync(Guid id)
     {
         ProjectId = id;
-        Project = await _context.Projects.FindAsync(id);
+        Project = await _context.Solutions.FindAsync(id);
         if (Project != null)
         {
             ProjectName = Project.Name;
@@ -84,7 +84,7 @@ public class ProjectContext : IProjectContext
     {
         SolutionPath = solutionPath;
         var project = await _context
-            .Projects.Where(p => p.Path.Equals(solutionPath))
+            .Solutions.Where(p => p.Path.Equals(solutionPath))
             .FirstOrDefaultAsync();
         var config = project?.Config;
         SharePath = Path.Combine(SolutionPath, config?.SharePath ?? PathConst.SharePath);

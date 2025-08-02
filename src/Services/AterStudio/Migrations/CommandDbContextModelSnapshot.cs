@@ -448,7 +448,7 @@ namespace AterStudio.Migrations
                     b.ToTable("ModelProperties");
                 });
 
-            modelBuilder.Entity("Entity.StudioMod.Project", b =>
+            modelBuilder.Entity("Entity.StudioMod.Solution", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -489,12 +489,12 @@ namespace AterStudio.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Solutions");
                 });
 
             modelBuilder.Entity("Entity.StudioMod.ApiDocInfo", b =>
                 {
-                    b.HasOne("Entity.StudioMod.Project", "Project")
+                    b.HasOne("Entity.StudioMod.Solution", "Project")
                         .WithMany("ApiDocInfos")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -505,7 +505,7 @@ namespace AterStudio.Migrations
 
             modelBuilder.Entity("Entity.StudioMod.GenAction", b =>
                 {
-                    b.HasOne("Entity.StudioMod.Project", "Project")
+                    b.HasOne("Entity.StudioMod.Solution", "Project")
                         .WithMany("GenActions")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -566,7 +566,7 @@ namespace AterStudio.Migrations
 
             modelBuilder.Entity("Entity.StudioMod.GenStep", b =>
                 {
-                    b.HasOne("Entity.StudioMod.Project", "Project")
+                    b.HasOne("Entity.StudioMod.Solution", "Project")
                         .WithMany("GenSteps")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -577,7 +577,7 @@ namespace AterStudio.Migrations
 
             modelBuilder.Entity("Entity.StudioMod.McpTool", b =>
                 {
-                    b.HasOne("Entity.StudioMod.Project", "Project")
+                    b.HasOne("Entity.StudioMod.Solution", "Project")
                         .WithMany("McpTools")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -588,7 +588,7 @@ namespace AterStudio.Migrations
 
             modelBuilder.Entity("Entity.StudioMod.ModelInfo", b =>
                 {
-                    b.HasOne("Entity.StudioMod.Project", "Project")
+                    b.HasOne("Entity.StudioMod.Solution", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -608,11 +608,11 @@ namespace AterStudio.Migrations
                     b.Navigation("EntityInfo");
                 });
 
-            modelBuilder.Entity("Entity.StudioMod.Project", b =>
+            modelBuilder.Entity("Entity.StudioMod.Solution", b =>
                 {
-                    b.OwnsOne("Entity.StudioMod.ProjectConfig", "Config", b1 =>
+                    b.OwnsOne("Entity.StudioMod.SolutionConfig", "Config", b1 =>
                         {
-                            b1.Property<Guid>("ProjectId")
+                            b1.Property<Guid>("SolutionId")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("ApiPath")
@@ -666,14 +666,14 @@ namespace AterStudio.Migrations
                                 .IsRequired()
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("ProjectId");
+                            b1.HasKey("SolutionId");
 
-                            b1.ToTable("Projects");
+                            b1.ToTable("Solutions");
 
                             b1.ToJson("Config");
 
                             b1.WithOwner()
-                                .HasForeignKey("ProjectId");
+                                .HasForeignKey("SolutionId");
                         });
 
                     b.Navigation("Config")
@@ -685,7 +685,7 @@ namespace AterStudio.Migrations
                     b.Navigation("PropertyInfos");
                 });
 
-            modelBuilder.Entity("Entity.StudioMod.Project", b =>
+            modelBuilder.Entity("Entity.StudioMod.Solution", b =>
                 {
                     b.Navigation("ApiDocInfos");
 

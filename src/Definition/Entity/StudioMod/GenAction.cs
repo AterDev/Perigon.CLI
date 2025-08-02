@@ -42,7 +42,7 @@ public class GenAction : EntityBase
     public ICollection<GenStep> GenSteps { get; set; } = [];
 
     [ForeignKey(nameof(ProjectId))]
-    public Project Project { get; set; } = null!;
+    public Solution Project { get; set; } = null!;
     public Guid ProjectId { get; set; } = default!;
 
     /// <summary>

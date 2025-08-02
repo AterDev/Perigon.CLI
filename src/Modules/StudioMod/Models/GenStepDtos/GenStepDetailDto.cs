@@ -35,7 +35,7 @@ public class GenStepDetailDto
     /// </summary>
     [MaxLength(400)]
     public string? OutputPath { get; set; }
-    public Project Project { get; set; } = default!;
+    public Solution Project { get; set; } = default!;
     public Guid ProjectId { get; set; } = default!;
     public Guid Id { get; set; } = Guid.NewGuid();
     public DateTimeOffset CreatedTime { get; set; }

@@ -1,5 +1,5 @@
 @inherits PageBase
-@implements IDialogContentComponent<Project>
+@implements IDialogContentComponent<Solution>
 
 <FluentDialogHeader ShowDismiss="false">
   <FluentLabel Typo="Typography.PaneHeader">@Content.DisplayName</FluentLabel>
@@ -68,12 +68,12 @@
   [CascadingParameter]
   FluentDialog Dialog { get; set; } = null!;
   [Parameter]
-  public Project Content { get; set; } = null!;
+  public Solution Content { get; set; } = null!;
 
   [Inject]
-  ProjectManager Manager { get; set; } = null!;
+  SolutionManager Manager { get; set; } = null!;
 
-  ProjectConfig dto = new();
+  SolutionConfig dto = new();
   EditContext? editContext;
   bool formValid { get; set; }
 
@@ -112,8 +112,8 @@
       ToastService.ShowError(Lang(Localizer.FormValidFailed));
       return;
     }
-    var project = await Manager.GetCurrentAsync(Content.Id);
-    var res = await Manager.UpdateConfigAsync(project, dto);
+    var solution = await Manager.GetCurrentAsync(Content.Id);
+    var res = await Manager.UpdateConfigAsync(solution, dto);
     if (res)
     {
       await Dialog.CloseAsync();

@@ -33,7 +33,7 @@ public class CommandService(CommandDbContext context)
         var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
         var solutionName = Path.GetFileName(projectFilePath) ?? name;
         var solutionPath = Path.GetDirectoryName(projectFilePath) ?? "";
-        var entity = new Project()
+        var entity = new Solution()
         {
             DisplayName = name,
             Path = solutionPath,
@@ -42,7 +42,7 @@ public class CommandService(CommandDbContext context)
         };
         entity.Config.SolutionPath = solutionPath;
 
-        context.Projects.Add(entity);
+        context.Solutions.Add(entity);
         return await context.SaveChangesAsync() > 0 ? entity.Id : null;
     }
 
@@ -134,7 +134,7 @@ public class CommandService(CommandDbContext context)
 
         var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
         var solutionName = Path.GetFileName(projectFilePath) ?? dto.Name;
-        var entity = new Project()
+        var entity = new Solution()
         {
             DisplayName = dto.Name,
             Path = solutionPath,
@@ -142,7 +142,7 @@ public class CommandService(CommandDbContext context)
             SolutionType = solutionType,
         };
         entity.Config.SolutionPath = solutionPath;
-        await context.Projects.AddAsync(entity);
+        await context.Solutions.AddAsync(entity);
         await context.SaveChangesAsync();
         return true;
     }
@@ -156,7 +156,12 @@ public class CommandService(CommandDbContext context)
     private static void UpdateAppSettings(CreateSolutionDto dto, string path, string apiName)
     {
         // 修改配置文件
-        string configFile = Path.Combine(path, "src", apiName, "appsettings.json");
+        string configFile = Path.Combine(
+            path,
+            PathConst.ServicesPath,
+            apiName,
+            ConstVal.AppSettingJson
+        );
         string jsonString = File.ReadAllText(configFile);
         JsonNode? jsonNode = JsonNode.Parse(
             jsonString,

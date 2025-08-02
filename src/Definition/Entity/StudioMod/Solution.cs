@@ -4,7 +4,7 @@ namespace Entity.StudioMod;
 /// 项目
 /// </summary>
 [Module(Modules.Studio)]
-public class Project : EntityBase
+public class Solution : EntityBase
 {
     /// <summary>
     /// 项目名称
@@ -38,7 +38,7 @@ public class Project : EntityBase
     /// <summary>
     /// project config
     /// </summary>
-    public ProjectConfig Config { get; set; } = new ProjectConfig();
+    public SolutionConfig Config { get; set; } = new SolutionConfig();
 
     public List<ApiDocInfo> ApiDocInfos { get; set; } = [];
 
@@ -52,7 +52,7 @@ public class Project : EntityBase
 /// <summary>
 ///  项目配置
 /// </summary>
-public class ProjectConfig
+public class SolutionConfig
 {
     public string IdType { get; set; } = ConstVal.Guid;
     public string CreatedTimeName { get; set; } = ConstVal.CreatedTime;

@@ -18,7 +18,7 @@ public class McpTool : EntityBase
 
     public string[] TemplatePaths { get; set; } = [];
 
-    public Project Project { get; set; } = default!;
+    public Solution Project { get; set; } = default!;
 
     [ForeignKey(nameof(Project))]
     public Guid ProjectId { get; set; }

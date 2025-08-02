@@ -201,7 +201,7 @@ public class AssemblyHelper
         if (File.Exists(configFilePath))
         {
             string configJson = await File.ReadAllTextAsync(configFilePath);
-            var config = JsonSerializer.Deserialize<ProjectConfig>(configJson);
+            var config = JsonSerializer.Deserialize<SolutionConfig>(configJson);
             return config?.Version;
         }
         return default;

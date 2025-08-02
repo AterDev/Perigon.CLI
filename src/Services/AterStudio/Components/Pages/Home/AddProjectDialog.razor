@@ -1,7 +1,7 @@
 @namespace AterStudio.Components
 @inherits PageBase
 @implements IDialogContentComponent
-@inject ProjectManager projectManager
+@inject SolutionManager SolutionManager
 
 <EditForm EditContext="editContext">
     <FluentDialogHeader ShowDismiss="false">
@@ -101,7 +101,7 @@
                 ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName, AddDto.ProjectDirectory));
                 return;
             }
-            var res = await projectManager.AddAsync(AddDto.ProjectName, AddDto.ProjectDirectory);
+            var res = await SolutionManager.AddProjectAsync(AddDto.ProjectName, AddDto.ProjectDirectory);
             if (res is not null)
             {
                 await Dialog.CloseAsync(res);
