@@ -111,14 +111,11 @@ public class CommandService(CommandDbContext context)
                 Directory.Delete(appPath, true);
             }
         }
-
-        // TODO:模块的处理
-
-        if (!dto.IsLight && dto.Modules.Count > 0)
+        // 添加模块到解决方案中
+        if (!dto.IsLight && dto.Modules?.Count > 0)
         {
             foreach (string item in dto.Modules)
             {
-                // 添加模块到解决方案中
                 SolutionService.AddDefaultModule(item, solutionPath);
             }
         }

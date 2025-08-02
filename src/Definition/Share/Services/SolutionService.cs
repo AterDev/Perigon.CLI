@@ -374,7 +374,7 @@ public class SolutionService(
             return;
         }
         string studioPath = AssemblyHelper.GetStudioPath();
-        string sourcePath = Path.Combine(studioPath, "Modules", moduleName);
+        string sourcePath = Path.Combine(studioPath, ConstVal.ModulesDir, moduleName);
         if (!Directory.Exists(sourcePath))
         {
             return;
@@ -385,7 +385,7 @@ public class SolutionService(
         string databasePath = Path.Combine(solutionPath, PathConst.EntityFrameworkPath);
 
         // copy entities
-        CopyModuleFiles(Path.Combine(sourcePath, "Entity"), entityPath);
+        CopyModuleFiles(Path.Combine(sourcePath, ConstVal.EntityName), entityPath);
 
         // copy module files
         CopyModuleFiles(sourcePath, modulePath);
@@ -396,7 +396,9 @@ public class SolutionService(
         CompilationHelper compilation = new(databasePath);
         compilation.LoadContent(dbContextContent);
 
-        List<System.IO.FileInfo> entityFiles = new DirectoryInfo(Path.Combine(sourcePath, "Entity"))
+        List<FileInfo> entityFiles = new DirectoryInfo(
+            Path.Combine(sourcePath, ConstVal.EntityName)
+        )
             .GetFiles("*.cs", SearchOption.AllDirectories)
             .ToList();
 
@@ -426,6 +428,32 @@ public class SolutionService(
                 $"global using Entity;{Environment.NewLine}{newLine}"
             );
             File.WriteAllText(globalUsingsFile, globalUsingsContent);
+        }
+        var slnFile = AssemblyHelper.GetSlnFile(new DirectoryInfo(solutionPath));
+
+        var moduleProjectPath = Path.Combine(
+            modulePath,
+            $"{moduleName}{ConstVal.CSharpProjectExtension}"
+        );
+
+        if (slnFile == null || !File.Exists(moduleProjectPath))
+        {
+            return;
+        }
+
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"sln {slnFile.FullName} add {moduleProjectPath}",
+                out string error
+            )
+        )
+        {
+            OutputHelper.Error("add project ➡️ solution failed:" + error);
+        }
+        else
+        {
+            OutputHelper.Success("add project ➡️ solution!");
         }
     }
 
