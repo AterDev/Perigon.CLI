@@ -2,7 +2,7 @@
 [CmdletBinding()]
 
 # 模块名称
-$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "CustomerMod","UserMod")
+$modulesNames = @("CMSMod", "FileManagerMod", "OrderMod", "CustomerMod", "UserMod")
 
 # 路径定义
 $deployPath = Get-Location

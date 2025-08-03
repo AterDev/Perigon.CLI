@@ -5,6 +5,7 @@ namespace Share.Models.CommandDtos;
 /// </summary>
 public class ModuleInfo
 {
+    public const string User = "UserMod";
     public const string CMS = "CMSMod";
     public const string FileManager = "FileManagerMod";
     public const string Order = "OrderMod";
