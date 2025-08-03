@@ -7,8 +7,7 @@ namespace Http.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExternalAuthController(IConfiguration config, ILogger<ExternalAuthController> logger)
-    : ControllerBase
+public class ExternalAuthController(ILogger<ExternalAuthController> logger) : ControllerBase
 {
     /// <summary>
     /// Microsft login

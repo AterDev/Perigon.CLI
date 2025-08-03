@@ -101,8 +101,8 @@ public class DailyFileLogger(
 
         logEntry.Append(Environment.NewLine);
 
-        string logFileName = $"log_{DateTime.Today:yyyyMMdd}.log";
-        string logFilePath = Path.Combine(basePath, logFileName);
+        var logFileName = $"log_{DateTime.Today:yyyyMMdd}.log";
+        var logFilePath = Path.Combine(basePath, logFileName);
         Directory.CreateDirectory(basePath);
 
         using (_fileLock.EnterScope())

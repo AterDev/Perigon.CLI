@@ -30,7 +30,7 @@ public class LocalizerConstGen : IIncrementalGenerator
                     return;
                 }
                 var allKeys = new HashSet<string>();
-                string fileName = string.Empty;
+                var fileName = string.Empty;
                 foreach (var file in resxList)
                 {
                     fileName = Path.GetFileName(file.Path);

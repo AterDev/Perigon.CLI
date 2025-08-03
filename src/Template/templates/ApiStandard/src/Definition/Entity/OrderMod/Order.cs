@@ -1,9 +1,9 @@
-using System.Runtime.CompilerServices;
 using Ater.Common.Utils;
 using Entity.CustomerMod;
 using Entity.UserMod;
 
 namespace Entity.OrderMod;
+
 /// <summary>
 /// 订单
 /// </summary>
@@ -22,14 +22,14 @@ public class Order : EntityBase
     public CustomerInfo? CustomerInfo { get; set; }
     public Guid CustomerInfoId { get; set; }
 
-
     #endregion
 
     /// <summary>
-    /// 订单编号 
+    /// 订单编号
     /// </summary>
     [MaxLength(30)]
-    public string OrderNumber { get; set; } = HashCrypto.GetRnd() + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+    public string OrderNumber { get; set; } =
+        HashCrypto.GetRnd() + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
 
     /// <summary>
     /// 支付订单号
@@ -55,6 +55,7 @@ public class Order : EntityBase
     /// </summary>
     [Column(TypeName = "decimal(10,2)")]
     public decimal OriginPrice { get; set; }
+
     /// <summary>
     /// 支付价格
     /// </summary>
@@ -66,11 +67,13 @@ public class Order : EntityBase
     /// </summary>
     [MaxLength(10)]
     public string? DiscountCode { get; set; }
+
     /// <summary>
     /// 订单当前状态。
     /// </summary>
     public OrderStatus Status { get; set; }
 }
+
 /// <summary>
 /// 订单状态
 /// </summary>
@@ -81,14 +84,16 @@ public enum OrderStatus
     /// </summary>
     [Description("未支付")]
     UnPaid,
+
     /// <summary>
     /// 已取消
     /// </summary>
     [Description("已取消")]
     Cancelled,
+
     /// <summary>
     /// 已支付
     /// </summary>
     [Description("已支付")]
-    Paid
+    Paid,
 }

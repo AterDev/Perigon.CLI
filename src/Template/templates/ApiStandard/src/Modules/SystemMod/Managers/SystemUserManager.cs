@@ -29,7 +29,7 @@ public class SystemUserManager(
     /// </summary>
     /// <param name="length">验证码长度</param>
     /// <returns></returns>
-    public string GetCaptcha(int length = 6)
+    public static string GetCaptcha(int length = 6)
     {
         return HashCrypto.GetRnd(length);
     }

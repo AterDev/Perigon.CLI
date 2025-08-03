@@ -1,6 +1,5 @@
-using Ater.Common.Models;
 using FileManagerMod.Models.FileDataDtos;
-using Share.Implement;
+using Microsoft.AspNetCore.Http;
 
 namespace FileManagerMod.Controllers;
 
@@ -73,15 +72,13 @@ public class FileDataController(
         }
 
         var contentType = "application/octet-stream;charset=utf-8";
-        string encodedFileName = System.Web.HttpUtility.UrlEncode(
+        var encodedFileName = System.Web.HttpUtility.UrlEncode(
             res.FileName,
             System.Text.Encoding.UTF8
         );
         Response.Headers.Append(
-            new KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>(
-                "Content-Disposition",
-                $"attachment; filename={encodedFileName}"
-            )
+            "Content-Disposition",
+            $"attachment; filename={encodedFileName}; filename*=UTF-8''{encodedFileName}"
         );
         return new FileContentResult(res.Content, contentType);
     }

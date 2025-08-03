@@ -104,10 +104,7 @@ public class JsonHelper
     /// <exception cref="ArgumentNullException">Thrown if root is null.</exception>
     public static void AddOrUpdateJsonNode(JsonNode root, string keyPath, object? newValue)
     {
-        if (root is null)
-        {
-            throw new ArgumentNullException(nameof(root));
-        }
+        ArgumentNullException.ThrowIfNull(root, nameof(root));
         var paths = keyPath.Split('.');
         var current = root;
         for (var i = 0; i < paths.Length - 1; i++)

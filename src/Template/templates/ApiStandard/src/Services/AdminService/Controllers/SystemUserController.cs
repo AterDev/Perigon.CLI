@@ -44,7 +44,7 @@ public class SystemUserController(
         {
             return NotFound("不存在的邮箱账号");
         }
-        var captcha = _manager.GetCaptcha();
+        var captcha = SystemUserManager.GetCaptcha();
         var key = WebConst.VerifyCodeCachePrefix + email;
         if (await _cache.GetValueAsync<string>(key) != null)
         {
@@ -107,7 +107,7 @@ public class SystemUserController(
             AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
 
             // 缓存登录状态
-            string client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+            var client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
             if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
             {
                 client = WebConst.AllPlatform;
@@ -171,7 +171,7 @@ public class SystemUserController(
     [HttpGet("refresh_token")]
     public async Task<ActionResult<AccessTokenDto>> RefreshTokenAsync(string refreshToken)
     {
-        string? userId = await _cache.GetValueAsync<string>(refreshToken);
+        var userId = await _cache.GetValueAsync<string>(refreshToken);
         if (userId == null || userId != _user.UserId.ToString())
         {
             return NotFound(ErrorKeys.NotFoundResource);
@@ -185,7 +185,7 @@ public class SystemUserController(
         // 更新缓存
         var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
 
-        string client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+        var client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
         if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
         {
             client = WebConst.AllPlatform;

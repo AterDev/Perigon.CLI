@@ -20,8 +20,11 @@ public class JwtMiddleware(RequestDelegate next, CacheService cache, ILogger<Jwt
         // 可匿名访问的放行
         Endpoint? endpoint = context.GetEndpoint();
         var allowAnonymous = endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null;
-        var token = context.Request.Headers[WebConst.Authorization].FirstOrDefault()?.Split(" ").Last() ?? string.Empty;
-        var client = context.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+        var token =
+            context.Request.Headers[WebConst.Authorization].FirstOrDefault()?.Split(" ").Last()
+            ?? string.Empty;
+        var client =
+            context.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
 
         if (allowAnonymous || token.IsEmpty())
         {
@@ -40,13 +43,17 @@ public class JwtMiddleware(RequestDelegate next, CacheService cache, ILogger<Jwt
         // 策略判断
         if (id.NotEmpty())
         {
-            var securityPolicyStr = await _cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
+            var securityPolicyStr = await _cache.GetValueAsync<string>(
+                WebConst.LoginSecurityPolicy
+            );
             if (securityPolicyStr == null)
             {
                 await _next(context);
                 return;
             }
-            var securityPolicy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(securityPolicyStr!);
+            var securityPolicy = JsonSerializer.Deserialize<LoginSecurityPolicyOption>(
+                securityPolicyStr!
+            );
 
             if (securityPolicy == null || !securityPolicy.IsEnable)
             {
@@ -76,14 +83,18 @@ public class JwtMiddleware(RequestDelegate next, CacheService cache, ILogger<Jwt
         }
     }
 
-    private async Task SetResponseAndComplete(HttpContext context, int statusCode, string? msg = "无效的凭证")
+    private static async Task SetResponseAndComplete(
+        HttpContext context,
+        int statusCode,
+        string? msg = "无效的凭证"
+    )
     {
         var res = new
         {
             Title = msg,
             Detail = msg,
             Status = statusCode,
-            TraceId = context.TraceIdentifier
+            TraceId = context.TraceIdentifier,
         };
 
         var content = JsonSerializer.Serialize(res);

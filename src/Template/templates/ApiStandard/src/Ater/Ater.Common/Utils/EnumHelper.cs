@@ -1,6 +1,7 @@
 using System.Reflection;
 
 namespace Ater.Common.Utils;
+
 /// <summary>
 /// 枚举帮助类
 /// </summary>
@@ -24,12 +25,14 @@ public static class EnumHelper
                 if (field != null)
                 {
                     var attribute = field.GetCustomAttribute<DescriptionAttribute>(true);
-                    result.Add(new EnumDictionary
-                    {
-                        Name = field.Name,
-                        Description = attribute?.Description ?? field.Name,
-                        Value = Convert.ToInt32(values.GetValue(i))
-                    });
+                    result.Add(
+                        new EnumDictionary
+                        {
+                            Name = field.Name,
+                            Description = attribute?.Description ?? field.Name,
+                            Value = Convert.ToInt32(values.GetValue(i)),
+                        }
+                    );
                 }
             }
         }
@@ -43,8 +46,14 @@ public static class EnumHelper
     /// <returns></returns>
     public static string GetDescription(this Enum value)
     {
-        var field = value.GetType().GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
-        if (field != null && field.GetCustomAttribute<DescriptionAttribute>(true) is DescriptionAttribute attribute)
+        var field = value
+            .GetType()
+            .GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
+        if (
+            field != null
+            && field.GetCustomAttribute<DescriptionAttribute>(true)
+                is DescriptionAttribute attribute
+        )
         {
             return attribute.Description;
         }
@@ -65,13 +74,16 @@ public static class EnumHelper
     /// 获取程序集所有枚举信息
     /// </summary>
     /// <returns></returns>
-    public static Dictionary<string, List<EnumDictionary>> GetAllEnumInfo(List<string>? myAssemblies = null)
+    public static Dictionary<string, List<EnumDictionary>> GetAllEnumInfo(
+        List<string>? myAssemblies = null
+    )
     {
         Dictionary<string, List<EnumDictionary>> res = [];
         myAssemblies ??= ["Share.dll", "Entity.dll"];
 
         List<Type> allTypes = [];
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+        var assemblies = AppDomain
+            .CurrentDomain.GetAssemblies()
             .Where(a => myAssemblies.Contains(a.ManifestModule.Name))
             .ToList();
         assemblies.ForEach(assembly =>

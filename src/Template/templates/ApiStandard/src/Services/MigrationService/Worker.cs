@@ -47,7 +47,7 @@ public class Worker(
         });
     }
 
-    private async Task SeedDataAsync(
+    private static async Task SeedDataAsync(
         CommandDbContext dbContext,
         CancellationToken cancellationToken
     )

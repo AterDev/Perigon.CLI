@@ -12,5 +12,4 @@ global using SystemMod.Managers;
 global using SystemMod.Models;
 global using SystemMod.Services;
 
-
 //global using AdminService.Extension;

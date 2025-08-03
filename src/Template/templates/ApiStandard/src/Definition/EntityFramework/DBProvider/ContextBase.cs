@@ -13,11 +13,13 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
     public DbSet<SystemUser> SystemUsers { get; set; }
     public DbSet<SystemRole> SystemRoles { get; set; }
     public DbSet<SystemConfig> SystemConfigs { get; set; }
+
     /// <summary>
     /// 菜单
     /// </summary>
     public DbSet<SystemMenu> SystemMenus { get; set; }
     public DbSet<SystemPermission> SystemPermissions { get; set; }
+
     /// <summary>
     /// 权限组
     /// </summary>
@@ -32,13 +34,17 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
         OnSQLiteModelCreating(builder);
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default
+    )
     {
         // 创建和更新时间处理
         var entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added).ToList();
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {
-            Microsoft.EntityFrameworkCore.Metadata.IProperty? property = entityEntry.Metadata.FindProperty("CreatedTime");
+            Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
+                entityEntry.Metadata.FindProperty("CreatedTime");
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
                 entityEntry.Property("CreatedTime").CurrentValue = DateTimeOffset.UtcNow;
@@ -47,7 +53,8 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
         entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList();
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {
-            Microsoft.EntityFrameworkCore.Metadata.IProperty? property = entityEntry.Metadata.FindProperty("UpdatedTime");
+            Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
+                entityEntry.Metadata.FindProperty("UpdatedTime");
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
                 entityEntry.Property("UpdatedTime").CurrentValue = DateTimeOffset.UtcNow;
@@ -60,15 +67,22 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
     /// 设置主键Id和软删除过滤
     /// </summary>
     /// <param name="modelBuilder"></param>
-    private void OnModelExtendCreating(ModelBuilder modelBuilder)
+    private static void OnModelExtendCreating(ModelBuilder modelBuilder)
     {
-        IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType> entityTypes = modelBuilder.Model.GetEntityTypes();
-        foreach (Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType in entityTypes)
+        IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType> entityTypes =
+            modelBuilder.Model.GetEntityTypes();
+        foreach (
+            Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType in entityTypes
+        )
         {
             if (typeof(IEntityBase).IsAssignableFrom(entityType.ClrType))
             {
                 modelBuilder.Entity(entityType.Name).HasKey("Id");
-                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(ConvertFilterExpression<IEntityBase>(e => !e.IsDeleted, entityType.ClrType));
+                modelBuilder
+                    .Entity(entityType.ClrType)
+                    .HasQueryFilter(
+                        ConvertFilterExpression<IEntityBase>(e => !e.IsDeleted, entityType.ClrType)
+                    );
             }
         }
     }
@@ -83,8 +97,12 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                var properties = entityType.ClrType.GetProperties()
-                    .Where(p => p.PropertyType == typeof(DateTimeOffset) || p.PropertyType == typeof(DateTimeOffset?));
+                var properties = entityType
+                    .ClrType.GetProperties()
+                    .Where(p =>
+                        p.PropertyType == typeof(DateTimeOffset)
+                        || p.PropertyType == typeof(DateTimeOffset?)
+                    );
                 foreach (var property in properties)
                 {
                     modelBuilder
@@ -96,10 +114,17 @@ public partial class ContextBase(DbContextOptions options) : DbContext(options)
         }
     }
 
-    private static LambdaExpression ConvertFilterExpression<TInterface>(Expression<Func<TInterface, bool>> filterExpression, Type entityType)
+    private static LambdaExpression ConvertFilterExpression<TInterface>(
+        Expression<Func<TInterface, bool>> filterExpression,
+        Type entityType
+    )
     {
         ParameterExpression newParam = Expression.Parameter(entityType);
-        Expression newBody = ReplacingExpressionVisitor.Replace(filterExpression.Parameters.Single(), newParam, filterExpression.Body);
+        Expression newBody = ReplacingExpressionVisitor.Replace(
+            filterExpression.Parameters.Single(),
+            newParam,
+            filterExpression.Body
+        );
 
         return Expression.Lambda(newBody, newParam);
     }

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 namespace Entity.UserMod;
+
 /// <summary>
 /// 用户日志
 /// </summary>
@@ -25,6 +26,7 @@ public class UserLog : EntityBase
     [NotMapped]
     [JsonIgnore]
     public object? Data { get; set; }
+
     /// <summary>
     /// 操作路由
     /// </summary>
@@ -47,8 +49,14 @@ public class UserLog : EntityBase
 
     public Guid UserId { get; set; } = default!;
 
-
-    public static UserLog NewLog(string userName, Guid userId, UserActionType actionType, object? entity, string? route = null, string? description = null)
+    public static UserLog NewLog(
+        string userName,
+        Guid userId,
+        UserActionType actionType,
+        object? entity,
+        string? route = null,
+        string? description = null
+    )
     {
         return new UserLog
         {

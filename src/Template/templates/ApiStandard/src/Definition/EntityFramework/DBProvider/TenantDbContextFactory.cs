@@ -27,6 +27,7 @@ public class TenantDbContextFactory(
                 $"{tenantId}_CommandConnectionString",
                 async cancel => await GetTenantConnectionStringAsync(tenantId, "command")
             )
+            .AsTask()
             .Result;
 
         switch (options?.Value.Database)
@@ -52,6 +53,7 @@ public class TenantDbContextFactory(
                 $"{tenantId}_QueryConnectionString",
                 async cancel => await GetTenantConnectionStringAsync(tenantId, "query")
             )
+            .AsTask()
             .Result;
 
         builder.UseSqlServer(connectionStrings);

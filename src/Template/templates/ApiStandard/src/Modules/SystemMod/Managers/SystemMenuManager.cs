@@ -1,15 +1,14 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
-using Share.Implement;
 using SystemMod.Models.SystemMenuDtos;
 
 namespace SystemMod.Managers;
+
 /// <summary>
 /// 系统菜单
 /// </summary>
 public class SystemMenuManager(
     DataAccessContext<SystemMenu> dataContext,
-    ILogger<SystemMenuManager> logger) : ManagerBase<SystemMenu>(dataContext, logger)
+    ILogger<SystemMenuManager> logger
+) : ManagerBase<SystemMenu>(dataContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -50,7 +49,6 @@ public class SystemMenuManager(
         // 菜单新增与更新
         foreach (SystemMenu menu in flatMenus)
         {
-
             if (currentMenus.Any(c => c.AccessCode == menu.AccessCode))
             {
                 var index = currentMenus.FindIndex(m => m.AccessCode.Equals(menu.AccessCode));
@@ -63,7 +61,9 @@ public class SystemMenuManager(
             {
                 if (menu.Parent != null)
                 {
-                    SystemMenu? parent = currentMenus.Where(c => c.AccessCode == menu.Parent.AccessCode).FirstOrDefault();
+                    SystemMenu? parent = currentMenus
+                        .Where(c => c.AccessCode == menu.Parent.AccessCode)
+                        .FirstOrDefault();
                     if (parent != null)
                     {
                         menu.Parent = parent;
@@ -76,12 +76,15 @@ public class SystemMenuManager(
     }
 
     /// <summary>
-    /// flat tree 
+    /// flat tree
     /// </summary>
     /// <param name="list"></param>
     /// <param name="parent"></param>
     /// <returns></returns>
-    private List<SystemMenu> FlatTree(List<SystemMenuSyncDto> list, SystemMenu? parent = null)
+    private static List<SystemMenu> FlatTree(
+        List<SystemMenuSyncDto> list,
+        SystemMenu? parent = null
+    )
     {
         var res = new List<SystemMenu>();
         foreach (SystemMenuSyncDto item in list)
@@ -95,7 +98,7 @@ public class SystemMenuManager(
                     MenuType = (MenuType)item.MenuType,
                     Parent = parent,
                     Sort = item.Sort ?? 0,
-                    Icon = item.Icon
+                    Icon = item.Icon,
                 };
                 res.Add(menu);
                 List<SystemMenu> children = FlatTree(item.Children, menu);
@@ -110,7 +113,7 @@ public class SystemMenuManager(
                     MenuType = (MenuType)item.MenuType,
                     Parent = parent,
                     Sort = item.Sort ?? 0,
-                    Icon = item.Icon
+                    Icon = item.Icon,
                 };
                 res.Add(menu);
             }
@@ -129,31 +132,30 @@ public class SystemMenuManager(
         List<SystemMenu>? menus;
         if (filter.RoleId != null)
         {
-            menus = await Queryable.Where(q => q.Roles.Any(r => r.Id == filter.RoleId))
+            menus = await Queryable
+                .Where(q => q.Roles.Any(r => r.Id == filter.RoleId))
                 .ToListAsync();
             menus.BuildTree();
         }
         else if (filter.ParentId != null)
         {
-            menus = await Queryable.Where(q => q.Parent != null && q.ParentId == filter.ParentId)
+            menus = await Queryable
+                .Where(q => q.Parent != null && q.ParentId == filter.ParentId)
                 .ToListAsync();
         }
         else
         {
-            menus = await Queryable.AsNoTracking()
-            .OrderByDescending(t => t.Sort)
+            menus = await Queryable
+                .AsNoTracking()
+                .OrderByDescending(t => t.Sort)
                 .ThenByDescending(t => t.CreatedTime)
-            .Skip((filter.PageIndex - 1) * filter.PageIndex)
-            .Take(filter.PageSize)
-            .ToListAsync();
+                .Skip((filter.PageIndex - 1) * filter.PageIndex)
+                .Take(filter.PageSize)
+                .ToListAsync();
             menus = menus.BuildTree();
         }
 
-        return new PageList<SystemMenu>()
-        {
-            Data = menus,
-            PageIndex = filter.PageIndex
-        };
+        return new PageList<SystemMenu>() { Data = menus, PageIndex = filter.PageIndex };
     }
 
     /// <summary>
@@ -168,5 +170,4 @@ public class SystemMenuManager(
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

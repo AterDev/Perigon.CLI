@@ -23,11 +23,12 @@ public class ManagerSourceGen : IIncrementalGenerator
                 transform: static (ctx, cancellationToken) =>
                 {
                     var classDecl = (ClassDeclarationSyntax)ctx.Node;
-                    var symbol =
-                        ctx.SemanticModel.GetDeclaredSymbol(classDecl, cancellationToken)
-                        as INamedTypeSymbol;
 
-                    if (symbol != null && InheritsFromManagerBase(symbol))
+                    if (
+                        ctx.SemanticModel.GetDeclaredSymbol(classDecl, cancellationToken)
+                            is INamedTypeSymbol symbol
+                        && InheritsFromManagerBase(symbol)
+                    )
                     {
                         return symbol;
                     }
@@ -43,11 +44,9 @@ public class ManagerSourceGen : IIncrementalGenerator
                 var managerClasses = new List<INamedTypeSymbol>();
                 foreach (var reference in compilation.References)
                 {
-                    var assemblySymbol =
-                        compilation.GetAssemblyOrModuleSymbol(reference) as IAssemblySymbol;
-
                     if (
-                        assemblySymbol != null
+                        compilation.GetAssemblyOrModuleSymbol(reference)
+                            is IAssemblySymbol assemblySymbol
                         && assemblySymbol.Name.EndsWith("Mod", StringComparison.OrdinalIgnoreCase)
                     )
                     {
@@ -75,7 +74,7 @@ public class ManagerSourceGen : IIncrementalGenerator
         var allManagerClasses = candidateClasses
             .Collect()
             .Combine(referencedClasses.Collect())
-            .Select((pair, token) => pair.Item1.Concat(pair.Item2));
+            .Select((pair, token) => pair.Left.Concat(pair.Right));
 
         context.RegisterSourceOutput(
             context.CompilationProvider.Combine(allManagerClasses),
