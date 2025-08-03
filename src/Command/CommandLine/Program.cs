@@ -50,9 +50,18 @@ app.Configure(config =>
         .WithDescription(localizer.Get(Localizer.NewDes))
         .WithExample(["new", "name"]);
 
-    config
-        .AddCommand<StudioCommand>(SubCommand.Studio)
-        .WithDescription(localizer.Get(Localizer.StudioDes));
+    ConfiguratorExtensions.AddBranch(
+        config,
+        SubCommand.Studio,
+        studio =>
+        {
+            studio.SetDescription(localizer.Get(Localizer.StudioDes));
+            studio.SetDefaultCommand<StudioCommand>();
+            studio
+                .AddCommand<StudioUpdateCommand>(SubCommand.Update)
+                .WithDescription(Localizer.UpdateStudioDes);
+        }
+    );
 
     ConfiguratorExtensions
         .AddBranch(

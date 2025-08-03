@@ -216,8 +216,8 @@
   <data name="Tools" xml:space="preserve">
     <value>Tools</value>
   </data>
-  <data name="UpdateDes" xml:space="preserve">
-    <value>update studio,project etc</value>
+  <data name="UpdateStudioDes" xml:space="preserve">
+    <value>update studio</value>
   </data>
   <data name="Values" xml:space="preserve">
     <value>Values</value>

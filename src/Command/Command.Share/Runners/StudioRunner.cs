@@ -231,7 +231,7 @@ public class StudioRunner
     public static void UpdateTemplate()
     {
         // 安装模板
-        if (!ProcessHelper.RunCommand("dotnet", "new list atapi", out string _))
+        if (!ProcessHelper.RunCommand("dotnet", "new list ater", out string _))
         {
             if (!ProcessHelper.RunCommand("dotnet", "new install ater.web.templates", out _))
             {

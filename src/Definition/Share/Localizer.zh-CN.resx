@@ -216,8 +216,8 @@
   <data name="Tools" xml:space="preserve">
     <value>工具</value>
   </data>
-  <data name="UpdateDes" xml:space="preserve">
-    <value>升级studio,project等</value>
+  <data name="UpdateStudioDes" xml:space="preserve">
+    <value>更新studio</value>
   </data>
   <data name="Values" xml:space="preserve">
     <value>值</value>

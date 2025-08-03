@@ -23,6 +23,13 @@
       "source": "./",
       "target": "./",
       "exclude": [
+        "**/[Bb]in/**",
+        "**/[Oo]bj/**",
+        "**/.template.config/**",
+        "**/*.filelist",
+        "**/*.user",
+        "**/*.lock.json",
+        ".git/**",
         "src/ClientApp/WebApp/**"
       ]
     },
