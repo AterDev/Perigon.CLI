@@ -67,7 +67,10 @@ public class CsharpModelGenerate : GenerateBase
     /// <summary>
     /// 获取相关联的模型
     /// </summary>
-    public Dictionary<string, string?>? GetRelationModels(IOpenApiSchema? schema, string? tag = "")
+    public static Dictionary<string, string?>? GetRelationModels(
+        IOpenApiSchema? schema,
+        string? tag = ""
+    )
     {
         if (schema == null)
         {
@@ -78,7 +81,7 @@ public class CsharpModelGenerate : GenerateBase
         if (schema.AllOf != null)
         {
             var parent = schema.AllOf.FirstOrDefault();
-            if (parent != null && parent is OpenApiSchemaReference reference)
+            if (parent is not null and OpenApiSchemaReference reference)
             {
                 if (reference.Reference.Id != null)
                 {
@@ -171,7 +174,6 @@ public class CsharpModelGenerate : GenerateBase
     /// </summary>
     public string ToClassModelString(IOpenApiSchema schema, string name = "", string nspName = "")
     {
-        string res = "";
         string comment = "";
         string propertyString = "";
         string extendString = "";
@@ -191,8 +193,6 @@ public class CsharpModelGenerate : GenerateBase
                 extendString = " : " + extend + "";
                 if (extend != name)
                 {
-                    string? dirName = GetDirName(name);
-                    dirName = dirName.NotEmpty() ? dirName!.ToHyphen() + "/" : "";
                     importString += @$"using {nspName}.Models;" + Environment.NewLine;
                 }
             }
@@ -222,7 +222,7 @@ public class CsharpModelGenerate : GenerateBase
             );
         }
         string namespaceString = $"namespace {nspName}.Models;" + Environment.NewLine;
-        res =
+        string res =
             @$"{importString}{namespaceString}{comment}public class {name} {extendString}{{
 {propertyString}
 }}
@@ -235,7 +235,6 @@ public class CsharpModelGenerate : GenerateBase
     /// </summary>
     public static string ToEnumString(IOpenApiSchema schema, string name = "", string nspName = "")
     {
-        string res = "";
         string comment = "";
         string propertyString = "";
         if (!string.IsNullOrEmpty(schema.Description))
@@ -257,7 +256,7 @@ public class CsharpModelGenerate : GenerateBase
                 """;
         }
         string namespaceString = $"namespace {nspName}.Models;" + Environment.NewLine;
-        res =
+        string res =
             @$"using System.ComponentModel;
 {namespaceString}{comment}public enum {name} {{
 {propertyString}

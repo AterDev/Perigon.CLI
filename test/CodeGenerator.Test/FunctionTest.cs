@@ -140,8 +140,8 @@ public class FunctionTest
         );
         CSharpCompilation compilation = CSharpCompilation.Create(
             "MyCompilation",
-            syntaxTrees: new[] { tree },
-            references: new[] { mscorlib }
+            syntaxTrees: [tree],
+            references: [mscorlib]
         );
         await CSharpAnalysisHelper.GetBaseInterfaceInfoAsync(compilation, tree);
     }

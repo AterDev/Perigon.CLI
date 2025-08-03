@@ -1,6 +1,4 @@
-using Ater.Common.Models;
 using FileManagerMod.Models.FolderDtos;
-using Share.Implement;
 
 namespace FileManagerMod.Controllers.AdminControllers;
 
@@ -13,9 +11,8 @@ public class FolderController(
     UserContext user,
     ILogger<FolderController> logger,
     FolderManager manager
-        ) : AdminControllerBase<FolderManager>(localizer, manager, user, logger)
+) : AdminControllerBase<FolderManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>

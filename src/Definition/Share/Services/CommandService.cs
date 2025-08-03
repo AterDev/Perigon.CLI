@@ -87,7 +87,7 @@ public class CommandService(
         var templateOptions = string.Empty;
         if (dto.FrontType != FrontType.None)
         {
-            templateOptions = $" --frontType {dto.FrontType.ToString()}";
+            templateOptions = $" --frontType {dto.FrontType}";
         }
         if (
             !ProcessHelper.RunCommand(

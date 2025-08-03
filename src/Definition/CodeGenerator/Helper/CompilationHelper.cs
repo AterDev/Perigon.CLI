@@ -230,7 +230,7 @@ public class CompilationHelper
     /// </summary>
     /// <param name="namespaces"></param>
     /// <returns></returns>
-    protected IEnumerable<INamedTypeSymbol> GetNamespacesClasses(
+    protected static IEnumerable<INamedTypeSymbol> GetNamespacesClasses(
         IEnumerable<INamespaceSymbol> namespaces
     )
     {

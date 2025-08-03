@@ -6,16 +6,16 @@ namespace CodeGenerator.Models;
 
 public class EntityInfo
 {
-    public static string[] IgnoreTypes = ["JsonDocument?", "byte[]"];
-    public static string[] IgnoreProperties =
-    [
-        ConstVal.Id,
-        ConstVal.CreatedTime,
-        ConstVal.UpdatedTime,
-        ConstVal.IsDeleted,
-        "PageSize",
-        "PageIndex",
-    ];
+    public static string[] IgnoreTypes { get; } = ["JsonDocument?", "byte[]"];
+    public static string[] IgnoreProperties { get; } =
+        [
+            ConstVal.Id,
+            ConstVal.CreatedTime,
+            ConstVal.UpdatedTime,
+            ConstVal.IsDeleted,
+            "PageSize",
+            "PageIndex",
+        ];
 
     /// <summary>
     /// module name

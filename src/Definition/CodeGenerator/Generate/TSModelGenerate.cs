@@ -72,7 +72,10 @@ public class TSModelGenerate : GenerateBase
     /// 获取相关联的模型
     /// </summary>
     /// <returns></returns>
-    public Dictionary<string, string?>? GetRelationModels(IOpenApiSchema? schema, string? tag = "")
+    public static Dictionary<string, string?>? GetRelationModels(
+        IOpenApiSchema? schema,
+        string? tag = ""
+    )
     {
         if (schema == null)
         {
@@ -84,7 +87,7 @@ public class TSModelGenerate : GenerateBase
         if (schema.AllOf != null)
         {
             var parent = schema.AllOf.FirstOrDefault();
-            if (parent != null && parent is OpenApiSchemaReference reference)
+            if (parent is not null and OpenApiSchemaReference reference)
             {
                 if (reference.Reference.Id != null)
                 {

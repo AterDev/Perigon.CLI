@@ -203,7 +203,7 @@ public class GenActionManager(
             else if (dto.SourceFilePath.NotEmpty())
             {
                 var entityInfo = (
-                    await _codeAnalysis.GetEntityInfosAsync([dto.SourceFilePath])
+                    await CodeAnalysisService.GetEntityInfosAsync([dto.SourceFilePath])
                 ).FirstOrDefault();
 
                 if (entityInfo != null)
@@ -241,7 +241,7 @@ public class GenActionManager(
                             .Where(q => matchFiles.Any(m => Path.GetFileName(q).EndsWith(m)))
                             .ToList();
 
-                        var dtoInfos = await _codeAnalysis.GetEntityInfosAsync(dtoFiles);
+                        var dtoInfos = await CodeAnalysisService.GetEntityInfosAsync(dtoFiles);
 
                         actionRunModel.AddPropertyInfos =
                             dtoInfos.FirstOrDefault(q => q.Name.EndsWith("AddDto"))?.PropertyInfos
@@ -345,7 +345,7 @@ public class GenActionManager(
         var entityFiles = new List<EntityFile>();
         if (filePaths.Count != 0)
         {
-            entityFiles = _codeAnalysis.GetEntityFiles(entityPath!, filePaths);
+            entityFiles = CodeAnalysisService.GetEntityFiles(entityPath!, filePaths);
         }
 
         if (sourceType == GenSourceType.EntityClass)

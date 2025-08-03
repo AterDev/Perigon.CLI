@@ -17,7 +17,7 @@ public class SolutionManager(
     /// 获取默认模块
     /// </summary>
     /// <returns></returns>
-    public List<ModuleInfo> GetDefaultModules()
+    public static List<ModuleInfo> GetDefaultModules()
     {
         return ModuleInfo.GetModules();
     }
@@ -52,7 +52,7 @@ public class SolutionManager(
         return projects;
     }
 
-    public string GetToolVersion()
+    public static string GetToolVersion()
     {
         return AssemblyHelper.GetCurrentToolVersion();
     }

@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Ater.Web.Extension.Providers;
+
 public class DailyFileLoggerProvider : ILoggerProvider, IDisposable
 {
     private readonly string _basePath;
@@ -10,7 +11,11 @@ public class DailyFileLoggerProvider : ILoggerProvider, IDisposable
     private readonly Timer _cleanupTimer;
     private readonly int _retentionDays;
 
-    public DailyFileLoggerProvider(string basePath, int retentionDays, Func<string, LogLevel, bool>? filter = null)
+    public DailyFileLoggerProvider(
+        string basePath,
+        int retentionDays,
+        Func<string, LogLevel, bool>? filter = null
+    )
     {
         _basePath = basePath;
         _retentionDays = retentionDays;
@@ -35,7 +40,10 @@ public class DailyFileLoggerProvider : ILoggerProvider, IDisposable
                 var fileInfo = new FileInfo(file);
                 if (fileInfo.CreationTime < cutoffDate)
                 {
-                    try { File.Delete(file); }
+                    try
+                    {
+                        File.Delete(file);
+                    }
                     catch { }
                 }
             }
@@ -49,28 +57,26 @@ public class DailyFileLoggerProvider : ILoggerProvider, IDisposable
     }
 }
 
-public class DailyFileLogger : ILogger
+public class DailyFileLogger(
+    string categoryName,
+    string basePath,
+    Func<string, LogLevel, bool> filter
+) : ILogger
 {
-    private readonly string _categoryName;
-    private readonly string _basePath;
-    private readonly Func<string, LogLevel, bool> _filter;
     private readonly Lock _fileLock = new();
-
-    public DailyFileLogger(string categoryName, string basePath, Func<string, LogLevel, bool> filter)
-    {
-        _categoryName = categoryName;
-        _basePath = basePath;
-        _filter = filter;
-    }
-
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        return _filter == null || _filter(_categoryName, logLevel);
+        return filter == null || filter(categoryName, logLevel);
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
-        Exception? exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception? exception,
+        Func<TState, Exception?, string> formatter
+    )
     {
         if (!IsEnabled(logLevel))
         {
@@ -79,11 +85,13 @@ public class DailyFileLogger : ILogger
 
         var logMessage = formatter(state, exception);
         var logEntry = new StringBuilder();
-        logEntry.AppendFormat("{0:yyyy-MM-dd HH:mm:ss.fff zzz} [{1}] [{2}] {3}",
+        logEntry.AppendFormat(
+            "{0:yyyy-MM-dd HH:mm:ss.fff zzz} [{1}] [{2}] {3}",
             DateTimeOffset.Now,
             logLevel.ToString().ToUpper(),
-            _categoryName,
-            logMessage);
+            categoryName,
+            logMessage
+        );
 
         if (exception != null)
         {
@@ -94,8 +102,8 @@ public class DailyFileLogger : ILogger
         logEntry.Append(Environment.NewLine);
 
         string logFileName = $"log_{DateTime.Today:yyyyMMdd}.log";
-        string logFilePath = Path.Combine(_basePath, logFileName);
-        Directory.CreateDirectory(_basePath);
+        string logFilePath = Path.Combine(basePath, logFileName);
+        Directory.CreateDirectory(basePath);
 
         using (_fileLock.EnterScope())
         {
@@ -103,7 +111,8 @@ public class DailyFileLogger : ILogger
         }
     }
 
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+    public IDisposable? BeginScope<TState>(TState state)
+        where TState : notnull
     {
         return default;
     }

@@ -84,7 +84,7 @@ public class SolutionHelper : IDisposable
     /// </summary>
     /// <param name="currentProject"></param>
     /// <param name="referenceProject"></param>
-    public bool AddProjectReference(Project currentProject, Project referenceProject)
+    public static bool AddProjectReference(Project currentProject, Project referenceProject)
     {
         if (
             !ProcessHelper.RunCommand(

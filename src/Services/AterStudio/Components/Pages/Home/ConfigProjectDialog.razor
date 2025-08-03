@@ -113,6 +113,11 @@
       return;
     }
     var solution = await Manager.GetCurrentAsync(Content.Id);
+    if (solution == null)
+    {
+      ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName, Content.Name));
+      return;
+    }
     var res = await Manager.UpdateConfigAsync(solution, dto);
     if (res)
     {

@@ -6,11 +6,17 @@ using MimeKit;
 using MimeKit.Text;
 
 namespace Ater.Web.Extension.Services;
+
 public class SmtpService(IOptions<SmtpOption> options)
 {
     public async Task SendAsync(string email, string subject, string html)
     {
-        SmtpOption option = options.Value ?? throw new ArgumentNullException($"cant find Smtp option: {SmtpOption.ConfigPath}");
+        SmtpOption option =
+            options.Value
+            ?? throw new ArgumentNullException(
+                nameof(option),
+                $"cant find Smtp option: {SmtpOption.ConfigPath}"
+            );
 
         var message = new MimeMessage();
         message.From.Add(MailboxAddress.Parse(option.From));
@@ -25,5 +31,4 @@ public class SmtpService(IOptions<SmtpOption> options)
         await smtp.SendAsync(message);
         smtp.Disconnect(true);
     }
-
 }

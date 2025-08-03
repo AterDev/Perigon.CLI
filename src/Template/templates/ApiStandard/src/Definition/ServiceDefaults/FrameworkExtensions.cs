@@ -99,8 +99,8 @@ public static class FrameworkExtensions
             );
         });
 
-        builder.Services.AddScoped(typeof(DbContextFactory));
-        builder.Services.AddScoped(typeof(TenantDbContextFactory));
+        builder.Services.AddScoped<DbContextFactory>();
+        builder.Services.AddScoped<TenantDbContextFactory>();
         return builder;
     }
 
@@ -114,7 +114,7 @@ public static class FrameworkExtensions
     )
     {
         builder.Services.AddScoped(typeof(DataAccessContext<>));
-        builder.Services.AddScoped(typeof(DataAccessContext));
+        builder.Services.AddScoped<DataAccessContext>();
 
         builder.Services.AddDbContextPool<CommandDbContext>(options =>
         {

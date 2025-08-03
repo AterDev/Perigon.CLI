@@ -344,17 +344,17 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         var updateEntities = entityList.Where(d => Ids.Contains(d.Id)).ToList();
         var removeEntities = Ids.Where(d => !entityList.Select(e => e.Id).Contains(d)).ToList();
 
-        if (newEntities.Any())
+        if (newEntities.Count != 0)
         {
             await Command.AddRangeAsync(newEntities);
         }
-        if (updateEntities.Any())
+        if (updateEntities.Count != 0)
         {
             Command.UpdateRange(updateEntities);
         }
         try
         {
-            if (removeEntities.Any())
+            if (removeEntities.Count != 0)
             {
                 await Command.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
             }

@@ -92,7 +92,9 @@ public partial class Prompt
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
-                FileHelper.DeleteDirectory(Path.Combine(FileHelper.RootPath, SelectedDirectory));
+                LocalFileHelper.DeleteDirectory(
+                    Path.Combine(FileHelper.RootPath, SelectedDirectory)
+                );
                 LoadDirectories();
             }
         }
@@ -137,7 +139,7 @@ public partial class Prompt
 
         if (file != null)
         {
-            FileHelper.DeleteFile(file.FullPath);
+            LocalFileHelper.DeleteFile(file.FullPath);
             LoadFiles();
         }
     }

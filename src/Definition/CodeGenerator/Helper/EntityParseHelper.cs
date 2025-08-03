@@ -414,7 +414,7 @@ public class EntityParseHelper
             propertyInfo.IsRequired = true;
         }
         // 移除?，获取类型名
-        if (type.EndsWith("?"))
+        if (type.EndsWith('?'))
         {
             propertyInfo.Type = type[..^1];
             propertyInfo.IsNullable = true;
@@ -533,7 +533,7 @@ public class EntityParseHelper
         PropertyInfo propertyInfo
     )
     {
-        if (propertyInfo.Type.ToLower() == "string")
+        if (propertyInfo.Type.Equals("string", StringComparison.OrdinalIgnoreCase))
         {
             propertyInfo.MaxLength = 200;
         }
@@ -685,7 +685,7 @@ public class EntityParseHelper
     /// </summary>
     /// <param name="typeSymbol"></param>
     /// <returns></returns>
-    public string? GetParentClassName(INamedTypeSymbol typeSymbol)
+    public static string? GetParentClassName(INamedTypeSymbol typeSymbol)
     {
         return typeSymbol.BaseType?.Name;
     }
@@ -694,7 +694,7 @@ public class EntityParseHelper
     /// 获取最初始基类
     /// </summary>
     /// <returns></returns>
-    public bool HasBaseType(INamedTypeSymbol? baseType, string baseName)
+    public static bool HasBaseType(INamedTypeSymbol? baseType, string baseName)
     {
         return baseType != null
             && (

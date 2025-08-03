@@ -7,16 +7,9 @@ namespace Http.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExternalAuthController : ControllerBase
+public class ExternalAuthController(IConfiguration config, ILogger<ExternalAuthController> logger)
+    : ControllerBase
 {
-    private readonly IConfiguration _config;
-    private readonly ILogger<ExternalAuthController> _logger;
-    public ExternalAuthController(IConfiguration config, ILogger<ExternalAuthController> logger)
-    {
-        _config = config;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Microsft login
     /// </summary>
@@ -27,11 +20,10 @@ public class ExternalAuthController : ControllerBase
     {
         var props = new AuthenticationProperties
         {
-            RedirectUri = Url.Action(nameof(GetToken), new
-            {
-                type = MicrosoftAccountDefaults.AuthenticationScheme,
-                returnUrl
-            })
+            RedirectUri = Url.Action(
+                nameof(GetToken),
+                new { type = MicrosoftAccountDefaults.AuthenticationScheme, returnUrl }
+            ),
         };
         return Challenge(props, "Microsoft");
     }
@@ -46,17 +38,16 @@ public class ExternalAuthController : ControllerBase
     {
         var props = new AuthenticationProperties
         {
-            RedirectUri = Url.Action(nameof(GetToken), new
-            {
-                type = GoogleDefaults.AuthenticationScheme,
-                returnUrl
-            })
+            RedirectUri = Url.Action(
+                nameof(GetToken),
+                new { type = GoogleDefaults.AuthenticationScheme, returnUrl }
+            ),
         };
         return Challenge(props, "Google");
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="type"></param>
     /// <param name="returnUrl"></param>
@@ -64,10 +55,12 @@ public class ExternalAuthController : ControllerBase
     [HttpGet("getToken")]
     public async Task<IActionResult> GetToken(string type, string returnUrl = "/")
     {
-        _logger.LogInformation("{type} login callback initiated.", type);
+        logger.LogInformation("{type} login callback initiated.", type);
 
         // 验证外部登录信息
-        var result = await HttpContext.AuthenticateAsync(MicrosoftAccountDefaults.AuthenticationScheme);
+        var result = await HttpContext.AuthenticateAsync(
+            MicrosoftAccountDefaults.AuthenticationScheme
+        );
         if (!result.Succeeded)
         {
             result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
@@ -75,7 +68,7 @@ public class ExternalAuthController : ControllerBase
 
         if (!result.Succeeded)
         {
-            _logger.LogWarning("External authentication failed for type: {type}", type);
+            logger.LogWarning("External authentication failed for type: {type}", type);
             return BadRequest("External authentication failed.");
         }
 
@@ -84,10 +77,6 @@ public class ExternalAuthController : ControllerBase
         var email = externalUser.FindFirst(ClaimTypes.Email)?.Value;
         var name = externalUser.FindFirst(ClaimTypes.Name)?.Value;
         // TODO:根据信息进行后续处理
-        return Ok(new
-        {
-            email,
-            name
-        });
+        return Ok(new { email, name });
     }
 }

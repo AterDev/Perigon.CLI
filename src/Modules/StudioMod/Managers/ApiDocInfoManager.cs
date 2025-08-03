@@ -213,7 +213,7 @@ public class ApiDocInfoManager(
 
                 break;
             case RequestClientType.Csharp:
-                files = await _codeGenService.GenerateCsharpApiClientAsync(
+                files = await CodeGenService.GenerateCsharpApiClientAsync(
                     dto.OpenApiEndpoint!,
                     dto.OutputPath!
                 );

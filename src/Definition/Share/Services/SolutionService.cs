@@ -377,7 +377,7 @@ public class SolutionService(
                     )
                 )
                 {
-                    _logger.LogInformation("remove project ➡️ solution failed:" + error);
+                    _logger.LogInformation("remove project ➡️ solution failed:{error}", error);
                 }
                 else
                 {
@@ -395,7 +395,7 @@ public class SolutionService(
                     )
                 )
                 {
-                    _logger.LogInformation("add project ➡️ solution failed:" + error);
+                    _logger.LogInformation("add project ➡️ solution failed:{error}", error);
                 }
                 else
                 {
@@ -655,10 +655,7 @@ public class SolutionService(
             }
         });
         return onlyWeb
-            ? res.Where(m =>
-                    m.ProjectType == ProjectType.WebAPI || m.ProjectType == ProjectType.Web
-                )
-                .ToList()
+            ? res.Where(m => m.ProjectType is ProjectType.WebAPI or ProjectType.Web).ToList()
             : res;
     }
 

@@ -18,7 +18,7 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
     /// <param name="entityPath"></param>
     /// <param name="filePaths"></param>
     /// <returns></returns>
-    public List<EntityFile> GetEntityFiles(string entityPath, List<string> filePaths)
+    public static List<EntityFile> GetEntityFiles(string entityPath, List<string> filePaths)
     {
         var entityFiles = new ConcurrentBag<EntityFile>();
         Parallel.ForEach(
@@ -67,7 +67,7 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
     /// </summary>
     /// <param name="entityFiles"></param>
     /// <returns></returns>
-    public async Task<List<EntityInfo>> GetEntityInfosAsync(List<string> entityFiles)
+    public static async Task<List<EntityInfo>> GetEntityInfosAsync(List<string> entityFiles)
     {
         var entityInfos = new ConcurrentBag<EntityInfo>();
         await Parallel.ForEachAsync(
@@ -85,7 +85,7 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
         return [.. entityInfos];
     }
 
-    public EntityFile? GetEntityFile(string entityPath, string filePath)
+    public static EntityFile? GetEntityFile(string entityPath, string filePath)
     {
         return GetEntityFiles(entityPath, [filePath]).FirstOrDefault();
     }

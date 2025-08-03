@@ -87,7 +87,6 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
             Status = 404,
             TraceId = HttpContext.TraceIdentifier,
         };
-        Activity? at = Activity.Current;
         return base.NotFound(res);
     }
 

@@ -3,6 +3,7 @@ using SystemMod.Services;
 using SystemMod.Worker;
 
 namespace SystemMod;
+
 /// <summary>
 /// 服务注入扩展
 /// </summary>
@@ -16,7 +17,7 @@ public static class ModuleExtensions
     public static IHostApplicationBuilder AddSystemMod(this IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IEntityTaskQueue<SystemLogs>, EntityTaskQueue<SystemLogs>>();
-        builder.Services.AddSingleton(typeof(SystemLogService));
+        builder.Services.AddSingleton<SystemLogService>();
         builder.Services.AddHostedService<SystemLogTaskHostedService>();
         return builder;
     }

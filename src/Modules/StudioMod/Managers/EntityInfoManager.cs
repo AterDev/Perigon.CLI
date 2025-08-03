@@ -32,7 +32,10 @@ public partial class EntityInfoManager(
 
             if (filePaths.Count != 0)
             {
-                entityFiles = _codeAnalysis.GetEntityFiles(_projectContext.EntityPath!, filePaths);
+                entityFiles = CodeAnalysisService.GetEntityFiles(
+                    _projectContext.EntityPath!,
+                    filePaths
+                );
                 // 排序
                 entityFiles =
                 [
@@ -42,8 +45,7 @@ public partial class EntityInfoManager(
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
-            _logger.LogInformation(ex.Message);
+            _logger.LogInformation("{message}", ex.Message);
             return entityFiles;
         }
         return entityFiles;
@@ -91,7 +93,10 @@ public partial class EntityInfoManager(
 
     private string? GetDtoPath(string entityFilePath)
     {
-        var entityFile = _codeAnalysis.GetEntityFile(_projectContext.EntityPath!, entityFilePath);
+        var entityFile = CodeAnalysisService.GetEntityFile(
+            _projectContext.EntityPath!,
+            entityFilePath
+        );
         return entityFile?.GetDtoPath(_projectContext);
     }
 
@@ -148,7 +153,7 @@ public partial class EntityInfoManager(
     /// <param name="filePath"></param>
     /// <param name="Content"></param>
     /// <returns></returns>
-    public async Task<bool> UpdateDtoContentAsync(string filePath, string Content)
+    public static async Task<bool> UpdateDtoContentAsync(string filePath, string Content)
     {
         try
         {
@@ -181,7 +186,7 @@ public partial class EntityInfoManager(
             )
         )
         {
-            _logger.LogError(error);
+            _logger.LogError("{error}", error);
         }
 
         var helper = new EntityParseHelper(dto.EntityPath);
@@ -225,10 +230,14 @@ public partial class EntityInfoManager(
         return _codeGenService.GenerateDtos(entityInfo, modulePath, force);
     }
 
-    private List<GenFileInfo> GenerateManagers(EntityInfo entityInfo, string modulePath, bool force)
+    private static List<GenFileInfo> GenerateManagers(
+        EntityInfo entityInfo,
+        string modulePath,
+        bool force
+    )
     {
         var tplContent = TplContent.ManagerTpl();
-        return _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
+        return CodeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
     }
 
     /// <summary>
@@ -237,16 +246,16 @@ public partial class EntityInfoManager(
     /// <param name="entityInfo"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    private List<GenFileInfo> GenerateControllers(EntityInfo entityInfo, GenerateDto dto)
+    private static List<GenFileInfo> GenerateControllers(EntityInfo entityInfo, GenerateDto dto)
     {
         var files = new List<GenFileInfo>();
         bool onlyOneService = dto.ServicePath.Length == 1;
         foreach (var apiPath in dto.ServicePath)
         {
             var controllerPath = Path.Combine(apiPath, ConstVal.ControllersDir);
-            _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, dto.Force);
+            CodeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, dto.Force);
             files.Add(
-                _codeGenService.GenerateController(
+                CodeGenService.GenerateController(
                     entityInfo,
                     apiPath,
                     TplContent.ControllerTpl(false),

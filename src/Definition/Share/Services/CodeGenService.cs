@@ -72,7 +72,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="tplContent">模板内容</param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GenerateManager(
+    public static List<GenFileInfo> GenerateManager(
         EntityInfo entityInfo,
         string outputPath,
         string tplContent,
@@ -113,7 +113,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="tplContent"></param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public GenFileInfo GenerateController(
+    public static GenFileInfo GenerateController(
         EntityInfo entityInfo,
         string outputPath,
         string tplContent,
@@ -131,7 +131,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         return controllerFile;
     }
 
-    public GenFileInfo GenerateApiGlobalUsing(
+    public static GenFileInfo GenerateApiGlobalUsing(
         EntityInfo entityInfo,
         string outputPath,
         bool isCover = false
@@ -140,14 +140,16 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         var apiGen = new RestApiGenerate(entityInfo);
 
         var globalFilePath = Path.Combine(outputPath, ConstVal.GlobalUsingsFile);
-        var globalLines = File.Exists(globalFilePath) ? File.ReadLines(globalFilePath) : [];
+        var globalLines = File.Exists(globalFilePath)
+            ? File.ReadLines(globalFilePath).ToList()
+            : [];
         var globalList = apiGen.GetGlobalUsings();
         // add globalList  item if globalLines not exist
         globalList.ForEach(g =>
         {
             if (!globalLines.Contains(g))
             {
-                globalLines.Append(g);
+                globalLines.Add(g);
             }
         });
 
@@ -346,7 +348,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="dtoType"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
+    public static GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
     {
         // 生成Dto
         var dtoGen = new DtoCodeGenerate(entityInfo);
@@ -406,7 +408,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="docUrl"></param>
     /// <param name="outputPath"></param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(
+    public static async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(
         string docUrl,
         string outputPath
     )

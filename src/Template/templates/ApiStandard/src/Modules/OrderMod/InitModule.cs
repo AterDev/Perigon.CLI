@@ -1,8 +1,7 @@
-﻿using EntityFramework.DBProvider;
-
-using Microsoft.Extensions.Configuration;
+using EntityFramework.DBProvider;
 
 namespace OrderMod;
+
 public class InitModule
 {
     /// <summary>
@@ -15,7 +14,6 @@ public class InitModule
         ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
         CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
         ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
-        IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
 
         logger.LogInformation("⛏️ 订单模块初始化");
         try

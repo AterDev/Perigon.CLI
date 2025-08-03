@@ -15,17 +15,18 @@ public class ManagerBase(ILogger logger)
 /// ManagerBase for QueryDbContext and CommandDbContext
 /// </summary>
 /// <typeparam name="TEntity">实体类型</typeparam>
-public class ManagerBase<TEntity> : ManagerBase<QueryDbContext, CommandDbContext, TEntity>
-    where TEntity : class, IEntityBase
-{
-    /// <summary>
-    /// use DataAccessContext
-    /// </summary>
-    /// <param name="dataAccess"></param>
-    /// <param name="logger"></param>
-    public ManagerBase(DataAccessContext<TEntity> dataAccess, ILogger logger)
-        : base(dataAccess.QueryContext, dataAccess.CommandContext, logger) { }
-}
+/// <remarks>
+/// use DataAccessContext
+/// </remarks>
+/// <param name="dataAccess"></param>
+/// <param name="logger"></param>
+public class ManagerBase<TEntity>(DataAccessContext<TEntity> dataAccess, ILogger logger)
+    : ManagerBase<QueryDbContext, CommandDbContext, TEntity>(
+        dataAccess.QueryContext,
+        dataAccess.CommandContext,
+        logger
+    )
+    where TEntity : class, IEntityBase { }
 
 /// <summary>
 /// specific DbContext
@@ -262,7 +263,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     public async Task<bool> AddAsync(TEntity entity)
     {
         await Command.AddAsync(entity);
-        return AutoSave ? await SaveChangesAsync() > 0 : true;
+        return !AutoSave || await SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -273,7 +274,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
         Command.Update(entity);
-        return AutoSave ? await SaveChangesAsync() > 0 : true;
+        return !AutoSave || await SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -313,17 +314,17 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         var updateEntities = entityList.Where(d => Ids.Contains(d.Id)).ToList();
         var removeEntities = Ids.Where(d => !entityList.Select(e => e.Id).Contains(d)).ToList();
 
-        if (newEntities.Any())
+        if (newEntities.Count != 0)
         {
             await Command.AddRangeAsync(newEntities);
         }
-        if (updateEntities.Any())
+        if (updateEntities.Count != 0)
         {
             Command.UpdateRange(updateEntities);
         }
         try
         {
-            if (removeEntities.Any())
+            if (removeEntities.Count != 0)
             {
                 await Command.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
             }

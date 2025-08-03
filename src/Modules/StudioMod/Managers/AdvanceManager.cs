@@ -22,11 +22,7 @@ public class AdvanceManager(CommandDbContext dbContext, IProjectContext projectC
         }
         else
         {
-            config = new ConfigData
-            {
-                Key = key,
-                Value = value,
-            };
+            config = new ConfigData { Key = key, Value = value };
 
             _dbContext.Configs.Add(config);
         }
@@ -51,16 +47,22 @@ public class AdvanceManager(CommandDbContext dbContext, IProjectContext projectC
     public async Task<string> GetDatabaseStructureAsync()
     {
         var sb = new StringBuilder();
-        var entityFiles = Directory.GetFiles(_projectContext.EntityPath!, $"*.cs", SearchOption.AllDirectories)
+        var entityFiles = Directory
+            .GetFiles(_projectContext.EntityPath!, $"*.cs", SearchOption.AllDirectories)
             .ToList();
 
-        entityFiles = entityFiles.Where(f => !(f.EndsWith(".g.cs")
-                || f.EndsWith(".AssemblyAttributes.cs")
-                || f.EndsWith(".AssemblyInfo.cs")
-                || f.EndsWith("GlobalUsings.cs")
-                || f.EndsWith("Const.cs")
-                || f.EndsWith("Modules.cs"))
-                ).ToList();
+        entityFiles = entityFiles
+            .Where(f =>
+                !(
+                    f.EndsWith(".g.cs")
+                    || f.EndsWith(".AssemblyAttributes.cs")
+                    || f.EndsWith(".AssemblyInfo.cs")
+                    || f.EndsWith("GlobalUsings.cs")
+                    || f.EndsWith("Const.cs")
+                    || f.EndsWith("Modules.cs")
+                )
+            )
+            .ToList();
 
         if (entityFiles.Count > 0)
         {
@@ -86,7 +88,7 @@ public class AdvanceManager(CommandDbContext dbContext, IProjectContext projectC
     /// </summary>
     /// <param name="entityInfo"></param>
     /// <returns></returns>
-    public string ToMarkdown(EntityInfo entityInfo)
+    public static string ToMarkdown(EntityInfo entityInfo)
     {
         StringBuilder sb = new();
         sb.AppendLine($"## {entityInfo.Name} ({entityInfo.Summary})");
@@ -104,19 +106,20 @@ public class AdvanceManager(CommandDbContext dbContext, IProjectContext projectC
     }
 }
 
-
 public enum ImageSize
 {
     /// <summary>
     /// 256*256
     /// </summary>
     Small,
+
     /// <summary>
     /// 512*512
     /// </summary>
     Middle,
+
     /// <summary>
     /// 1024*1024
     /// </summary>
-    Large
+    Large,
 }

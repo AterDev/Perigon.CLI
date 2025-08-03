@@ -49,7 +49,7 @@ public class OpenApiService
         List<RestApiInfo> apiInfos = [];
         foreach (var path in OpenApi.Paths)
         {
-            if (path.Value.Operations == null || !path.Value.Operations.Any())
+            if (path.Value.Operations == null || path.Value.Operations.Count == 0)
             {
                 continue;
             }
@@ -174,7 +174,7 @@ public class OpenApiService
             .Where(a => a.Tag != null && !tags.Contains(a.Tag))
             .ToList();
 
-        if (noTagApisInfo.Any())
+        if (noTagApisInfo.Count != 0)
         {
             RestApiGroup group = new()
             {
@@ -208,19 +208,16 @@ public class OpenApiService
             List<PropertyInfo> props = OpenApiHelper.ParseProperties(schema.Value, true);
 
             // 处理Required内容
-            if (schema.Value.Required != null)
-            {
-                schema
-                    .Value.Required.ToList()
-                    .ForEach(required =>
+            schema
+                .Value.Required?.ToList()
+                .ForEach(required =>
+                {
+                    var prop = props.FirstOrDefault(p => p.Name == required);
+                    if (prop != null)
                     {
-                        var prop = props.FirstOrDefault(p => p.Name == required);
-                        if (prop != null)
-                        {
-                            prop.IsRequired = true;
-                        }
-                    });
-            }
+                        prop.IsRequired = true;
+                    }
+                });
 
             var model = new TypeMeta()
             {

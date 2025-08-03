@@ -46,7 +46,7 @@ public class AssemblyHelper
             searchFileName,
             SearchOption.AllDirectories
         );
-        return files.Any() ? files[0] : default;
+        return files.Length != 0 ? files[0] : default;
     }
 
     /// <summary>

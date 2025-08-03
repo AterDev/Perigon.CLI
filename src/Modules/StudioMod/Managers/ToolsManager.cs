@@ -9,7 +9,7 @@ public class ToolsManager
 {
     public ToolsManager() { }
 
-    public List<string>? ConvertToClass(string json)
+    public static List<string>? ConvertToClass(string json)
     {
         if (CSharpCovertHelper.CheckJson(json))
         {
@@ -21,7 +21,7 @@ public class ToolsManager
         return null;
     }
 
-    public Dictionary<string, string> ConvertString(string content, StringConvertType type)
+    public static Dictionary<string, string> ConvertString(string content, StringConvertType type)
     {
         Dictionary<string, string> res = type switch
         {
@@ -59,7 +59,7 @@ public class ToolsManager
 
         return res;
 
-        string? Basse64ToString(string str)
+        static string? Basse64ToString(string str)
         {
             byte[] buffer = new byte[str.Length * 3 / 4];
             return Convert.TryFromBase64String(str, buffer, out int bytesWritten)

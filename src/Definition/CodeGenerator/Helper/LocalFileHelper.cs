@@ -114,7 +114,7 @@ public class LocalFileHelper
     /// <summary>
     /// 获取文件内容
     /// </summary>
-    public string GetFileContent(string filePath)
+    public static string GetFileContent(string filePath)
     {
         return !File.Exists(filePath)
             ? throw new FileNotFoundException($"File not found: {filePath}")
@@ -124,7 +124,7 @@ public class LocalFileHelper
     /// <summary>
     /// 更新文件内容（覆盖）
     /// </summary>
-    public void UpdateFileContent(string filePath, string content)
+    public static void UpdateFileContent(string filePath, string content)
     {
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found: {filePath}");
@@ -134,7 +134,7 @@ public class LocalFileHelper
     /// <summary>
     /// 删除文件
     /// </summary>
-    public void DeleteFile(string filePath)
+    public static void DeleteFile(string filePath)
     {
         if (File.Exists(filePath))
             File.Delete(filePath);
@@ -143,19 +143,19 @@ public class LocalFileHelper
     /// <summary>
     /// 删除目录及所有子内容
     /// </summary>
-    public void DeleteDirectory(string directoryPath)
+    public static void DeleteDirectory(string directoryPath)
     {
         if (Directory.Exists(directoryPath))
             Directory.Delete(directoryPath, true);
     }
 
-    public void RenameFile(string filePath, string newName)
+    public static void RenameFile(string filePath, string newName)
     {
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found: {filePath}");
-        var directory = Path.GetDirectoryName(filePath);
-        if (directory == null)
-            throw new InvalidOperationException("Unable to determine file directory.");
+        var directory =
+            Path.GetDirectoryName(filePath)
+            ?? throw new InvalidOperationException("Unable to determine file directory.");
         var newFilePath = Path.Combine(directory, newName);
         if (File.Exists(newFilePath))
             throw new IOException($"File already exists: {newFilePath}");
@@ -170,14 +170,14 @@ public class LocalFileHelper
     /// <exception cref="DirectoryNotFoundException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="IOException"></exception>
-    public void RenameDirectory(string directoryPath, string newName)
+    public static void RenameDirectory(string directoryPath, string newName)
     {
         if (!Directory.Exists(directoryPath))
             throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
 
-        var parentDir = Path.GetDirectoryName(directoryPath);
-        if (parentDir == null)
-            throw new InvalidOperationException("Unable to determine parent directory.");
+        var parentDir =
+            Path.GetDirectoryName(directoryPath)
+            ?? throw new InvalidOperationException("Unable to determine parent directory.");
         var newDirPath = Path.Combine(parentDir, newName);
         if (Directory.Exists(newDirPath))
             throw new IOException($"Directory already exists: {newDirPath}");

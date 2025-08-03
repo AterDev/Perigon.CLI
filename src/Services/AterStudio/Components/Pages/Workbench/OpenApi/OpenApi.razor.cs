@@ -311,12 +311,12 @@ public partial class OpenApi
         }
     }
 
-    private String GetApiTip(RestApiInfo api)
+    private static String GetApiTip(RestApiInfo api)
     {
         return $"{nameof(api.HttpMethod).ToUpper()} {api.Router}";
     }
 
-    private string GetApiTypeColor(HttpMethod type)
+    private static string GetApiTypeColor(HttpMethod type)
     {
         var color = type.Method switch
         {

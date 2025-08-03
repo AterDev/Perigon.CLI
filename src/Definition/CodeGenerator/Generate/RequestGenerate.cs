@@ -56,7 +56,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         // 处理所有方法
         foreach (var path in PathsPairs)
         {
-            if (path.Value.Operations == null || !path.Value.Operations.Any())
+            if (path.Value.Operations == null || path.Value.Operations.Count == 0)
             {
                 continue;
             }
@@ -227,7 +227,6 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// <returns></returns>
     public static string GetEnumFunctionContent(IDictionary<string, IOpenApiSchema> schemas)
     {
-        var res = "";
         string codeBlocks = "";
         foreach (KeyValuePair<string, IOpenApiSchema> item in schemas)
         {
@@ -236,7 +235,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 codeBlocks += ToEnumSwitchString(item.Key, item.Value);
             }
         }
-        res = $$"""
+        string? res = $$"""
             export default function enumToString(value: number, type: string): string {
               let result = "";
               switch (type) {
@@ -252,7 +251,6 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
     public static string ToEnumSwitchString(string enumType, IOpenApiSchema schema)
     {
-        var caseStrings = "";
         var enumProps = OpenApiHelper.GetEnumProperties(schema);
 
         StringBuilder sb = new();
@@ -273,7 +271,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
             sb.AppendLine(caseString);
         }
         sb.Append($"{whiteSpace}default: result = '默认'; break;");
-        caseStrings = sb.ToString();
+        string? caseStrings = sb.ToString();
         return $$"""
                   case '{{enumType}}':
                     {
@@ -688,7 +686,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// </summary>
     /// <param name="functions"></param>
     /// <returns></returns>
-    protected List<string> GetRefTyeps(List<RequestServiceFunction> functions)
+    protected static List<string> GetRefTyeps(List<RequestServiceFunction> functions)
     {
         List<string> refTypes = [];
 

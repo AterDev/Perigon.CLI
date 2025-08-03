@@ -69,7 +69,7 @@ public class ContextBase(DbContextOptions options) : DbContext(options)
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    private void OnModelExtendCreating(ModelBuilder modelBuilder)
+    private static void OnModelExtendCreating(ModelBuilder modelBuilder)
     {
         IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType> entityTypes =
             modelBuilder.Model.GetEntityTypes();

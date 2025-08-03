@@ -155,9 +155,11 @@ public class StepItemComparer : IEqualityComparer<GenStepItemDto>
 
     public bool Equals(GenStepItemDto? x, GenStepItemDto? y)
     {
-        return ReferenceEquals(x, y) ? true
-            : x is null || y is null ? false
-            : x.Name == y.Name && x.TemplatePath == y.TemplatePath;
+        return ReferenceEquals(x, y)
+            || x is not null
+                && y is not null
+                && x.Name == y.Name
+                && x.TemplatePath == y.TemplatePath;
     }
 
     public int GetHashCode(GenStepItemDto obj) => HashCode.Combine(obj.Name, obj.TemplatePath);

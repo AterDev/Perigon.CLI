@@ -84,7 +84,7 @@
     var filePath = Path.Combine(Content.RootPath, Content.DirectoryName, FileName + Content.Suffix);
     if (IsEdit)
     {
-      fileHelper.UpdateFileContent(filePath, FileContent);
+                LocalFileHelper.UpdateFileContent(filePath, FileContent);
     }
     else
     {

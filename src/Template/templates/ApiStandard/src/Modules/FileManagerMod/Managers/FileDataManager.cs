@@ -1,18 +1,16 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
 using FileManagerMod.Models.FileDataDtos;
 using Microsoft.AspNetCore.Http;
-using Share.Implement;
 
 namespace FileManagerMod.Managers;
+
 /// <summary>
 /// 文件数据
 /// </summary>
 public class FileDataManager(
     DataAccessContext<FileData> dataContext,
-    ILogger<FileDataManager> logger) : ManagerBase<FileData>(dataContext, logger)
+    ILogger<FileDataManager> logger
+) : ManagerBase<FileData>(dataContext, logger)
 {
-
     /// <summary>
     /// 添加新文件
     /// </summary>
@@ -43,7 +41,7 @@ public class FileDataManager(
                     FileName = file.FileName,
                     Extension = Path.GetExtension(file.FileName),
                     Md5 = md5,
-                    Content = fileBytes
+                    Content = fileBytes,
                 };
                 if (folder != null)
                 {
@@ -84,17 +82,13 @@ public class FileDataManager(
             FileName = fileName,
             Extension = Path.GetExtension(fileName),
             Md5 = md5,
-            Content = fileBytes
+            Content = fileBytes,
         };
-        Folder? folderData = await CommandContext.Folders
-            .Where(q => q.Name == folder)
+        Folder? folderData = await CommandContext
+            .Folders.Where(q => q.Name == folder)
             .FirstOrDefaultAsync();
 
-        folderData ??= new Folder()
-        {
-            Name = folder,
-            Path = folder
-        };
+        folderData ??= new Folder() { Name = folder, Path = folder };
         fileData.Folder = folderData;
         Command.Add(fileData);
         await SaveChangesAsync();
@@ -109,7 +103,8 @@ public class FileDataManager(
     /// <returns></returns>
     public async Task<FileData?> GetByMd5Async(string path, string md5)
     {
-        FileData? fileContent = await Query.Where(q => q.Md5 == md5)
+        FileData? fileContent = await Query
+            .Where(q => q.Md5 == md5)
             .Where(q => q.Folder!.Name == path)
             .SingleOrDefaultAsync();
         return fileContent;
@@ -136,7 +131,7 @@ public class FileDataManager(
 
         if (filter.FileType != null)
         {
-            var extensions = new string[] { };
+            var extensions = Array.Empty<string>();
             switch (filter.FileType)
             {
                 case FileType.Image:
@@ -172,5 +167,4 @@ public class FileDataManager(
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

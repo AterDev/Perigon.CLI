@@ -59,7 +59,10 @@ public class McpHandlerService(
         return base.StopAsync(cancellationToken);
     }
 
-    private void AddMcpTool(McpServerPrimitiveCollection<McpServerTool> collection, McpTool tool)
+    private static void AddMcpTool(
+        McpServerPrimitiveCollection<McpServerTool> collection,
+        McpTool tool
+    )
     {
         collection.Add(
             McpServerTool.Create(
@@ -85,7 +88,7 @@ public class McpHandlerService(
         );
     }
 
-    private void DeleteMcpTool(
+    private static void DeleteMcpTool(
         McpServerPrimitiveCollection<McpServerTool> collection,
         string toolName
     )

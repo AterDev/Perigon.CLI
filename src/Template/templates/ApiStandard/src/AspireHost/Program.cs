@@ -23,7 +23,6 @@ var cache = builder
     .WithPersistence(interval: TimeSpan.FromMinutes(5));
 #endregion
 
-
 var migration = builder
     .AddProject<Projects.MigrationService>("migrationservice")
     .WithReference(devDb)

@@ -139,7 +139,7 @@ public class ModelProperty : EntityBase
         }
         string content =
             @$"    public {requiredKeyword}{Type}{nullableMark} {Name} {{ get; set; }}{defaultValue}";
-        if (!isInput && Name.ToLower().Contains("password"))
+        if (!isInput && Name.Contains("password", StringComparison.CurrentCultureIgnoreCase))
         {
             attributeText = attributeText?.Replace("    ", "    // ");
             content = @$"    // public {Type}{nullableMark} {Name} {{ get; set; }}{defaultValue}";

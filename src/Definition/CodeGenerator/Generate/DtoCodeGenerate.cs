@@ -7,7 +7,7 @@ namespace CodeGenerator.Generate;
 /// <summary>
 /// dto generate
 /// </summary>
-public class DtoCodeGenerate
+public partial class DtoCodeGenerate
 {
     public EntityInfo EntityInfo { get; init; }
     public string KeyType { get; set; } = ConstVal.Guid;
@@ -35,14 +35,14 @@ public class DtoCodeGenerate
     /// <param name="comment"></param>
     /// <param name="extendString"></param>
     /// <returns></returns>
-    private string FormatComment(string? comment, string extendString = "")
+    private static string FormatComment(string? comment, string extendString = "")
     {
         if (comment == null)
         {
             return "";
         }
 
-        Regex regex = new(@"/// <summary>\r\n/// (?<comment>.*)\r\n/// </summary>");
+        Regex regex = SummaryCommentRegex();
         Match match = regex.Match(comment);
         if (match.Success)
         {
@@ -275,4 +275,7 @@ public class DtoCodeGenerate
             $"global using {EntityInfo.NamespaceName};",
         ];
     }
+
+    [GeneratedRegex(@"/// <summary>\r\n/// (?<comment>.*)\r\n/// </summary>")]
+    private static partial Regex SummaryCommentRegex();
 }
