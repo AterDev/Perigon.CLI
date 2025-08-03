@@ -19,7 +19,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
 builder.Services.AddScoped<Localizer>();
 
-builder.AddFrameworkServices();
+builder.AddDbContext();
 
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();

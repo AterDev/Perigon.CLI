@@ -175,13 +175,14 @@
   private async Task CreateAsync()
   {
     IsProcessing = true;
+    ToastService.ShowInfo("Creating Solution, please wait seconds!");
     await Task.Yield();
 
     AddDto.Modules = SelectedModules.Select(p => p.Value).ToList();
     var res = await CommandService.CreateSolutionAsync(AddDto);
     ToastService.ShowSuccess(Lang(Localizer.Create, res ? Localizer.Success : Localizer.Failed));
 
-    NavigationManager.NavigateTo("/");
     IsProcessing = false;
+    NavigationManager.NavigateTo("/");
   }
 }

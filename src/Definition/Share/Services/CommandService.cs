@@ -9,7 +9,13 @@ namespace Share.Services;
 ///  command service
 /// </summary>
 /// <param name="context"></param>
-public class CommandService(CommandDbContext context)
+/// <param name="projectContext"></param>
+/// <param name="solutionService"></param>
+public class CommandService(
+    CommandDbContext context,
+    IProjectContext projectContext,
+    SolutionService solutionService
+)
 {
     public string? ErrorMsg { get; set; }
 
@@ -55,7 +61,6 @@ public class CommandService(CommandDbContext context)
     {
         // 生成项目
         string solutionPath = Path.Combine(dto.Path, dto.Name);
-        string apiName = ConstVal.APIName;
         string templateType = dto.IsLight ? ConstVal.Mini : ConstVal.Standard;
 
         string version = AssemblyHelper.GetCurrentToolVersion();
@@ -96,11 +101,22 @@ public class CommandService(CommandDbContext context)
             ErrorMsg = "Create failed, check the error output.";
             return false;
         }
+        OutputHelper.Success($"Created new solution {solutionPath}");
 
-        OutputHelper.Success($"create new solution {solutionPath}");
+        var id = await solutionService.SaveSolutionAsync(solutionPath, dto.Name);
+        await projectContext.SetProjectByIdAsync(id);
+
+        OutputHelper.Important($"Apply settings...");
 
         // 更新配置文件
-        UpdateAppSettings(dto, solutionPath, apiName);
+        var services = solutionService.GetServices();
+        if (services != null)
+        {
+            foreach (var service in services)
+            {
+                UpdateAppSettings(dto, solutionPath, service.Name);
+            }
+        }
 
         // 前端项目处理
         if (dto.FrontType == FrontType.None)
@@ -117,44 +133,13 @@ public class CommandService(CommandDbContext context)
             SolutionService.AddDefaultModule(ModuleInfo.User, solutionPath);
             foreach (string item in dto.Modules)
             {
+                OutputHelper.Important($"Add module:{item}");
                 SolutionService.AddDefaultModule(item, solutionPath);
             }
         }
 
-        // 保存项目信息
-        var projectFilePath = Directory
-            .GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
-            .FirstOrDefault();
-        projectFilePath ??= Directory
-            .GetFiles(
-                solutionPath,
-                $"*{ConstVal.SolutionXMLExtension}",
-                SearchOption.TopDirectoryOnly
-            )
-            .FirstOrDefault();
-        projectFilePath ??= Directory
-            .GetFiles(
-                solutionPath,
-                $"*{ConstVal.CSharpProjectExtension}",
-                SearchOption.TopDirectoryOnly
-            )
-            .FirstOrDefault();
-        projectFilePath ??= Directory
-            .GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly)
-            .FirstOrDefault();
-
-        var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
-        var solutionName = Path.GetFileName(projectFilePath) ?? dto.Name;
-        var entity = new Solution()
-        {
-            DisplayName = dto.Name,
-            Path = solutionPath,
-            Name = solutionName,
-            SolutionType = solutionType,
-        };
-        entity.Config.SolutionPath = solutionPath;
-        await context.Solutions.AddAsync(entity);
-        await context.SaveChangesAsync();
+        SolutionService.BuildSourceGeneration(solutionPath);
+        OutputHelper.Success($"Create solution {dto.Name} completed!");
         return true;
     }
 
@@ -163,15 +148,15 @@ public class CommandService(CommandDbContext context)
     /// </summary>
     /// <param name="dto"></param>
     /// <param name="path"></param>
-    /// <param name="apiName"></param>
-    private static void UpdateAppSettings(CreateSolutionDto dto, string path, string apiName)
+    /// <param name="serviceName"></param>
+    private static void UpdateAppSettings(CreateSolutionDto dto, string path, string serviceName)
     {
         // 修改配置文件
         string configFile = Path.Combine(
             path,
             PathConst.ServicesPath,
-            apiName,
-            ConstVal.AppSettingJson
+            serviceName,
+            ConstVal.AppSettingDevelopmentJson
         );
         string jsonString = File.ReadAllText(configFile);
         JsonNode? jsonNode = JsonNode.Parse(

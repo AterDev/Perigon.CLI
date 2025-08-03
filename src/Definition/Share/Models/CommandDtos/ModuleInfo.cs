@@ -34,11 +34,6 @@ public class ModuleInfo
     /// <returns></returns>
     public static List<ModuleInfo> GetModules() =>
         [
-            //new() {
-            //    Name = "系统模块",
-            //    Value = System,
-            //    Description = "含角色/用户/菜单/系统日志等基础功能"
-            //},
             new ModuleInfo
             {
                 Name = "Customer",

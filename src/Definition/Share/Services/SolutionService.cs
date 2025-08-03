@@ -3,7 +3,6 @@ using CodeGenerator;
 using CodeGenerator.Helper;
 using Entity;
 using Humanizer;
-using Share.Models.CommandDtos;
 
 namespace Share.Services;
 
@@ -18,7 +17,50 @@ public class SolutionService(
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly ILogger<SolutionService> _logger = logger;
-    private readonly CommandDbContext _context = context;
+
+    /// <summary>
+    /// 保存解决方案
+    /// </summary>
+    /// <param name="solutionPath"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public async Task<Guid> SaveSolutionAsync(string solutionPath, string name)
+    {
+        var projectFilePath = Directory
+            .GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(
+                solutionPath,
+                $"*{ConstVal.SolutionXMLExtension}",
+                SearchOption.TopDirectoryOnly
+            )
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(
+                solutionPath,
+                $"*{ConstVal.CSharpProjectExtension}",
+                SearchOption.TopDirectoryOnly
+            )
+            .FirstOrDefault();
+        projectFilePath ??= Directory
+            .GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly)
+            .FirstOrDefault();
+
+        var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
+        var solutionName = Path.GetFileName(projectFilePath) ?? name;
+        var entity = new Solution()
+        {
+            DisplayName = name,
+            Path = solutionPath,
+            Name = solutionName,
+            SolutionType = solutionType,
+        };
+        entity.Config.SolutionPath = solutionPath;
+        await context.Solutions.AddAsync(entity);
+        await context.SaveChangesAsync();
+        return entity.Id;
+    }
 
     /// <summary>
     /// 创建模块
@@ -184,9 +226,9 @@ public class SolutionService(
     /// <returns></returns>
     public async Task<bool> SaveSyncDataLocalAsync()
     {
-        var actions = await _context.GenActions.AsNoTracking().ToListAsync();
-        var steps = await _context.GenSteps.AsNoTracking().ToListAsync();
-        var relation = await _context.GenActionGenSteps.AsNoTracking().ToListAsync();
+        var actions = await context.GenActions.AsNoTracking().ToListAsync();
+        var steps = await context.GenSteps.AsNoTracking().ToListAsync();
+        var relation = await context.GenActionGenSteps.AsNoTracking().ToListAsync();
 
         var data = new SyncModel
         {
@@ -244,16 +286,16 @@ public class SolutionService(
 
         try
         {
-            var actions = await _context
+            var actions = await context
                 .GenActions.Where(a => a.ProjectId == projectId.Value)
                 .Include(a => a.GenSteps)
                 .ToListAsync();
 
-            _context.RemoveRange(actions);
-            await _context.SaveChangesAsync();
+            context.RemoveRange(actions);
+            await context.SaveChangesAsync();
 
-            //var steps = await _context.GenSteps.Where(a => a.ProjectId == projectId).ToListAsync();
-            //var relation = await _context.GenActionGenSteps.ToListAsync();
+            //var steps = await context.GenSteps.Where(a => a.ProjectId == projectId).ToListAsync();
+            //var relation = await context.GenActionGenSteps.ToListAsync();
 
             // 去重并添加
             var newActions = model.TemplateSync?.GenActions.ToList();
@@ -263,20 +305,20 @@ public class SolutionService(
             if (newActions != null && newActions.Count > 0)
             {
                 newActions.ForEach(a => a.ProjectId = (Guid)projectId);
-                await _context.GenActions.AddRangeAsync(newActions);
+                await context.GenActions.AddRangeAsync(newActions);
             }
             if (newSteps != null && newSteps.Count > 0)
             {
                 newSteps.ForEach(a => a.ProjectId = (Guid)projectId);
-                await _context.GenSteps.AddRangeAsync(newSteps);
+                await context.GenSteps.AddRangeAsync(newSteps);
             }
-            await _context.SaveChangesAsync();
-            _context.ChangeTracker.Clear();
+            await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
             if (newRelation != null && newRelation.Count > 0)
             {
-                await _context.GenActionGenSteps.AddRangeAsync(newRelation);
+                await context.GenActionGenSteps.AddRangeAsync(newRelation);
             }
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             // 新增数量
             return (
                 true,
@@ -368,11 +410,6 @@ public class SolutionService(
     /// </summary>
     public static void AddDefaultModule(string moduleName, string solutionPath)
     {
-        var moduleNames = ModuleInfo.GetModules().Select(m => m.Value).ToList();
-        if (!moduleNames.Contains(moduleName))
-        {
-            return;
-        }
         string studioPath = AssemblyHelper.GetStudioPath();
         string sourcePath = Path.Combine(studioPath, ConstVal.ModulesDir, moduleName);
         if (!Directory.Exists(sourcePath))
@@ -454,6 +491,31 @@ public class SolutionService(
         else
         {
             OutputHelper.Success("add project ➡️ solution!");
+        }
+    }
+
+    /// <summary>
+    /// build source generation project
+    /// </summary>
+    /// <param name="solutionPath"></param>
+    public static void BuildSourceGeneration(string solutionPath)
+    {
+        var sourceGenPath = Path.Combine(
+            solutionPath,
+            PathConst.AterPath,
+            ConstVal.SourceGenerationLibName,
+            ConstVal.SourceGenerationLibName + ConstVal.CSharpProjectExtension
+        );
+        if (File.Exists(sourceGenPath))
+        {
+            if (ProcessHelper.RunCommand("dotnet", $"build {sourceGenPath}", out string error))
+            {
+                OutputHelper.Success("build source generation project!");
+            }
+            else
+            {
+                OutputHelper.Error("build source generation project failed: " + error);
+            }
         }
     }
 

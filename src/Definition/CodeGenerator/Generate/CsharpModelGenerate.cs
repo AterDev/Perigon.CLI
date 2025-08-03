@@ -104,10 +104,7 @@ public class CsharpModelGenerate : GenerateBase
                 )
                 {
                     var refId = reference.Reference.Id ?? "";
-                    if (!dic.ContainsKey(refId))
-                    {
-                        dic.Add(refId, tag);
-                    }
+                    dic.TryAdd(refId, tag);
                 }
             }
         }
@@ -127,10 +124,7 @@ public class CsharpModelGenerate : GenerateBase
                 )
                 {
                     var refId = reference.Reference.Id ?? "";
-                    if (!dic.ContainsKey(refId))
-                    {
-                        dic.Add(refId, tag);
-                    }
+                    dic.TryAdd(refId, tag);
                 }
             }
         }

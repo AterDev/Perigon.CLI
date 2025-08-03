@@ -39,6 +39,7 @@ public static class ConstVal
     public const string TemplateDir = "templates";
     public const string ShareDlls = "ShareDlls.txt";
     public const string ServicesDir = "Services";
+    public const string AterDir = "Ater";
     public const string StudioDir = "DryStudio";
 
     // names
@@ -74,6 +75,7 @@ public static class ConstVal
     public const string CoreLibName = "Ater.Common";
     public const string ConventionLibName = "Ater.Web.Convention";
     public const string ExtensionLibName = "Ater.Web.Extension";
+    public const string SourceGenerationLibName = "Ater.Web.SourceGeneration";
 
     public const string GlobalUsingsFile = "GlobalUsings.cs";
 }
@@ -118,5 +120,7 @@ public static class PathConst
         ConstVal.SrcDir,
         ConstVal.ServicesDir
     );
+
+    public static readonly string AterPath = Path.Combine(ConstVal.SrcDir, ConstVal.AterDir);
     public static readonly string PromptPath = Path.Combine(".github", "prompts");
 }
