@@ -38,7 +38,8 @@
     <FluentLabel>
       @if (!string.IsNullOrWhiteSpace(AddDto.Path))
       {
-        <span>@AddDto.Path/@AddDto.Name</span>
+        <span>Solution File: </span>
+        <strong>@AddDto.Path\@AddDto.Name\@(AddDto.Name).slnx</strong>
       }
     </FluentLabel>
 
@@ -140,8 +141,8 @@
     <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
       <FluentStack HorizontalAlignment="HorizontalAlignment.Right">
         <FluentButton Appearance="Appearance.Accent"
-                      OnClick="CreateAsync"
-                      Disabled="@IsProcessing">
+                      OnClick="OpenSplashDefaultAsync"
+                      Disabled="!IsValid()">
           🎊@Lang(Localizer.Create, Localizer.Solution)
         </FluentButton>
       </FluentStack>
@@ -157,6 +158,8 @@
 
   [Inject]
   private CommandService CommandService { get; set; } = null!;
+
+  private IDialogReference? _dialog;
 
   protected override void OnInitialized()
   {
@@ -181,8 +184,51 @@
     AddDto.Modules = SelectedModules.Select(p => p.Value).ToList();
     var res = await CommandService.CreateSolutionAsync(AddDto);
     ToastService.ShowSuccess(Lang(Localizer.Create, res ? Localizer.Success : Localizer.Failed));
-
     IsProcessing = false;
-    NavigationManager.NavigateTo("/");
+  }
+
+  private bool IsValid()
+  {
+    return !string.IsNullOrWhiteSpace(AddDto.Path) &&
+           !string.IsNullOrWhiteSpace(AddDto.Name);
+
+  }
+
+  private async Task OpenSplashDefaultAsync()
+  {
+    if (!IsValid())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+
+    AddDto.Modules = SelectedModules.Select(p => p.Value).ToList();
+    DialogParameters<SplashScreenContent> parameters = new()
+    {
+      Content = new()
+      {
+        DisplayTime = 0,
+        Title = Lang(Localizer.Create, Localizer.Solution),
+        SubTitle = $"{AddDto.Path}\\{AddDto.Name}\\{AddDto.Name}.slnx",
+        LoadingText = "🚀 Running...",
+      },
+      PreventDismissOnOverlayClick = true,
+      Modal = false,
+      Width = "520px",
+      Height = "360px",
+    };
+    _dialog = await DialogService.ShowSplashScreenAsync(parameters);
+    var splashScreen = (SplashScreenContent)_dialog.Instance.Content;
+
+    splashScreen.UpdateLabels(loadingText: "⏲️ Wait seconds...");
+    var res = await CommandService.CreateSolutionAsync(AddDto);
+
+    splashScreen.UpdateLabels(message: (MarkupString)(res ? "🎉 Success!" : "❌ Failed!"), loadingText: "Create completed! To home page.");
+    await Task.Delay(1000);
+    await _dialog.CloseAsync();
+    if (res)
+    {
+      NavigationManager.NavigateTo("/");
+    }
   }
 }
