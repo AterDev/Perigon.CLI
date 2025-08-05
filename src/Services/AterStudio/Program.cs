@@ -2,6 +2,9 @@ using Ater.Web.Convention.Abstraction;
 using AterStudio;
 using AterStudio.Components.Pages;
 using AterStudio.Worker;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Share.Helper;
 using Share.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -38,6 +41,17 @@ WebApplication app = builder.Build();
 app.MapMcp("mcp");
 
 app.UseMiddlewareServices();
+
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+lifetime.ApplicationStarted.Register(() =>
+{
+    var server = app.Services.GetRequiredService<IServer>();
+    var addressesFeature = server.Features.Get<IServerAddressesFeature>();
+    foreach (var address in addressesFeature?.Addresses ?? [])
+    {
+        OutputHelper.Success($"🤖 Mcp Server: {address}/mcp");
+    }
+});
 
 using (app)
 {

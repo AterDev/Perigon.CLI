@@ -28,6 +28,24 @@ public partial class EntityInfoManager(
         List<EntityFile> entityFiles = [];
         try
         {
+            var entityProjectPath = Path.Combine(
+                entityPath,
+                ConstVal.EntityName + ConstVal.CSharpProjectExtension
+            );
+            if (File.Exists(entityProjectPath))
+            {
+                if (
+                    !ProcessHelper.RunCommand(
+                        "dotnet",
+                        $"build {entityProjectPath}",
+                        out string error
+                    )
+                )
+                {
+                    OutputHelper.Error("build entity project failed: " + error);
+                }
+            }
+
             var filePaths = CodeAnalysisService.GetEntityFilePaths(entityPath);
 
             if (filePaths.Count != 0)

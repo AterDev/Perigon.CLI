@@ -19,6 +19,8 @@ public class InitDataTask
             var connectionString = context.Database.GetConnectionString();
             logger.LogInformation("ℹ️ Using db file: {connectionString}", connectionString);
 
+            // 输出当前启动端口
+
             CancellationTokenSource source = new(10000);
             await context.Database.MigrateAsync(source.Token);
         }
