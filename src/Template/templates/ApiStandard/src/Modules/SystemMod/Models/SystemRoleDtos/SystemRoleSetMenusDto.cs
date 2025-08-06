@@ -1,9 +1,9 @@
-﻿namespace SystemMod.Models.SystemRoleDtos;
+namespace SystemMod.Models.SystemRoleDtos;
 
 /// <summary>
 /// 菜单更新
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemRole"/>
+/// <see cref="SystemRole"/>
 public class SystemRoleSetMenusDto
 {
     /// <summary>

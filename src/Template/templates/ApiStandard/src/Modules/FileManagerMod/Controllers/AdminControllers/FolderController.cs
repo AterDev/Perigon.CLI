@@ -5,7 +5,7 @@ namespace FileManagerMod.Controllers.AdminControllers;
 /// <summary>
 /// 文件夹
 /// </summary>
-/// <see cref="Managers.FolderManager"/>
+/// <see cref="FolderManager"/>
 public class FolderController(
     Localizer localizer,
     UserContext user,

@@ -1,10 +1,11 @@
 using Ater.Common.Models;
 
 namespace FileManagerMod.Models.FolderDtos;
+
 /// <summary>
 /// 文件夹查询筛选
 /// </summary>
-/// <see cref="Entity.FileManagerMod.Folder"/>
+/// <see cref="Folder"/>
 public class FolderFilterDto : FilterBase
 {
     /// <summary>

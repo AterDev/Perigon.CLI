@@ -1,27 +1,29 @@
 using CustomerMod.Models.CustomerInfoDtos;
 using Share;
 using Share.Implement;
+
 namespace CustomerMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 客户信息
 /// </summary>
-/// <see cref="Managers.CustomerInfoManager"/>
+/// <see cref="CustomerInfoManager"/>
 public class CustomerInfoController(
     Localizer localizer,
     UserContext user,
     ILogger<CustomerInfoController> logger,
     CustomerInfoManager manager
-    ) : AdminControllerBase<CustomerInfoManager>(localizer, manager, user, logger)
+) : AdminControllerBase<CustomerInfoManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
-    public async Task<ActionResult<PageList<CustomerInfoItemDto>>> FilterAsync(CustomerInfoFilterDto filter)
+    public async Task<ActionResult<PageList<CustomerInfoItemDto>>> FilterAsync(
+        CustomerInfoFilterDto filter
+    )
     {
         return await _manager.ToPageAsync(filter);
     }
@@ -49,10 +51,16 @@ public class CustomerInfoController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, CustomerInfoUpdateDto dto)
+    public async Task<ActionResult<bool?>> UpdateAsync(
+        [FromRoute] Guid id,
+        CustomerInfoUpdateDto dto
+    )
     {
         var current = await _manager.GetCurrentAsync(id);
-        if (current == null) { return NotFound("不存在的资源"); }
+        if (current == null)
+        {
+            return NotFound("不存在的资源");
+        }
         ;
         return await _manager.UpdateAsync(current, dto);
     }

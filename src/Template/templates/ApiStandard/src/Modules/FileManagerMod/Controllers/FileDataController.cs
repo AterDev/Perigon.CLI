@@ -6,7 +6,7 @@ namespace FileManagerMod.Controllers;
 /// <summary>
 /// 文件数据
 /// </summary>
-/// <see cref="Managers.FileDataManager"/>
+/// <see cref="FileDataManager"/>
 public class FileDataController(
     Localizer localizer,
     UserContext user,

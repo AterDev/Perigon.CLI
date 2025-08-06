@@ -1,19 +1,19 @@
 using OrderMod.Models.ProductDtos;
 using Share.Implement;
+
 namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 产品
 /// </summary>
-/// <see cref="Managers.ProductManager"/>
+/// <see cref="ProductManager"/>
 public class ProductController(
     Localizer localizer,
     UserContext user,
     ILogger<ProductController> logger,
     ProductManager manager
-        ) : AdminControllerBase<ProductManager>(localizer, manager, user, logger)
+) : AdminControllerBase<ProductManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>

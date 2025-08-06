@@ -6,7 +6,7 @@ namespace OrderMod.Controllers;
 /// <summary>
 /// 产品
 /// </summary>
-/// <see cref="Managers.ProductManager"/>
+/// <see cref="ProductManager"/>
 public class ProductController(
     Localizer localizer,
     UserContext user,

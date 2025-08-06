@@ -1,10 +1,11 @@
 using Ater.Common.Models;
 
 namespace SystemMod.Models.SystemRoleDtos;
+
 /// <summary>
 /// 角色查询筛选
 /// </summary>
-/// <inheritdoc cref="Entity.SystemMod.SystemRole"/>
+/// <inheritdoc cref="SystemRole"/>
 public class SystemRoleFilterDto : FilterBase
 {
     /// <summary>
@@ -12,6 +13,7 @@ public class SystemRoleFilterDto : FilterBase
     /// </summary>
     [MaxLength(30)]
     public string? Name { get; set; }
+
     /// <summary>
     /// 角色名，系统标识
     /// </summary>

@@ -9,13 +9,14 @@ namespace FileManagerMod.Controllers.AdminControllers;
 /// <summary>
 /// 文件数据
 /// </summary>
-/// <see cref="Managers.FileDataManager"/>
+/// <see cref="FileDataManager"/>
 public class FileDataController(
     Localizer localizer,
     UserContext user,
     ILogger<FileDataController> logger,
     FileDataManager manager,
-    FolderManager folderManager) : AdminControllerBase<FileDataManager>(localizer, manager, user, logger)
+    FolderManager folderManager
+) : AdminControllerBase<FileDataManager>(localizer, manager, user, logger)
 {
     private readonly FolderManager _folderManager = folderManager;
 

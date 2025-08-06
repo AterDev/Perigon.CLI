@@ -1,8 +1,9 @@
 namespace OrderMod.Models.OrderDtos;
+
 /// <summary>
 /// 新订单
 /// </summary>
-/// <see cref="Entity.OrderMod.Order"/>
+/// <see cref="Order"/>
 public class OrderAddDto
 {
     /// <summary>
@@ -11,5 +12,4 @@ public class OrderAddDto
     [MaxLength(10)]
     public string? DiscountCode { get; set; }
     public required Guid ProductId { get; set; }
-
 }

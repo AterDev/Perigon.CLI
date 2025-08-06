@@ -5,7 +5,7 @@ namespace OrderMod.Controllers.AdminControllers;
 /// <summary>
 /// 订单
 /// </summary>
-/// <see cref="Managers.OrderManager"/>
+/// <see cref="OrderManager"/>
 public class OrderController(
     Localizer localizer,
     UserContext user,
