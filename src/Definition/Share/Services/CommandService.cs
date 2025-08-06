@@ -108,15 +108,19 @@ public class CommandService(
 
         OutputHelper.Important($"Apply settings...");
 
-        // 更新配置文件
+        // 更新服务的配置文件
         var services = solutionService.GetServices();
         if (services != null)
         {
             foreach (var service in services)
             {
-                UpdateAppSettings(dto, solutionPath, service.Name);
+                var servicePath = Path.Combine(solutionPath, PathConst.ServicesPath, service.Name);
+                UpdateAppSettings(dto, servicePath);
             }
         }
+        // 更新Aspire Host配置文件
+        var aspirePath = Path.Combine(solutionPath, PathConst.AspirePath);
+        UpdateAppSettings(dto, aspirePath);
 
         // 前端项目处理
         if (dto.FrontType == FrontType.None)
@@ -148,16 +152,12 @@ public class CommandService(
     /// </summary>
     /// <param name="dto"></param>
     /// <param name="path"></param>
-    /// <param name="serviceName"></param>
-    private static void UpdateAppSettings(CreateSolutionDto dto, string path, string serviceName)
+    private static void UpdateAppSettings(CreateSolutionDto dto, string path)
     {
         // 修改配置文件
-        string configFile = Path.Combine(
-            path,
-            PathConst.ServicesPath,
-            serviceName,
-            ConstVal.AppSettingDevelopmentJson
-        );
+        string configFile = Path.Combine(path, ConstVal.AppSettingDevelopmentJson);
+        if (!File.Exists(configFile))
+            return;
         string jsonString = File.ReadAllText(configFile);
         JsonNode? jsonNode = JsonNode.Parse(
             jsonString,

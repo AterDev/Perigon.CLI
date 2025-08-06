@@ -41,6 +41,7 @@ public static class ConstVal
     public const string ServicesDir = "Services";
     public const string AterDir = "Ater";
     public const string StudioDir = "DryStudio";
+    public const string AspireDir = "AspireHost";
 
     // names
     public const string Manager = "Manager";
@@ -120,7 +121,7 @@ public static class PathConst
         ConstVal.SrcDir,
         ConstVal.ServicesDir
     );
-
+    public static readonly string AspirePath = Path.Combine(ConstVal.SrcDir, ConstVal.AspireDir);
     public static readonly string AterPath = Path.Combine(ConstVal.SrcDir, ConstVal.AterDir);
     public static readonly string PromptPath = Path.Combine(".github", "prompts");
 }
