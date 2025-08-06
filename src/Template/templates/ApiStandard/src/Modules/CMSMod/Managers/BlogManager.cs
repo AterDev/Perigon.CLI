@@ -1,18 +1,19 @@
 using Ater.Common.Models;
 using Ater.Common.Utils;
 using CMSMod.Models.BlogDtos;
-
 using EntityFramework;
 using Share.Implement;
 
 namespace CMSMod.Managers;
+
 /// <summary>
 /// 博客
 /// </summary>
 public class BlogManager(
     DataAccessContext<Blog> dataContext,
     ILogger<BlogManager> logger,
-    UserContext userContext) : ManagerBase<Blog>(dataContext, logger)
+    UserContext userContext
+) : ManagerBase<Blog>(dataContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -57,10 +58,9 @@ public class BlogManager(
     /// <returns></returns>
     public async Task<Blog?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Blog> query = Command.Where(q => q.Id == id);
+        IQueryable<Blog> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

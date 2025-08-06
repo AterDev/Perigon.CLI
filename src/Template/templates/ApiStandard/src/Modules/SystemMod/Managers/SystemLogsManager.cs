@@ -3,13 +3,15 @@ using Ater.Common.Utils;
 using SystemMod.Models.SystemLogsDtos;
 
 namespace SystemMod.Managers;
+
 /// <summary>
 /// 系统日志
 /// </summary>
 public class SystemLogsManager(
     DataAccessContext<SystemLogs> dataContext,
     ILogger<SystemLogsManager> logger,
-    UserContext userContext) : ManagerBase<SystemLogs>(dataContext, logger)
+    UserContext userContext
+) : ManagerBase<SystemLogs>(dataContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -36,7 +38,7 @@ public class SystemLogsManager(
     /// <returns></returns>
     public async Task<SystemLogs?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemLogs> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemLogs> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

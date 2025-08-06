@@ -14,7 +14,7 @@ public class InitModule
     public static async Task InitializeAsync(IServiceProvider provider)
     {
         ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
+        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
         ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
         IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
         CacheService cache = provider.GetRequiredService<CacheService>();
@@ -48,7 +48,7 @@ public class InitModule
     }
 
     private static async Task InitRoleAndUserAsync(
-        CommandDbContext context,
+        DefaultDbContext context,
         ILogger<InitModule> logger,
         IConfiguration configuration
     )
@@ -110,7 +110,7 @@ public class InitModule
     /// <param name="logger"></param>
     /// <returns></returns>
     private static async Task InitConfigAsync(
-        CommandDbContext context,
+        DefaultDbContext context,
         IConfiguration configuration,
         ILogger logger
     )
@@ -147,7 +147,7 @@ public class InitModule
     /// <param name="logger"></param>
     /// <returns></returns>
     private static async Task InitCacheAsync(
-        CommandDbContext context,
+        DefaultDbContext context,
         CacheService cache,
         ILogger logger
     )

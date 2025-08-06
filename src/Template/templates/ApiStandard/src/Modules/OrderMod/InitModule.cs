@@ -12,7 +12,7 @@ public class InitModule
     public static async Task InitializeAsync(IServiceProvider provider)
     {
         ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
+        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
         ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
 
         logger.LogInformation("⛏️ 订单模块初始化");
@@ -32,7 +32,7 @@ public class InitModule
     /// <param name="context"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
-    private static async Task InitProductAsync(CommandDbContext context, ILogger logger)
+    private static async Task InitProductAsync(DefaultDbContext context, ILogger logger)
     {
         // 初始化产品信息
         if (!context.Products.Any())

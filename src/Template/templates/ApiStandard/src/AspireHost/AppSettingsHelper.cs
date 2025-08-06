@@ -17,24 +17,15 @@ public class AspireSetting
     public string? CacheConnection { get; set; }
 }
 
-public static class AspireHelper
+public static class AppSettingsHelper
 {
     /// <summary>
     /// Loads Aspire configuration from appsettings and parses required values.
     /// </summary>
     /// <param name="environment">The environment name, e.g. "Development".</param>
     /// <returns>AspireSetting instance with parsed values.</returns>
-    public static AspireSetting LoadAspireSetting(string? environment = null)
+    public static AspireSetting LoadAspireSettings(IConfiguration config)
     {
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile(
-                $"appsettings.{environment ?? (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development")}.json",
-                optional: true,
-                reloadOnChange: true
-            )
-            .Build();
-
         var components = config.GetSection("Components");
         var databaseType = components["Database"] ?? "PostgreSQL";
         var cacheType = components["Cache"] ?? "Memory";

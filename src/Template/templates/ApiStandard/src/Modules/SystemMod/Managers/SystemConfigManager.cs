@@ -3,6 +3,7 @@ using Ater.Common.Options;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
+
 /// <summary>
 /// 系统配置
 /// </summary>
@@ -10,7 +11,8 @@ public class SystemConfigManager(
     DataAccessContext<SystemConfig> dataContext,
     ILogger<SystemConfigManager> logger,
     IConfiguration configuration,
-    CacheService cache) : ManagerBase<SystemConfig>(dataContext, logger)
+    CacheService cache
+) : ManagerBase<SystemConfig>(dataContext, logger)
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
@@ -41,7 +43,10 @@ public class SystemConfigManager(
     public async Task<PageList<SystemConfigItemDto>> ToPageAsync(SystemConfigFilterDto filter)
     {
         Queryable = Queryable
-            .WhereNotNull(filter.Key, q => q.Key.Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase))
+            .WhereNotNull(
+                filter.Key,
+                q => q.Key.Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase)
+            )
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
 
         return await ToPageAsync<SystemConfigFilterDto, SystemConfigItemDto>(filter);
@@ -54,7 +59,9 @@ public class SystemConfigManager(
     public async Task<Dictionary<string, List<EnumDictionary>>> GetEnumConfigsAsync()
     {
         // 程序启动时更新缓存
-        var res = await _cache.GetValueAsync<Dictionary<string, List<EnumDictionary>>>(WebConst.EnumCacheName);
+        var res = await _cache.GetValueAsync<Dictionary<string, List<EnumDictionary>>>(
+            WebConst.EnumCacheName
+        );
         if (res == null || res.Count == 0)
         {
             Dictionary<string, List<EnumDictionary>> data = EnumHelper.GetAllEnumInfo();
@@ -71,7 +78,7 @@ public class SystemConfigManager(
     /// <returns></returns>
     public async Task<SystemConfig?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemConfig> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemConfig> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

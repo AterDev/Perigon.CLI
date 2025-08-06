@@ -34,7 +34,7 @@ public class SystemMenuManager(
     public async Task<bool> SyncSystemMenusAsync(List<SystemMenuSyncDto> menus)
     {
         // 查询当前菜单内容
-        List<SystemMenu> currentMenus = await Command.ToListAsync();
+        List<SystemMenu> currentMenus = await DbSet.ToListAsync();
         List<SystemMenu> flatMenus = FlatTree(menus);
 
         var accessCodes = flatMenus.Select(m => m.AccessCode).ToList();
@@ -42,7 +42,7 @@ public class SystemMenuManager(
         var needDeleteMenus = currentMenus.Where(m => !accessCodes.Contains(m.AccessCode)).ToList();
         if (needDeleteMenus.Count != 0)
         {
-            Command.RemoveRange(needDeleteMenus);
+            DbSet.RemoveRange(needDeleteMenus);
             currentMenus = currentMenus.Except(needDeleteMenus).ToList();
         }
 
@@ -55,7 +55,7 @@ public class SystemMenuManager(
                 currentMenus[index].Name = menu.Name;
                 currentMenus[index].Sort = menu.Sort;
                 currentMenus[index].Icon = menu.Icon;
-                Command.Update(currentMenus[index]);
+                DbSet.Update(currentMenus[index]);
             }
             else
             {
@@ -69,7 +69,7 @@ public class SystemMenuManager(
                         menu.Parent = parent;
                     }
                 }
-                await Command.AddAsync(menu);
+                await DbSet.AddAsync(menu);
             }
         }
         return await SaveChangesAsync() > 0;
@@ -165,7 +165,7 @@ public class SystemMenuManager(
     /// <returns></returns>
     public async Task<SystemMenu?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemMenu> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemMenu> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

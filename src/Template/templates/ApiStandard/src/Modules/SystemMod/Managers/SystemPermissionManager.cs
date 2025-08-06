@@ -4,15 +4,15 @@ using Share.Implement;
 using SystemMod.Models.SystemPermissionDtos;
 
 namespace SystemMod.Managers;
+
 /// <summary>
 /// 权限
 /// </summary>
 public class SystemPermissionManager(
     DataAccessContext<SystemPermission> dataContext,
     ILogger<SystemPermissionManager> logger
-        ) : ManagerBase<SystemPermission>(dataContext, logger)
+) : ManagerBase<SystemPermission>(dataContext, logger)
 {
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -27,9 +27,7 @@ public class SystemPermissionManager(
 
     public override Task<SystemPermission?> GetCurrentAsync(Guid id)
     {
-        return Command.Where(p => p.Id == id)
-            .Include(p => p.Group)
-            .FirstOrDefaultAsync();
+        return DbSet.Where(p => p.Id == id).Include(p => p.Group).FirstOrDefaultAsync();
     }
 
     public async Task<bool> UpdateAsync(SystemPermission entity, SystemPermissionUpdateDto dto)
@@ -38,7 +36,9 @@ public class SystemPermissionManager(
         return await UpdateAsync(entity);
     }
 
-    public async Task<PageList<SystemPermissionItemDto>> ToPageAsync(SystemPermissionFilterDto filter)
+    public async Task<PageList<SystemPermissionItemDto>> ToPageAsync(
+        SystemPermissionFilterDto filter
+    )
     {
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
@@ -55,10 +55,9 @@ public class SystemPermissionManager(
     /// <returns></returns>
     public async Task<SystemPermission?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemPermission> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemPermission> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

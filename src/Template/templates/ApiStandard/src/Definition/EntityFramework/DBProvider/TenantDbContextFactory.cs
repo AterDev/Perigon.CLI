@@ -12,20 +12,20 @@ namespace EntityFramework.DBProvider;
 public class TenantDbContextFactory(
     ITenantProvider tenantProvider,
     HybridCache cache,
-    CommandDbContext db,
+    DefaultDbContext db,
     IOptions<ComponentOption> options
 )
 {
-    public CommandDbContext CreateCommandDbContext()
+    public DefaultDbContext CreateDbContext()
     {
-        var builder = new DbContextOptionsBuilder<CommandDbContext>();
+        var builder = new DbContextOptionsBuilder<DefaultDbContext>();
         Guid tenantId = tenantProvider.TenantId;
 
         // 从缓存中查询连接字符串
         var connectionStrings = cache
             .GetOrCreateAsync(
-                $"{tenantId}_CommandConnectionString",
-                async cancel => await GetTenantConnectionStringAsync(tenantId, "command")
+                $"{tenantId}_ConnectionString",
+                async cancel => await GetTenantConnectionStringAsync(tenantId)
             )
             .AsTask()
             .Result;
@@ -39,42 +39,21 @@ public class TenantDbContextFactory(
                 builder.UseSqlServer(connectionStrings);
                 break;
         }
-        return new CommandDbContext(builder.Options);
-    }
-
-    public QueryDbContext CreateQueryDbContext()
-    {
-        var builder = new DbContextOptionsBuilder<QueryDbContext>();
-        Guid tenantId = tenantProvider.TenantId;
-
-        // 从缓存中查询连接字符串
-        var connectionStrings = cache
-            .GetOrCreateAsync(
-                $"{tenantId}_QueryConnectionString",
-                async cancel => await GetTenantConnectionStringAsync(tenantId, "query")
-            )
-            .AsTask()
-            .Result;
-
-        builder.UseSqlServer(connectionStrings);
-        return new QueryDbContext(builder.Options);
+        return new DefaultDbContext(builder.Options);
     }
 
     /// <summary>
     /// 获取租户的连接字符串
     /// </summary>
     /// <param name="tenantId"></param>
-    /// <param name="database"></param>
     /// <returns></returns>
-    private async ValueTask<string?> GetTenantConnectionStringAsync(Guid tenantId, string database)
+    private async ValueTask<string?> GetTenantConnectionStringAsync(Guid tenantId)
     {
         var tenant = await db.Tenants.Where(t => t.TenantId == tenantId).FirstOrDefaultAsync();
         if (tenant == null)
         {
             return null;
         }
-        return database.Equals("query", StringComparison.InvariantCultureIgnoreCase)
-            ? tenant.QueryDbString
-            : tenant.CommandDbString;
+        return tenant.DbConnectionString;
     }
 }

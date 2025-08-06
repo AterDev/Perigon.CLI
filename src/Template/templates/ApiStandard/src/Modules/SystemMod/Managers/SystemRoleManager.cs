@@ -7,9 +7,9 @@ namespace SystemMod.Managers;
 
 public class SystemRoleManager(
     DataAccessContext<SystemRole> dataContext,
-    ILogger<SystemRoleManager> logger) : ManagerBase<SystemRole>(dataContext, logger)
+    ILogger<SystemRoleManager> logger
+) : ManagerBase<SystemRole>(dataContext, logger)
 {
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -49,9 +49,9 @@ public class SystemRoleManager(
     public async Task<List<SystemMenu>> GetSystemMenusAsync(List<SystemRole> systemRoles)
     {
         IEnumerable<Guid> ids = systemRoles.Select(r => r.Id);
-        return await CommandContext.SystemMenus
-            .Where(m => m.Roles.Any(r => ids.Contains(r.Id)))
-        .ToListAsync();
+        return await DbContext
+            .SystemMenus.Where(m => m.Roles.Any(r => ids.Contains(r.Id)))
+            .ToListAsync();
     }
 
     /// <summary>
@@ -60,16 +60,17 @@ public class SystemRoleManager(
     /// <param name="current"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<SystemRole?> SetPermissionGroupsAsync(SystemRole current, SystemRoleSetPermissionGroupsDto dto)
+    public async Task<SystemRole?> SetPermissionGroupsAsync(
+        SystemRole current,
+        SystemRoleSetPermissionGroupsDto dto
+    )
     {
         try
         {
-            await CommandContext.Entry(current)
-                .Collection(r => r.PermissionGroups)
-                .LoadAsync();
+            await DbContext.Entry(current).Collection(r => r.PermissionGroups).LoadAsync();
 
-            List<SystemPermissionGroup> groups = await CommandContext.SystemPermissionGroups
-                .Where(m => dto.PermissionGroupIds.Contains(m.Id))
+            List<SystemPermissionGroup> groups = await DbContext
+                .SystemPermissionGroups.Where(m => dto.PermissionGroupIds.Contains(m.Id))
                 .ToListAsync();
             current.PermissionGroups = groups;
             await SaveChangesAsync();
@@ -87,11 +88,13 @@ public class SystemRoleManager(
     /// </summary>
     /// <param name="systemRoles"></param>
     /// <returns></returns>
-    public async Task<List<SystemPermissionGroup>> GetPermissionGroupsAsync(List<SystemRole> systemRoles)
+    public async Task<List<SystemPermissionGroup>> GetPermissionGroupsAsync(
+        List<SystemRole> systemRoles
+    )
     {
         IEnumerable<Guid> ids = systemRoles.Select(r => r.Id);
-        return await CommandContext.SystemPermissionGroups
-            .Where(m => m.Roles.Any(r => ids.Contains(r.Id)))
+        return await DbContext
+            .SystemPermissionGroups.Where(m => m.Roles.Any(r => ids.Contains(r.Id)))
             .ToListAsync();
     }
 
@@ -102,7 +105,7 @@ public class SystemRoleManager(
     /// <returns></returns>
     public async Task<SystemRole?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemRole> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemRole> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
@@ -120,14 +123,12 @@ public class SystemRoleManager(
         // 更新角色菜单
         try
         {
-            await CommandContext.Entry(current)
-                .Collection(r => r.Menus)
-                .LoadAsync();
+            await DbContext.Entry(current).Collection(r => r.Menus).LoadAsync();
 
             current.Menus = [];
 
-            List<SystemMenu> menus = await CommandContext.SystemMenus
-                .Where(m => dto.MenuIds.Contains(m.Id))
+            List<SystemMenu> menus = await DbContext
+                .SystemMenus.Where(m => dto.MenuIds.Contains(m.Id))
                 .ToListAsync();
             current.Menus = menus;
             await SaveChangesAsync();
@@ -138,6 +139,5 @@ public class SystemRoleManager(
             _logger.LogError("update role menus failed:{message}", e.Message);
             return default;
         }
-
     }
 }

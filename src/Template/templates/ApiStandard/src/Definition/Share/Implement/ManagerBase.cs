@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Entity.SystemMod;
 
 namespace Share.Implement;
 
@@ -16,54 +15,24 @@ public class ManagerBase(ILogger logger)
 /// ManagerBase for QueryDbContext and CommandDbContext
 /// </summary>
 /// <typeparam name="TEntity">实体类型</typeparam>
-public class ManagerBase<TEntity> : ManagerBase<QueryDbContext, CommandDbContext, TEntity>
-    where TEntity : class, IEntityBase
-{
-    /// <summary>
-    /// use DataAccessContext
-    /// </summary>
-    /// <param name="dataAccess"></param>
-    /// <param name="logger"></param>
-    public ManagerBase(DataAccessContext<TEntity> dataAccess, ILogger logger)
-        : base(dataAccess.QueryContext, dataAccess.CommandContext, logger) { }
+//public class ManagerBase<TEntity> : ManagerBase<DefaultDbContext, TEntity>
+//    where TEntity : class, IEntityBase { }
 
-    /// <summary>
-    /// use DbContextFactory
-    /// </summary>
-    /// <param name="factory"></param>
-    /// <param name="logger"></param>
-    public ManagerBase(TenantDbContextFactory factory, ILogger logger)
-        : base(factory.CreateQueryDbContext(), factory.CreateCommandDbContext(), logger) { }
-}
+//public class ManagerBase(TenantDbContextFactory factory, ILogger logger)
+//{
 
-/// <summary>
-/// specific DbContext
-/// </summary>
-/// <typeparam name="TContext"></typeparam>
-/// <typeparam name="TEntity"></typeparam>
-/// <param name="context"></param>
-/// <param name="logger"></param>
-public class ManagerBase<TContext, TEntity>(TContext context, ILogger logger)
-    : ManagerBase<TContext, TContext, TEntity>(context, context, logger)
-    where TContext : DbContext
-    where TEntity : class, IEntityBase { }
+//}
 
 /// <summary>
 /// 实现类
 /// </summary>
-/// <typeparam name="TQueryContext"></typeparam>
-/// <typeparam name="TCommandContext"></typeparam>
+/// <typeparam name="TDbContext"></typeparam>
 /// <typeparam name="TEntity"></typeparam>
-public class ManagerBase<TQueryContext, TCommandContext, TEntity>
-    where TQueryContext : DbContext
-    where TCommandContext : DbContext
+public class ManagerBase<TDbContext, TEntity>
+    where TDbContext : DbContext
     where TEntity : class, IEntityBase
 {
     #region Properties and Fields
-    /// <summary>
-    /// 自动日志类型
-    /// </summary>
-    protected LogActionType AutoLogType { get; private set; } = LogActionType.None;
 
     /// <summary>
     /// 全局筛选
@@ -96,23 +65,19 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <summary>
     /// 实体的只读仓储实现
     /// </summary>
-    protected DbSet<TEntity> Query { get; init; }
-    protected DbSet<TEntity> Command { get; init; }
+    protected DbSet<TEntity> DbSet { get; init; }
     protected IQueryable<TEntity> Queryable { get; set; }
 
     protected readonly ILogger _logger;
-    protected TCommandContext CommandContext { get; init; }
-    protected TQueryContext QueryContext { get; init; }
+    protected TDbContext DbContext { get; init; }
 
-    public ManagerBase(TQueryContext queryContext, TCommandContext commandContext, ILogger logger)
+    public ManagerBase(TDbContext commandContext, ILogger logger)
     {
         _logger = logger;
-        CommandContext = commandContext;
-        QueryContext = queryContext;
-        Database = CommandContext.Database;
-        Query = QueryContext.Set<TEntity>();
-        Command = CommandContext.Set<TEntity>();
-        Queryable = Query.AsNoTracking().AsQueryable();
+        DbContext = commandContext;
+        Database = DbContext.Database;
+        DbSet = DbContext.Set<TEntity>();
+        Queryable = DbSet.AsNoTracking().AsQueryable();
         if (!EnableGlobalQuery)
         {
             Queryable = Queryable.IgnoreQueryFilters();
@@ -126,11 +91,11 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public virtual async Task<TEntity?> GetCurrentAsync(Guid id)
     {
-        return await Command.FindAsync(id);
+        return await DbSet.FindAsync(id);
     }
 
     /// <summary>
-    /// Command Entity
+    /// DbSet Entity
     /// </summary>
     /// <typeparam name="TDto"></typeparam>
     /// <param name="whereExp"></param>
@@ -140,12 +105,12 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     {
         if (typeof(TDto) == typeof(TEntity))
         {
-            var model = await Command.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
+            var model = await DbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
             return model as TDto;
         }
         else
         {
-            return await Command
+            return await DbSet
                 .Where(whereExp ?? (e => true))
                 .ProjectTo<TDto>()
                 .FirstOrDefaultAsync();
@@ -159,17 +124,17 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public virtual async Task<TEntity?> FindAsync(Guid id)
     {
-        var entity = await Query.FindAsync(id);
+        var entity = await DbSet.FindAsync(id);
         if (entity != null)
         {
-            Command.Attach(entity);
+            DbSet.Attach(entity);
         }
         return entity;
     }
 
     /// <summary>
     /// query one data
-    /// if data is TEntity, then attach to Command
+    /// if data is TEntity, then attach to DbSet
     /// </summary>
     /// <typeparam name="TDto"></typeparam>
     /// <param name="whereExp"></param>
@@ -177,7 +142,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        var model = await Query
+        var model = await DbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
@@ -185,7 +150,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
 
         if (typeof(TDto) is TEntity && model != null)
         {
-            Command.Attach((model as TEntity)!);
+            DbSet.Attach((model as TEntity)!);
         }
         return model;
     }
@@ -197,7 +162,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public virtual async Task<bool> ExistAsync(Guid id)
     {
-        return await Query.AnyAsync(q => q.Id == id);
+        return await DbSet.AnyAsync(q => q.Id == id);
     }
 
     /// <summary>
@@ -207,7 +172,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
     {
-        return await Query.AnyAsync(whereExp);
+        return await DbSet.AnyAsync(whereExp);
     }
 
     /// <summary>
@@ -221,7 +186,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     )
         where TDto : class
     {
-        return await Query
+        return await DbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
@@ -230,7 +195,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
 
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
-        return await Query.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+        return await DbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
     }
 
     /// <summary>
@@ -248,7 +213,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
                 : Queryable.OrderByDescending(t => t.CreatedTime);
 
         var count = Queryable.Count();
-        List<TItem> data = await Queryable
+        List<TItem> data = await DbSet
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
@@ -271,13 +236,9 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public async Task<bool> AddAsync(TEntity entity)
     {
-        await Command.AddAsync(entity);
+        await DbSet.AddAsync(entity);
         if (AutoSave)
         {
-            if (AutoLogType is LogActionType.Add or LogActionType.All or LogActionType.AddOrUpdate)
-            {
-                await SaveToLogAsync(UserActionType.Add, entity);
-            }
             return await SaveChangesAsync() > 0;
         }
         return true;
@@ -290,18 +251,9 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-        Command.Update(entity);
+        DbSet.Update(entity);
         if (AutoSave)
         {
-            if (
-                AutoLogType
-                is LogActionType.Update
-                    or LogActionType.All
-                    or LogActionType.AddOrUpdate
-            )
-            {
-                await SaveToLogAsync(UserActionType.Update, entity);
-            }
             return await SaveChangesAsync() > 0;
         }
         return true;
@@ -321,13 +273,13 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     )
         where TProperty : class
     {
-        var currentValue = CommandContext.Entry(entity).Collection(propertyExpression).CurrentValue;
+        var currentValue = DbContext.Entry(entity).Collection(propertyExpression).CurrentValue;
         if (currentValue != null && currentValue.Any())
         {
-            CommandContext.RemoveRange(currentValue);
-            CommandContext.Entry(entity).Collection(propertyExpression).CurrentValue = null;
+            DbContext.RemoveRange(currentValue);
+            DbContext.Entry(entity).Collection(propertyExpression).CurrentValue = null;
         }
-        CommandContext.AddRange(data);
+        DbContext.AddRange(data);
     }
 
     /// <summary>
@@ -337,7 +289,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     /// <returns></returns>
     public async Task<bool> SaveAsync(List<TEntity> entityList)
     {
-        var Ids = await Command.Select(e => e.Id).ToListAsync();
+        var Ids = await DbSet.Select(e => e.Id).ToListAsync();
         // new entity by id
         var newEntities = entityList.Where(d => !Ids.Contains(d.Id)).ToList();
 
@@ -346,17 +298,17 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
 
         if (newEntities.Count != 0)
         {
-            await Command.AddRangeAsync(newEntities);
+            await DbSet.AddRangeAsync(newEntities);
         }
         if (updateEntities.Count != 0)
         {
-            Command.UpdateRange(updateEntities);
+            DbSet.UpdateRange(updateEntities);
         }
         try
         {
             if (removeEntities.Count != 0)
             {
-                await Command.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
+                await DbSet.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
             }
             _ = await SaveChangesAsync();
             return true;
@@ -377,10 +329,10 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         var res = softDelete
-            ? await Command
+            ? await DbSet
                 .Where(d => ids.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
-            : await Command.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
+            : await DbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
         return res > 0;
     }
 
@@ -398,11 +350,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
         }
         else
         {
-            Command.Remove(entity);
-        }
-        if (AutoLogType is LogActionType.Delete or LogActionType.All)
-        {
-            await SaveToLogAsync(UserActionType.Delete, entity, entity.Id.ToString());
+            DbSet.Remove(entity);
         }
         return await SaveChangesAsync() > 0;
     }
@@ -420,14 +368,14 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     )
         where TProperty : class
     {
-        var entry = CommandContext.Entry(entity);
+        var entry = DbContext.Entry(entity);
         if (entry.State != EntityState.Detached)
         {
-            await CommandContext.Entry(entity).Reference(propertyExpression).LoadAsync();
+            await DbContext.Entry(entity).Reference(propertyExpression).LoadAsync();
         }
         else
         {
-            await QueryContext
+            await DbContext
                 .Entry(entity)
                 .Reference(propertyExpression)
                 .Query()
@@ -449,14 +397,14 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     )
         where TProperty : class
     {
-        var entry = CommandContext.Entry(entity);
+        var entry = DbContext.Entry(entity);
         if (entry.State != EntityState.Detached)
         {
-            await CommandContext.Entry(entity).Collection(propertyExpression).LoadAsync();
+            await DbContext.Entry(entity).Collection(propertyExpression).LoadAsync();
         }
         else
         {
-            await QueryContext
+            await DbContext
                 .Entry(entity)
                 .Collection(propertyExpression)
                 .Query()
@@ -467,51 +415,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
 
     protected async Task<int> SaveChangesAsync()
     {
-        return await CommandContext.SaveChangesAsync();
-    }
-
-    /// <summary>
-    /// 日志记录
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="actionType"></param>
-    /// <param name="description"></param>
-    /// <returns></returns>
-    protected async Task SaveToLogAsync(
-        UserActionType actionType,
-        object entity,
-        string? description = null
-    )
-    {
-        using var userContextScope = WebAppContext.GetScopeService<UserContext>();
-        if (userContextScope == null)
-        {
-            _logger.LogWarning("UserContext is null, can't save log");
-            return;
-        }
-        var userContext = userContextScope.Instance;
-        var route = userContext.HttpContext?.Request.Path.Value;
-        if (userContext.IsAdmin)
-        {
-            // 管理员日志
-            var log = SystemLogs.NewLog(
-                userContext.Username ?? "",
-                userContext.UserId,
-                entity,
-                actionType,
-                route,
-                description
-            );
-            using var taskQueue = WebAppContext.GetScopeService<IEntityTaskQueue<SystemLogs>>();
-            if (taskQueue != null)
-            {
-                await taskQueue.Instance.AddItemAsync(log);
-            }
-        }
-        else
-        {
-            // TODO:其他日志
-        }
+        return await DbContext.SaveChangesAsync();
     }
 
     /// <summary>
@@ -520,7 +424,7 @@ public class ManagerBase<TQueryContext, TCommandContext, TEntity>
     protected void ResetQuery()
     {
         Queryable = EnableGlobalQuery
-            ? Query.AsQueryable()
+            ? DbSet.AsQueryable()
             : Queryable.IgnoreQueryFilters().AsQueryable();
     }
 }

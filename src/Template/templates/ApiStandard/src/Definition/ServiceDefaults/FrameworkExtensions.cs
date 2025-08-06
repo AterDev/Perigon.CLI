@@ -1,5 +1,3 @@
-using Aspire.Microsoft.EntityFrameworkCore.SqlServer;
-using Aspire.Npgsql.EntityFrameworkCore.PostgreSQL;
 using Ater.Web.Convention.Abstraction;
 using Ater.Web.Convention.Services;
 using Ater.Web.Extension.Services;
@@ -80,7 +78,7 @@ public static class FrameworkExtensions
         ComponentOption components
     )
     {
-        builder.Services.AddPooledDbContextFactory<CommandDbContext>(options =>
+        builder.Services.AddPooledDbContextFactory<DefaultDbContext>(options =>
         {
             ConfigureDbContextOptions(
                 options,
@@ -89,7 +87,7 @@ public static class FrameworkExtensions
                 WebConst.CommandDb
             );
         });
-        builder.Services.AddPooledDbContextFactory<QueryDbContext>(options =>
+        builder.Services.AddPooledDbContextFactory<ReadonlyDbContext>(options =>
         {
             ConfigureDbContextOptions(
                 options,
@@ -113,10 +111,18 @@ public static class FrameworkExtensions
         ComponentOption components
     )
     {
-        builder.Services.AddScoped(typeof(DataAccessContext<>));
-        builder.Services.AddScoped<DataAccessContext>();
+        switch (components.Database)
+        {
+            case DatabaseType.SqlServer:
+                break;
 
-        builder.Services.AddDbContextPool<CommandDbContext>(options =>
+            case DatabaseType.PostgreSql:
+                builder.AddNpgsqlDbContext<DefaultDbContext>("database");
+                builder.AddNpgsqlDbContext<ReadonlyDbContext>("database");
+                break;
+        }
+
+        builder.Services.AddDbContextPool<DefaultDbContext>(options =>
         {
             ConfigureDbContextOptions(
                 options,
@@ -126,7 +132,7 @@ public static class FrameworkExtensions
             );
         });
 
-        builder.Services.AddDbContextPool<QueryDbContext>(options =>
+        builder.Services.AddDbContextPool<ReadonlyDbContext>(options =>
         {
             ConfigureDbContextOptions(
                 options,
@@ -214,43 +220,5 @@ public static class FrameworkExtensions
         options.EnableSensitiveDataLogging();
         options.EnableDetailedErrors();
 #endif
-    }
-
-    /// <summary>
-    /// 配置 DbContext settings
-    /// </summary>
-    private static void EnrichDbContext(IHostApplicationBuilder builder, DatabaseType databaseType)
-    {
-        void ConfigureDbContextSettings(dynamic settings)
-        {
-            settings.CommandTimeout = 60;
-#if DEBUG
-            settings.DisableRetry = true;
-#endif
-            if (settings is MicrosoftEntityFrameworkCoreSqlServerSettings sqlServerSettings)
-            {
-                // other SQL Server specific settings can be configured here
-            }
-            else if (settings is NpgsqlEntityFrameworkCorePostgreSQLSettings npgsqlSettings)
-            {
-                // other PostgreSQL specific settings can be configured here
-            }
-        }
-        switch (databaseType)
-        {
-            case DatabaseType.SqlServer:
-                builder.EnrichSqlServerDbContext<CommandDbContext>(ConfigureDbContextSettings);
-                builder.EnrichSqlServerDbContext<QueryDbContext>(ConfigureDbContextSettings);
-
-                break;
-            case DatabaseType.PostgreSql:
-                builder.EnrichNpgsqlDbContext<CommandDbContext>(ConfigureDbContextSettings);
-                builder.EnrichNpgsqlDbContext<QueryDbContext>(ConfigureDbContextSettings);
-                break;
-            default:
-                throw new NotSupportedException(
-                    $"Database provider {databaseType} is not supported."
-                );
-        }
     }
 }

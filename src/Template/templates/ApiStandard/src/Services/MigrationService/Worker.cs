@@ -22,7 +22,7 @@ public class Worker(
         try
         {
             using var scope = serviceProvider.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<CommandDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
 
             await RunMigrationAsync(dbContext, cancellationToken);
             await SeedDataAsync(dbContext, cancellationToken);
@@ -36,7 +36,7 @@ public class Worker(
     }
 
     private static async Task RunMigrationAsync(
-        CommandDbContext dbContext,
+        DefaultDbContext dbContext,
         CancellationToken cancellationToken
     )
     {
@@ -48,7 +48,7 @@ public class Worker(
     }
 
     private static async Task SeedDataAsync(
-        CommandDbContext dbContext,
+        DefaultDbContext dbContext,
         CancellationToken cancellationToken
     )
     {

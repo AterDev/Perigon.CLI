@@ -24,7 +24,7 @@ public class UserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
-        Command.Update(user);
+        DbSet.Update(user);
         return await SaveChangesAsync() > 0;
     }
 
@@ -97,7 +97,7 @@ public class UserManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // TODO:自定义唯一性验证参数和逻辑
-        return await Command
+        return await DbSet
             .Where(q => q.UserName == unique)
             .WhereNotNull(id, q => q.Id != id)
             .AnyAsync();
@@ -120,7 +120,7 @@ public class UserManager(
     /// <returns></returns>
     public async Task<User?> GetOwnedAsync(Guid id)
     {
-        var query = Command.Where(q => q.Id == id);
+        var query = DbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

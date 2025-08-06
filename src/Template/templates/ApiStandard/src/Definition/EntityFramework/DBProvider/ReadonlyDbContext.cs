@@ -5,9 +5,9 @@ namespace EntityFramework.DBProvider;
 /// <summary>
 /// 只读数据库上下文
 /// </summary>
-public class QueryDbContext : ContextBase
+public abstract class ReadonlyDbContext : ContextBase
 {
-    public QueryDbContext(DbContextOptions<QueryDbContext> options)
+    public ReadonlyDbContext(DbContextOptions<ReadonlyDbContext> options)
         : base(options)
     {
         ChangeTracker.AutoDetectChangesEnabled = false;

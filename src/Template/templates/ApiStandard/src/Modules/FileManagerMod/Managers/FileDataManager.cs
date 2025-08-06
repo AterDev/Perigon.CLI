@@ -84,13 +84,13 @@ public class FileDataManager(
             Md5 = md5,
             Content = fileBytes,
         };
-        Folder? folderData = await CommandContext
+        Folder? folderData = await DbContext
             .Folders.Where(q => q.Name == folder)
             .FirstOrDefaultAsync();
 
         folderData ??= new Folder() { Name = folder, Path = folder };
         fileData.Folder = folderData;
-        Command.Add(fileData);
+        DbSet.Add(fileData);
         await SaveChangesAsync();
         return fileData;
     }
@@ -112,7 +112,7 @@ public class FileDataManager(
 
     public async Task<int> AddFilesAsync(List<FileData> files)
     {
-        await Command.AddRangeAsync(files);
+        await DbSet.AddRangeAsync(files);
         return await SaveChangesAsync();
     }
 
@@ -162,7 +162,7 @@ public class FileDataManager(
     /// <returns></returns>
     public async Task<FileData?> GetOwnedAsync(Guid id)
     {
-        IQueryable<FileData> query = Command.Where(q => q.Id == id);
+        IQueryable<FileData> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

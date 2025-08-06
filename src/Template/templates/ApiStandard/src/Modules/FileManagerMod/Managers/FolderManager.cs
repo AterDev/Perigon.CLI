@@ -4,15 +4,13 @@ using FileManagerMod.Models.FolderDtos;
 using Share.Implement;
 
 namespace FileManagerMod.Managers;
+
 /// <summary>
 /// 文件夹
 /// </summary>
-public class FolderManager(
-    DataAccessContext<Folder> dataContext,
-    ILogger<FolderManager> logger
-        ) : ManagerBase<Folder>(dataContext, logger)
+public class FolderManager(DataAccessContext<Folder> dataContext, ILogger<FolderManager> logger)
+    : ManagerBase<Folder>(dataContext, logger)
 {
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -56,10 +54,9 @@ public class FolderManager(
     /// <returns></returns>
     public async Task<Folder?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Folder> query = Command.Where(q => q.Id == id);
+        IQueryable<Folder> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

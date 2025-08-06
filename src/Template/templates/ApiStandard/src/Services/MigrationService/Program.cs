@@ -6,10 +6,11 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.AddServiceDefaults();
 builder.Services.AddHostedService<Worker>();
 
-builder.Services.AddOpenTelemetry()
+builder
+    .Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing.AddSource(Worker.ActivitySourceName));
 
-builder.AddNpgsqlDbContext<CommandDbContext>(WebConst.CommandDb);
+builder.AddNpgsqlDbContext<DefaultDbContext>(WebConst.CommandDb);
 
 var host = builder.Build();
 host.Run();

@@ -1,13 +1,18 @@
 using System.Reflection;
+using Ater.Common.Attributes;
 using EntityFramework.DBProvider;
 using Microsoft.Extensions.Hosting;
-using Ater.Common.Attributes;
 
 namespace SystemMod.Worker;
+
 /// <summary>
 /// 日志记录任务
 /// </summary>
-public class SystemLogTaskHostedService(IServiceProvider serviceProvider, IEntityTaskQueue<SystemLogs> queue, ILogger<SystemLogTaskHostedService> logger) : BackgroundService
+public class SystemLogTaskHostedService(
+    IServiceProvider serviceProvider,
+    IEntityTaskQueue<SystemLogs> queue,
+    ILogger<SystemLogTaskHostedService> logger
+) : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly ILogger<SystemLogTaskHostedService> _logger = logger;
@@ -22,7 +27,7 @@ public class SystemLogTaskHostedService(IServiceProvider serviceProvider, IEntit
     private async Task BackgroundProcessing(CancellationToken stoppingToken)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<CommandDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -54,12 +59,25 @@ public class SystemLogTaskHostedService(IServiceProvider serviceProvider, IEntit
             {
                 context.Add(log);
                 await context.SaveChangesAsync(stoppingToken);
-                _logger.LogInformation("✍️ New Log:[{object}] {actionUser} {action} {name}",
-log.Description, log.ActionUserName, log.ActionType, log.TargetName);
+                _logger.LogInformation(
+                    "✍️ New Log:[{object}] {actionUser} {action} {name}",
+                    log.Description,
+                    log.ActionUserName,
+                    log.ActionType,
+                    log.TargetName
+                );
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred executing {name},{userId},{route},{actionType},{acitonUserName}.", log.TargetName, log.SystemUserId, log.Route, log.ActionType, log.ActionUserName);
+                _logger.LogError(
+                    ex,
+                    "Error occurred executing {name},{userId},{route},{actionType},{acitonUserName}.",
+                    log.TargetName,
+                    log.SystemUserId,
+                    log.Route,
+                    log.ActionType,
+                    log.ActionUserName
+                );
             }
         }
     }

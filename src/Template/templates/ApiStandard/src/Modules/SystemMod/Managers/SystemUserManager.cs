@@ -164,7 +164,7 @@ public class SystemUserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
-        Command.Update(user);
+        DbSet.Update(user);
         return await SaveChangesAsync() > 0;
     }
 
@@ -182,7 +182,7 @@ public class SystemUserManager(
         // 角色处理
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            var roles = CommandContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
+            var roles = DbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
         return await AddAsync(entity) ? entity.Id : null;
@@ -205,7 +205,7 @@ public class SystemUserManager(
         if (dto.RoleIds != null)
         {
             await LoadManyAsync(entity, e => e.SystemRoles);
-            var roles = CommandContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
+            var roles = DbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
         return await UpdateAsync(entity);
@@ -254,7 +254,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<SystemUser?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemUser> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemUser> query = DbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         query = query.Where(q => q.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
@@ -308,7 +308,7 @@ public class SystemUserManager(
 
     public async Task<SystemUser?> FindByUserNameAsync(string userName)
     {
-        return await Command
+        return await DbSet
             .Where(u => u.UserName.Equals(userName))
             .Include(u => u.SystemRoles)
             .SingleOrDefaultAsync();
