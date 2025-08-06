@@ -8,7 +8,7 @@ using System.Text.Json.Nodes;
 namespace Ater.Common.Utils;
 
 /// <summary>
-/// JsonHelper provides utility methods for <see cref="System.Text.Json.JsonElement"/> and <see cref="System.Text.Json.Nodes.JsonNode"/>.
+/// JsonHelper provides utility methods for <see cref="System.Text.Json.JsonElement"/> and <see cref="JsonNode"/>.
 /// Supports multi-level path access and node CRUD operations.
 /// </summary>
 public class JsonHelper

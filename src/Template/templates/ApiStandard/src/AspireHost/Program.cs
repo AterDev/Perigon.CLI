@@ -1,26 +1,46 @@
+using AspireHost;
+
+var aspireSetting = AspireHelper.LoadAspireSetting();
 var builder = DistributedApplication.CreateBuilder(args);
 
 #region containers
+IResourceBuilder<IResourceWithConnectionString>? devDb = null;
+IResourceBuilder<IResourceWithConnectionString>? cache = null;
+
 var devPassword = builder.AddParameter(
     "sql-password",
-    value: "MyProjectName_DevSecret",
+    value: aspireSetting.CommandDbPassword,
+    secret: true
+);
+var cachePassword = builder.AddParameter(
+    "cache-password",
+    value: aspireSetting.CachePassword,
     secret: true
 );
 
-var devDb = builder
-    .AddPostgres(name: "db", password: devPassword, port: 15432)
-    .WithDataVolume()
-    .AddDatabase("MyProjectName");
+// Database type switch
+_ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
+{
+    "postgresql" => devDb = builder
+        .AddPostgres(name: "db", password: devPassword, port: aspireSetting.CommandDbPort)
+        .WithDataVolume()
+        .AddDatabase("MyProjectName"),
+    "sqlserver" => devDb = builder
+        .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.CommandDbPort)
+        .WithDataVolume()
+        .AddDatabase("MyProjectName"),
+    _ => null,
+};
 
-// sql server
-//var devDb = builder.AddSqlServer(name: "db", password: sqlPassword, port: 1433)
-//    .WithDataVolume()
-//    .AddDatabase("MyProjectName");
-
-var cache = builder
-    .AddRedis("cache", password: devPassword, port: 16379)
-    .WithDataVolume()
-    .WithPersistence(interval: TimeSpan.FromMinutes(5));
+// Cache type switch: create Redis if not Memory
+_ = aspireSetting.CacheType?.ToLowerInvariant() switch
+{
+    "memory" => null,
+    _ => cache = builder
+        .AddRedis("cache", password: cachePassword, port: aspireSetting.CachePort)
+        .WithDataVolume()
+        .WithPersistence(interval: TimeSpan.FromMinutes(5)),
+};
 #endregion
 
 var migration = builder
