@@ -1,3 +1,4 @@
+using Ater.Common;
 using Ater.Web.Convention.Abstraction;
 using Ater.Web.Convention.Services;
 using Ater.Web.Extension.Services;
@@ -84,7 +85,7 @@ public static class FrameworkExtensions
                 options,
                 components.Database,
                 builder.Configuration,
-                WebConst.CommandDb
+                AppConst.Database
             );
         });
 
@@ -105,11 +106,11 @@ public static class FrameworkExtensions
         switch (components.Database)
         {
             case DatabaseType.SqlServer:
-                builder.AddSqlServerDbContext<DefaultDbContext>("database");
+                builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Database);
                 break;
 
             case DatabaseType.PostgreSql:
-                builder.AddNpgsqlDbContext<DefaultDbContext>("database");
+                builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Database);
                 break;
         }
         return builder;
@@ -132,7 +133,7 @@ public static class FrameworkExtensions
         // 分布式缓存
         if (components.Cache != CacheType.Memory)
         {
-            builder.AddRedisDistributedCache(WebConst.Cache);
+            builder.AddRedisDistributedCache(AppConst.Cache);
         }
         // 混合缓存
         var cacheOption = builder

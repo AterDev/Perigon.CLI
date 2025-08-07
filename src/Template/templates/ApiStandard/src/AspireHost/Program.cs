@@ -1,4 +1,5 @@
 using AspireHost;
+using Ater.Common;
 
 var builder = DistributedApplication.CreateBuilder(args);
 var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
@@ -9,7 +10,7 @@ IResourceBuilder<IResourceWithConnectionString>? cache = null;
 
 var devPassword = builder.AddParameter(
     "sql-password",
-    value: aspireSetting.CommandDbPassword,
+    value: aspireSetting.DbPassword,
     secret: true
 );
 var cachePassword = builder.AddParameter(
@@ -21,13 +22,13 @@ var cachePassword = builder.AddParameter(
 _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
 {
     "postgresql" => database = builder
-        .AddPostgres(name: "Database", password: devPassword, port: aspireSetting.CommandDbPort)
+        .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithDataVolume()
-        .AddDatabase("MyProjectName"),
+        .AddDatabase(AppConst.Database),
     "sqlserver" => database = builder
-        .AddSqlServer(name: "Database", password: devPassword, port: aspireSetting.CommandDbPort)
+        .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithDataVolume()
-        .AddDatabase("MyProjectName"),
+        .AddDatabase(AppConst.Database),
     _ => null,
 };
 

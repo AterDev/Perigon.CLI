@@ -1,6 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
+using Ater.Common;
 using Ater.Common.Converters;
 using Ater.Common.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -90,13 +91,13 @@ public static class WebExtensions
 
         if (app.Environment.IsProduction())
         {
-            app.UseCors(WebConst.Default);
+            app.UseCors(AppConst.Default);
             app.UseHsts();
             app.UseHttpsRedirection();
         }
         else
         {
-            app.UseCors(WebConst.Default);
+            app.UseCors(AppConst.Default);
             app.MapOpenApi().CacheOutput("openapi");
         }
 
@@ -302,7 +303,7 @@ public static class WebExtensions
         services.AddCors(options =>
         {
             options.AddPolicy(
-                WebConst.Default,
+                AppConst.Default,
                 builder =>
                 {
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();

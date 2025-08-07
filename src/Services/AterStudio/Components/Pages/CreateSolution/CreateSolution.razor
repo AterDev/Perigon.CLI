@@ -57,23 +57,6 @@
                     Width="240px"
                     @bind-SelectedOption="@AddDto.DBType" />
     </FluentStack>
-    <FluentStack Orientation="Orientation.Vertical"
-                 VerticalGap="2">
-
-      <FluentTextField Label="@Lang(Localizer.Write, Localizer.Database)"
-                       Placeholder="@Lang(Localizer.Write, Localizer.Database)"
-                       Class="w-100"
-                       AutoComplete="off"
-                       @bind-Value="AddDto.CommandDbConnStrings" />
-    </FluentStack>
-    <FluentStack Orientation="Orientation.Vertical"
-                 VerticalGap="2">
-      <FluentTextField Label="@Lang(Localizer.Read, Localizer.Database)"
-                       Placeholder="@Lang(Localizer.Read, Localizer.Database)"
-                       Class="w-100"
-                       AutoComplete="off"
-                       @bind-Value="AddDto.QueryDbConnStrings" />
-    </FluentStack>
 
     <FluentSpacer></FluentSpacer>
     <FluentLabel Typo="Typography.Subject">@Lang(Localizer.CacheType)</FluentLabel>
@@ -85,17 +68,6 @@
                     @bind-SelectedOption="@AddDto.CacheType"
                     Width="240px" />
     </FluentStack>
-    @if (AddDto.CacheType != CacheType.Memory)
-    {
-      <FluentStack Orientation="Orientation.Vertical"
-                   VerticalGap="2">
-        <FluentTextField Label="@Lang(Localizer.CacheConnectionString)"
-                         Class="w-100"
-                         AutoComplete="off"
-                         Placeholder="@Lang(Localizer.CacheConnectionString)"
-                         @bind-Value="AddDto.CacheConnStrings" />
-      </FluentStack>
-    }
     <FluentDivider Class="w-100"></FluentDivider>
 
     <FluentLabel Typo="Typography.H3">
@@ -168,10 +140,7 @@
       Name = string.Empty,
       Path = string.Empty,
       CacheType = CacheType.Memory,
-      CommandDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=MyProjectName_DevSecret;",
-      QueryDbConnStrings = "Server=localhost;Port=15432;Database=MyProjectName;User Id=postgres;Password=MyProjectName_DevSecret;",
       DBType = DBType.PostgreSQL,
-      CacheConnStrings = "localhost:16379,password=MyProjectName_DevSecret"
     };
   }
 
