@@ -2,7 +2,6 @@ using Ater.Common;
 using Ater.Web.Convention.Abstraction;
 using Ater.Web.Convention.Services;
 using Ater.Web.Extension.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace ServiceDefaults;
@@ -79,17 +78,7 @@ public static class FrameworkExtensions
         ComponentOption components
     )
     {
-        builder.Services.AddPooledDbContextFactory<DefaultDbContext>(options =>
-        {
-            ConfigureDbContextOptions(
-                options,
-                components.Database,
-                builder.Configuration,
-                AppConst.Database
-            );
-        });
-
-        builder.Services.AddScoped<DbContextFactory>();
+        builder.Services.AddSingleton<DbContextFactory>();
         builder.Services.AddScoped<TenantDbContextFactory>();
         return builder;
     }
@@ -162,33 +151,5 @@ public static class FrameworkExtensions
 
         builder.Services.AddSingleton<CacheService>();
         return builder;
-    }
-
-    /// <summary>
-    /// 配置 DbContextOptionsBuilder
-    /// </summary>
-    private static void ConfigureDbContextOptions(
-        DbContextOptionsBuilder options,
-        DatabaseType dbType,
-        IConfiguration configuration,
-        string connectionName
-    )
-    {
-        var connectionString = configuration.GetConnectionString(connectionName);
-        switch (dbType)
-        {
-            case DatabaseType.SqlServer:
-                options.UseSqlServer(connectionString);
-                break;
-            case DatabaseType.PostgreSql:
-                options.UseNpgsql(connectionString);
-                break;
-            default:
-                throw new NotSupportedException($"Database provider {dbType} is not supported.");
-        }
-#if DEBUG
-        options.EnableSensitiveDataLogging();
-        options.EnableDetailedErrors();
-#endif
     }
 }

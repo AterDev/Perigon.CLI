@@ -24,11 +24,11 @@ _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
     "postgresql" => database = builder
         .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithDataVolume()
-        .AddDatabase(AppConst.Database),
+        .AddDatabase(AppConst.Database, databaseName: "MyProjectName"),
     "sqlserver" => database = builder
         .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithDataVolume()
-        .AddDatabase(AppConst.Database),
+        .AddDatabase(AppConst.Database, databaseName: "MyProjectName"),
     _ => null,
 };
 
