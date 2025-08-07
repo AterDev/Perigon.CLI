@@ -87,15 +87,6 @@ public static class FrameworkExtensions
                 WebConst.CommandDb
             );
         });
-        builder.Services.AddPooledDbContextFactory<ReadonlyDbContext>(options =>
-        {
-            ConfigureDbContextOptions(
-                options,
-                components.Database,
-                builder.Configuration,
-                WebConst.QueryDb
-            );
-        });
 
         builder.Services.AddScoped<DbContextFactory>();
         builder.Services.AddScoped<TenantDbContextFactory>();
@@ -114,35 +105,13 @@ public static class FrameworkExtensions
         switch (components.Database)
         {
             case DatabaseType.SqlServer:
+                builder.AddSqlServerDbContext<DefaultDbContext>("database");
                 break;
 
             case DatabaseType.PostgreSql:
                 builder.AddNpgsqlDbContext<DefaultDbContext>("database");
-                builder.AddNpgsqlDbContext<ReadonlyDbContext>("database");
                 break;
         }
-
-        builder.Services.AddDbContextPool<DefaultDbContext>(options =>
-        {
-            ConfigureDbContextOptions(
-                options,
-                components.Database,
-                builder.Configuration,
-                WebConst.CommandDb
-            );
-        });
-
-        builder.Services.AddDbContextPool<ReadonlyDbContext>(options =>
-        {
-            ConfigureDbContextOptions(
-                options,
-                components.Database,
-                builder.Configuration,
-                WebConst.QueryDb
-            );
-        });
-
-        EnrichDbContext(builder, components.Database);
         return builder;
     }
 

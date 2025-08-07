@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Ater.Common.Options;
 using Ater.Web.Extension.Helpers;
+using EntityFramework.DBProvider;
 using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
@@ -9,14 +10,14 @@ using SystemMod.Models.SystemUserDtos;
 namespace SystemMod.Managers;
 
 public class SystemUserManager(
-    DataAccessContext<SystemUser> dataContext,
+    DefaultDbContext dbContext,
     UserContext userContext,
     IConfiguration configuration,
     CacheService cache,
     JwtService jwtService,
     SystemConfigManager systemConfig,
     ILogger<SystemUserManager> logger
-) : ManagerBase<SystemUser>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, SystemUser>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
     private readonly SystemConfigManager _systemConfig = systemConfig;
@@ -164,7 +165,7 @@ public class SystemUserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
-        DbSet.Update(user);
+        _dbSet.Update(user);
         return await SaveChangesAsync() > 0;
     }
 
@@ -182,7 +183,7 @@ public class SystemUserManager(
         // 角色处理
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            var roles = DbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
+            var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
         return await AddAsync(entity) ? entity.Id : null;
@@ -205,7 +206,7 @@ public class SystemUserManager(
         if (dto.RoleIds != null)
         {
             await LoadManyAsync(entity, e => e.SystemRoles);
-            var roles = DbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
+            var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
         return await UpdateAsync(entity);
@@ -223,7 +224,7 @@ public class SystemUserManager(
 
         if (filter.RoleId != null)
         {
-            var role = await QueryContext.SystemRoles.FindAsync(filter.RoleId);
+            var role = await _dbContext.SystemRoles.FindAsync(filter.RoleId);
             if (role != null)
             {
                 Queryable = Queryable.Where(q => q.SystemRoles.Contains(role));
@@ -244,7 +245,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<bool> IsExistAsync(string email)
     {
-        return await Query.AnyAsync(q => q.Email == email);
+        return await Queryable.AnyAsync(q => q.Email == email);
     }
 
     /// <summary>
@@ -254,7 +255,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<SystemUser?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemUser> query = DbSet.Where(q => q.Id == id);
+        IQueryable<SystemUser> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         query = query.Where(q => q.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
@@ -303,12 +304,15 @@ public class SystemUserManager(
 
     public override async Task<SystemUser?> FindAsync(Guid id)
     {
-        return await Query.Where(q => q.Id == id).Include(q => q.SystemRoles).FirstOrDefaultAsync();
+        return await Queryable
+            .Where(q => q.Id == id)
+            .Include(q => q.SystemRoles)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<SystemUser?> FindByUserNameAsync(string userName)
     {
-        return await DbSet
+        return await _dbSet
             .Where(u => u.UserName.Equals(userName))
             .Include(u => u.SystemRoles)
             .SingleOrDefaultAsync();

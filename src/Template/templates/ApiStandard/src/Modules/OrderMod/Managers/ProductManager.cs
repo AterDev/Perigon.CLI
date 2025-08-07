@@ -1,6 +1,5 @@
+using EntityFramework.DBProvider;
 using OrderMod.Models.ProductDtos;
-using Share;
-using Share.Implement;
 
 namespace OrderMod.Managers;
 
@@ -8,10 +7,10 @@ namespace OrderMod.Managers;
 /// 产品
 /// </summary>
 public class ProductManager(
-    DataAccessContext<Product> dataContext,
+    DefaultDbContext dbContext,
     ILogger<ProductManager> logger,
     UserContext userContext
-) : ManagerBase<Product>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, Product>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -80,7 +79,7 @@ public class ProductManager(
     /// <returns></returns>
     public async Task<Product?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Product> query = DbSet.Where(q => q.Id == id);
+        IQueryable<Product> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

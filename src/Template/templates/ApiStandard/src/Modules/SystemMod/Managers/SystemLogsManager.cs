@@ -1,5 +1,4 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
+using EntityFramework.DBProvider;
 using SystemMod.Models.SystemLogsDtos;
 
 namespace SystemMod.Managers;
@@ -8,10 +7,11 @@ namespace SystemMod.Managers;
 /// 系统日志
 /// </summary>
 public class SystemLogsManager(
-    DataAccessContext<SystemLogs> dataContext,
+    //DataAccessContext<SystemLogs> dbContext,
+    DefaultDbContext dbContext,
     ILogger<SystemLogsManager> logger,
     UserContext userContext
-) : ManagerBase<SystemLogs>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, SystemLogs>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -38,7 +38,7 @@ public class SystemLogsManager(
     /// <returns></returns>
     public async Task<SystemLogs?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemLogs> query = DbSet.Where(q => q.Id == id);
+        IQueryable<SystemLogs> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

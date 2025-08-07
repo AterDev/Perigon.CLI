@@ -1,3 +1,4 @@
+using EntityFramework.DBProvider;
 using SystemMod.Models.SystemMenuDtos;
 
 namespace SystemMod.Managers;
@@ -5,10 +6,8 @@ namespace SystemMod.Managers;
 /// <summary>
 /// 系统菜单
 /// </summary>
-public class SystemMenuManager(
-    DataAccessContext<SystemMenu> dataContext,
-    ILogger<SystemMenuManager> logger
-) : ManagerBase<SystemMenu>(dataContext, logger)
+public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuManager> logger)
+    : ManagerBase<DefaultDbContext, SystemMenu>(dbContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -34,7 +33,7 @@ public class SystemMenuManager(
     public async Task<bool> SyncSystemMenusAsync(List<SystemMenuSyncDto> menus)
     {
         // 查询当前菜单内容
-        List<SystemMenu> currentMenus = await DbSet.ToListAsync();
+        List<SystemMenu> currentMenus = await _dbSet.ToListAsync();
         List<SystemMenu> flatMenus = FlatTree(menus);
 
         var accessCodes = flatMenus.Select(m => m.AccessCode).ToList();
@@ -42,7 +41,7 @@ public class SystemMenuManager(
         var needDeleteMenus = currentMenus.Where(m => !accessCodes.Contains(m.AccessCode)).ToList();
         if (needDeleteMenus.Count != 0)
         {
-            DbSet.RemoveRange(needDeleteMenus);
+            _dbSet.RemoveRange(needDeleteMenus);
             currentMenus = currentMenus.Except(needDeleteMenus).ToList();
         }
 
@@ -55,7 +54,7 @@ public class SystemMenuManager(
                 currentMenus[index].Name = menu.Name;
                 currentMenus[index].Sort = menu.Sort;
                 currentMenus[index].Icon = menu.Icon;
-                DbSet.Update(currentMenus[index]);
+                _dbSet.Update(currentMenus[index]);
             }
             else
             {
@@ -69,7 +68,7 @@ public class SystemMenuManager(
                         menu.Parent = parent;
                     }
                 }
-                await DbSet.AddAsync(menu);
+                await _dbSet.AddAsync(menu);
             }
         }
         return await SaveChangesAsync() > 0;
@@ -165,7 +164,7 @@ public class SystemMenuManager(
     /// <returns></returns>
     public async Task<SystemMenu?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemMenu> query = DbSet.Where(q => q.Id == id);
+        IQueryable<SystemMenu> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

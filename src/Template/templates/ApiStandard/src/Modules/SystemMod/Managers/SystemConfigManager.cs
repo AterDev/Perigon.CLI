@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Ater.Common.Options;
+using EntityFramework.DBProvider;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
@@ -8,11 +9,11 @@ namespace SystemMod.Managers;
 /// 系统配置
 /// </summary>
 public class SystemConfigManager(
-    DataAccessContext<SystemConfig> dataContext,
+    DefaultDbContext dbContext,
     ILogger<SystemConfigManager> logger,
     IConfiguration configuration,
     CacheService cache
-) : ManagerBase<SystemConfig>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, SystemConfig>(dbContext, logger)
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
@@ -78,7 +79,7 @@ public class SystemConfigManager(
     /// <returns></returns>
     public async Task<SystemConfig?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemConfig> query = DbSet.Where(q => q.Id == id);
+        IQueryable<SystemConfig> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

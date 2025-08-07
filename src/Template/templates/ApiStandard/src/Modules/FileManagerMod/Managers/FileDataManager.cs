@@ -1,3 +1,4 @@
+using EntityFramework.DBProvider;
 using FileManagerMod.Models.FileDataDtos;
 using Microsoft.AspNetCore.Http;
 
@@ -6,10 +7,8 @@ namespace FileManagerMod.Managers;
 /// <summary>
 /// 文件数据
 /// </summary>
-public class FileDataManager(
-    DataAccessContext<FileData> dataContext,
-    ILogger<FileDataManager> logger
-) : ManagerBase<FileData>(dataContext, logger)
+public class FileDataManager(DefaultDbContext dbContext, ILogger<FileDataManager> logger)
+    : ManagerBase<DefaultDbContext, FileData>(dbContext, logger)
 {
     /// <summary>
     /// 添加新文件
@@ -30,7 +29,7 @@ public class FileDataManager(
                 var fileBytes = ms.ToArray();
 
                 var md5 = HashCrypto.Md5FileHash(file.OpenReadStream());
-                var exist = Query.Any(q => q.Md5 == md5);
+                var exist = Queryable.Any(q => q.Md5 == md5);
                 if (exist)
                 {
                     continue;
@@ -72,7 +71,7 @@ public class FileDataManager(
         await stream.CopyToAsync(ms);
         var fileBytes = ms.ToArray();
 
-        FileData? file = await Query.Where(q => q.Md5 == md5).FirstOrDefaultAsync();
+        FileData? file = await Queryable.Where(q => q.Md5 == md5).FirstOrDefaultAsync();
         if (file != null)
         {
             return file;
@@ -84,13 +83,13 @@ public class FileDataManager(
             Md5 = md5,
             Content = fileBytes,
         };
-        Folder? folderData = await DbContext
+        Folder? folderData = await _dbContext
             .Folders.Where(q => q.Name == folder)
             .FirstOrDefaultAsync();
 
         folderData ??= new Folder() { Name = folder, Path = folder };
         fileData.Folder = folderData;
-        DbSet.Add(fileData);
+        _dbSet.Add(fileData);
         await SaveChangesAsync();
         return fileData;
     }
@@ -103,7 +102,7 @@ public class FileDataManager(
     /// <returns></returns>
     public async Task<FileData?> GetByMd5Async(string path, string md5)
     {
-        FileData? fileContent = await Query
+        FileData? fileContent = await Queryable
             .Where(q => q.Md5 == md5)
             .Where(q => q.Folder!.Name == path)
             .SingleOrDefaultAsync();
@@ -112,7 +111,7 @@ public class FileDataManager(
 
     public async Task<int> AddFilesAsync(List<FileData> files)
     {
-        await DbSet.AddRangeAsync(files);
+        await _dbSet.AddRangeAsync(files);
         return await SaveChangesAsync();
     }
 
@@ -162,7 +161,7 @@ public class FileDataManager(
     /// <returns></returns>
     public async Task<FileData?> GetOwnedAsync(Guid id)
     {
-        IQueryable<FileData> query = DbSet.Where(q => q.Id == id);
+        IQueryable<FileData> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

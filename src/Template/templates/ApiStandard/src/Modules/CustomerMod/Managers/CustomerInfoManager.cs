@@ -6,10 +6,10 @@ namespace CustomerMod.Managers;
 /// 客户信息
 /// </summary>
 public class CustomerInfoManager(
-    DataAccessContext<CustomerInfo> dataContext,
+    DefaultDbContext dbContext,
     ILogger<CustomerInfoManager> logger,
     UserContext userContext
-) : ManagerBase<CustomerInfo>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, CustomerInfo>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -23,7 +23,7 @@ public class CustomerInfoManager(
         var entity = dto.MapTo<CustomerInfoAddDto, CustomerInfo>();
         entity.RealName = dto.Name;
 
-        var consult = await DbContext
+        var consult = await _dbContext
             .SystemUsers.Where(q => q.Id == dto.ConsultantId)
             .FirstOrDefaultAsync();
 
@@ -74,7 +74,9 @@ public class CustomerInfoManager(
     public async Task<bool> IsConflictAsync(string name, string contactInfo)
     {
         // 自定义唯一性验证参数和逻辑
-        return await DbSet.AnyAsync(q => q.Name.Equals(name) && q.ContactInfo!.Equals(contactInfo));
+        return await _dbSet.AnyAsync(q =>
+            q.Name.Equals(name) && q.ContactInfo!.Equals(contactInfo)
+        );
     }
 
     /// <summary>
@@ -84,7 +86,7 @@ public class CustomerInfoManager(
     /// <returns></returns>
     public async Task<CustomerInfo?> GetOwnedAsync(Guid id)
     {
-        var query = DbSet.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

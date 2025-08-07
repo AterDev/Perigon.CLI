@@ -1,15 +1,13 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
+using EntityFramework.DBProvider;
 using FileManagerMod.Models.FolderDtos;
-using Share.Implement;
 
 namespace FileManagerMod.Managers;
 
 /// <summary>
 /// 文件夹
 /// </summary>
-public class FolderManager(DataAccessContext<Folder> dataContext, ILogger<FolderManager> logger)
-    : ManagerBase<Folder>(dataContext, logger)
+public class FolderManager(DefaultDbContext dbContext, ILogger<FolderManager> logger)
+    : ManagerBase<DefaultDbContext, Folder>(dbContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -54,7 +52,7 @@ public class FolderManager(DataAccessContext<Folder> dataContext, ILogger<Folder
     /// <returns></returns>
     public async Task<Folder?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Folder> query = DbSet.Where(q => q.Id == id);
+        IQueryable<Folder> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

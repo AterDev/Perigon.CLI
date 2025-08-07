@@ -1,14 +1,10 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
-using Share.Implement;
+using EntityFramework.DBProvider;
 using SystemMod.Models.SystemRoleDtos;
 
 namespace SystemMod.Managers;
 
-public class SystemRoleManager(
-    DataAccessContext<SystemRole> dataContext,
-    ILogger<SystemRoleManager> logger
-) : ManagerBase<SystemRole>(dataContext, logger)
+public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleManager> logger)
+    : ManagerBase<DefaultDbContext, SystemRole>(dbContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -49,7 +45,7 @@ public class SystemRoleManager(
     public async Task<List<SystemMenu>> GetSystemMenusAsync(List<SystemRole> systemRoles)
     {
         IEnumerable<Guid> ids = systemRoles.Select(r => r.Id);
-        return await DbContext
+        return await _dbContext
             .SystemMenus.Where(m => m.Roles.Any(r => ids.Contains(r.Id)))
             .ToListAsync();
     }
@@ -67,9 +63,9 @@ public class SystemRoleManager(
     {
         try
         {
-            await DbContext.Entry(current).Collection(r => r.PermissionGroups).LoadAsync();
+            await _dbContext.Entry(current).Collection(r => r.PermissionGroups).LoadAsync();
 
-            List<SystemPermissionGroup> groups = await DbContext
+            List<SystemPermissionGroup> groups = await _dbContext
                 .SystemPermissionGroups.Where(m => dto.PermissionGroupIds.Contains(m.Id))
                 .ToListAsync();
             current.PermissionGroups = groups;
@@ -93,7 +89,7 @@ public class SystemRoleManager(
     )
     {
         IEnumerable<Guid> ids = systemRoles.Select(r => r.Id);
-        return await DbContext
+        return await _dbContext
             .SystemPermissionGroups.Where(m => m.Roles.Any(r => ids.Contains(r.Id)))
             .ToListAsync();
     }
@@ -105,7 +101,7 @@ public class SystemRoleManager(
     /// <returns></returns>
     public async Task<SystemRole?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemRole> query = DbSet.Where(q => q.Id == id);
+        IQueryable<SystemRole> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
@@ -123,11 +119,11 @@ public class SystemRoleManager(
         // 更新角色菜单
         try
         {
-            await DbContext.Entry(current).Collection(r => r.Menus).LoadAsync();
+            await _dbContext.Entry(current).Collection(r => r.Menus).LoadAsync();
 
             current.Menus = [];
 
-            List<SystemMenu> menus = await DbContext
+            List<SystemMenu> menus = await _dbContext
                 .SystemMenus.Where(m => dto.MenuIds.Contains(m.Id))
                 .ToListAsync();
             current.Menus = menus;

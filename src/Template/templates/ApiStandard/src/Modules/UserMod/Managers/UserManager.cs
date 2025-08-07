@@ -1,4 +1,5 @@
 using Entity.UserMod;
+using EntityFramework.DBProvider;
 using UserMod.UserDtos;
 
 namespace UserMod.Managers;
@@ -7,10 +8,10 @@ namespace UserMod.Managers;
 /// 用户账户
 /// </summary>
 public class UserManager(
-    DataAccessContext<User> dataContext,
+    DefaultDbContext dbContext,
     ILogger<UserManager> logger,
     UserContext userContext
-) : ManagerBase<User>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, User>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -24,7 +25,7 @@ public class UserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
-        DbSet.Update(user);
+        _dbSet.Update(user);
         return await SaveChangesAsync() > 0;
     }
 
@@ -97,7 +98,7 @@ public class UserManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // TODO:自定义唯一性验证参数和逻辑
-        return await DbSet
+        return await _dbSet
             .Where(q => q.UserName == unique)
             .WhereNotNull(id, q => q.Id != id)
             .AnyAsync();
@@ -120,7 +121,7 @@ public class UserManager(
     /// <returns></returns>
     public async Task<User?> GetOwnedAsync(Guid id)
     {
-        var query = DbSet.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

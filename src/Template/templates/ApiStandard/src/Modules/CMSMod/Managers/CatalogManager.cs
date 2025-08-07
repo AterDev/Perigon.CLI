@@ -2,6 +2,7 @@ using Ater.Common.Models;
 using Ater.Common.Utils;
 using CMSMod.Models.CatalogDtos;
 using EntityFramework;
+using EntityFramework.DBProvider;
 using Share.Implement;
 
 namespace CMSMod.Managers;
@@ -10,10 +11,10 @@ namespace CMSMod.Managers;
 /// 目录管理
 /// </summary>
 public class CatalogManager(
-    DataAccessContext<Catalog> dataContext,
+    DefaultDbContext dbContext,
     UserContext userContext,
     ILogger<BlogManager> logger
-) : ManagerBase<Catalog>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, Catalog>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
 
@@ -73,9 +74,9 @@ public class CatalogManager(
     /// <returns></returns>
     public async Task<List<Catalog>> GetLeafCatalogsAsync()
     {
-        List<Guid?> parentIds = await Query.Select(s => s.ParentId).ToListAsync();
+        List<Guid?> parentIds = await Queryable.Select(s => s.ParentId).ToListAsync();
 
-        List<Catalog> source = await Query
+        List<Catalog> source = await Queryable
             .Where(c => !parentIds.Contains(c.Id))
             .Include(c => c.Parent)
             .ToListAsync();
@@ -89,7 +90,7 @@ public class CatalogManager(
     /// <returns></returns>
     public async Task<Catalog?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Catalog> query = DbSet.Where(q => q.Id == id);
+        IQueryable<Catalog> query = _dbSet.Where(q => q.Id == id);
         // 属于当前角色的对象
         query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

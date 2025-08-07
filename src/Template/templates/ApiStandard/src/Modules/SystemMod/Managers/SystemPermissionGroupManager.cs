@@ -1,14 +1,12 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
-using Share.Implement;
+using EntityFramework.DBProvider;
 using SystemMod.Models.SystemPermissionGroupDtos;
 
 namespace SystemMod.Managers;
 
 public class SystemPermissionGroupManager(
-    DataAccessContext<SystemPermissionGroup> dataContext,
+    DefaultDbContext dbContext,
     ILogger<SystemPermissionGroupManager> logger
-) : ManagerBase<SystemPermissionGroup>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, SystemPermissionGroup>(dbContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -45,7 +43,7 @@ public class SystemPermissionGroupManager(
 
     public override async Task<SystemPermissionGroup?> FindAsync(Guid id)
     {
-        return await Query
+        return await Queryable
             .Include(g => g.Permissions)
             .AsNoTracking()
             .SingleOrDefaultAsync(g => g.Id == id);
@@ -58,7 +56,7 @@ public class SystemPermissionGroupManager(
     /// <returns></returns>
     public async Task<SystemPermissionGroup?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemPermissionGroup> query = DbSet.Where(q => q.Id == id);
+        IQueryable<SystemPermissionGroup> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

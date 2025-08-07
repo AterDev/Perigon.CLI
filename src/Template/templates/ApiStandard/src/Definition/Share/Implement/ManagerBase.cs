@@ -3,81 +3,61 @@ using System.Linq.Expressions;
 namespace Share.Implement;
 
 /// <summary>
-/// without any implement
+/// Base manager class without dbContext
 /// </summary>
-/// <param name="logger"></param>
-public class ManagerBase(ILogger logger)
+/// <param name="logger">Logger instance</param>
+public abstract class ManagerBase(ILogger logger)
 {
     protected ILogger _logger = logger;
 }
 
 /// <summary>
-/// ManagerBase for QueryDbContext and CommandDbContext
+/// Generic manager base class for entity operations.
 /// </summary>
-/// <typeparam name="TEntity">实体类型</typeparam>
-//public class ManagerBase<TEntity> : ManagerBase<DefaultDbContext, TEntity>
-//    where TEntity : class, IEntityBase { }
-
-//public class ManagerBase(TenantDbContextFactory factory, ILogger logger)
-//{
-
-//}
-
-/// <summary>
-/// 实现类
-/// </summary>
-/// <typeparam name="TDbContext"></typeparam>
-/// <typeparam name="TEntity"></typeparam>
-public class ManagerBase<TDbContext, TEntity>
+/// <typeparam name="TDbContext">Database context type</typeparam>
+/// <typeparam name="TEntity">Entity type</typeparam>
+public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : DbContext
     where TEntity : class, IEntityBase
 {
     #region Properties and Fields
 
     /// <summary>
-    /// 全局筛选
+    /// Enable or disable global query filters.
     /// </summary>
     public bool EnableGlobalQuery { get; set; } = true;
 
     /// <summary>
-    /// 是否自动保存(调用SaveChanges)
+    /// Indicates whether to automatically call SaveChanges after operations.
     /// </summary>
     protected bool AutoSave { get; set; } = true;
 
     /// <summary>
-    /// 错误信息
+    /// Error message for the last operation.
     /// </summary>
     public string ErrorMsg { get; set; } = string.Empty;
 
     /// <summary>
-    ///错误状态码
+    /// Error status code for the last operation.
     /// </summary>
     public int ErrorStatus { get; set; }
-
-    /// <summary>
-    /// 当前实体
-    /// </summary>
-    public TEntity? CurrentEntity { get; set; }
     #endregion
-
-    protected DatabaseFacade Database { get; init; }
+    protected IQueryable<TEntity> Queryable { get; set; }
+    protected readonly ILogger _logger;
+    protected readonly TDbContext _dbContext;
+    protected readonly DbSet<TEntity> _dbSet;
 
     /// <summary>
-    /// 实体的只读仓储实现
+    /// Initializes a new instance of the ManagerBase class.
     /// </summary>
-    protected DbSet<TEntity> DbSet { get; init; }
-    protected IQueryable<TEntity> Queryable { get; set; }
-
-    protected readonly ILogger _logger;
-    protected TDbContext DbContext { get; init; }
-
-    public ManagerBase(TDbContext commandContext, ILogger logger)
+    /// <param name="dbContext">Database context</param>
+    /// <param name="logger">Logger instance</param>
+    public ManagerBase(TDbContext dbContext, ILogger logger)
     {
         _logger = logger;
-        DbContext = commandContext;
-        Database = DbContext.Database;
-        DbSet = DbContext.Set<TEntity>();
-        Queryable = DbSet.AsNoTracking().AsQueryable();
+        _dbContext = dbContext;
+        _dbSet = _dbContext.Set<TEntity>();
+        Queryable = _dbSet.AsNoTracking().AsQueryable();
         if (!EnableGlobalQuery)
         {
             Queryable = Queryable.IgnoreQueryFilters();
@@ -85,32 +65,32 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 在修改前查询对象
+    /// Gets the current entity by id without tracking.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    /// <param name="id">Entity id</param>
+    /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> GetCurrentAsync(Guid id)
     {
-        return await DbSet.FindAsync(id);
+        return await _dbSet.FindAsync(id);
     }
 
     /// <summary>
-    /// DbSet Entity
+    /// Gets the current entity or DTO by condition without tracking.
     /// </summary>
-    /// <typeparam name="TDto"></typeparam>
-    /// <param name="whereExp"></param>
-    /// <returns></returns>
+    /// <typeparam name="TDto">DTO type</typeparam>
+    /// <param name="whereExp">Filter expression</param>
+    /// <returns>The DTO if found; otherwise, null.</returns>
     public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
         if (typeof(TDto) == typeof(TEntity))
         {
-            var model = await DbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
+            var model = await _dbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
             return model as TDto;
         }
         else
         {
-            return await DbSet
+            return await _dbSet
                 .Where(whereExp ?? (e => true))
                 .ProjectTo<TDto>()
                 .FirstOrDefaultAsync();
@@ -118,31 +98,30 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 获取实体并追踪
+    /// Finds and attaches the entity by id for tracking.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    /// <param name="id">Entity id</param>
+    /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> FindAsync(Guid id)
     {
-        var entity = await DbSet.FindAsync(id);
+        var entity = await _dbSet.FindAsync(id);
         if (entity != null)
         {
-            DbSet.Attach(entity);
+            _dbSet.Attach(entity);
         }
         return entity;
     }
 
     /// <summary>
-    /// query one data
-    /// if data is TEntity, then attach to DbSet
+    /// Finds a DTO by condition without tracking. If TDto is TEntity, attaches the entity.
     /// </summary>
-    /// <typeparam name="TDto"></typeparam>
-    /// <param name="whereExp"></param>
-    /// <returns></returns>
+    /// <typeparam name="TDto">DTO type</typeparam>
+    /// <param name="whereExp">Filter expression</param>
+    /// <returns>The DTO if found; otherwise, null.</returns>
     public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        var model = await DbSet
+        var model = await _dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
@@ -150,59 +129,66 @@ public class ManagerBase<TDbContext, TEntity>
 
         if (typeof(TDto) is TEntity && model != null)
         {
-            DbSet.Attach((model as TEntity)!);
+            _dbSet.Attach((model as TEntity)!);
         }
         return model;
     }
 
     /// <summary>
-    /// id是否存在
+    /// Checks if an entity with the specified id exists.
     /// </summary>
-    /// <param name="id">主键id</param>
-    /// <returns></returns>
+    /// <param name="id">Entity id</param>
+    /// <returns>True if exists; otherwise, false.</returns>
     public virtual async Task<bool> ExistAsync(Guid id)
     {
-        return await DbSet.AnyAsync(q => q.Id == id);
+        return await _dbSet.AnyAsync(q => q.Id == id);
     }
 
     /// <summary>
-    /// 存在判断
+    /// Checks if any entity matches the given condition.
     /// </summary>
-    /// <param name="whereExp"></param>
-    /// <returns></returns>
+    /// <param name="whereExp">Filter expression</param>
+    /// <returns>True if any entity matches; otherwise, false.</returns>
     public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
     {
-        return await DbSet.AnyAsync(whereExp);
+        return await _dbSet.AnyAsync(whereExp);
     }
 
     /// <summary>
-    /// 条件查询列表
+    /// Gets a list of DTOs matching the condition without tracking.
     /// </summary>
-    /// <typeparam name="TDto">返回类型</typeparam>
-    /// <param name="whereExp"></param>
-    /// <returns></returns>
+    /// <typeparam name="TDto">DTO type</typeparam>
+    /// <param name="whereExp">Filter expression</param>
+    /// <returns>List of DTOs.</returns>
     public async Task<List<TDto>> ToListAsync<TDto>(
         Expression<Func<TEntity, bool>>? whereExp = null
     )
         where TDto : class
     {
-        return await DbSet
+        return await _dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Gets a list of entities matching the condition without tracking.
+    /// </summary>
+    /// <param name="whereExp">Filter expression</param>
+    /// <returns>List of entities.</returns>
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
-        return await DbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+        return await _dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
     }
 
     /// <summary>
-    /// 分页筛选
+    /// Gets a paged list of items based on the filter.
     /// </summary>
-    /// <param name="filter"></param>
-    /// <returns></returns>
+    /// <typeparam name="TFilter">Filter type</typeparam>
+    /// <typeparam name="TItem">Item type</typeparam>
+    /// <param name="filter">Paging and filter information</param>
+    /// <returns>Paged list of items.</returns>
     public async Task<PageList<TItem>> ToPageAsync<TFilter, TItem>(TFilter filter)
         where TFilter : FilterBase
         where TItem : class
@@ -213,7 +199,7 @@ public class ManagerBase<TDbContext, TEntity>
                 : Queryable.OrderByDescending(t => t.CreatedTime);
 
         var count = Queryable.Count();
-        List<TItem> data = await DbSet
+        List<TItem> data = await _dbSet
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
@@ -230,13 +216,13 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 添加实体
+    /// Adds a new entity to the database.
     /// </summary>
-    /// <param name="entity"></param>
-    /// <returns></returns>
+    /// <param name="entity">Entity to add</param>
+    /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> AddAsync(TEntity entity)
     {
-        await DbSet.AddAsync(entity);
+        await _dbSet.AddAsync(entity);
         if (AutoSave)
         {
             return await SaveChangesAsync() > 0;
@@ -245,13 +231,13 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 更新实体
+    /// Updates an existing tracked entity.
     /// </summary>
-    /// <param name="entity">已跟踪的实体</param>
-    /// <returns></returns>
+    /// <param name="entity">Tracked entity to update</param>
+    /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-        DbSet.Update(entity);
+        _dbSet.Update(entity);
         if (AutoSave)
         {
             return await SaveChangesAsync() > 0;
@@ -260,12 +246,12 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 更新关联数据
+    /// Updates related collection data for an entity.
     /// </summary>
-    /// <typeparam name="TProperty"></typeparam>
-    /// <param name="entity">当前实体</param>
-    /// <param name="propertyExpression">导航属性</param>
-    /// <param name="data">新数据</param>
+    /// <typeparam name="TProperty">Related entity type</typeparam>
+    /// <param name="entity">Current entity</param>
+    /// <param name="propertyExpression">Navigation property expression</param>
+    /// <param name="data">New related data</param>
     public void UpdateRelation<TProperty>(
         TEntity entity,
         Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression,
@@ -273,23 +259,23 @@ public class ManagerBase<TDbContext, TEntity>
     )
         where TProperty : class
     {
-        var currentValue = DbContext.Entry(entity).Collection(propertyExpression).CurrentValue;
+        var currentValue = _dbContext.Entry(entity).Collection(propertyExpression).CurrentValue;
         if (currentValue != null && currentValue.Any())
         {
-            DbContext.RemoveRange(currentValue);
-            DbContext.Entry(entity).Collection(propertyExpression).CurrentValue = null;
+            _dbContext.RemoveRange(currentValue);
+            _dbContext.Entry(entity).Collection(propertyExpression).CurrentValue = null;
         }
-        DbContext.AddRange(data);
+        _dbContext.AddRange(data);
     }
 
     /// <summary>
-    /// 批量覆盖保存,id相同时更新，否则新增或删除
+    /// Saves a list of entities, updating, adding, or removing as needed by id.
     /// </summary>
-    /// <param name="entityList">新的全量数据</param>
-    /// <returns></returns>
+    /// <param name="entityList">New full list of entities</param>
+    /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> SaveAsync(List<TEntity> entityList)
     {
-        var Ids = await DbSet.Select(e => e.Id).ToListAsync();
+        var Ids = await _dbSet.Select(e => e.Id).ToListAsync();
         // new entity by id
         var newEntities = entityList.Where(d => !Ids.Contains(d.Id)).ToList();
 
@@ -298,17 +284,17 @@ public class ManagerBase<TDbContext, TEntity>
 
         if (newEntities.Count != 0)
         {
-            await DbSet.AddRangeAsync(newEntities);
+            await _dbSet.AddRangeAsync(newEntities);
         }
         if (updateEntities.Count != 0)
         {
-            DbSet.UpdateRange(updateEntities);
+            _dbSet.UpdateRange(updateEntities);
         }
         try
         {
             if (removeEntities.Count != 0)
             {
-                await DbSet.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
+                await _dbSet.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
             }
             _ = await SaveChangesAsync();
             return true;
@@ -321,27 +307,27 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 批量删除
+    /// Deletes a batch of entities by id, with optional soft delete.
     /// </summary>
-    /// <param name="ids">实体id</param>
-    /// <param name="softDelete">是否软件删除</param>
-    /// <returns></returns>
+    /// <param name="ids">List of entity ids</param>
+    /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
+    /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         var res = softDelete
-            ? await DbSet
+            ? await _dbSet
                 .Where(d => ids.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
-            : await DbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
+            : await _dbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
         return res > 0;
     }
 
     /// <summary>
-    /// 删除实体
+    /// Deletes a single entity, with optional soft delete.
     /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="softDelete"></param>
-    /// <returns></returns>
+    /// <param name="entity">Entity to delete</param>
+    /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
+    /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
     {
         if (softDelete)
@@ -350,32 +336,32 @@ public class ManagerBase<TDbContext, TEntity>
         }
         else
         {
-            DbSet.Remove(entity);
+            _dbSet.Remove(entity);
         }
         return await SaveChangesAsync() > 0;
     }
 
     /// <summary>
-    /// 加载导航数据
+    /// Loads a reference navigation property for the entity.
     /// </summary>
-    /// <typeparam name="TProperty"></typeparam>
-    /// <param name="entity"></param>
-    /// <param name="propertyExpression"></param>
-    /// <returns></returns>
+    /// <typeparam name="TProperty">Navigation property type</typeparam>
+    /// <param name="entity">Entity instance</param>
+    /// <param name="propertyExpression">Navigation property expression</param>
+    /// <returns>Task representing the asynchronous operation.</returns>
     public async Task LoadAsync<TProperty>(
         TEntity entity,
         Expression<Func<TEntity, TProperty?>> propertyExpression
     )
         where TProperty : class
     {
-        var entry = DbContext.Entry(entity);
+        var entry = _dbContext.Entry(entity);
         if (entry.State != EntityState.Detached)
         {
-            await DbContext.Entry(entity).Reference(propertyExpression).LoadAsync();
+            await _dbContext.Entry(entity).Reference(propertyExpression).LoadAsync();
         }
         else
         {
-            await DbContext
+            await _dbContext
                 .Entry(entity)
                 .Reference(propertyExpression)
                 .Query()
@@ -385,26 +371,26 @@ public class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// 加载关联数据
+    /// Loads a collection navigation property for the entity.
     /// </summary>
-    /// <typeparam name="TProperty"></typeparam>
-    /// <param name="entity"></param>
-    /// <param name="propertyExpression"></param>
-    /// <returns></returns>
+    /// <typeparam name="TProperty">Collection property type</typeparam>
+    /// <param name="entity">Entity instance</param>
+    /// <param name="propertyExpression">Collection property expression</param>
+    /// <returns>Task representing the asynchronous operation.</returns>
     public async Task LoadManyAsync<TProperty>(
         TEntity entity,
         Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression
     )
         where TProperty : class
     {
-        var entry = DbContext.Entry(entity);
+        var entry = _dbContext.Entry(entity);
         if (entry.State != EntityState.Detached)
         {
-            await DbContext.Entry(entity).Collection(propertyExpression).LoadAsync();
+            await _dbContext.Entry(entity).Collection(propertyExpression).LoadAsync();
         }
         else
         {
-            await DbContext
+            await _dbContext
                 .Entry(entity)
                 .Collection(propertyExpression)
                 .Query()
@@ -413,18 +399,22 @@ public class ManagerBase<TDbContext, TEntity>
         }
     }
 
+    /// <summary>
+    /// Saves changes to the database asynchronously.
+    /// </summary>
+    /// <returns>The number of state entries written to the database.</returns>
     protected async Task<int> SaveChangesAsync()
     {
-        return await DbContext.SaveChangesAsync();
+        return await _dbContext.SaveChangesAsync();
     }
 
     /// <summary>
-    /// reset queryable
+    /// Resets the queryable to its default state, applying or ignoring global query filters.
     /// </summary>
     protected void ResetQuery()
     {
         Queryable = EnableGlobalQuery
-            ? DbSet.AsQueryable()
+            ? _dbSet.AsQueryable()
             : Queryable.IgnoreQueryFilters().AsQueryable();
     }
 }
