@@ -22,7 +22,7 @@ public class ManagerGenerate(EntityInfo entityInfo)
             $"global using {EntityInfo.AssemblyName};",
             $"global using {EntityInfo.NamespaceName};",
             $"global using {ApplicationNamespace}.{ConstVal.ManagersDir};",
-            ""
+            "",
         ];
     }
 
@@ -30,7 +30,7 @@ public class ManagerGenerate(EntityInfo entityInfo)
     /// Manager默认代码内容
     /// </summary>
     /// <returns></returns>
-    public string GetManagerContent(string tplContent, string nsp)
+    public string GetManagerContent(string tplContent, string nsp, string dbContextName)
     {
         var genContext = new RazorGenContext();
         var model = new ManagerViewModel
@@ -38,8 +38,9 @@ public class ManagerGenerate(EntityInfo entityInfo)
             Namespace = nsp,
             EntityName = EntityInfo.Name,
             ShareNamespace = ShareNamespace,
+            DbContextName = dbContextName,
             Comment = EntityInfo.Comment,
-            FilterCode = GetFilterMethodContent()
+            FilterCode = GetFilterMethodContent(),
         };
 
         return genContext.GenManager(tplContent, model);
@@ -53,9 +54,9 @@ public class ManagerGenerate(EntityInfo entityInfo)
         if (props != null && props.Count != 0)
         {
             content += """
-                    Queryable = Queryable
+                        Queryable = Queryable
 
-            """;
+                """;
         }
         var last = props?.LastOrDefault();
         props?.ForEach(p =>
@@ -65,21 +66,26 @@ public class ManagerGenerate(EntityInfo entityInfo)
             if (p.IsNavigation && !p.IsComplexType)
             {
                 content += $$"""
-                            .WhereNotNull(filter.{{name}}Id, q => q.{{name}}.Id == filter.{{name}}Id){{(isLast ? ";" : "")}}
+                            .WhereNotNull(filter.{{name}}Id, q => q.{{name}}.Id == filter.{{name}}Id){{(
+                    isLast ? ";" : ""
+                )}}
 
                 """;
             }
             else
             {
                 content += $$"""
-                            .WhereNotNull(filter.{{name}}, q => q.{{name}} == filter.{{name}}){{(isLast ? ";" : "")}}
+                            .WhereNotNull(filter.{{name}}, q => q.{{name}} == filter.{{name}}){{(
+                    isLast ? ";" : ""
+                )}}
 
                 """;
             }
         });
         content += $$"""
                     
-                    return await ToPageAsync<{{entityName + ConstVal.FilterDto}},{{entityName + ConstVal.ItemDto}}>(filter);
+                    return await ToPageAsync<{{entityName + ConstVal.FilterDto}},{{entityName
+                + ConstVal.ItemDto}}>(filter);
             """;
         return content;
     }

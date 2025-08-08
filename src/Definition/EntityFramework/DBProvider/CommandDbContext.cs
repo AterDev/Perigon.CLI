@@ -1,5 +1,5 @@
 ﻿namespace EntityFramework.DBProvider;
-public class CommandDbContext(DbContextOptions<CommandDbContext> options) : ContextBase(options)
+public class DefaultDbContext(DbContextOptions<DefaultDbContext> options) : ContextBase(options)
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {

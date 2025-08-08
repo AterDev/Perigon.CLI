@@ -23,6 +23,11 @@ public class EntityInfo
     public string? ModuleName { get; set; }
 
     /// <summary>
+    /// the db context name
+    /// </summary>
+    public string? DbContextName { get; set; }
+
+    /// <summary>
     /// file path
     /// </summary>
     [MaxLength(200)]

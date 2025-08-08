@@ -15,12 +15,9 @@ public class TplContent
             namespace @(Model.Namespace).Managers;
             @Model.Comment
             public class @(Model.EntityName)Manager(
-                DataAccessContext<@(Model.EntityName)> dataContext, 
-                ILogger<@(Model.EntityName)Manager> logger,
-                UserContext userContext) : ManagerBase<@(Model.EntityName)>(dataContext, logger)
+                @(Model.DbContextName) dbContext, 
+                ILogger<@(Model.EntityName)Manager> logger) : ManagerBase<@(Model.EntityName)>(dbContext, logger)
             {
-                private readonly UserContext _userContext = userContext;
-
                 /// <summary>
                 /// 添加实体
                 /// </summary>
@@ -69,7 +66,7 @@ public class TplContent
                 /// <returns></returns>
                 public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
                 {
-                    return await Command.Where(q => q.Id.ToString() == unique)
+                    return await _dbSet.Where(q => q.Id.ToString() == unique)
                         .WhereNotNull(id, q => q.Id != id)
                         .AnyAsync();
                 }
@@ -86,15 +83,15 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// 数据权限验证
+                /// 获取权限范围的实体
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
-                public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id)
+                public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id, Guid userId)
                 {
-                    var query = Command.Where(q => q.Id == id);
-                    // TODO:自定义数据权限验证
-                    // query = query.Where(q => q.User.Id == _userContext.UserId);
+                    var query = _dbSet.Where(q => q.Id == id);
+                    // 自定义数据权限验证
+                    // query = query.Where(q => q.UserId = userId)
                     return await query.FirstOrDefaultAsync();
                 }
             }

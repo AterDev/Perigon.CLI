@@ -37,7 +37,7 @@ public class SystemLogService(
             .ServiceProvider.GetRequiredService<UserContext>();
 
         userId = _context.UserId == Guid.Empty ? userId : _context.UserId;
-        userName = string.IsNullOrEmpty(_context.Username) ? userName : _context.Username;
+        userName = string.IsNullOrEmpty(_context.UserName) ? userName : _context.UserName;
         var route = _context!.HttpContext?.Request.Path.Value;
 
         if (userId == null || userId.Equals(Guid.Empty))

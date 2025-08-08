@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AterStudio.Migrations
 {
-    [DbContext(typeof(CommandDbContext))]
+    [DbContext(typeof(DefaultDbContext))]
     partial class CommandDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -55,7 +55,7 @@ public class EntityParseHelper
     public string[] SpecialTypes = ["DateTime", "DateTimeOffset", "DateOnly", "TimeOnly", "Guid"];
 
     /// <summary>
-    /// 可复制的特性
+    /// 可解析的特性
     /// </summary>
     public string[] ValidAttributes =
     [

@@ -11,7 +11,7 @@ public class InitDataTask
     /// <returns></returns>
     public static async Task InitDataAsync(IServiceProvider provider)
     {
-        CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
+        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
         ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
         ILogger<InitDataTask> logger = loggerFactory.CreateLogger<InitDataTask>();
         try

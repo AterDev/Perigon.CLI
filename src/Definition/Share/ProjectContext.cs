@@ -20,11 +20,11 @@ public class ProjectContext : IProjectContext
     public string? ModulesPath { get; set; }
     public string? ServicesPath { get; set; }
 
-    private readonly CommandDbContext _context;
+    private readonly DefaultDbContext _context;
 
     public ProjectContext(
         IHttpContextAccessor httpContextAccessor,
-        IDbContextFactory<CommandDbContext> contextFactory
+        IDbContextFactory<DefaultDbContext> contextFactory
     )
     {
         _context = contextFactory.CreateDbContext();

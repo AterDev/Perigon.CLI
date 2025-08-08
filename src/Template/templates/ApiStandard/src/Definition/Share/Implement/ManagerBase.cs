@@ -104,12 +104,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> FindAsync(Guid id)
     {
-        var entity = await _dbSet.FindAsync(id);
-        if (entity != null)
-        {
-            _dbSet.Attach(entity);
-        }
-        return entity;
+        return await _dbSet.FindAsync(id);
     }
 
     /// <summary>

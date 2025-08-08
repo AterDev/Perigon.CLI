@@ -11,7 +11,6 @@ namespace SystemMod.Managers;
 
 public class SystemUserManager(
     DefaultDbContext dbContext,
-    UserContext userContext,
     IConfiguration configuration,
     CacheService cache,
     JwtService jwtService,
@@ -19,7 +18,6 @@ public class SystemUserManager(
     ILogger<SystemUserManager> logger
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
@@ -256,8 +254,6 @@ public class SystemUserManager(
     public async Task<SystemUser?> GetOwnedAsync(Guid id)
     {
         IQueryable<SystemUser> query = _dbSet.Where(q => q.Id == id);
-        // 获取用户所属的对象
-        query = query.Where(q => q.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 

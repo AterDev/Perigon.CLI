@@ -31,9 +31,6 @@ public static partial class FrameworkExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped(typeof(DataAccessContext<>));
-        builder.Services.AddScoped(typeof(DataAccessContext));
-
         var dir = AssemblyHelper.GetStudioPath();
         if (!Directory.Exists(dir))
         {
@@ -41,17 +38,7 @@ public static partial class FrameworkExtensions
         }
         var path = Path.Combine(dir, ConstVal.DbName);
 
-        builder.Services.AddDbContextFactory<CommandDbContext>(options =>
-        {
-            options.UseSqlite(
-                $"DataSource={path}",
-                _ =>
-                {
-                    _.MigrationsAssembly("AterStudio");
-                }
-            );
-        });
-        builder.Services.AddDbContextFactory<QueryDbContext>(options =>
+        builder.Services.AddDbContextFactory<DefaultDbContext>(options =>
         {
             options.UseSqlite(
                 $"DataSource={path}",

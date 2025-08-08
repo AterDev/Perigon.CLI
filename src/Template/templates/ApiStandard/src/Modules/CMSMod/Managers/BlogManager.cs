@@ -6,23 +6,19 @@ namespace CMSMod.Managers;
 /// <summary>
 /// 博客
 /// </summary>
-public class BlogManager(
-    DefaultDbContext dbContext,
-    ILogger<BlogManager> logger,
-    UserContext userContext
-) : ManagerBase<DefaultDbContext, Blog>(dbContext, logger)
+public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
+    : ManagerBase<DefaultDbContext, Blog>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
     /// <param name="dto"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddAsync(BlogAddDto dto)
+    public async Task<Guid?> AddAsync(BlogAddDto dto, Guid userId)
     {
         Blog entity = dto.MapTo<BlogAddDto, Blog>();
-        entity.UserId = _userContext.UserId;
+        entity.UserId = userId;
         entity.CatalogId = dto.CatalogId;
         // other required props
         return await AddAsync(entity) ? entity.Id : null;

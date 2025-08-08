@@ -1,32 +1,24 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
 using CMSMod.Models.CatalogDtos;
-using EntityFramework;
 using EntityFramework.DBProvider;
-using Share.Implement;
 
 namespace CMSMod.Managers;
 
 /// <summary>
 /// 目录管理
 /// </summary>
-public class CatalogManager(
-    DefaultDbContext dbContext,
-    UserContext userContext,
-    ILogger<BlogManager> logger
-) : ManagerBase<DefaultDbContext, Catalog>(dbContext, logger)
+public class CatalogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
+    : ManagerBase<DefaultDbContext, Catalog>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
     /// <param name="dto"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddAsync(CatalogAddDto dto)
+    public async Task<Guid?> AddAsync(CatalogAddDto dto, Guid userId)
     {
         Catalog entity = dto.MapTo<CatalogAddDto, Catalog>();
-        entity.UserId = _userContext.UserId;
+        entity.UserId = userId;
         if (dto.ParentId != null)
         {
             Catalog? parent = await GetCurrentAsync(dto.ParentId.Value);
@@ -87,12 +79,13 @@ public class CatalogManager(
     /// 当前用户所拥有的对象
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Catalog?> GetOwnedAsync(Guid id)
+    public async Task<Catalog?> GetOwnedAsync(Guid id, Guid userId)
     {
         IQueryable<Catalog> query = _dbSet.Where(q => q.Id == id);
         // 属于当前角色的对象
-        query = query.Where(q => q.User.Id == _userContext.UserId);
+        query = query.Where(q => q.User.Id == userId);
         return await query.FirstOrDefaultAsync();
     }
 }

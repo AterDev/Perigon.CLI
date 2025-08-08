@@ -6,12 +6,12 @@ namespace StudioMod.Managers;
 /// Solution manager
 /// </summary>
 public class SolutionManager(
-    DataAccessContext<Solution> dataContext,
+    DefaultDbContext dbContext,
     IProjectContext projectContext,
     ILogger<SolutionManager> logger,
     CommandService commandService,
     SolutionService solution
-) : ManagerBase<Solution>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, Solution>(dbContext, logger)
 {
     /// <summary>
     /// 获取默认模块
@@ -37,14 +37,14 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<List<Solution>> ListAsync()
     {
-        var projects = await Command.ToListAsync();
+        var projects = await _dbSet.ToListAsync();
         for (int i = 0; i < projects.Count; i++)
         {
             var p = projects[i];
             // 移除不存在的项目
             if (!Directory.Exists(p.Path))
             {
-                Command.Remove(p);
+                _dbSet.Remove(p);
                 projects.Remove(p);
             }
             await SaveChangesAsync();

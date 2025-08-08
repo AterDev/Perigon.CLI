@@ -2,9 +2,9 @@ using CodeGenerator.Models;
 
 namespace StudioMod.Managers;
 
-public class AdvanceManager(CommandDbContext dbContext, IProjectContext projectContext)
+public class AdvanceManager(DefaultDbContext dbContext, IProjectContext projectContext)
 {
-    private readonly CommandDbContext _dbContext = dbContext;
+    private readonly DefaultDbContext _dbContext = dbContext;
     private readonly IProjectContext _projectContext = projectContext;
 
     /// <summary>

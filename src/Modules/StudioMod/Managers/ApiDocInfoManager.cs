@@ -8,12 +8,12 @@ namespace StudioMod.Managers;
 /// 接口文档
 /// </summary>
 public class ApiDocInfoManager(
-    DataAccessContext<ApiDocInfo> dataContext,
+    DefaultDbContext dbContext,
     IProjectContext project,
     ILogger<ApiDocInfoManager> logger,
     CodeGenService codeGenService,
     Localizer localizer
-) : ManagerBase<ApiDocInfo>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContext, logger)
 {
     private readonly IProjectContext _project = project;
     private readonly CodeGenService _codeGenService = codeGenService;
@@ -165,8 +165,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<bool> IsConflictAsync(string unique)
     {
-        // TODO:自定义唯一性验证参数和逻辑
-        return await Command.AnyAsync(q => q.Id == new Guid(unique));
+        return await _dbSet.AnyAsync(q => q.Id == new Guid(unique));
     }
 
     /// <summary>
@@ -176,7 +175,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<ApiDocInfo?> GetOwnedAsync(Guid id)
     {
-        var query = Command.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

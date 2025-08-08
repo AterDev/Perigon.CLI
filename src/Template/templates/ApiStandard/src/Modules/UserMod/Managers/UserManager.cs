@@ -7,14 +7,9 @@ namespace UserMod.Managers;
 /// <summary>
 /// 用户账户
 /// </summary>
-public class UserManager(
-    DefaultDbContext dbContext,
-    ILogger<UserManager> logger,
-    UserContext userContext
-) : ManagerBase<DefaultDbContext, User>(dbContext, logger)
+public class UserManager(DefaultDbContext dbContext, ILogger<UserManager> logger)
+    : ManagerBase<DefaultDbContext, User>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 更新密码
     /// </summary>
@@ -65,7 +60,7 @@ public class UserManager(
     public async Task<bool> UpdateAsync(User entity, UserUpdateDto dto)
     {
         entity.Merge(dto);
-        if (dto.Password != null && _userContext != null && _userContext.IsAdmin)
+        if (dto.Password != null)
         {
             entity.PasswordSalt = HashCrypto.BuildSalt();
             entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
@@ -123,7 +118,6 @@ public class UserManager(
     {
         var query = _dbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 }

@@ -8,13 +8,13 @@ namespace StudioMod.Managers;
 /// The project's generate action
 /// </summary>
 public class GenActionManager(
-    DataAccessContext<GenAction> dataContext,
+    DefaultDbContext dbContext,
     CodeGenService codeGenService,
     ILogger<GenActionManager> logger,
     IProjectContext projectContext,
     CodeAnalysisService codeAnalysis,
     UserContext userContext
-) : ManagerBase<GenAction>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, GenAction>(dbContext, logger)
 {
     private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
@@ -66,7 +66,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<List<GenStepItemDto>> GetStepsAsync(Guid actionId)
     {
-        var data = await Query
+        var data = await Queryable
             .Where(q => q.Id == actionId)
             .SelectMany(q => q.GenSteps)
             .ProjectTo<GenStepItemDto>()
@@ -93,10 +93,7 @@ public class GenActionManager(
     public async Task<bool> IsUniqueAsync(string name, Guid? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        return await Command
-            .Where(q => q.Name == name)
-            .WhereNotNull(id, q => q.Id != id)
-            .AnyAsync();
+        return await _dbSet.Where(q => q.Name == name).WhereNotNull(id, q => q.Id != id).AnyAsync();
     }
 
     /// <summary>
@@ -117,7 +114,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<GenAction?> GetOwnedAsync(Guid id)
     {
-        var query = Command.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
@@ -131,10 +128,10 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> AddStepsAsync(Guid id, List<Guid> stepIds)
     {
-        await Database.BeginTransactionAsync();
+        await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            await CommandContext
+            await _dbContext
                 .GenActionGenSteps.Where(q => q.GenActionsId == id)
                 .ExecuteDeleteAsync();
 
@@ -143,14 +140,14 @@ public class GenActionManager(
                 GenActionsId = id,
                 GenStepsId = q,
             });
-            await CommandContext.GenActionGenSteps.AddRangeAsync(actionSteps);
+            await _dbContext.GenActionGenSteps.AddRangeAsync(actionSteps);
             await SaveChangesAsync();
-            await Database.CommitTransactionAsync();
+            await _dbContext.Database.CommitTransactionAsync();
             return true;
         }
         catch (Exception ex)
         {
-            await Database.RollbackTransactionAsync();
+            await _dbContext.Database.RollbackTransactionAsync();
             _logger.LogError(ex, "Add steps failed");
             return false;
         }
@@ -164,10 +161,7 @@ public class GenActionManager(
     public async Task<GenActionResultDto> ExecuteActionAsync(GenActionRunDto dto)
     {
         var res = new GenActionResultDto();
-        var action = await Command
-            .Where(a => a.Id == dto.Id)
-            .Include(a => a.GenSteps)
-            .SingleAsync();
+        var action = await _dbSet.Where(a => a.Id == dto.Id).Include(a => a.GenSteps).SingleAsync();
         action.ActionStatus = ActionStatus.InProgress;
         await SaveChangesAsync();
 

@@ -5,20 +5,16 @@ namespace CustomerMod.Managers;
 /// <summary>
 /// 客户信息
 /// </summary>
-public class CustomerInfoManager(
-    DefaultDbContext dbContext,
-    ILogger<CustomerInfoManager> logger,
-    UserContext userContext
-) : ManagerBase<DefaultDbContext, CustomerInfo>(dbContext, logger)
+public class CustomerInfoManager(DefaultDbContext dbContext, ILogger<CustomerInfoManager> logger)
+    : ManagerBase<DefaultDbContext, CustomerInfo>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
     /// <param name="dto"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddAsync(CustomerInfoAddDto dto)
+    public async Task<Guid?> AddAsync(CustomerInfoAddDto dto, Guid userId)
     {
         var entity = dto.MapTo<CustomerInfoAddDto, CustomerInfo>();
         entity.RealName = dto.Name;
@@ -27,7 +23,7 @@ public class CustomerInfoManager(
             .SystemUsers.Where(q => q.Id == dto.ConsultantId)
             .FirstOrDefaultAsync();
 
-        entity.CreatedUserId = _userContext.UserId;
+        entity.CreatedUserId = userId;
         entity.ManagerId = consult!.Id;
 
         return await AddAsync(entity) ? entity.Id : null;
@@ -88,7 +84,6 @@ public class CustomerInfoManager(
     {
         var query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 }

@@ -5,12 +5,12 @@ using Microsoft.CodeAnalysis;
 namespace StudioMod.Managers;
 
 public partial class EntityInfoManager(
-    DataAccessContext<ModelInfo> dataContext,
+    DefaultDbContext dbContext,
     ILogger<EntityInfoManager> logger,
     CodeAnalysisService codeAnalysis,
     CodeGenService codeGenService,
     IProjectContext projectContext
-) : ManagerBase<ModelInfo>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, ModelInfo>(dbContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;

@@ -26,6 +26,7 @@
 * `src/Definition/ServiceDefaults`: 是提供基础的服务注入的项目。
 * `src/Definition/Entity`: 实体模型项目
 * `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文
+* `src/Modules/`: 包含各个模块的程序集
 * `src/Modules/SystemMod`: 系统模块的业务逻辑实现
 * `src/Services/Http.API`: 是接口服务项目，基于ASP.NET Core Web API。
 * `src/Services/IdentityServer`: 是使用OpenIdDict实现的OAuth统一验证和用户角色权限管理项目。

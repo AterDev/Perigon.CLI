@@ -3,10 +3,10 @@ using Ater.Web.Convention.Abstraction;
 namespace StudioMod.Managers;
 
 public class McpToolManager(
-    DataAccessContext<McpTool> dataContext,
+    DefaultDbContext dbContext,
     EntityTaskQueue<EventQueueModel<McpTool>> taskQueue,
     ILogger<McpToolManager> logger
-) : ManagerBase<McpTool>(dataContext, logger)
+) : ManagerBase<DefaultDbContext, McpTool>(dbContext, logger)
 {
     /// <summary>
     /// 获取工具列表

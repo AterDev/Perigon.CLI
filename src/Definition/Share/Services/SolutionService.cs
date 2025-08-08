@@ -12,7 +12,7 @@ namespace Share.Services;
 public class SolutionService(
     IProjectContext projectContext,
     ILogger<SolutionService> logger,
-    CommandDbContext context
+    DefaultDbContext context
 )
 {
     private readonly IProjectContext _projectContext = projectContext;

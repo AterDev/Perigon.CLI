@@ -9,12 +9,9 @@ namespace SystemMod.Managers;
 public class SystemLogsManager(
     //DataAccessContext<SystemLogs> dbContext,
     DefaultDbContext dbContext,
-    ILogger<SystemLogsManager> logger,
-    UserContext userContext
+    ILogger<SystemLogsManager> logger
 ) : ManagerBase<DefaultDbContext, SystemLogs>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     public async Task<PageList<SystemLogsItemDto>> ToPageAsync(SystemLogsFilterDto filter)
     {
         Queryable = Queryable
@@ -40,7 +37,6 @@ public class SystemLogsManager(
     {
         IQueryable<SystemLogs> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 }

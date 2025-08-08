@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AterStudio.Migrations
 {
-    [DbContext(typeof(CommandDbContext))]
+    [DbContext(typeof(DefaultDbContext))]
     [Migration("20250802064944_Init")]
     partial class Init
     {

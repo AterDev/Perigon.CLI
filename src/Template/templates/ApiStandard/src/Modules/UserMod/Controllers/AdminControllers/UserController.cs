@@ -51,7 +51,7 @@ public class UserController(
     [HttpPatch("{id}")]
     public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, UserUpdateDto dto)
     {
-        var current = await _manager.GetOwnedAsync(id);
+        var current = await _manager.FindAsync(id);
         return current == null
             ? NotFound(ErrorKeys.NotFoundResource)
             : await _manager.UpdateAsync(current, dto);

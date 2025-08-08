@@ -1,6 +1,4 @@
 using CustomerMod.Models.CustomerInfoDtos;
-using Share;
-using Share.Implement;
 
 namespace CustomerMod.Controllers.AdminControllers;
 
@@ -40,7 +38,7 @@ public class CustomerInfoController(
         {
             return Conflict(ErrorKeys.ConflictResource);
         }
-        var id = await _manager.AddAsync(dto);
+        var id = await _manager.AddAsync(dto, _user.UserId);
         return id == null ? Problem(ErrorKeys.AddFailed) : id;
     }
 

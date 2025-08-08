@@ -1,5 +1,4 @@
 using OrderMod.Models.ProductDtos;
-using Share.Implement;
 
 namespace OrderMod.Controllers;
 
@@ -32,7 +31,7 @@ public class ProductController(
     [HttpPost("buy/{id}")]
     public async Task<ActionResult<Order>> BuyProductAsync([FromRoute] Guid id)
     {
-        Order? res = await _manager.BuyProductAsync(id);
+        Order? res = await _manager.BuyProductAsync(id, _user.UserId);
         return res == null ? Problem(_manager.ErrorMsg) : res;
     }
 

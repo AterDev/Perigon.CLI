@@ -6,23 +6,17 @@ namespace OrderMod.Managers;
 /// <summary>
 /// 订单
 /// </summary>
-public class OrderManager(
-    DefaultDbContext dbContext,
-    ILogger<OrderManager> logger,
-    UserContext userContext,
-    ProductManager productManager
-) : ManagerBase<DefaultDbContext, Order>(dbContext, logger)
+public class OrderManager(DefaultDbContext dbContext, ILogger<OrderManager> logger)
+    : ManagerBase<DefaultDbContext, Order>(dbContext, logger)
 {
-    private readonly ProductManager _productManager = productManager;
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
     /// <returns></returns>
     public async Task<Guid?> AddAsync(OrderAddDto dto)
     {
-        Product? product = await _productManager.GetCurrentAsync(dto.ProductId);
+        var product = await _dbContext.Products.FindAsync(dto.ProductId);
+        var order = dto.MapTo<OrderAddDto, Order>();
         // TODO: create order
         return null;
     }
@@ -44,13 +38,13 @@ public class OrderManager(
         return await ToPageAsync<OrderFilterDto, OrderItemDto>(filter);
     }
 
-    /*/// <summary>
-    /// 异步通知 支付结果
+    /// <summary>
+    /// TODO: callback from payment gateway
     /// </summary>
-    public async Task<bool> PayResult(AsyncNotifyModel model)
+    public async Task<bool> PayResultAsync(object model)
     {
-        return false;
-    }*/
+        return await Task.FromResult(true);
+    }
 
     /// <summary>
     /// 当前用户所拥有的对象
@@ -61,7 +55,6 @@ public class OrderManager(
     {
         IQueryable<Order> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 }

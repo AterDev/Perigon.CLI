@@ -14,7 +14,7 @@ public static class FrameworkExtensions
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<UserContext>();
+        builder.Services.AddScoped<IUserContext, UserContext>();
         builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
         var components =

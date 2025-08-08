@@ -1,7 +1,4 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
 using EntityFramework.DBProvider;
-using Share.Implement;
 using SystemMod.Models.SystemPermissionDtos;
 
 namespace SystemMod.Managers;
@@ -58,7 +55,6 @@ public class SystemPermissionManager(
     {
         IQueryable<SystemPermission> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 }

@@ -12,7 +12,7 @@ namespace Share.Services;
 /// <param name="projectContext"></param>
 /// <param name="solutionService"></param>
 public class CommandService(
-    CommandDbContext context,
+    DefaultDbContext context,
     IProjectContext projectContext,
     SolutionService solutionService
 )
