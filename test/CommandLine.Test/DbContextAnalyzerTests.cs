@@ -11,13 +11,10 @@ public class DbContextAnalyzerTests
     public void GetDbContextModels_ShouldReturnDictionary()
     {
         var entityFrameworkPath =
-            @"E:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework\bin\Debug\net9.0\EntityFramework.dll";
+            @"E:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework";
 
-        // Arrange
         var analyzer = new ExternalDbContextAnalyzer(entityFrameworkPath);
-        // Act
-        var models = analyzer.GetDbContextModels("EntityFramework.DBProvider.ContextBase");
-        // Assert
+        var models = analyzer.GetDbContextModels();
         Assert.NotNull(models);
         Assert.IsType<Dictionary<string, IModel>>(models);
     }

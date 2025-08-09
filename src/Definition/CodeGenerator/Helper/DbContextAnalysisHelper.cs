@@ -8,7 +8,7 @@ public class DbContextAnalysisHelper
     public string ProjectName { get; init; }
     public string DllPath { get; init; }
     public string? BaseDbContextName { get; init; }
-    public List<Type> DbContextTypes { get; init; }
+    public List<INamedTypeSymbol> DbContextNames { get; init; }
 
     public DbContextAnalysisHelper(string path)
     {
@@ -31,7 +31,7 @@ public class DbContextAnalysisHelper
 
         CompilationHelper = new CompilationHelper(Path.GetDirectoryName(DllPath)!);
         BaseDbContextName = GetBaseDbContextName();
-        DbContextTypes = GetDbContextTypes();
+        DbContextNames = GetDbContextTypes();
     }
 
     /// <summary>
@@ -64,19 +64,18 @@ public class DbContextAnalysisHelper
     /// </summary>
     /// <param name="entityName"></param>
     /// <returns></returns>
-    public Type? GetDbContextType(string entityName)
+    public INamedTypeSymbol? GetDbContextType(string entityName)
     {
-        foreach (var dbContextType in DbContextTypes)
+        foreach (var dbContextType in DbContextNames)
         {
-            var properties = dbContextType.GetProperties();
+            var properties = dbContextType.GetMembers().OfType<IPropertySymbol>();
             foreach (var prop in properties)
             {
-                if (prop.PropertyType.IsGenericType)
+                if (prop.Type is INamedTypeSymbol propertyType && propertyType.IsGenericType)
                 {
                     if (
-                        prop.PropertyType.Name.StartsWith("DbSet")
-                        && prop.PropertyType.GetGenericArguments()
-                            .Any(t => t.Name.Equals(entityName))
+                        propertyType.Name.Equals("DbSet")
+                        && propertyType.TypeArguments.Any(t => t.Name.Equals(entityName))
                     )
                     {
                         return dbContextType;
@@ -104,7 +103,7 @@ public class DbContextAnalysisHelper
     /// 获取所有DbContext类型
     /// </summary>
     /// <returns></returns>
-    private List<Type> GetDbContextTypes()
+    private List<INamedTypeSymbol> GetDbContextTypes()
     {
         if (BaseDbContextName == null)
         {
@@ -120,12 +119,6 @@ public class DbContextAnalysisHelper
             )
             .ToList();
 
-        var loadContext = new PluginLoadContext(DllPath);
-        var assembly = loadContext.LoadFromAssemblyPath(DllPath);
-        var types = dbContextSymbols
-            .Select(s => assembly.GetType(s.ToDisplayString()))
-            .Where(t => t != null)
-            .ToList();
-        return types!;
+        return dbContextSymbols;
     }
 }

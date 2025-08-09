@@ -12,7 +12,7 @@ public class GenerateTest
         Console.WriteLine();
 
         var baseContext = helper.BaseDbContextName;
-        var dbContexts = helper.DbContextTypes;
+        var dbContexts = helper.DbContextNames;
 
         var matchDbContext = helper.GetDbContextType("User");
 
