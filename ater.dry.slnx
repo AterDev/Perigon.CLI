@@ -18,8 +18,8 @@
   </Folder>
 
   <Folder Name="/src/Definition/">
+    <Project Path="src/Definition/EntityFramework/EfCoreContext.csproj" />
     <Project Path="src\Definition\CodeGenerator\CodeGenerator.csproj" />
-    <Project Path="src\Definition\EntityFramework\EntityFramework.csproj" />
     <Project Path="src\Definition\Entity\Entity.csproj" />
     <Project Path="src\Definition\Share\Share.csproj" />
   </Folder>

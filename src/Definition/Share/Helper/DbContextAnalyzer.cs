@@ -1,28 +1,25 @@
 using System.Reflection;
+using CodeGenerator.Helper;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Share.Helper;
 
+/// <summary>
+/// 加载和分析外部 DbContext
+/// </summary>
 public class ExternalDbContextAnalyzer
 {
     private readonly Assembly _assembly;
 
-    /// <summary>
-    /// 初始化 <see cref="ExternalDbContextAnalyzer"/> 的新实例。
-    /// </summary>
-    /// <param name="assemblyPath">目标程序集的路径。</param>
     public ExternalDbContextAnalyzer(string assemblyPath)
     {
-        _assembly = Assembly.LoadFrom(assemblyPath);
+        var loadContext = new PluginLoadContext(assemblyPath);
+        _assembly = loadContext.LoadFromAssemblyName(
+            new AssemblyName(Path.GetFileNameWithoutExtension(assemblyPath))
+        );
     }
 
-    /// <summary>
-    /// 获取所有继承自指定基类的 DbContext 的模型信息。
-    /// </summary>
-    /// <param name="baseContextTypeName">DbContext 基类的完全限定名，例如 "Context.ContextBase"</param>
-    /// <returns>DbContext 名称和其模型信息的字典。</returns>
-    public Dictionary<string, IModel> GetDbContextModels(string baseContextTypeName = "ContextBase")
+    public Dictionary<string, IModel> GetDbContextModels(string baseContextTypeName)
     {
         var result = new Dictionary<string, IModel>();
         var contextTypes = GetDbContextTypes(baseContextTypeName);
@@ -45,43 +42,136 @@ public class ExternalDbContextAnalyzer
         return result;
     }
 
-    private IModel? GetModel(Type contextType)
+    public void AnalyzeModel(IModel model)
     {
-        // Try to create DbContext instance using parameterless constructor
-        var dbContextInstance = Activator.CreateInstance(contextType) as DbContext;
-        if (dbContextInstance == null)
-        {
-            return null;
-        }
-        return dbContextInstance.Model;
-    }
+        Console.WriteLine("--- Analyzing DbContext Model ---");
 
-    private static DbContext? GetDbContext(IServiceProvider serviceProvider, Type contextType)
-    {
-        // 尝试从服务中获取 DbContext 实例
-        var context = (DbContext?)serviceProvider.GetService(contextType);
-        if (context != null)
-        {
-            return context;
-        }
+        // 1. Get all entity types from the model
+        var entityTypes = model.GetEntityTypes();
 
-        // 如果无法直接解析，则尝试使用 DI 的 ActivatorUtilities 创建
-        try
+        foreach (var entityType in entityTypes)
         {
-            var created =
-                ActivatorUtilities.CreateInstance(serviceProvider, contextType) as DbContext;
-            if (created != null)
+            Console.WriteLine($"\nEntity: {entityType.DisplayName()}");
+
+            // 2. Get properties of the entity
+            Console.WriteLine("  Properties:");
+            foreach (var property in entityType.GetProperties())
             {
-                return created;
+                var propertyType = property.ClrType.Name;
+                var isNullable = property.IsNullable ? "?" : "";
+
+                Console.WriteLine($"    - {property.Name}: {propertyType}{isNullable}");
+            }
+
+            // Get the primary key
+            var primaryKey = entityType.FindPrimaryKey();
+            if (primaryKey != null)
+            {
+                var pkProperties = string.Join(", ", primaryKey.Properties.Select(p => p.Name));
+                Console.WriteLine($"  Primary Key: ({pkProperties})");
+            }
+
+            // 3. Get relationships (foreign keys)
+            Console.WriteLine("  Relationships (Foreign Keys):");
+            var foreignKeys = entityType.GetForeignKeys();
+            if (!foreignKeys.Any())
+            {
+                Console.WriteLine("    (None)");
+            }
+            else
+            {
+                foreach (var foreignKey in foreignKeys)
+                {
+                    var principalEntityType = foreignKey.PrincipalEntityType.DisplayName();
+                    var foreignKeyProperties = string.Join(
+                        ", ",
+                        foreignKey.Properties.Select(p => p.Name)
+                    );
+                    Console.WriteLine(
+                        $"    - FK to {principalEntityType} on ({foreignKeyProperties})"
+                    );
+                }
+            }
+
+            // Get navigation properties
+            Console.WriteLine("  Navigation Properties:");
+            var navigations = entityType.GetNavigations();
+            if (!navigations.Any())
+            {
+                Console.WriteLine("    (None)");
+            }
+            else
+            {
+                foreach (var navigation in navigations)
+                {
+                    var targetEntity = navigation.TargetEntityType.DisplayName();
+                    var relationshipType = navigation.IsCollection ? "Collection" : "Reference";
+                    Console.WriteLine(
+                        $"    - {navigation.Name}: {relationshipType} to {targetEntity}"
+                    );
+                }
             }
         }
-        catch
+        Console.WriteLine("\n--- Analysis Complete ---");
+    }
+
+    private IModel? GetModel(Type contextType)
+    {
+        DbContext? dbContextInstance = null;
+        try
         {
-            // 忽略异常并尝试回退
+            // 1. 创建泛型 DbContextOptionsBuilder<TContext>
+            var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(contextType);
+            var optionsBuilder =
+                Activator.CreateInstance(optionsBuilderType) as DbContextOptionsBuilder;
+
+            if (optionsBuilder == null)
+            {
+                // 如果创建失败，则无法继续
+                return null;
+            }
+
+            var sqliteAssembly = Assembly.Load("Microsoft.EntityFrameworkCore.Sqlite");
+            var sqliteExtensionsType = sqliteAssembly.GetType(
+                "Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions"
+            );
+
+            if (sqliteExtensionsType != null)
+            {
+                var useSqliteMethod = sqliteExtensionsType.GetMethod(
+                    "UseSqlite",
+                    [
+                        optionsBuilderType,
+                        typeof(string),
+                        typeof(Action<object>), // 使用 object 以增加兼容性
+                    ]
+                );
+
+                if (useSqliteMethod != null)
+                {
+                    // Invoke the extension method as a static method
+                    useSqliteMethod.Invoke(null, [optionsBuilder, "DataSource=:memory:", null]);
+                }
+            }
+
+            // 3. 直接从泛型 builder 获取泛型 options
+            var options = optionsBuilder.Options;
+
+            // 4. 使用配置好的 options 创建 DbContext 实例
+            dbContextInstance = Activator.CreateInstance(contextType, options) as DbContext;
+        }
+        catch (MissingMethodException)
+        {
+            // This exception can be expected if a suitable constructor is not found.
+            // We can ignore it and let the method return null if no other strategy works.
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting model for {contextType.Name}: {ex}");
+            // Decide whether to rethrow or handle
         }
 
-        // 最后回退到无参构造函数创建
-        return Activator.CreateInstance(contextType) as DbContext;
+        return dbContextInstance?.Model;
     }
 
     /// <summary>
@@ -92,18 +182,38 @@ public class ExternalDbContextAnalyzer
     private List<Type> GetDbContextTypes(string baseContextTypeName)
     {
         var contextTypes = new List<Type>();
-        var baseType = _assembly.GetType(baseContextTypeName, throwOnError: true)!;
-
-        foreach (var type in _assembly.GetTypes())
+        try
         {
-            if (
-                type.IsClass
-                && !type.IsAbstract
-                && type.IsPublic
-                && baseType.IsAssignableFrom(type)
-            )
+            // Since we loaded the assembly, we can get the type from it.
+            var baseType =
+                _assembly.GetTypes().FirstOrDefault(t => t.FullName == baseContextTypeName)
+                ?? Type.GetType(baseContextTypeName);
+
+            if (baseType == null)
             {
-                contextTypes.Add(type);
+                // Could not find the base type, return empty list
+                return contextTypes;
+            }
+
+            foreach (var type in _assembly.GetTypes())
+            {
+                if (
+                    type.IsClass
+                    && !type.IsAbstract
+                    && type.IsPublic
+                    && baseType.IsAssignableFrom(type)
+                )
+                {
+                    contextTypes.Add(type);
+                }
+            }
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            Console.WriteLine("Failed to load types from assembly: " + _assembly.FullName);
+            foreach (var loaderException in ex.LoaderExceptions)
+            {
+                Console.WriteLine(loaderException?.Message);
             }
         }
         return contextTypes;

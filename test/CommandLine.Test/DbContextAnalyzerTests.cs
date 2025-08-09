@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Share.Helper;
 using Xunit;
@@ -13,15 +11,10 @@ public class DbContextAnalyzerTests
     public void GetDbContextModels_ShouldReturnDictionary()
     {
         var entityFrameworkPath =
-            @"D:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework";
-
-        // 搜索EntityFramework.dll
-        var entityFrameworkDllPath = Directory
-            .GetFiles(entityFrameworkPath, "EntityFramework.dll", SearchOption.AllDirectories)
-            .FirstOrDefault();
+            @"E:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework\bin\Debug\net9.0\EntityFramework.dll";
 
         // Arrange
-        var analyzer = new ExternalDbContextAnalyzer(entityFrameworkDllPath);
+        var analyzer = new ExternalDbContextAnalyzer(entityFrameworkPath);
         // Act
         var models = analyzer.GetDbContextModels("EntityFramework.DBProvider.ContextBase");
         // Assert

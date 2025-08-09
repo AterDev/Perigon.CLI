@@ -37,10 +37,7 @@ public class CompilationHelper
                 if (!string.IsNullOrEmpty(dllFilter))
                 {
                     string fileName = Path.GetFileName(dll);
-                    return fileName.StartsWith(
-                        dllFilter,
-                        StringComparison.CurrentCultureIgnoreCase
-                    );
+                    return fileName.StartsWith(dllFilter, StringComparison.OrdinalIgnoreCase);
                 }
                 else
                 {

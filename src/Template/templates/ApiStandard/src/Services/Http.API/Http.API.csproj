@@ -8,7 +8,7 @@
     <UserSecretsId>1e75aae5-d684-4140-a34b-a1afb03ab13f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference

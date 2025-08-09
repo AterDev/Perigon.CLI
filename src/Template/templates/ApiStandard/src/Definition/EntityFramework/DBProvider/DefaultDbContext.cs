@@ -2,7 +2,8 @@ using Entity.SystemMod;
 
 namespace EntityFramework.DBProvider;
 
-public class DefaultDbContext(DbContextOptions<DefaultDbContext> options) : ContextBase(options)
+public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options)
+    : ContextBase(options)
 {
     public DbSet<Tenant> Tenants { get; set; }
 

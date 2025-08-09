@@ -26,6 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
-    <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
+    <ProjectReference Include="..\EntityFramework\EfCoreContext.csproj" />
   </ItemGroup>
 </Project>
