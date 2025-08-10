@@ -8,8 +8,13 @@ public class DbContextAnalysisHelper
     public string ProjectName { get; init; }
     public string DllPath { get; init; }
     public string? BaseDbContextName { get; init; }
-    public List<INamedTypeSymbol> DbContextNames { get; init; }
+    public List<INamedTypeSymbol> DbContextNamedTypeSymbols { get; init; }
 
+    /// <summary>
+    /// 分析 DbContext
+    /// </summary>
+    /// <param name="path">the project dir path contain dbcontexts, like entityframework dir path </param>
+    /// <exception cref="FileNotFoundException"></exception>
     public DbContextAnalysisHelper(string path)
     {
         var csproj = Directory
@@ -31,7 +36,7 @@ public class DbContextAnalysisHelper
 
         CompilationHelper = new CompilationHelper(Path.GetDirectoryName(DllPath)!);
         BaseDbContextName = GetBaseDbContextName();
-        DbContextNames = GetDbContextTypes();
+        DbContextNamedTypeSymbols = GetDbContextTypes();
     }
 
     /// <summary>
@@ -66,7 +71,7 @@ public class DbContextAnalysisHelper
     /// <returns></returns>
     public INamedTypeSymbol? GetDbContextType(string entityName)
     {
-        foreach (var dbContextType in DbContextNames)
+        foreach (var dbContextType in DbContextNamedTypeSymbols)
         {
             var properties = dbContextType.GetMembers().OfType<IPropertySymbol>();
             foreach (var prop in properties)

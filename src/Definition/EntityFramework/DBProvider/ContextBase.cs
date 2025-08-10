@@ -7,8 +7,6 @@ namespace EntityFramework.DBProvider;
 public class ContextBase(DbContextOptions options) : DbContext(options)
 {
     public DbSet<Solution> Solutions { get; set; }
-    public DbSet<ModelProperty> ModelProperties { get; set; }
-    public DbSet<ApiDocInfo> ApiDocInfos { get; set; } = null!;
     public DbSet<GenAction> GenActions { get; set; } = null!;
     public DbSet<GenStep> GenSteps { get; set; } = null!;
     public DbSet<ConfigData> Configs { get; set; } = null!;

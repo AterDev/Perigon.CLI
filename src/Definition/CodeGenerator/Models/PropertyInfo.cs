@@ -25,6 +25,8 @@ public class PropertyInfo
     public bool IsList { get; set; }
     public bool IsPublic { get; set; } = true;
 
+    public bool IsForeignKey { get; set; }
+
     /// <summary>
     /// 是否为导航属性
     /// </summary>

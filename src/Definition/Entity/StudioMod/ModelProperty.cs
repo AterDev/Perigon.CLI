@@ -3,10 +3,7 @@ namespace Entity.StudioMod;
 /// <summary>
 /// 属性
 /// </summary>
-[Index(nameof(Name))]
-[Index(nameof(Type))]
-[Index(nameof(IsEnum))]
-public class ModelProperty : EntityBase
+public class ModelProperty
 {
     /// <summary>
     /// 类型

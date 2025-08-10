@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Reflection;
 using CodeGenerator.Helper;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -7,22 +8,16 @@ namespace Share.Helper;
 /// <summary>
 /// 加载和分析外部 DbContext
 /// </summary>
-public class ExternalDbContextAnalyzer
+public class DbContextAnalyzer(string entityFrameworkPath)
 {
-    private readonly DbContextAnalysisHelper _helper;
+    private readonly DbContextAnalysisHelper _helper = new(entityFrameworkPath);
 
-    public ExternalDbContextAnalyzer(string entityFrameworkPath)
+    public FrozenDictionary<string, IModel> GetDbContextModels()
     {
-        _helper = new DbContextAnalysisHelper(entityFrameworkPath);
-        //_assembly = loadContext.LoadFromAssemblyName(
-        //    new AssemblyName(Path.GetFileNameWithoutExtension(entityFrameworkPath))
-        //);
-    }
-
-    public Dictionary<string, IModel> GetDbContextModels()
-    {
-        var result = new Dictionary<string, IModel>();
-        var dbContextNames = _helper.DbContextNames.Select(s => s.ToDisplayString()).ToArray();
+        var dict = new Dictionary<string, IModel>(StringComparer.Ordinal);
+        var dbContextNames = _helper
+            .DbContextNamedTypeSymbols.Select(s => s.ToDisplayString())
+            .ToArray();
 
         var loadContext = new PluginLoadContext(_helper.DllPath);
         var assembly = loadContext.LoadFromAssemblyName(
@@ -36,7 +31,7 @@ public class ExternalDbContextAnalyzer
         }
         catch (ReflectionTypeLoadException ex)
         {
-            contextTypes = ex.Types.Where(t => t != null).ToArray();
+            contextTypes = ex.Types.Where(t => t != null).ToArray()!;
         }
         contextTypes = contextTypes?.Where(c => dbContextNames.Contains(c.FullName)).ToArray();
         if (contextTypes != null)
@@ -48,7 +43,8 @@ public class ExternalDbContextAnalyzer
                     var model = GetModel(contextType);
                     if (model != null)
                     {
-                        result.Add(contextType.Name, model);
+                        // later entries with the same simple name overwrite earlier ones
+                        dict[contextType.Name] = model;
                     }
                 }
                 catch (Exception ex)
@@ -58,7 +54,7 @@ public class ExternalDbContextAnalyzer
             }
         }
         loadContext.Unload(); // release assembly resources
-        return result;
+        return dict.ToFrozenDictionary();
     }
 
     private IModel? GetModel(Type contextType)
@@ -108,5 +104,15 @@ public class ExternalDbContextAnalyzer
         }
 
         return dbContextInstance?.Model;
+    }
+
+    /// <summary>
+    /// 获取包含某个实体类型的DbContext
+    /// </summary>
+    /// <param name="entityName">实体类型名称</param>
+    /// <returns></returns>
+    public INamedTypeSymbol? GetDbContextType(string entityName)
+    {
+        return _helper.GetDbContextType(entityName);
     }
 }

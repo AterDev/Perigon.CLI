@@ -3,8 +3,7 @@ namespace Entity.StudioMod;
 /// <summary>
 /// 模型信息
 /// </summary>
-[Index(nameof(Name))]
-public class ModelInfo : EntityBase
+public class ModelInfo
 {
     /// <summary>
     /// file content md5 hash

@@ -75,6 +75,8 @@ public class EntityInfo
     /// </summary>
     public List<PropertyInfo> PropertyInfos { get; set; } = [];
 
+    public List<EntityNavigation> Navigations { get; set; } = [];
+
     public string GetDtoNamespace()
     {
         return GetShareNamespace();
@@ -125,4 +127,21 @@ public class EntityInfo
                 .Where(p => p.MaxLength is not (not null and >= 100))
                 .ToList() ?? [];
     }
+}
+
+public class EntityNavigation
+{
+    public required string ForeignKey { get; set; }
+    public required string Name { get; set; }
+    public required string Type { get; set; }
+    public bool IsCollection { get; set; }
+    public string? Summary { get; set; }
+    public bool IsShadow { get; set; }
+    public bool IsRequired { get; set; }
+
+    /// <summary>
+    /// 用来判断一对一，还是一对多(多对多)
+    /// </summary>
+    public bool IsUnique { get; set; }
+    public bool IsSkipNavigation { get; set; }
 }

@@ -4,7 +4,7 @@ using Entity.StudioMod;
 namespace CodeGenerator.Models;
 
 /// <summary>
-/// DTO 
+/// DTO
 /// </summary>
 public class DtoInfo
 {
@@ -14,6 +14,7 @@ public class DtoInfo
     public string? Tag { get; set; }
     public string? EntityNamespace { get; set; }
     public string? Comment { get; set; }
+
     /// <summary>
     /// 原实体含命名空间完整路径
     /// </summary>
@@ -28,8 +29,7 @@ public class DtoInfo
     /// <returns></returns>
     public string ToDtoContent(string nsp, string entityName = "", bool isInput = false)
     {
-        string[] props = Properties?.Select(p => p.ToCsharpLine(isInput)).ToArray()
-            ?? [];
+        string[] props = Properties?.Select(p => p.ToCsharpLine(isInput)).ToArray() ?? [];
         string propStrings = string.Join(string.Empty, props);
 
         // 对region进行处理
@@ -66,13 +66,8 @@ public class DtoInfo
             ModuleName = entityInfo.ModuleName,
             ProjectId = entityInfo.ProjectId,
             Comment = Comment,
-            PropertyInfos = Properties.MapTo<List<PropertyInfo>, List<ModelProperty>>()
+            PropertyInfos = Properties.MapTo<List<PropertyInfo>, List<ModelProperty>>(),
         };
-        res.PropertyInfos.ForEach(p =>
-        {
-            p.Id = Guid.NewGuid();
-            p.ModelInfoId = res.Id;
-        });
         return res;
     }
 }
