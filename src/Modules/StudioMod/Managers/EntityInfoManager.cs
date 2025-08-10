@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -6,15 +7,11 @@ namespace StudioMod.Managers;
 
 public partial class EntityInfoManager(
     ILogger<EntityInfoManager> logger,
-    CodeAnalysisService codeAnalysis,
+    //CodeAnalysisService codeAnalysis,
     CodeGenService codeGenService,
     IProjectContext projectContext
 ) : ManagerBase(logger)
 {
-    private readonly IProjectContext _projectContext = projectContext;
-    private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
-    private readonly CodeGenService _codeGenService = codeGenService;
-
     public string ModuleName { get; set; } = string.Empty;
 
     /// <summary>
@@ -50,7 +47,7 @@ public partial class EntityInfoManager(
             if (filePaths.Count != 0)
             {
                 entityFiles = CodeAnalysisService.GetEntityFiles(
-                    _projectContext.EntityPath!,
+                    projectContext.EntityPath!,
                     filePaths
                 );
                 // 排序
@@ -111,10 +108,10 @@ public partial class EntityInfoManager(
     private string? GetDtoPath(string entityFilePath)
     {
         var entityFile = CodeAnalysisService.GetEntityFile(
-            _projectContext.EntityPath!,
+            projectContext.EntityPath!,
             entityFilePath
         );
-        return entityFile?.GetDtoPath(_projectContext);
+        return entityFile?.GetDtoPath(projectContext);
     }
 
     /// <summary>
@@ -140,12 +137,12 @@ public partial class EntityInfoManager(
         string? filePath;
         if (isManager)
         {
-            filePath = entityFile.GetManagerPath(_projectContext);
+            filePath = entityFile.GetManagerPath(projectContext);
             filePath = Path.Combine(filePath, $"{entityName}Manager.cs");
         }
         else
         {
-            string entityDir = Path.Combine(_projectContext.EntityPath!);
+            string entityDir = Path.Combine(projectContext.EntityPath!);
             filePath = Directory
                 .GetFiles(entityDir, $"{entityName}.cs", SearchOption.AllDirectories)
                 .FirstOrDefault();
@@ -195,19 +192,27 @@ public partial class EntityInfoManager(
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
-        if (
-            !ProcessHelper.RunCommand(
-                "dotnet",
-                $"build {_projectContext.EntityPath}",
-                out string error
-            )
-        )
+        SolutionService.BuildProject(projectContext.EntityPath!);
+        SolutionService.BuildProject(projectContext.EntityFrameworkPath!);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var dbContextHelper = new DbContextParseHelper(
+            projectContext.EntityPath!,
+            projectContext.EntityFrameworkPath!
+        );
+        dbContextHelper.LoadEntity(dto.EntityPath);
+        var entityInfo = await dbContextHelper.GetEntityInfo();
+
+        sw.Stop();
+        _logger.LogInformation("⏱️ Parse entity info took {elapsed} ms", sw.ElapsedMilliseconds);
+
+        if (entityInfo == null)
         {
-            _logger.LogError("{error}", error);
+            var helper = new EntityParseHelper(dto.EntityPath);
+            entityInfo = await helper.ParseEntityAsync();
         }
 
-        var helper = new EntityParseHelper(dto.EntityPath);
-        var entityInfo = await helper.ParseEntityAsync();
         _ = entityInfo ?? throw new Exception("Parse entity failed!");
 
         _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
@@ -218,7 +223,7 @@ public partial class EntityInfoManager(
         }
         ModuleName = entityInfo.ModuleName;
 
-        string modulePath = _projectContext.GetModulePath(entityInfo.ModuleName);
+        string modulePath = projectContext.GetModulePath(entityInfo.ModuleName);
         var files = new List<GenFileInfo>();
 
         switch (dto.CommandType)
@@ -238,13 +243,13 @@ public partial class EntityInfoManager(
             default:
                 break;
         }
-        _codeGenService.GenerateFiles(files);
+        codeGenService.GenerateFiles(files);
         return files;
     }
 
     private List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string modulePath, bool force)
     {
-        return _codeGenService.GenerateDtos(entityInfo, modulePath, force);
+        return codeGenService.GenerateDtos(entityInfo, modulePath, force);
     }
 
     private static List<GenFileInfo> GenerateManagers(

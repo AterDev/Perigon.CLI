@@ -49,7 +49,7 @@ namespace AterStudio.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ApiDocInfos",
+                name: "ApiDocInfo",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -65,9 +65,9 @@ namespace AterStudio.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ApiDocInfos", x => x.Id);
+                    table.PrimaryKey("PK_ApiDocInfo", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ApiDocInfos_Solutions_ProjectId",
+                        name: "FK_ApiDocInfo_Solutions_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Solutions",
                         principalColumn: "Id",
@@ -154,38 +154,6 @@ namespace AterStudio.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ModelInfo",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Md5Hash = table.Column<string>(type: "TEXT", maxLength: 32, nullable: false),
-                    ModuleName = table.Column<string>(type: "TEXT", nullable: true),
-                    FilePath = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    NamespaceName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    AssemblyName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    Comment = table.Column<string>(type: "TEXT", maxLength: 300, nullable: true),
-                    Summary = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    KeyType = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsEnum = table.Column<bool>(type: "INTEGER", nullable: true),
-                    IsList = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedTime = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedTime = table.Column<string>(type: "TEXT", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ModelInfo", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ModelInfo_Solutions_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Solutions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GenActionGenSteps",
                 columns: table => new
                 {
@@ -209,52 +177,9 @@ namespace AterStudio.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "ModelProperties",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    DisplayName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    IsList = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsPublic = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsNavigation = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsJsonIgnore = table.Column<bool>(type: "INTEGER", nullable: false),
-                    NavigationName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    IsComplexType = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasMany = table.Column<bool>(type: "INTEGER", nullable: true),
-                    IsEnum = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasSet = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AttributeText = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    CommentXml = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CommentSummary = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    IsRequired = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsNullable = table.Column<bool>(type: "INTEGER", nullable: false),
-                    MinLength = table.Column<int>(type: "INTEGER", nullable: true),
-                    MaxLength = table.Column<int>(type: "INTEGER", nullable: true),
-                    IsDecimal = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SuffixContent = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    DefaultValue = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    ModelInfoId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedTime = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedTime = table.Column<string>(type: "TEXT", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ModelProperties", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ModelProperties_ModelInfo_ModelInfoId",
-                        column: x => x.ModelInfoId,
-                        principalTable: "ModelInfo",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
-                name: "IX_ApiDocInfos_ProjectId",
-                table: "ApiDocInfos",
+                name: "IX_ApiDocInfo_ProjectId",
+                table: "ApiDocInfo",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
@@ -286,43 +211,13 @@ namespace AterStudio.Migrations
                 name: "IX_McpTools_ProjectId",
                 table: "McpTools",
                 column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelInfo_Name",
-                table: "ModelInfo",
-                column: "Name");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelInfo_ProjectId",
-                table: "ModelInfo",
-                column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelProperties_IsEnum",
-                table: "ModelProperties",
-                column: "IsEnum");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelProperties_ModelInfoId",
-                table: "ModelProperties",
-                column: "ModelInfoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelProperties_Name",
-                table: "ModelProperties",
-                column: "Name");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelProperties_Type",
-                table: "ModelProperties",
-                column: "Type");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ApiDocInfos");
+                name: "ApiDocInfo");
 
             migrationBuilder.DropTable(
                 name: "Configs");
@@ -334,16 +229,10 @@ namespace AterStudio.Migrations
                 name: "McpTools");
 
             migrationBuilder.DropTable(
-                name: "ModelProperties");
-
-            migrationBuilder.DropTable(
                 name: "GenActions");
 
             migrationBuilder.DropTable(
                 name: "GenSteps");
-
-            migrationBuilder.DropTable(
-                name: "ModelInfo");
 
             migrationBuilder.DropTable(
                 name: "Solutions");

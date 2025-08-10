@@ -13,7 +13,7 @@ public partial class Home
         {
             Width = "400px",
             PreventScroll = true,
-            Modal = true,
+            Modal = false,
         };
 
         var dialog = await DialogService.ShowDialogAsync<AddProjectDialog>(parameters);

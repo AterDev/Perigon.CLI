@@ -711,4 +711,22 @@ public class SolutionService(
             true
         );
     }
+
+    /// <summary>
+    /// 构建项目
+    /// </summary>
+    /// <param name="projectPath"></param>
+    /// <returns></returns>
+    public static bool BuildProject(string projectPath)
+    {
+        if (!ProcessHelper.RunCommand("dotnet", $"build {projectPath}", out string error))
+        {
+            OutputHelper.Error(error);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 }

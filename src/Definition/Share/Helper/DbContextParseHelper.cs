@@ -58,16 +58,18 @@ public class DbContextParseHelper
         }
     }
 
-    public EntityInfo GetEntityInfo()
+    public async Task<EntityInfo?> GetEntityInfo()
     {
         if (CurrentEntity == null)
         {
-            throw new InvalidOperationException("No entity is loaded.");
+            OutputHelper.Warning("The Entity is not belongs to any DbContext");
+            return null;
         }
         var entityName = Path.GetFileNameWithoutExtension(EntityFilePath);
         var compilationHelper = new CompilationHelper(EntityPath);
+        var fileContent = await File.ReadAllTextAsync(EntityFilePath);
 
-        compilationHelper.LoadContent(File.ReadAllText(EntityFilePath));
+        compilationHelper.LoadContent(fileContent);
         var namespaceName = compilationHelper.GetNamespace() ?? string.Empty;
         var entityFullName = $"{namespaceName}.{entityName}";
 
@@ -112,14 +114,7 @@ public class DbContextParseHelper
             var info = new PropertyInfo
             {
                 Name = prop.Name,
-                Type =
-                    prop.ClrType.Name
-                    + (
-                        prop.ClrType.IsGenericType
-                        && prop.ClrType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                            ? "?"
-                            : string.Empty
-                    ),
+                Type = CSharpAnalysisHelper.ToTypeName(prop.ClrType),
                 IsNullable = prop.IsNullable,
                 IsRequired = !prop.IsNullable,
                 IsForeignKey = prop.IsForeignKey(),
@@ -166,10 +161,14 @@ public class DbContextParseHelper
                 IsUnique = nav.ForeignKey.IsUnique,
                 IsCollection = nav.IsCollection,
                 IsSkipNavigation = nav is ISkipNavigation,
-                Summary =
-                    _xmlHelper.GetPropertySummary(nav.TargetEntityType.ClrType.FullName, nav.Name)
-                    ?? string.Empty,
             };
+
+            if (nav.TargetEntityType.ClrType.FullName != null)
+            {
+                navigation.Summary =
+                    _xmlHelper.GetPropertySummary(nav.TargetEntityType.ClrType.FullName, nav.Name)
+                    ?? string.Empty;
+            }
             result.Add(navigation);
         }
         entityInfo.Navigations = result;

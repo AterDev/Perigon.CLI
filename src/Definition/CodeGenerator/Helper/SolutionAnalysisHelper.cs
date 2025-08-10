@@ -7,12 +7,12 @@ namespace CodeGenerator.Helper;
 /// <summary>
 /// 解决方案解析帮助类
 /// </summary>
-public class SolutionHelper : IDisposable
+public class SolutionAnalysisHelper : IDisposable
 {
     public MSBuildWorkspace Workspace { get; set; }
     public Solution? Solution { get; private set; }
 
-    public SolutionHelper(string path)
+    public SolutionAnalysisHelper(string path)
     {
         if (!File.Exists(path))
         {

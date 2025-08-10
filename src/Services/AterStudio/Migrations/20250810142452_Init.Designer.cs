@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AterStudio.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20250802064944_Init")]
+    [Migration("20250810142452_Init")]
     partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
 
             modelBuilder.Entity("Entity.StudioMod.ApiDocInfo", b =>
                 {
@@ -66,7 +66,7 @@ namespace AterStudio.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ApiDocInfos");
+                    b.ToTable("ApiDocInfo");
                 });
 
             modelBuilder.Entity("Entity.StudioMod.ConfigData", b =>
@@ -267,190 +267,6 @@ namespace AterStudio.Migrations
                     b.ToTable("McpTools");
                 });
 
-            modelBuilder.Entity("Entity.StudioMod.ModelInfo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AssemblyName")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(300)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool?>("IsEnum")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsList")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("KeyType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Md5Hash")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ModuleName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NamespaceName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Summary")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UpdatedTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ModelInfo");
-                });
-
-            modelBuilder.Entity("Entity.StudioMod.ModelProperty", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AttributeText")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CommentSummary")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CommentXml")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DefaultValue")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DisplayName")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool?>("HasMany")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("HasSet")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsComplexType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsDecimal")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsEnum")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsJsonIgnore")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsList")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsNavigation")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsNullable")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("MaxLength")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("MinLength")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("ModelInfoId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NavigationName")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SuffixContent")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UpdatedTime")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsEnum");
-
-                    b.HasIndex("ModelInfoId");
-
-                    b.HasIndex("Name");
-
-                    b.HasIndex("Type");
-
-                    b.ToTable("ModelProperties");
-                });
-
             modelBuilder.Entity("Entity.StudioMod.Solution", b =>
                 {
                     b.Property<Guid>("Id")
@@ -589,28 +405,6 @@ namespace AterStudio.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("Entity.StudioMod.ModelInfo", b =>
-                {
-                    b.HasOne("Entity.StudioMod.Solution", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("Entity.StudioMod.ModelProperty", b =>
-                {
-                    b.HasOne("Entity.StudioMod.ModelInfo", "EntityInfo")
-                        .WithMany("PropertyInfos")
-                        .HasForeignKey("ModelInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("EntityInfo");
-                });
-
             modelBuilder.Entity("Entity.StudioMod.Solution", b =>
                 {
                     b.OwnsOne("Entity.StudioMod.SolutionConfig", "Config", b1 =>
@@ -681,11 +475,6 @@ namespace AterStudio.Migrations
 
                     b.Navigation("Config")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Entity.StudioMod.ModelInfo", b =>
-                {
-                    b.Navigation("PropertyInfos");
                 });
 
             modelBuilder.Entity("Entity.StudioMod.Solution", b =>

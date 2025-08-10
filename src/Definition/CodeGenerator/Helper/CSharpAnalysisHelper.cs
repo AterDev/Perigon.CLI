@@ -67,4 +67,54 @@ public class CSharpAnalysisHelper
     {
         editor.ReplaceNode(node, (n, _) => replacementNode((TNode)n));
     }
+
+    /// <summary>
+    /// convert clr type to C# type name
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static string ToTypeName(Type type)
+    {
+        var typeMap = new Dictionary<string, string>
+        {
+            ["Int32"] = "int",
+            ["Int64"] = "long",
+            ["Int16"] = "short",
+            ["UInt32"] = "uint",
+            ["UInt64"] = "ulong",
+            ["UInt16"] = "ushort",
+            ["Boolean"] = "bool",
+            ["String"] = "string",
+            ["Decimal"] = "decimal",
+            ["Double"] = "double",
+            ["Single"] = "float",
+            ["Byte"] = "byte",
+            ["SByte"] = "sbyte",
+            ["Char"] = "char",
+            ["Object"] = "object",
+            ["DateTime"] = "DateTime",
+            ["Guid"] = "Guid",
+        };
+
+        // 处理可空类型
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            var underlyingType = type.GetGenericArguments()[0];
+            return ToTypeName(underlyingType) + "?";
+        }
+        // 处理数组类型
+        if (type.IsArray)
+        {
+            return ToTypeName(type.GetElementType()!) + "[]";
+        }
+        // 处理泛型类型（如 List<int?>, Dictionary<string?, int?>）
+        if (type.IsGenericType)
+        {
+            var genericTypeName = type.Name.Split('`')[0];
+            var genericArgs = type.GetGenericArguments().Select(ToTypeName);
+            return $"{genericTypeName}<{string.Join(", ", genericArgs)}>";
+        }
+        // 处理基本类型和 string
+        return typeMap.TryGetValue(type.Name, out var csharpType) ? csharpType : type.Name;
+    }
 }

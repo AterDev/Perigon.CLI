@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Share.Helper;
 using Xunit;
@@ -20,7 +21,7 @@ public class DbContextAnalyzerTests
     }
 
     [Fact]
-    public void Shoud_parse_entity()
+    public async Task Shoud_parse_entityAsync()
     {
         var entityFrameworkPath =
             @"E:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework";
@@ -31,7 +32,7 @@ public class DbContextAnalyzerTests
         service.LoadEntity(
             @"E:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\Entity\CMSMod\Blog.cs"
         );
-        var entityInfo = service.GetEntityInfo();
+        var entityInfo = await service.GetEntityInfo();
         Assert.NotNull(entityInfo);
         Assert.Equal("Blog", entityInfo.Name);
         Assert.Equal("Entity.CMSMod", entityInfo.NamespaceName);
