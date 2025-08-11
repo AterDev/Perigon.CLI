@@ -193,8 +193,8 @@ public partial class EntityInfoManager(
             projectContext.EntityPath!,
             projectContext.EntityFrameworkPath!
         );
-        dbContextHelper.LoadEntity(dto.EntityPath);
-        var entityInfo = await dbContextHelper.GetEntityInfo();
+        dbContextHelper.LoadEntityAsync(dto.EntityPath);
+        var entityInfo = dbContextHelper.GetEntityInfo();
 
         sw.Stop();
         _logger.LogInformation("⏱️ Parse entity info took {elapsed} ms", sw.ElapsedMilliseconds);

@@ -16,7 +16,8 @@ public class TplContent
             @Model.Comment
             public class @(Model.EntityName)Manager(
                 @(Model.DbContextName) dbContext, 
-                ILogger<@(Model.EntityName)Manager> logger) : ManagerBase<@(Model.EntityName)>(dbContext, logger)
+                ILogger<@(Model.EntityName)Manager> logger) 
+                : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContext, logger)
             {
                 /// <summary>
                 /// 添加实体

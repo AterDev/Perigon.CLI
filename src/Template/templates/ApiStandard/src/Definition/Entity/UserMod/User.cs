@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
+using Entity.CMSMod;
 
 namespace Entity.UserMod;
+
 /// <summary>
 /// 用户账户
 /// </summary>
@@ -17,7 +19,6 @@ public class User : EntityBase
     /// </summary>
     [MaxLength(40)]
     [Length(2, 40)]
-
     public required string UserName { get; set; }
 
     /// <summary>
@@ -33,12 +34,15 @@ public class User : EntityBase
     [EmailAddress]
     public string? Email { get; set; } = null!;
     public bool EmailConfirmed { get; set; }
+
     [JsonIgnore]
     [MaxLength(100)]
     public string PasswordHash { get; set; } = default!;
+
     [JsonIgnore]
     [MaxLength(60)]
     public string PasswordSalt { get; set; } = default!;
+
     [Phone]
     public string? PhoneNumber { get; set; }
     public bool PhoneNumberConfirmed { get; set; }
@@ -46,24 +50,36 @@ public class User : EntityBase
     public DateTimeOffset? LockoutEnd { get; set; }
     public bool LockoutEnabled { get; set; }
     public int AccessFailedCount { get; set; }
+
     /// <summary>
     /// 最后登录时间
     /// </summary>
     public DateTimeOffset? LastLoginTime { get; set; }
+
     /// <summary>
     /// 密码重试次数
     /// </summary>
     public int RetryCount { get; set; }
+
     /// <summary>
     /// 头像url
     /// </summary>
     [MaxLength(200)]
     public string? Avatar { get; set; }
+    public DateTimeOffset BirthDay { get; set; }
+
+    public int Age
+    {
+        get { return (int)(DateTimeOffset.Now - BirthDay).TotalDays / 365; }
+    }
+
+    public List<Blog> Blogs { get; private set; } = [];
 
     #region 用户关联内容
 
     #endregion
 }
+
 public enum UserType
 {
     /// <summary>
@@ -71,14 +87,16 @@ public enum UserType
     /// </summary>
     [Description("普通用户")]
     Normal,
+
     /// <summary>
     /// 认证用户
     /// </summary>
     [Description("认证用户")]
     Verify,
+
     /// <summary>
     /// 会员
     /// </summary>
     [Description("会员")]
-    Member
+    Member,
 }

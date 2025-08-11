@@ -314,7 +314,7 @@ public class EntityParseHelper
     /// 获取属性注释xml内容
     /// </summary>
     /// <returns></returns>
-    protected static string GetCommentXml(PropertyDeclarationSyntax syntax)
+    public static string GetCommentXml(PropertyDeclarationSyntax syntax)
     {
         DocumentationCommentTriviaSyntax? trivia = syntax
             .GetLeadingTrivia()
@@ -337,7 +337,7 @@ public class EntityParseHelper
     /// </summary>
     /// <param name="syntax"></param>
     /// <returns></returns>
-    protected static string? GetCommentSummary(PropertyDeclarationSyntax syntax)
+    public static string? GetCommentSummary(PropertyDeclarationSyntax syntax)
     {
         DocumentationCommentTriviaSyntax? trivia = syntax
             .GetLeadingTrivia()
@@ -373,14 +373,9 @@ public class EntityParseHelper
     /// 获取属性特性文本内容
     /// </summary>
     /// <returns></returns>
-    protected string GetAttributeText(PropertyDeclarationSyntax syntax)
+    public static string GetAttributeText(PropertyDeclarationSyntax syntax)
     {
-        List<AttributeListSyntax> attributeListSyntax = syntax
-            .AttributeLists.Where(a =>
-                a.Attributes.Any(attr => ValidAttributes.Contains(attr.Name.ToString()))
-            )
-            .Where(a => ValidAttributes.Any(valid => a.ToString().Contains(valid)))
-            .ToList();
+        List<AttributeListSyntax> attributeListSyntax = syntax.AttributeLists.ToList();
         return string.Join(Environment.NewLine, attributeListSyntax.Select(a => a.ToString()));
     }
 

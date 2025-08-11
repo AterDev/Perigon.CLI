@@ -30,7 +30,7 @@ public class ManagerGenerate(EntityInfo entityInfo)
     /// Manager默认代码内容
     /// </summary>
     /// <returns></returns>
-    public string GetManagerContent(string tplContent, string nsp, string dbContextName)
+    public string GetManagerContent(string tplContent, string nsp)
     {
         var genContext = new RazorGenContext();
         var model = new ManagerViewModel
@@ -38,7 +38,7 @@ public class ManagerGenerate(EntityInfo entityInfo)
             Namespace = nsp,
             EntityName = EntityInfo.Name,
             ShareNamespace = ShareNamespace,
-            DbContextName = dbContextName,
+            DbContextName = EntityInfo.DbContextName,
             Comment = EntityInfo.Comment,
             FilterCode = GetFilterMethodContent(),
         };

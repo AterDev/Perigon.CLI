@@ -13,12 +13,11 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
     /// 创建待添加实体
     /// </summary>
     /// <param name="dto"></param>
-    /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddAsync(BlogAddDto dto, Guid userId)
+    public async Task<Guid?> AddAsync(BlogAddDto dto)
     {
-        Blog entity = dto.MapTo<BlogAddDto, Blog>();
-        entity.UserId = userId;
+        Blog entity = dto.MapTo<Blog>();
+        entity.UserId = dto.UserId;
         entity.CatalogId = dto.CatalogId;
         // other required props
         return await AddAsync(entity) ? entity.Id : null;
