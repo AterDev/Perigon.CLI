@@ -154,18 +154,13 @@ public partial class DtoCodeGenerate
     {
         // 导航属性处理
         List<PropertyInfo>? referenceProps = EntityInfo
-            .PropertyInfos?.Where(p => !p.IsJsonIgnore && !p.IsList)
-            .Where(p =>
-                p.IsNavigation
-                && (p.IsRequired || !p.IsNullable || !string.IsNullOrWhiteSpace(p.DefaultValue))
-            )
-            .Where(p => !p.Type.Equals("User") && !p.Type.Equals("SystemUser"))
-            .Select(s => new PropertyInfo()
+            .Navigations?.Where(p => !p.IsCollection && !p.IsSkipNavigation)
+            .Select(n => new PropertyInfo()
             {
-                Name = s.NavigationName + (s.IsList ? "Ids" : "Id"),
-                Type = s.IsList ? $"List<{KeyType}>" + (s.IsRequired ? "" : "?") : KeyType,
-                IsRequired = s.IsRequired,
-                IsNullable = s.IsNullable,
+                Name = n.ForeignKey,
+                Type = n.Type,
+                IsRequired = n.IsRequired,
+                IsNullable = false,
                 DefaultValue = "",
             })
             .ToList();

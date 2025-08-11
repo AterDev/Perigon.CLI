@@ -128,6 +128,7 @@ public class DbContextParseHelper
                     || prop.ClrType.IsGenericType
                         && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.ClrType),
                 IsDecimal = prop.ClrType == typeof(decimal),
+                IsShadow = prop.IsShadowProperty(),
                 CommentSummary =
                     _xmlHelper.GetPropertySummary(
                         CurrentEntity.ClrType.FullName ?? string.Empty,
@@ -135,7 +136,10 @@ public class DbContextParseHelper
                     ) ?? string.Empty,
             };
 
-            ParsePropertyAttributes(info, prop.PropertyInfo!);
+            if (prop.PropertyInfo != null)
+            {
+                ParsePropertyAttributes(info, prop.PropertyInfo);
+            }
             ParseSyntaxInfo(info);
             props.Add(info);
         }
@@ -191,7 +195,7 @@ public class DbContextParseHelper
             OutputHelper.Error("The currentEntity is null");
             return;
         }
-        var result = new List<EntityNavigation>();
+        var navigations = new List<EntityNavigation>();
         foreach (var nav in CurrentEntity.GetNavigations())
         {
             var navigation = new EntityNavigation
@@ -201,11 +205,12 @@ public class DbContextParseHelper
                 ForeignKey = nav
                     .ForeignKey.Properties.Select(p => p.Name)
                     .Aggregate((current, next) => $"{current}, {next}"),
-                IsShadow = nav.IsShadowProperty(),
+
                 IsRequired = nav.ForeignKey.IsRequired,
                 IsUnique = nav.ForeignKey.IsUnique,
                 IsCollection = nav.IsCollection,
                 IsSkipNavigation = nav is ISkipNavigation,
+                IsOwnership = nav.ForeignKey.IsOwnership,
             };
 
             if (nav.TargetEntityType.ClrType.FullName != null)
@@ -214,9 +219,9 @@ public class DbContextParseHelper
                     _xmlHelper.GetPropertySummary(nav.TargetEntityType.ClrType.FullName, nav.Name)
                     ?? string.Empty;
             }
-            result.Add(navigation);
+            navigations.Add(navigation);
         }
-        entityInfo.Navigations = result;
+        entityInfo.Navigations = navigations;
     }
 
     private void ParsePropertyAttributes(

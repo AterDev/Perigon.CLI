@@ -90,6 +90,7 @@ public class PropertyInfo
     /// </summary>
     [MaxLength(100)]
     public string DefaultValue { get; set; } = string.Empty;
+    public bool IsShadow { get; set; }
 
     /// <summary>
     /// 转换成C#属性

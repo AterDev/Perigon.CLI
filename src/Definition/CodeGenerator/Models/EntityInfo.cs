@@ -134,9 +134,9 @@ public class EntityNavigation
     public required string ForeignKey { get; set; }
     public required string Name { get; set; }
     public required string Type { get; set; }
+
     public bool IsCollection { get; set; }
     public string? Summary { get; set; }
-    public bool IsShadow { get; set; }
     public bool IsRequired { get; set; }
 
     /// <summary>
@@ -144,4 +144,5 @@ public class EntityNavigation
     /// </summary>
     public bool IsUnique { get; set; }
     public bool IsSkipNavigation { get; set; }
+    public bool IsOwnership { get; set; }
 }

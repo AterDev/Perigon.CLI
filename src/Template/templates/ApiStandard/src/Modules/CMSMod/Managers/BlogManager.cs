@@ -17,9 +17,6 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
     public async Task<Guid?> AddAsync(BlogAddDto dto)
     {
         Blog entity = dto.MapTo<Blog>();
-        entity.UserId = dto.UserId;
-        entity.CatalogId = dto.CatalogId;
-        // other required props
         return await AddAsync(entity) ? entity.Id : null;
     }
 
@@ -51,7 +48,7 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
     public async Task<Blog?> GetOwnedAsync(Guid id)
     {
         IQueryable<Blog> query = _dbSet.Where(q => q.Id == id);
-        // 获取用户所属的对象
+        // 获取权限范围的实体
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }

@@ -24,10 +24,10 @@ public class TplContent
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
-                public async Task<Guid?> CreateNewEntityAsync(@(Model.EntityName)AddDto dto)
+                public async Task<Guid?> AddAsync(@(Model.EntityName)AddDto dto)
                 {
-                    var entity = dto.MapTo<@(Model.EntityName)AddDto, @(Model.EntityName)>();
-                    // TODO:完善添加逻辑
+                    var entity = dto.MapTo<@(Model.EntityName)>();
+                    // add other logic
                     return await base.AddAsync(entity) ? entity.Id : null;
                 }
 
@@ -40,7 +40,7 @@ public class TplContent
                 public async Task<bool> UpdateAsync(@(Model.EntityName) entity, @(Model.EntityName)UpdateDto dto)
                 {
                     entity.Merge(dto);
-                    // TODO:完善更新逻辑
+                    // add other logic
                     return await base.UpdateAsync(entity);
                 }
 
@@ -60,13 +60,14 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// TODO:唯一性判断
+                /// 是否冲突元素
                 /// </summary>
                 /// <param name="unique">唯一标识</param>
                 /// <param name="id">排除当前</param>
                 /// <returns></returns>
-                public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
+                public async Task<bool> HasConflictAsync(string unique, Guid? id = null)
                 {
+                    // custom unique check
                     return await _dbSet.Where(q => q.Id.ToString() == unique)
                         .WhereNotNull(id, q => q.Id != id)
                         .AnyAsync();
@@ -91,7 +92,7 @@ public class TplContent
                 public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id, Guid userId)
                 {
                     var query = _dbSet.Where(q => q.Id == id);
-                    // 自定义数据权限验证
+                    // TODO:自定义数据权限验证
                     // query = query.Where(q => q.UserId = userId)
                     return await query.FirstOrDefaultAsync();
                 }
