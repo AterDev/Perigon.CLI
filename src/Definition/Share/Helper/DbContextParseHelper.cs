@@ -144,15 +144,7 @@ public class DbContextParseHelper
             var navigation = new EntityNavigation
             {
                 Name = nav.Name,
-                Type =
-                    nav.TargetEntityType.ClrType.Name
-                    + (
-                        nav.TargetEntityType.ClrType.IsGenericType
-                        && nav.TargetEntityType.ClrType.GetGenericTypeDefinition()
-                            == typeof(Nullable<>)
-                            ? "?"
-                            : string.Empty
-                    ),
+                Type = CSharpAnalysisHelper.ToTypeName(nav.ClrType),
                 ForeignKey = nav
                     .ForeignKey.Properties.Select(p => p.Name)
                     .Aggregate((current, next) => $"{current}, {next}"),

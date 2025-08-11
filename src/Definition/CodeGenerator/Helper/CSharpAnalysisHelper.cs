@@ -100,7 +100,7 @@ public class CSharpAnalysisHelper
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             var underlyingType = type.GetGenericArguments()[0];
-            return ToTypeName(underlyingType) + "?";
+            return ToTypeName(underlyingType);
         }
         // 处理数组类型
         if (type.IsArray)

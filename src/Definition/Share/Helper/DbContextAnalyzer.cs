@@ -71,7 +71,7 @@ public class DbContextAnalyzer(string entityFrameworkPath)
             {
                 return null;
             }
-            // use tool sqlite assembly
+            // use tool's sqlite assembly
             var sqliteAssembly = Assembly.Load("Microsoft.EntityFrameworkCore.Sqlite");
             var sqliteExtensionsType = sqliteAssembly.GetType(
                 "Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions"

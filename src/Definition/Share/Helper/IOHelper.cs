@@ -1,4 +1,5 @@
 namespace Share.Helper;
+
 /// <summary>
 /// 文件IO帮助类
 /// </summary>
@@ -84,7 +85,7 @@ public class IOHelper
                 string content = File.ReadAllText(file.FullName);
                 content = content.Replace(templateName, newName);
                 File.WriteAllText(file.FullName, content);
-                // replace file name 
+                // replace file name
                 string newFileName = file.Name.Replace(templateName, newName);
                 File.Move(file.FullName, Path.Combine(file.DirectoryName!, newFileName));
             }
@@ -93,7 +94,6 @@ public class IOHelper
                 ReplaceTemplate(subDir.FullName, templateName, newName);
             }
         }
-
     }
 
     /// <summary>
@@ -101,13 +101,13 @@ public class IOHelper
     /// </summary>
     public static string[] GetCodeFiles(string dirPath)
     {
-        return Directory.GetFiles(
-             dirPath,
-             $"*.cs",
-             SearchOption.AllDirectories)
-            .Where(f => !f.Replace(dirPath, "").StartsWith("/obj")
+        return Directory
+            .GetFiles(dirPath, $"*.cs", SearchOption.AllDirectories)
+            .Where(f =>
+                !f.Replace(dirPath, "").StartsWith("/obj")
                 && !f.Replace(dirPath, "").StartsWith("/bin")
-                && !f.EndsWith(".Assembly.cs"))
+                && !f.EndsWith(".Assembly.cs")
+            )
             .ToArray();
     }
 
@@ -143,7 +143,6 @@ public class IOHelper
     }
 }
 
-
 [Index(nameof(UserName), IsUnique = true)]
 public class User
 {
@@ -173,6 +172,7 @@ public class Blog
     /// </summary>
     [MaxLength(100)]
     public required string Title { get; set; }
+
     [MaxLength(10_000)]
     public string? Content { get; set; }
 

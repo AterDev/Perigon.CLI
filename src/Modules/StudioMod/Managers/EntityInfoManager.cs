@@ -17,7 +17,6 @@ public partial class EntityInfoManager(
     /// <summary>
     /// 获取实体列表
     /// </summary>
-    /// <param name="serviceName">服务名称</param>
     /// <returns></returns>
     public List<EntityFile> GetEntityFiles(string entityPath)
     {
@@ -30,20 +29,13 @@ public partial class EntityInfoManager(
             );
             if (File.Exists(entityProjectPath))
             {
-                if (
-                    !ProcessHelper.RunCommand(
-                        "dotnet",
-                        $"build {entityProjectPath}",
-                        out string error
-                    )
-                )
+                if (!SolutionService.BuildProject(entityProjectPath))
                 {
-                    OutputHelper.Error("build entity project failed: " + error);
+                    OutputHelper.Error($"build entity project: {entityProjectPath} failed.");
                 }
             }
 
             var filePaths = CodeAnalysisService.GetEntityFilePaths(entityPath);
-
             if (filePaths.Count != 0)
             {
                 entityFiles = CodeAnalysisService.GetEntityFiles(
@@ -90,7 +82,7 @@ public partial class EntityInfoManager(
 
             foreach (string? path in filePaths)
             {
-                System.IO.FileInfo file = new(path);
+                FileInfo file = new(path);
                 EntityFile item = new()
                 {
                     Name = file.Name,
