@@ -1,8 +1,8 @@
 Ater.Common.dll
 Ater.Web.Convention.dll
 CodeGenerator.dll
+EfCoreContext.dll
 Entity.dll
-EntityFramework.dll
 Humanizer.dll
 Mapster.Core.dll
 Mapster.dll

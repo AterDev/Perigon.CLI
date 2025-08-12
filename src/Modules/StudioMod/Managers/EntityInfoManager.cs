@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -187,17 +186,12 @@ public partial class EntityInfoManager(
         SolutionService.BuildProject(projectContext.EntityPath!);
         SolutionService.BuildProject(projectContext.EntityFrameworkPath!);
 
-        var sw = new Stopwatch();
-        sw.Start();
         var dbContextHelper = new DbContextParseHelper(
             projectContext.EntityPath!,
             projectContext.EntityFrameworkPath!
         );
-        dbContextHelper.LoadEntityAsync(dto.EntityPath);
+        await dbContextHelper.LoadEntityAsync(dto.EntityPath);
         var entityInfo = dbContextHelper.GetEntityInfo();
-
-        sw.Stop();
-        _logger.LogInformation("⏱️ Parse entity info took {elapsed} ms", sw.ElapsedMilliseconds);
 
         if (entityInfo == null)
         {

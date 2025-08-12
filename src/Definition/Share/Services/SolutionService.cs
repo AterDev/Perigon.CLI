@@ -192,25 +192,17 @@ public class SolutionService(
             {
                 Directory.Delete(dir, true);
             }
-            string? apiFiePath = Directory
-                .GetFiles(_projectContext.ApiPath!, "*.csproj", SearchOption.TopDirectoryOnly)
-                .FirstOrDefault();
 
-            if (apiFiePath != null)
+            Console.WriteLine($"⛏️ rebuild solution");
+            Process process = Process.Start("dotnet", $"build {_projectContext.SolutionPath}");
+            process.WaitForExit();
+            // if process has error message
+            if (process.ExitCode != 0)
             {
-                Console.WriteLine($"⛏️ build project:{apiFiePath}");
-                Process process = Process.Start("dotnet", $"build {apiFiePath}");
-                process.WaitForExit();
-                // if process has error message
-                if (process.ExitCode != 0)
-                {
-                    errorMsg = "project build failed！";
-                    return false;
-                }
-                return true;
+                errorMsg = "project build failed！";
+                return false;
             }
-            errorMsg = $"can't find {apiFiePath}, please build manually!";
-            return false;
+            return true;
         }
         catch (Exception ex)
         {
@@ -414,6 +406,7 @@ public class SolutionService(
         string sourcePath = Path.Combine(studioPath, ConstVal.ModulesDir, moduleName);
         if (!Directory.Exists(sourcePath))
         {
+            OutputHelper.Warning($"{sourcePath} not exist!");
             return;
         }
 
@@ -427,7 +420,7 @@ public class SolutionService(
         // copy module files
         CopyModuleFiles(sourcePath, modulePath);
 
-        string dbContextFile = Path.Combine(databasePath, "DBProvider", "ContextBase.cs");
+        string dbContextFile = Path.Combine(databasePath, "DBProvider", "DefaultDbContext.cs");
         string dbContextContent = File.ReadAllText(dbContextFile);
 
         CompilationHelper compilation = new(databasePath);
@@ -475,6 +468,9 @@ public class SolutionService(
 
         if (slnFile == null || !File.Exists(moduleProjectPath))
         {
+            OutputHelper.Warning(
+                $"slnFile {slnFile} or module project file {moduleProjectPath} not found!"
+            );
             return;
         }
 
@@ -490,7 +486,7 @@ public class SolutionService(
         }
         else
         {
-            OutputHelper.Success("add project ➡️ solution!");
+            OutputHelper.Success($"add project {moduleProjectPath} ➡️ solution!");
         }
     }
 

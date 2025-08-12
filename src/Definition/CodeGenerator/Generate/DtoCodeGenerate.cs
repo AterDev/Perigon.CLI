@@ -115,12 +115,6 @@ public partial class DtoCodeGenerate
     /// <returns></returns>
     public DtoInfo GetFilterDto()
     {
-        List<PropertyInfo>? referenceProps = EntityInfo
-            .PropertyInfos?.Where(p => p.IsNavigation && !p.IsList)
-            .Where(p => !p.IsJsonIgnore)
-            .Select(s => new PropertyInfo() { Name = s.Name + "Id", Type = KeyType + "?" })
-            .ToList();
-
         DtoInfo dto = new()
         {
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
@@ -129,9 +123,7 @@ public partial class DtoCodeGenerate
             Comment = FormatComment(EntityInfo.Comment, " Filter"),
             Tag = EntityInfo.Name,
             BaseType = ConstVal.FilterBase,
-            Properties =
-                EntityInfo.GetFilterProperties().Select(p => p.Adapt<PropertyInfo>()).ToList()
-                ?? [],
+            Properties = EntityInfo.GetFilterProperties(),
         };
 
         // 筛选条件调整为可空
@@ -140,59 +132,46 @@ public partial class DtoCodeGenerate
             item.IsNullable = true;
             item.IsRequired = false;
         }
-        referenceProps?.ForEach(item =>
-        {
-            if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
+        EntityInfo
+            .GetRequiredNavigationProperties()
+            ?.ForEach(item =>
             {
-                dto.Properties.Add(item);
-            }
-        });
+                if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
+                {
+                    dto.Properties.Add(item);
+                }
+            });
         return dto;
     }
 
     public DtoInfo GetAddDto()
     {
-        // 导航属性处理
-        List<PropertyInfo>? referenceProps = EntityInfo
-            .Navigations?.Where(p => !p.IsCollection && !p.IsSkipNavigation)
-            .Select(n => new PropertyInfo()
-            {
-                Name = n.ForeignKey,
-                Type = n.Type,
-                IsRequired = n.IsRequired,
-                IsNullable = false,
-                DefaultValue = "",
-            })
-            .ToList();
-
         DtoInfo dto = new()
         {
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
             Name = EntityInfo.Name + ConstVal.AddDto,
             EntityNamespace = EntityInfo.NamespaceName,
-            Comment = FormatComment(EntityInfo.Comment, " AddDto"),
+            Comment = FormatComment(EntityInfo.Comment, ConstVal.AddDto),
             Tag = EntityInfo.Name,
             Properties =
                 EntityInfo
                     .PropertyInfos?.Where(p =>
-                        !p.IsNavigation
-                        && p.HasSet
+                        !p.IsShadow
                         && !EntityInfo.IgnoreTypes.Contains(p.Type)
-                        && p.Name != ConstVal.Id
-                        && p.Name != ConstVal.CreatedTime
-                        && p.Name != ConstVal.UpdatedTime
-                        && p.Name != ConstVal.IsDeleted
+                        && !EntityInfo.IgnoreProperties.Contains(p.Name)
                     )
                     .ToList() ?? [],
         };
 
-        referenceProps?.ForEach(item =>
-        {
-            if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
+        EntityInfo
+            .GetRequiredNavigationProperties()
+            ?.ForEach(item =>
             {
-                dto.Properties.Add(item);
-            }
-        });
+                if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
+                {
+                    dto.Properties.Add(item);
+                }
+            });
 
         return dto;
     }
@@ -204,22 +183,6 @@ public partial class DtoCodeGenerate
     /// <returns></returns>
     public DtoInfo GetUpdateDto()
     {
-        // 导航属性处理
-        List<PropertyInfo>? referenceProps = EntityInfo
-            .PropertyInfos?.Where(p => !p.IsJsonIgnore)
-            .Where(p =>
-                p.IsNavigation
-                && (p.IsRequired || !p.IsNullable || !string.IsNullOrWhiteSpace(p.DefaultValue))
-            )
-            .Where(p => !p.Type.Equals("User") && !p.Type.Equals("SystemUser"))
-            .Select(s => new PropertyInfo()
-            {
-                Name = s.NavigationName + (s.IsList ? "Ids" : "Id"),
-                Type = s.IsList ? $"List<{KeyType}>" : KeyType,
-                IsRequired = s.IsRequired,
-                IsNullable = s.IsNullable,
-            })
-            .ToList();
         DtoInfo dto = new()
         {
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
@@ -228,28 +191,24 @@ public partial class DtoCodeGenerate
             Comment = FormatComment(EntityInfo.Comment, " UpdateDTO"),
             Tag = EntityInfo.Name,
             // 处理非 required的都设置为 nullable
-            Properties =
-                EntityInfo
-                    .PropertyInfos?.Where(p =>
-                        !p.IsNavigation
-                        && p.HasSet
-                        && !EntityInfo.IgnoreTypes.Contains(p.Type)
-                        && p.Name != ConstVal.Id
-                        && p.Name != ConstVal.CreatedTime
-                        && p.Name != ConstVal.UpdatedTime
-                        && p.Name != ConstVal.IsDeleted
-                    )
-                    .Select(p => p.Adapt<PropertyInfo>())
-                    .ToList() ?? [],
+            Properties = EntityInfo
+                .PropertyInfos.Where(p =>
+                    !p.IsShadow
+                    && !EntityInfo.IgnoreTypes.Contains(p.Type)
+                    && !EntityInfo.IgnoreProperties.Contains(p.Name)
+                )
+                .ToList(),
         };
 
-        referenceProps?.ForEach(item =>
-        {
-            if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
+        EntityInfo
+            .GetRequiredNavigationProperties()
+            .ForEach(item =>
             {
-                dto.Properties.Add(item);
-            }
-        });
+                if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
+                {
+                    dto.Properties.Add(item);
+                }
+            });
 
         foreach (PropertyInfo item in dto.Properties)
         {

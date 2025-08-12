@@ -13,8 +13,9 @@ public class EntityInfo
             ConstVal.CreatedTime,
             ConstVal.UpdatedTime,
             ConstVal.IsDeleted,
-            "PageSize",
-            "PageIndex",
+            ConstVal.TenantId,
+            ConstVal.PageSize,
+            ConstVal.PageIndex,
         ];
 
     /// <summary>
@@ -101,10 +102,18 @@ public class EntityInfo
     /// 获取导航属性
     /// </summary>
     /// <returns></returns>
-    public List<PropertyInfo>? GetRequiredNavigation()
+    public List<PropertyInfo> GetRequiredNavigationProperties()
     {
-        return PropertyInfos
-            ?.Where(p => p.IsNavigation && p.HasMany == false && p.IsRequired)
+        return Navigations
+            .Where(n => !n.IsCollection && !n.IsSkipNavigation)
+            .Where(n => !n.Name.EndsWith("UserId"))
+            .Select(n => new PropertyInfo()
+            {
+                Name = n.ForeignKey,
+                Type = n.Type,
+                IsRequired = n.IsRequired,
+                IsNullable = false,
+            })
             .ToList();
     }
 
@@ -115,16 +124,10 @@ public class EntityInfo
     public List<PropertyInfo> GetFilterProperties()
     {
         return PropertyInfos
-                .Where(p =>
-                    p.IsRequired && !p.IsNavigation
-                    || !p.IsList
-                        && !p.IsNavigation
-                        && !p.IsComplexType
-                        && !IgnoreProperties.Contains(p.Name)
-                        && !IgnoreTypes.Contains(p.Type)
-                    || p.IsEnum
-                )
-                .Where(p => p.MaxLength is not (not null and >= 100))
+                .Where(p => !p.IsList && !p.IsComplexType)
+                .Where(p => p.IsRequired || p.IsIndex || p.IsEnum || p.Type.Equals("bool"))
+                .Where(p => !IgnoreProperties.Contains(p.Name) && !IgnoreTypes.Contains(p.Type))
+                .Where(p => p.MaxLength is not (not null and > 100))
                 .ToList() ?? [];
     }
 }

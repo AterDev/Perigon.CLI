@@ -61,6 +61,9 @@ public static class ConstVal
     public const string CreatedTime = "CreatedTime";
     public const string UpdatedTime = "UpdatedTime";
     public const string IsDeleted = "IsDeleted";
+    public const string TenantId = "TenantId";
+    public const string PageSize = "PageSize";
+    public const string PageIndex = "PageIndex";
 
     // files
     public const string TemplateZip = "template.zip";

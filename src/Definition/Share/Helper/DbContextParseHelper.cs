@@ -129,6 +129,7 @@ public class DbContextParseHelper
                         && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.ClrType),
                 IsDecimal = prop.ClrType == typeof(decimal),
                 IsShadow = prop.IsShadowProperty(),
+                IsIndex = prop.IsIndex(),
                 CommentSummary =
                     _xmlHelper.GetPropertySummary(
                         CurrentEntity.ClrType.FullName ?? string.Empty,
@@ -261,15 +262,28 @@ public class DbContextParseHelper
         var propertySyntax = propertySyntaxList.FirstOrDefault(p =>
             p.Identifier.Text == propertyInfo.Name
         );
+
         if (propertySyntax == null)
         {
             return;
         }
-        if (propertySyntax?.Initializer != null)
+        if (propertySyntax.Initializer != null)
         {
             propertyInfo.DefaultValue = propertySyntax.Initializer.Value.ToFullString();
         }
+
         propertyInfo.CommentXml = EntityParseHelper.GetCommentXml(propertySyntax!);
         propertyInfo.AttributeText = EntityParseHelper.GetAttributeText(propertySyntax!);
+
+        string? modifier2 = null;
+
+        if (propertySyntax.Modifiers.Count > 1)
+        {
+            modifier2 = propertySyntax.Modifiers.LastOrDefault().Text;
+            if (!string.IsNullOrEmpty(modifier2) && modifier2.Trim().ToLower().Equals("required"))
+            {
+                propertyInfo.IsRequired = true;
+            }
+        }
     }
 }
