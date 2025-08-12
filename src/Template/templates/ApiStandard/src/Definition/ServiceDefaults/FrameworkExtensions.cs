@@ -2,7 +2,9 @@ using Ater.Common;
 using Ater.Web.Convention.Abstraction;
 using Ater.Web.Convention.Services;
 using Ater.Web.Extension.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Logging;
 
 namespace ServiceDefaults;
 
@@ -151,5 +153,35 @@ public static class FrameworkExtensions
 
         builder.Services.AddSingleton<CacheService>();
         return builder;
+    }
+
+    /// <summary>
+    /// 仅在调试特殊异常时使用
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static WebApplication UseDomainException(this WebApplication app)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<WebApplication>>();
+        AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
+        {
+            if (eventArgs.Exception is OutOfMemoryException)
+            {
+                logger.LogError(
+                    "=== OutOfMemory: {message}, {stackTrace}",
+                    eventArgs.Exception.Message,
+                    eventArgs.Exception.StackTrace
+                );
+            }
+            else
+            {
+                logger.LogError(
+                    "=== FirstChanceException: {message}, {stackTrace}",
+                    eventArgs.Exception.Message,
+                    eventArgs.Exception.StackTrace
+                );
+            }
+        };
+        return app;
     }
 }

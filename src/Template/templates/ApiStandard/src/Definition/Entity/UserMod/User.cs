@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Entity.CMSMod;
 
 namespace Entity.UserMod;
 
@@ -66,15 +65,6 @@ public class User : EntityBase
     /// </summary>
     [MaxLength(200)]
     public string? Avatar { get; set; }
-    public DateTimeOffset BirthDay { get; set; }
-
-    public int Age
-    {
-        get { return (int)(DateTimeOffset.Now - BirthDay).TotalDays / 365; }
-    }
-
-    public List<Blog> Blogs { get; private set; } = [];
-
     #region 用户关联内容
 
     #endregion

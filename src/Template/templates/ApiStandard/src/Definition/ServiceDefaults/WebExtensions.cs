@@ -84,8 +84,6 @@ public static class WebExtensions
 
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
-        app.UseWebAppContext();
-        //app.UseDomainException();
         // 异常统一处理
         app.UseExceptionHandler(ExceptionHandler.Handler());
 
