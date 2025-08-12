@@ -27,6 +27,7 @@ public class EntityInfo
     /// the db context name
     /// </summary>
     public string? DbContextName { get; set; }
+    public string? DbContextSpaceName { get; set; }
 
     /// <summary>
     /// file path
@@ -88,7 +89,7 @@ public class EntityInfo
         return ModuleName.IsEmpty() ? ConstVal.ShareName : ModuleName;
     }
 
-    public string GetManagerNamespace()
+    public string GetCommonNamespace()
     {
         return ModuleName.IsEmpty() ? ConstVal.CommonMod : ModuleName;
     }

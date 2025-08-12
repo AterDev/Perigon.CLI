@@ -90,7 +90,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             ModuleName = entityInfo.ModuleName,
         };
 
-        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetManagerNamespace());
+        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace());
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
             IsCover = isCover,

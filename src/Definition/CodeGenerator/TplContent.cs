@@ -88,6 +88,7 @@ public class TplContent
                 /// 获取权限范围的实体
                 /// </summary>
                 /// <param name="id"></param>
+                /// <param name="userId"></param>
                 /// <returns></returns>
                 public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id, Guid userId)
                 {

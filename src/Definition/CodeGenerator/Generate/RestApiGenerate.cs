@@ -8,11 +8,12 @@ namespace CodeGenerator.Generate;
 public class RestApiGenerate(EntityInfo entityInfo)
 {
     public string? EntityNamespace { get; set; } = entityInfo.NamespaceName;
+
     /// <summary>
     /// DataStore 项目的命名空间
     /// </summary>
     public string? ShareNamespace { get; set; } = entityInfo.GetShareNamespace();
-    public string? ApplicationNamespace { get; set; } = entityInfo.GetManagerNamespace();
+    public string? ApplicationNamespace { get; set; } = entityInfo.GetCommonNamespace();
     public EntityInfo EntityInfo { get; init; } = entityInfo;
 
     public List<string> GetGlobalUsings()
@@ -46,7 +47,7 @@ public class RestApiGenerate(EntityInfo entityInfo)
             Namespace = EntityInfo.GetAPINamespace(),
             EntityName = EntityInfo.Name,
             Comment = EntityInfo.Comment,
-            ShareNamespace = ShareNamespace
+            ShareNamespace = ShareNamespace,
         };
         return genContext.GenCode(tplContent, model);
     }

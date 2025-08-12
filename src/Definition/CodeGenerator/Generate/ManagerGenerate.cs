@@ -7,7 +7,7 @@ namespace CodeGenerator.Generate;
 /// </summary>
 public class ManagerGenerate(EntityInfo entityInfo)
 {
-    public string ApplicationNamespace { get; init; } = entityInfo.GetManagerNamespace();
+    public string CommonNamespace { get; init; } = entityInfo.GetCommonNamespace();
     public string ShareNamespace { get; init; } = entityInfo.GetShareNamespace();
     public EntityInfo EntityInfo { get; init; } = entityInfo;
 
@@ -17,13 +17,17 @@ public class ManagerGenerate(EntityInfo entityInfo)
     /// <returns></returns>
     public List<string> GetGlobalUsings()
     {
-        return
-        [
+        var globalUsing = new List<string>
+        {
             $"global using {EntityInfo.AssemblyName};",
             $"global using {EntityInfo.NamespaceName};",
-            $"global using {ApplicationNamespace}.{ConstVal.ManagersDir};",
-            "",
-        ];
+            $"global using {CommonNamespace}.{ConstVal.ManagersDir};",
+        };
+        if (EntityInfo.DbContextSpaceName != null)
+        {
+            globalUsing.Add($"global using {EntityInfo.DbContextSpaceName};");
+        }
+        return globalUsing;
     }
 
     /// <summary>

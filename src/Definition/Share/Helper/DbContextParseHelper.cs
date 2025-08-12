@@ -22,7 +22,7 @@ public class DbContextParseHelper
 
     private IEntityType? CurrentEntity { get; set; }
     public IModel CurrentModel { get; private set; }
-    public string? DbContextName { get; private set; }
+    public INamedTypeSymbol? DbContextSymbol { get; private set; }
     public string EntityPath { get; init; }
     private string EntityFilePath { get; set; } = string.Empty;
 
@@ -50,13 +50,12 @@ public class DbContextParseHelper
         _compilation.LoadContent(fileContent);
 
         var entityName = Path.GetFileNameWithoutExtension(EntityFilePath);
-        var dbContextSymbol = _analyzer.GetDbContextType(entityName);
-        if (dbContextSymbol != null)
+        DbContextSymbol = _analyzer.GetDbContextType(entityName);
+        if (DbContextSymbol != null)
         {
-            DbContextName = dbContextSymbol.Name;
             CurrentModel = _modelMap
                 .FirstOrDefault(kvp =>
-                    kvp.Key.Equals(DbContextName, StringComparison.OrdinalIgnoreCase)
+                    kvp.Key.Equals(DbContextSymbol.Name, StringComparison.OrdinalIgnoreCase)
                 )
                 .Value;
             CurrentEntity = CurrentModel
@@ -79,6 +78,9 @@ public class DbContextParseHelper
         var entityInfo = new EntityInfo
         {
             FilePath = EntityFilePath,
+            AssemblyName = CurrentEntity.ClrType.Assembly.GetName().Name,
+            DbContextName = DbContextSymbol!.Name,
+            DbContextSpaceName = DbContextSymbol.ContainingNamespace.ToString(),
             Name = CurrentEntity.ClrType.Name,
             NamespaceName = CurrentEntity.ClrType.Namespace ?? namespaceName,
             Summary =
