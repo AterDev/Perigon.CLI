@@ -101,9 +101,8 @@ public class TplContent
             """;
     }
 
-    public static string ControllerTpl(bool isAdmin = true)
+    public static string ControllerTpl()
     {
-        var baseClass = isAdmin ? "RestControllerBase" : "ClientControllerBase";
         return $$"""
             using @(Model.ShareNamespace).Models.@(Model.EntityName)Dtos;
             namespace @(Model.Namespace).Controllers;
@@ -114,7 +113,7 @@ public class TplContent
                 IUserContext user,
                 ILogger<@(Model.EntityName)Controller> logger,
                 @(Model.EntityName)Manager manager
-                ) : {{baseClass}}<@(Model.EntityName)Manager>(localizer, manager, user, logger)
+                ) : RestControllerBase<@(Model.EntityName)Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
                 /// 分页数据 🛑
@@ -295,8 +294,10 @@ export class EnumTextPipeModule { }
             // 框架依赖服务:options, cache, dbContext
             builder.AddFrameworkServices();
 
-            // Web中间件服务:route, openapi, jwt, cors, auth, rateLimiter etc.
+            // Web中间件服务:route, openapi, jwt, default cors, auth, rateLimiter etc.
             builder.AddMiddlewareServices();
+
+            // this service's custom cors, auth, rateLimiter etc.
 
             // add Managers, auto generate by source generator
             // builder.Services.AddManagers();

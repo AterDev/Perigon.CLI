@@ -132,7 +132,7 @@ public class CommandService(
             }
         }
         // 添加模块到解决方案中
-        if (!dto.IsLight && dto.Modules?.Count > 0)
+        if (!dto.IsLight && dto.Modules.Count > 0)
         {
             SolutionService.AddDefaultModule(ModuleInfo.User, solutionPath);
             foreach (string item in dto.Modules)

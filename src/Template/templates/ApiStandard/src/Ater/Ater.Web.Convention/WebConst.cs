@@ -10,6 +10,9 @@ public static class WebConst
     public const string DefaultPubSubName = "pubsub";
     public const string TenantId = "TenantId";
 
+    public const string Default = "Default";
+    public const string Limited = "Limited";
+
     /// <summary>
     /// 超级管理员
     /// </summary>

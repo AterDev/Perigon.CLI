@@ -1,32 +1,24 @@
+using CommonMod.Managers;
+
 namespace Http.API.Controllers;
 
 /// <summary>
-/// 开发调试接口
+/// CommonController
 /// </summary>
-[Route("[controller]")]
-public class CommonController(Localizer localizer) : RestControllerBase(localizer)
+public class CommonController(
+    Localizer localizer,
+    CommonManager manager,
+    IUserContext user,
+    ILogger<CommonController> logger
+) : RestControllerBase<CommonManager>(localizer, manager, user, logger)
 {
-    [HttpGet("localizer")]
-    public ActionResult CheckLocalizer()
-    {
-        return Problem(ErrorKeys.ConflictResource);
-    }
-
+    /// <summary>
+    /// get enum dictionary
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("enums")]
     public Dictionary<string, List<EnumDictionary>> GetEnumDictionary()
     {
-        var enums = EnumHelper.GetAllEnumInfo();
-
-        enums
-            .Values.ToList()
-            .ForEach(v =>
-            {
-                v.ForEach(e =>
-                {
-                    e.Description = _localizer?.Get(e.Description) ?? e.Description;
-                });
-            });
-
-        return enums;
+        return _manager.GetEnumDictionary();
     }
 }

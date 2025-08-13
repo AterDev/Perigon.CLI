@@ -266,7 +266,7 @@ public partial class EntityInfoManager(
                 CodeGenService.GenerateController(
                     entityInfo,
                     apiPath,
-                    TplContent.ControllerTpl(false),
+                    TplContent.ControllerTpl(),
                     dto.Force
                 )
             );

@@ -1,6 +1,6 @@
 using OrderMod.Models.ProductDtos;
 
-namespace OrderMod.Controllers;
+namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 产品
@@ -14,25 +14,44 @@ public class ProductController(
 ) : RestControllerBase<ProductManager>(localizer, manager, user, logger)
 {
     /// <summary>
-    /// 产品列表 ✅
+    /// 筛选 ✅
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns></returns>
-    [HttpGet("list")]
-    public async Task<ActionResult<List<ProductItemDto>>> FilterAsync()
+    [HttpPost("filter")]
+    public async Task<ActionResult<PageList<ProductItemDto>>> FilterAsync(ProductFilterDto filter)
     {
-        return await _manager.ToListAsync<ProductItemDto>();
+        return await _manager.ToPageAsync(filter);
     }
 
     /// <summary>
-    /// 购买产品 ✅
+    /// 新增 ✅
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<ActionResult<Guid?>> AddAsync(ProductAddDto dto)
+    {
+        var id = await _manager.AddAsync(dto);
+        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+    }
+
+    /// <summary>
+    /// 更新 ✅
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
-    [HttpPost("buy/{id}")]
-    public async Task<ActionResult<Order>> BuyProductAsync([FromRoute] Guid id)
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, ProductUpdateDto dto)
     {
-        Order? res = await _manager.BuyProductAsync(id, _user.UserId);
-        return res == null ? Problem(_manager.ErrorMsg) : res;
+        Product? current = await _manager.GetCurrentAsync(id);
+        if (current == null)
+        {
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
+        return await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>
@@ -45,5 +64,18 @@ public class ProductController(
     {
         var res = await _manager.FindAsync<ProductDetailDto>(d => d.Id == id);
         return (res == null) ? NotFound() : res;
+    }
+
+    /// <summary>
+    /// 删除 ✅
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    {
+        // 注意删除权限
+        Product? entity = await _manager.GetCurrentAsync(id);
+        return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

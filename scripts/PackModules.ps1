@@ -12,7 +12,6 @@ $entityPath = Join-Path $templatePath "templates" "ApiStandard" "src" "Definitio
 $commandLinePath = Join-Path $rootPath "src" "Command" "CommandLine"
 $destPath = Join-Path $commandLinePath "template"
 $destModulesPath = Join-Path $destPath "Modules" 
-$destInfrastructure = Join-Path $destPath "Ater"
 
 # 移动模块到临时目录
 function CopyModule([string]$solutionPath, [string]$moduleName, [string]$destModulesPath) {
@@ -68,7 +67,7 @@ if (Test-Path "$entityFrameworkPath/ModuleContextBase.cs") {
 # Remove-Item "$destInfrastructure/**/bin" -Recurse -Force -ErrorAction SilentlyContinue
 
 # zip
-$zipPath = Join-Path $commandLinePath "template.zip"
+$zipPath = Join-Path $commandLinePath "modules.zip"
 Compress-Archive -Path $destModulesPath -DestinationPath $zipPath -CompressionLevel Optimal -Force
 Write-Host "🗜️ $zipPath"
 

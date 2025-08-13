@@ -63,7 +63,7 @@ public class SystemUserController(
     /// </summary>
     /// <returns></returns>
     [HttpGet("captcha")]
-    [EnableRateLimiting("captcha")]
+    [EnableRateLimiting(WebConst.Limited)]
     [AllowAnonymous]
     public ActionResult GetCaptchaImage()
     {

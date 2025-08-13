@@ -67,6 +67,7 @@ public static class ConstVal
 
     // files
     public const string TemplateZip = "template.zip";
+    public const string ModulesZip = "modules.zip";
     public const string StudioZip = "studio.zip";
     public const string SyncJson = "sync.json";
     public const string AppSettingJson = "appsettings.json";

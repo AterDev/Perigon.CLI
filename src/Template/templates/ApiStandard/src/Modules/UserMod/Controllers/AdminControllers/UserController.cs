@@ -12,7 +12,7 @@ public class UserController(
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager
-) : AdminControllerBase<UserManager>(localizer, manager, user, logger)
+) : RestControllerBase<UserManager>(localizer, manager, user, logger)
 {
     /// <summary>
     /// 筛选 ✅

@@ -1,6 +1,6 @@
 using FileManagerMod.Models.FolderDtos;
 
-namespace FileManagerMod.Controllers;
+namespace FileManagerMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 文件夹
@@ -32,26 +32,17 @@ public class FolderController(
     [HttpPost]
     public async Task<ActionResult<Guid?>> AddAsync(FolderAddDto dto)
     {
+        if (dto.ParentId != null)
+        {
+            var exist = await _manager.ExistAsync(dto.ParentId.Value);
+            if (!exist)
+            {
+                return NotFound(ErrorKeys.NotFoundResource);
+            }
+            ;
+        }
         var id = await _manager.AddAsync(dto);
         return id == null ? Problem(ErrorKeys.AddFailed) : id;
-    }
-
-    /// <summary>
-    /// 更新 ✅
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, FolderUpdateDto dto)
-    {
-        Folder? current = await _manager.GetCurrentAsync(id);
-        if (current == null)
-        {
-            return NotFound(ErrorKeys.NotFoundResource);
-        }
-        ;
-        return await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>
@@ -67,7 +58,7 @@ public class FolderController(
     }
 
     /// <summary>
-    /// 删除 ✅
+    /// ⚠删除 ✅
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -77,6 +68,7 @@ public class FolderController(
     {
         // 注意删除权限
         Folder? entity = await _manager.GetCurrentAsync(id);
+        // return Forbid();
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

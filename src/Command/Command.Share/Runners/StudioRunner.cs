@@ -88,7 +88,7 @@ public class StudioRunner
         string version = AssemblyHelper.GetCurrentToolVersion();
         string toolRootPath = AssemblyHelper.GetToolPath();
         string zipPath = Path.Combine(toolRootPath, ConstVal.StudioZip);
-        string templatePath = Path.Combine(toolRootPath, ConstVal.TemplateZip);
+        string modulesPath = Path.Combine(toolRootPath, ConstVal.ModulesZip);
         string shareDllsPath = Path.Combine(toolRootPath, ConstVal.ShareDlls);
         if (File.Exists(shareDllsPath))
         {
@@ -128,9 +128,9 @@ public class StudioRunner
 
                     // 解压
                     ctx.Status("copy new files");
-                    if (File.Exists(templatePath))
+                    if (File.Exists(modulesPath))
                     {
-                        ZipFile.ExtractToDirectory(templatePath, studioPath, true);
+                        ZipFile.ExtractToDirectory(modulesPath, studioPath, true);
                     }
                     ZipFile.ExtractToDirectory(zipPath, studioPath, true);
                     OutputHelper.Important($"extract {zipPath} to {studioPath}");

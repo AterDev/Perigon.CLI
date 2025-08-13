@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Data;
 using Share;
 using Share.Helper;
 using Share.Models.CommandDtos;
@@ -69,16 +68,16 @@ public class NewCommand(Localizer localizer, CommandService commandService)
         // 7. 其他配置 (暂不支持)
 
         // 8. 模块选择(多选)
-        var options = ModuleInfo.GetModules();
+        //var options = ModuleInfo.GetModules();
 
-        var selectModules = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<ModuleInfo>()
-                .Title(localizer.Get(Localizer.SelectModules))
-                .InstructionsText(localizer.Get(Localizer.CommandSelectTip))
-                .NotRequired()
-                .AddChoices(options)
-                .UseConverter(opt => $"{localizer.Get(opt.Description)}")
-        );
+        //var selectModules = AnsiConsole.Prompt(
+        //    new MultiSelectionPrompt<ModuleInfo>()
+        //        .Title(localizer.Get(Localizer.SelectModules))
+        //        .InstructionsText(localizer.Get(Localizer.CommandSelectTip))
+        //        .NotRequired()
+        //        .AddChoices(options)
+        //        .UseConverter(opt => $"{localizer.Get(opt.Description)}")
+        //);
 
         var frontType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -123,7 +122,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
             .AddRow(localizer.Get(Localizer.DbConnectionString), dbConnectionString ?? "")
             .AddRow(localizer.Get(Localizer.CacheType), cacheType)
             .AddRow(localizer.Get(Localizer.CacheConnectionString), cacheConnectionString ?? "")
-            .AddRow(localizer.Get(Localizer.Modules), string.Join(", ", selectModules))
+            //.AddRow(localizer.Get(Localizer.Modules), string.Join(", ", selectModules))
             .AddRow(localizer.Get(Localizer.FrontEnd), frontType)
             .AddRow(localizer.Get(Localizer.Directory), targetDirectory);
 
@@ -156,10 +155,10 @@ public class NewCommand(Localizer localizer, CommandService commandService)
                 CacheConnStrings = cacheConnectionString,
                 FrontType = frontType == Localizer.None ? FrontType.None : FrontType.Angular,
             };
-            if (selectModules.Count > 0)
-            {
-                dto.Modules = selectModules.Select(m => m.Name).ToList();
-            }
+            //if (selectModules.Count > 0)
+            //{
+            //    dto.Modules = selectModules.Select(m => m.Name).ToList();
+            //}
             await commandService.CreateSolutionAsync(dto);
             OutputHelper.Success(localizer.Get(Localizer.CreateSolutionSuccess));
         }

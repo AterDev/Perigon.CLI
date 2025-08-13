@@ -50,7 +50,7 @@ try {
     $xml.Save($studioProjectPath)
 
     # pack modules
-    & "./PackModules.ps1"
+    # & "./PackModules.ps1"
 
     # build web project
     if ($withStudio -eq $true) {

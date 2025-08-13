@@ -1,6 +1,6 @@
 using CustomerMod.Models.CustomerInfoDtos;
 
-namespace CustomerMod.Controllers.AdminControllers;
+namespace CustomerMod.Controllers;
 
 /// <summary>
 /// 客户信息
@@ -11,7 +11,7 @@ public class CustomerInfoController(
     UserContext user,
     ILogger<CustomerInfoController> logger,
     CustomerInfoManager manager
-) : AdminControllerBase<CustomerInfoManager>(localizer, manager, user, logger)
+) : RestControllerBase<CustomerInfoManager>(localizer, manager, user, logger)
 {
     /// <summary>
     /// 筛选
@@ -72,7 +72,7 @@ public class CustomerInfoController(
     public async Task<ActionResult<CustomerInfoDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.GetDetailAsync(id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 
     /// <summary>

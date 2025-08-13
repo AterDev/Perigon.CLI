@@ -1,6 +1,6 @@
 using OrderMod.Models.OrderDtos;
 
-namespace OrderMod.Controllers;
+namespace OrderMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 订单
@@ -14,15 +14,32 @@ public class OrderController(
 ) : RestControllerBase<OrderManager>(localizer, manager, user, logger)
 {
     /// <summary>
-    /// 订单列表 ✅
+    /// 筛选 ✅
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
     public async Task<ActionResult<PageList<OrderItemDto>>> FilterAsync(OrderFilterDto filter)
     {
-        filter.UserId = _user.UserId;
         return await _manager.ToPageAsync(filter);
+    }
+
+    /// <summary>
+    /// 更新订单状态 ✅
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, OrderUpdateDto dto)
+    {
+        Order? current = await _manager.GetCurrentAsync(id);
+        if (current == null)
+        {
+            return NotFound(ErrorKeys.NotFoundResource);
+        }
+        ;
+        return await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>

@@ -55,7 +55,7 @@ public static class WebExtensions
         services.AddThirdAuthentication(configuration);
 
         services.AddAuthorize();
-        services.AddCORS();
+        services.AddCors();
         services.AddRateLimiter();
 
         services.AddOutputCache(options =>
@@ -71,13 +71,6 @@ public static class WebExtensions
             }
         );
 
-        services.AddOpenApi(
-            "admin",
-            options =>
-            {
-                options.AddSchemaTransformer<EnumOpenApiTransformer>();
-            }
-        );
         services.AddLocalizer();
         return services;
     }
@@ -104,7 +97,6 @@ public static class WebExtensions
         app.UseRequestLocalization();
         app.UseRouting();
         app.UseOutputCache();
-        // TODO: if use Jwt
         //app.UseMiddleware<JwtMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
@@ -125,7 +117,7 @@ public static class WebExtensions
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             // 验证码  每10秒5次
             options.AddPolicy(
-                "captcha",
+                WebConst.Limited,
                 context =>
                 {
                     var remoteIpAddress = context.Connection.RemoteIpAddress;
@@ -296,8 +288,17 @@ public static class WebExtensions
         return services;
     }
 
-    public static IServiceCollection AddCORS(this IServiceCollection services)
+    public static IServiceCollection AddCors(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
+        var section = configuration.GetSection("Cors");
+        //get origins array
+        var origins = section?.GetValue<string[]>("AllowedOrigins") ?? [];
+
+        var allowedSubdomains = section?.GetValue<bool>("AllowedSubdomains") ?? false;
+
         services.AddCors(options =>
         {
             options.AddPolicy(
@@ -305,6 +306,17 @@ public static class WebExtensions
                 builder =>
                 {
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                }
+            );
+            options.AddPolicy(
+                WebConst.Limited,
+                builder =>
+                {
+                    builder.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader();
+                    if (allowedSubdomains)
+                    {
+                        builder.SetIsOriginAllowedToAllowWildcardSubdomains();
+                    }
                 }
             );
         });
@@ -315,12 +327,12 @@ public static class WebExtensions
     {
         services
             .AddAuthorizationBuilder()
-            .AddPolicy(WebConst.User, policy => policy.RequireRole(WebConst.User))
+            .AddPolicy(WebConst.Default, policy => policy.RequireAuthenticatedUser())
             .AddPolicy(
-                WebConst.AdminUser,
-                policy => policy.RequireRole(WebConst.SuperAdmin, WebConst.AdminUser)
-            )
-            .AddPolicy(WebConst.SuperAdmin, policy => policy.RequireRole(WebConst.SuperAdmin));
+                WebConst.User,
+                policy => policy.RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin)
+            );
+
         return services;
     }
 }
