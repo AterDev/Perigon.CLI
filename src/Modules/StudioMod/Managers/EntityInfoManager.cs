@@ -28,7 +28,7 @@ public partial class EntityInfoManager(
             );
             if (File.Exists(entityProjectPath) && forceRefresh)
             {
-                if (!SolutionService.BuildProject(entityProjectPath, false))
+                if (!SolutionService.BuildProject(entityProjectPath, true))
                 {
                     OutputHelper.Error($"build entity project: {entityProjectPath} failed.");
                 }
@@ -258,14 +258,14 @@ public partial class EntityInfoManager(
     {
         var files = new List<GenFileInfo>();
         bool onlyOneService = dto.ServicePath.Length == 1;
-        foreach (var apiPath in dto.ServicePath)
+        foreach (var servicePath in dto.ServicePath)
         {
-            var controllerPath = Path.Combine(apiPath, ConstVal.ControllersDir);
-            CodeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, dto.Force);
+            var controllerPath = Path.Combine(servicePath, ConstVal.ControllersDir);
+            CodeGenService.GenerateApiGlobalUsing(entityInfo, servicePath, dto.Force);
             files.Add(
                 CodeGenService.GenerateController(
                     entityInfo,
-                    apiPath,
+                    servicePath,
                     TplContent.ControllerTpl(),
                     dto.Force
                 )

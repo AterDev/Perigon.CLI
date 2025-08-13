@@ -135,8 +135,8 @@ public class TplContent
                 public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
                     // 冲突验证
-                    // if(await _manager.IsUniqueAsync(dto.xxx)) { return Conflict(ErrorKeys.ConflictResource); }
-                    var id = await _manager.CreateNewEntityAsync(dto);
+                    // if(await _manager.HasConflictAsync(dto.xxx)) { return Conflict(ErrorKeys.ConflictResource); }
+                    var id = await _manager.AddAsync(dto);
                     return id == null ? Problem(ErrorMsg.AddFailed) : id;
                 }
 
