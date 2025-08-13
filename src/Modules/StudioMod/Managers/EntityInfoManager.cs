@@ -17,7 +17,7 @@ public partial class EntityInfoManager(
     /// 获取实体列表
     /// </summary>
     /// <returns></returns>
-    public List<EntityFile> GetEntityFiles(string entityPath)
+    public List<EntityFile> GetEntityFiles(string entityPath, bool forceRefresh = false)
     {
         List<EntityFile> entityFiles = [];
         try
@@ -26,9 +26,9 @@ public partial class EntityInfoManager(
                 entityPath,
                 ConstVal.EntityName + ConstVal.CSharpProjectExtension
             );
-            if (File.Exists(entityProjectPath))
+            if (File.Exists(entityProjectPath) && forceRefresh)
             {
-                if (!SolutionService.BuildProject(entityProjectPath))
+                if (!SolutionService.BuildProject(entityProjectPath, false))
                 {
                     OutputHelper.Error($"build entity project: {entityProjectPath} failed.");
                 }
@@ -183,8 +183,8 @@ public partial class EntityInfoManager(
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
-        SolutionService.BuildProject(projectContext.EntityPath!);
-        SolutionService.BuildProject(projectContext.EntityFrameworkPath!);
+        SolutionService.BuildProject(projectContext.EntityPath!, false);
+        SolutionService.BuildProject(projectContext.EntityFrameworkPath!, false);
 
         var dbContextHelper = new DbContextParseHelper(
             projectContext.EntityPath!,

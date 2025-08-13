@@ -51,11 +51,14 @@ public partial class EntityList
         Services = SolutionManager.GetServices(false);
     }
 
-    private async Task GetEntityListAsync()
+    private async Task GetEntityListAsync(bool forceRefresh = false)
     {
         IsRefreshing = true;
         await Task.Yield();
-        var entityFiles = EntityInfoManager.GetEntityFiles(ProjectContext.EntityPath!);
+        var entityFiles = EntityInfoManager.GetEntityFiles(
+            ProjectContext.EntityPath!,
+            forceRefresh
+        );
         EntityFiles = entityFiles.AsQueryable();
         FilteredEntityFiles = EntityFiles;
         IsRefreshing = false;

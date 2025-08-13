@@ -67,28 +67,16 @@ public class ManagerGenerate(EntityInfo entityInfo)
         {
             bool isLast = p == last;
             string name = p.Name;
-            if (p.IsNavigation && !p.IsComplexType)
-            {
-                content += $$"""
-                            .WhereNotNull(filter.{{name}}Id, q => q.{{name}}.Id == filter.{{name}}Id){{(
-                    isLast ? ";" : ""
-                )}}
+            content += $$"""
+                        .WhereNotNull(filter.{{name}}, q => q.{{name}} == filter.{{name}}){{(
+                isLast ? ";" : ""
+            )}}
 
-                """;
-            }
-            else
-            {
-                content += $$"""
-                            .WhereNotNull(filter.{{name}}, q => q.{{name}} == filter.{{name}}){{(
-                    isLast ? ";" : ""
-                )}}
-
-                """;
-            }
+            """;
         });
         content += $$"""
                     
-                    return await ToPageAsync<{{entityName + ConstVal.FilterDto}},{{entityName
+                    return await ToPageAsync<{{entityName + ConstVal.FilterDto}}, {{entityName
                 + ConstVal.ItemDto}}>(filter);
             """;
         return content;

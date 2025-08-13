@@ -712,10 +712,17 @@ public class SolutionService(
     /// 构建项目
     /// </summary>
     /// <param name="projectPath"></param>
+    /// <param name="restore"></param>
     /// <returns></returns>
-    public static bool BuildProject(string projectPath)
+    public static bool BuildProject(string projectPath, bool restore = true)
     {
-        if (!ProcessHelper.RunCommand("dotnet", $"build {projectPath}", out string error))
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"build {projectPath} {(restore ? "" : "--no-restore")}",
+                out string error
+            )
+        )
         {
             OutputHelper.Error(error);
             return false;
