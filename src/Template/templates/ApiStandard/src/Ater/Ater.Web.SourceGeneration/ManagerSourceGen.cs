@@ -298,7 +298,6 @@ public class ManagerSourceGen : IIncrementalGenerator
         }
 
         // 查找 ModuleExtensions 类
-        var test = GetAllTypes(assemblySymbol.GlobalNamespace).ToList();
         return GetAllTypes(assemblySymbol.GlobalNamespace)
             .FirstOrDefault(t =>
                 t.Name == "ModuleExtensions"

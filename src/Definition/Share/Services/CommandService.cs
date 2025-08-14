@@ -143,6 +143,14 @@ public class CommandService(
         }
 
         SolutionService.BuildSourceGeneration(solutionPath);
+        if (projectContext.EntityPath.NotEmpty())
+        {
+            SolutionService.BuildProject(projectContext.EntityPath);
+        }
+        if (projectContext.EntityFrameworkPath.NotEmpty())
+        {
+            SolutionService.BuildProject(projectContext.EntityFrameworkPath);
+        }
         // restore dotnet tools
         if (!ProcessHelper.RunCommand("dotnet", "tool restore", out string restoreMsg))
         {

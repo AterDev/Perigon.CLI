@@ -27,10 +27,10 @@ builder
     );
 
 // 业务Managers
-// builder.Services.AddManagers();
+builder.Services.AddManagers();
 
 // 模块服务
-// builder.AddModules();
+builder.AddModules();
 
 WebApplication app = builder.Build();
 

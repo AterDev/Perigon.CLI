@@ -17,7 +17,7 @@
       ReferenceOutputAssembly="false"
     />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\Modules\CommonMod\CommonMod.csproj" />
+    <ProjectReference Include="..\..\Modules\UserMod\UserMod.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Middleware\" />

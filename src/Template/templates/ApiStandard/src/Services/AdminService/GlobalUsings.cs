@@ -1,4 +1,5 @@
 //global using AdminService.Extension;
+global using AdminService.Extension;
 global using Ater.Common.Utils;
 global using Ater.Web.Convention;
 global using Ater.Web.Convention.Abstraction;
@@ -11,5 +12,3 @@ global using Share.Implement;
 global using SystemMod.Managers;
 global using SystemMod.Models;
 global using SystemMod.Services;
-
-//global using AdminService.Extension;

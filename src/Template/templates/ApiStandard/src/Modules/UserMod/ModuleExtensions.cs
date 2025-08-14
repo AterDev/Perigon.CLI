@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Hosting;
 
-namespace CustomerMod;
+namespace UserMod;
 
 /// <summary>
 /// 模块服务扩展
@@ -11,7 +11,7 @@ public static class ModuleExtensions
     /// add module
     /// </summary>
     /// <param name="builder"></param>
-    public static IHostApplicationBuilder AddCustomerMod(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddUserMod(this IHostApplicationBuilder builder)
     {
         return builder;
     }
