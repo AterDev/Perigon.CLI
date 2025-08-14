@@ -9,7 +9,7 @@ namespace AdminService.Controllers;
 /// <see cref="SystemLogsManager"/>
 public class SystemLogsController(
     Localizer localizer,
-    UserContext user,
+    IUserContext user,
     ILogger<SystemLogsController> logger,
     SystemLogsManager manager
 ) : RestControllerBase<SystemLogsManager>(localizer, manager, user, logger)
