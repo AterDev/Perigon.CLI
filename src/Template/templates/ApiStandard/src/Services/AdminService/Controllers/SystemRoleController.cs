@@ -9,8 +9,8 @@ namespace AdminService.Controllers;
 /// </summary>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemRoleController(
-    Share.Localizer localizer,
-    UserContext user,
+    Localizer localizer,
+    IUserContext user,
     ILogger<SystemRoleController> logger,
     SystemRoleManager manager
 ) : RestControllerBase<SystemRoleManager>(localizer, manager, user, logger)

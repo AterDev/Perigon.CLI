@@ -12,8 +12,8 @@ namespace AdminService.Controllers;
 /// 系统用户
 /// </summary>
 public class SystemUserController(
-    Share.Localizer localizer,
-    UserContext user,
+    Localizer localizer,
+    IUserContext user,
     ILogger<SystemUserController> logger,
     SystemUserManager manager,
     SystemConfigManager systemConfig,
@@ -75,7 +75,7 @@ public class SystemUserController(
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    [HttpPut("login")]
+    [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResult>> LoginAsync(SystemLoginDto dto)
     {
@@ -201,7 +201,7 @@ public class SystemUserController(
     /// 退出 ✅
     /// </summary>
     /// <returns></returns>
-    [HttpPut("logout/{id}")]
+    [HttpPost("logout/{id}")]
     public async Task<ActionResult<bool>> LogoutAsync([FromRoute] Guid id)
     {
         if (await _manager.ExistAsync(id))
@@ -260,7 +260,7 @@ public class SystemUserController(
     /// 修改密码 ✅
     /// </summary>
     /// <returns></returns>
-    [HttpPut("changePassword")]
+    [HttpPatch("changePassword")]
     public async Task<ActionResult<bool>> ChangePassword(string password, string newPassword)
     {
         if (!await _manager.ExistAsync(_user.UserId))

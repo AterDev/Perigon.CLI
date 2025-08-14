@@ -65,8 +65,17 @@ public class SolutionConfig
     public string ModulePath { get; set; } = PathConst.ModulesPath;
     public string ApiPath { get; set; } = PathConst.APIPath;
     public string ServicePath { get; set; } = PathConst.ServicesPath;
-    public string SolutionPath { get; set; } = "";
-    public bool IsLight { get; private set; }
+    public string SolutionPath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 是否为租户模式
+    /// </summary>
+    public bool IsTenantMode { get; set; }
+
+    /// <summary>
+    /// 用来标识哪些为用户Id
+    /// </summary>
+    public List<string> UserIds { get; set; } = ["UserId", "SystemUserId", "AccountId"];
 }
 
 public enum SolutionType

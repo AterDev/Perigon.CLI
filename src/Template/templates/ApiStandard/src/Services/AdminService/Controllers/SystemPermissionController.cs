@@ -8,8 +8,8 @@ namespace AdminService.Controllers;
 /// </summary>
 /// <see cref="SystemPermissionManager"/>
 public class SystemPermissionController(
-    Share.Localizer localizer,
-    UserContext user,
+    Localizer localizer,
+    IUserContext user,
     ILogger<SystemPermissionController> logger,
     SystemPermissionManager manager,
     SystemPermissionGroupManager systemPermissionGroupManager

@@ -30,8 +30,8 @@
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
         <FluentTextField @bind-Value="dto.SharePath"
                          AutoComplete="off"
-                         Label="@Lang(Localizer.DtoModel,Localizer.Directory)"
-                         Placeholder="@Lang(Localizer.DtoModel,Localizer.Directory)"
+                         Label="@Lang(Localizer.SharedDto,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.SharedDto,Localizer.Directory)"
                          Class="w-100" />
       </FluentStack>
 
@@ -49,6 +49,18 @@
                          Placeholder="@Lang(Localizer.Service,Localizer.Directory)"
                          Class="w-100" />
       </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="UserIds"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.UserForeignKeyId)"
+                         Placeholder="@Lang(Localizer.UserForeignKeyExample)"
+                         Class="w-100" />
+        <small>@Lang(Localizer.UserIdTips)</small>
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentSwitch @bind-Value=dto.IsTenantMode Label="@Lang(Localizer.TenantMode)" Disabled="true"/>
+      </FluentStack>
+
     </FluentStack>
   </EditForm>
 </FluentBodyContent>
@@ -76,12 +88,14 @@
   SolutionConfig dto = new();
   EditContext? editContext;
   bool formValid { get; set; }
+  string UserIds { get; set; } = string.Empty;
 
   protected override async Task OnInitializedAsync()
   {
     if (Content != null)
     {
       dto = Content.Config;
+      UserIds = string.Join(',', dto.UserIds??[]);
     }
     editContext = new EditContext(dto);
     editContext.OnFieldChanged += HandleFieldChanged;
@@ -118,6 +132,13 @@
       ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName, Content.Name));
       return;
     }
+
+    dto.UserIds = UserIds
+      .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+      .Select(x => x.Trim())
+      .Where(x => !string.IsNullOrWhiteSpace(x))
+      .ToList();
+
     var res = await Manager.UpdateConfigAsync(solution, dto);
     if (res)
     {

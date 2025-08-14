@@ -523,4 +523,19 @@
     <value>选择要生成Controller的服务</value>
     <comment>选择要生成Controller的服务</comment>
   </data>
+  <data name="SharedDto" xml:space="preserve">
+    <value>共享Dto</value>
+  </data>
+  <data name="TenantMode" xml:space="preserve">
+    <value>启用租户</value>
+  </data>
+  <data name="UserIdTips" xml:space="preserve">
+    <value>用于标识用户外键Id属性名，可填写多个,使用;分隔</value>
+  </data>
+  <data name="UserForeignKeyId" xml:space="preserve">
+    <value>用户外键属性名</value>
+  </data>
+  <data name="UserForeignKeyExample" xml:space="preserve">
+    <value>如UserId;SystemUserId;AccountId</value>
+  </data>
 </root>

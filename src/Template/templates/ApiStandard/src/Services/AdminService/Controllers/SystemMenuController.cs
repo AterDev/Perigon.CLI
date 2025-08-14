@@ -9,8 +9,8 @@ namespace AdminService.Controllers;
 /// <see cref="SystemMenuManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemMenuController(
-    Share.Localizer localizer,
-    UserContext user,
+    Localizer localizer,
+    IUserContext user,
     ILogger<SystemMenuController> logger,
     IWebHostEnvironment env,
     SystemMenuManager manager

@@ -6,8 +6,8 @@ namespace AdminService.Controllers;
 /// <see cref="SystemPermissionGroupManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemPermissionGroupController(
-    Share.Localizer localizer,
-    UserContext user,
+    Localizer localizer,
+    IUserContext user,
     ILogger<SystemPermissionGroupController> logger,
     SystemPermissionGroupManager manager
 ) : RestControllerBase<SystemPermissionGroupManager>(localizer, manager, user, logger)

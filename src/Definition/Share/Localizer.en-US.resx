@@ -523,4 +523,19 @@
     <value>Select the services to generate the Controllers</value>
     <comment>选择要生成Controller的服务</comment>
   </data>
+  <data name="SharedDto" xml:space="preserve">
+    <value>shared Dto</value>
+  </data>
+  <data name="TenantMode" xml:space="preserve">
+    <value>Enable Tenant</value>
+  </data>
+  <data name="UserIdTips" xml:space="preserve">
+    <value>Used to identify the user's foreign key Id attribute name, multiple entries can be filled in,separated by ;</value>
+  </data>
+  <data name="UserForeignKeyId" xml:space="preserve">
+    <value>User ForeignKey Id AttributeName</value>
+  </data>
+  <data name="UserForeignKeyExample" xml:space="preserve">
+    <value>like UserId;SystemUserId;AccountId</value>
+  </data>
 </root>
