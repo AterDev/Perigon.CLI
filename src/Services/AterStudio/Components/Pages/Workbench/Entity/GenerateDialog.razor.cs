@@ -21,7 +21,7 @@ public partial class GenerateDialog
     List<SubProjectInfo> Services { get; set; } = [];
     IEnumerable<SubProjectInfo> SelectedServices { get; set; } = [];
     string? SelectedValue;
-    bool IsProcessing { get; set; } = false;
+    bool IsProcessing { get; set; }
 
     protected override void OnInitialized()
     {
@@ -41,27 +41,45 @@ public partial class GenerateDialog
 
     private async Task GenerateAsync()
     {
-        IsProcessing = true;
-        await Task.Yield();
         if (Content.EntityPaths == null || Content.EntityPaths.Length == 0)
         {
             ToastService.ShowError("No entity paths specified.");
             return;
         }
+        // selectedServices is required when generate controller
+        if (Content.CommandType == CommandType.API)
+        {
+            if (SelectedServices.Count() == 0)
+            {
+                ToastService.ShowError("Please select a service.");
+                return;
+            }
+        }
+
+        IsProcessing = true;
+        await Task.Yield();
         GenerateDto.ServicePath = SelectedServices
             .Where(s => Path.GetDirectoryName(s.Path) != null)
             .Select(s => Path.GetDirectoryName(s.Path)!)
             .ToArray();
 
         List<GenFileInfo> resFiles = [];
-        foreach (var entityPath in Content.EntityPaths)
+        try
         {
-            GenerateDto.EntityPath = entityPath;
-            var res = await EntityInfoManager.GenerateAsync(GenerateDto);
-            resFiles.AddRange(res);
+            foreach (var entityPath in Content.EntityPaths)
+            {
+                GenerateDto.EntityPath = entityPath;
+                var res = await EntityInfoManager.GenerateAsync(GenerateDto);
+                resFiles.AddRange(res);
+            }
+            IsProcessing = false;
+            await Dialog.CloseAsync(resFiles);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Generate failed: {ex.Message}");
         }
         IsProcessing = false;
-        await Dialog.CloseAsync(resFiles);
     }
 
     private async Task CancelAsync()

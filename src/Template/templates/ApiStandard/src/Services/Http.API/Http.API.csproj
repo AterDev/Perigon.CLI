@@ -16,8 +16,8 @@
       OutputItemType="Analyzer"
       ReferenceOutputAssembly="false"
     />
-    <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Modules\CommonMod\CommonMod.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Middleware\" />

@@ -1,5 +1,4 @@
 using Ater.Common.Models;
-using Share.Implement;
 using SystemMod.Models.SystemPermissionDtos;
 
 namespace AdminService.Controllers;
@@ -9,7 +8,7 @@ namespace AdminService.Controllers;
 /// </summary>
 /// <see cref="SystemPermissionManager"/>
 public class SystemPermissionController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<SystemPermissionController> logger,
     SystemPermissionManager manager,
@@ -45,7 +44,7 @@ public class SystemPermissionController(
             return NotFound("不存在的权限组");
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -63,7 +62,7 @@ public class SystemPermissionController(
         SystemPermission? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         if (dto.SystemPermissionGroupId != null && current.Group.Id != dto.SystemPermissionGroupId)

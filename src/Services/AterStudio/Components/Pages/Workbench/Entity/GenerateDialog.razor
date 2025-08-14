@@ -14,7 +14,7 @@
     @if (Content.CommandType == CommandType.API)
     {
       <FluentSelect TOption="SubProjectInfo"
-                    Label="Select Api Service"
+                    Label="@Localizer.SelectServices"
                     Items="@Services"
                     Id="services"
                     OptionValue="@(p => p.Path)"

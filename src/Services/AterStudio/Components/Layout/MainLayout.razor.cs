@@ -6,7 +6,7 @@ namespace AterStudio.Components.Layout;
 public partial class MainLayout : IDisposable
 {
     public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
-    private bool isDarkMode = false;
+    private bool isDarkMode;
     private IDialogReference? _dialog;
 
     private ErrorBoundary? _errorBoundary;

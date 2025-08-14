@@ -21,6 +21,7 @@ public class ManagerGenerate(EntityInfo entityInfo)
         {
             $"global using {EntityInfo.AssemblyName};",
             $"global using {EntityInfo.NamespaceName};",
+            $"global using Share.Implement;",
             $"global using {CommonNamespace}.{ConstVal.ManagersDir};",
         };
         if (EntityInfo.DbContextSpaceName != null)

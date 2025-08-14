@@ -1,6 +1,6 @@
 using OrderMod.Models.OrderDtos;
 
-namespace OrderMod.Controllers.AdminControllers;
+namespace OrderMod.Controllers;
 
 /// <summary>
 /// 订单
@@ -36,7 +36,7 @@ public class OrderController(
         Order? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);
@@ -51,6 +51,6 @@ public class OrderController(
     public async Task<ActionResult<OrderDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.FindAsync<OrderDetailDto>(d => d.Id == id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 }

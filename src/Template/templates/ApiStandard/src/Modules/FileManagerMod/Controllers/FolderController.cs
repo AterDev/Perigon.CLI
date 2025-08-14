@@ -1,6 +1,6 @@
 using FileManagerMod.Models.FolderDtos;
 
-namespace FileManagerMod.Controllers.AdminControllers;
+namespace FileManagerMod.Controllers;
 
 /// <summary>
 /// 文件夹
@@ -37,12 +37,12 @@ public class FolderController(
             var exist = await _manager.ExistAsync(dto.ParentId.Value);
             if (!exist)
             {
-                return NotFound(ErrorKeys.NotFoundResource);
+                return NotFound(Localizer.NotFoundResource);
             }
             ;
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class FolderController(
     public async Task<ActionResult<FolderDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.FindAsync<FolderDetailDto>(d => d.Id == id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 
     /// <summary>

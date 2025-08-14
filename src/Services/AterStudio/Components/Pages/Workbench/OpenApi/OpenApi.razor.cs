@@ -30,7 +30,7 @@ public partial class OpenApi
     string? SelectedNav { get; set; }
 
     bool IsLoading { get; set; } = true;
-    bool IsFreshing { get; set; } = false;
+    bool IsFreshing { get; set; }
 
     string ActiveId { get; set; } = "api";
 

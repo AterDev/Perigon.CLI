@@ -20,39 +20,33 @@ public partial class EntityInfoManager(
     public List<EntityFile> GetEntityFiles(string entityPath, bool forceRefresh = false)
     {
         List<EntityFile> entityFiles = [];
-        try
+        //try
+        //{
+        var entityProjectPath = Path.Combine(
+            entityPath,
+            ConstVal.EntityName + ConstVal.CSharpProjectExtension
+        );
+        if (File.Exists(entityProjectPath) && forceRefresh)
         {
-            var entityProjectPath = Path.Combine(
-                entityPath,
-                ConstVal.EntityName + ConstVal.CSharpProjectExtension
-            );
-            if (File.Exists(entityProjectPath) && forceRefresh)
+            if (!SolutionService.BuildProject(entityProjectPath, true))
             {
-                if (!SolutionService.BuildProject(entityProjectPath, true))
-                {
-                    OutputHelper.Error($"build entity project: {entityProjectPath} failed.");
-                }
+                OutputHelper.Error($"build entity project: {entityProjectPath} failed.");
             }
+        }
 
-            var filePaths = CodeAnalysisService.GetEntityFilePaths(entityPath);
-            if (filePaths.Count != 0)
-            {
-                entityFiles = CodeAnalysisService.GetEntityFiles(
-                    projectContext.EntityPath!,
-                    filePaths
-                );
-                // 排序
-                entityFiles =
-                [
-                    .. entityFiles.OrderByDescending(e => e.ModuleName).ThenBy(e => e.Name),
-                ];
-            }
-        }
-        catch (Exception ex)
+        var filePaths = CodeAnalysisService.GetEntityFilePaths(entityPath);
+        if (filePaths.Count != 0)
         {
-            _logger.LogInformation("{message}", ex.Message);
-            return entityFiles;
+            entityFiles = CodeAnalysisService.GetEntityFiles(projectContext.EntityPath!, filePaths);
+            // 排序
+            entityFiles = [.. entityFiles.OrderByDescending(e => e.ModuleName).ThenBy(e => e.Name)];
         }
+        //}
+        //catch (Exception ex)
+        //{
+        //    _logger.LogInformation("{message}", ex.Message);
+        //    return entityFiles;
+        //}
         return entityFiles;
     }
 
@@ -193,12 +187,6 @@ public partial class EntityInfoManager(
         await dbContextHelper.LoadEntityAsync(dto.EntityPath);
         var entityInfo = dbContextHelper.GetEntityInfo();
 
-        if (entityInfo == null)
-        {
-            var helper = new EntityParseHelper(dto.EntityPath);
-            entityInfo = await helper.ParseEntityAsync();
-        }
-
         _ = entityInfo ?? throw new Exception("Parse entity failed!");
 
         _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
@@ -254,22 +242,37 @@ public partial class EntityInfoManager(
     /// <param name="entityInfo"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    private static List<GenFileInfo> GenerateControllers(EntityInfo entityInfo, GenerateDto dto)
+    private List<GenFileInfo> GenerateControllers(EntityInfo entityInfo, GenerateDto dto)
     {
         var files = new List<GenFileInfo>();
-        bool onlyOneService = dto.ServicePath.Length == 1;
         foreach (var servicePath in dto.ServicePath)
         {
             var controllerPath = Path.Combine(servicePath, ConstVal.ControllersDir);
-            CodeGenService.GenerateApiGlobalUsing(entityInfo, servicePath, dto.Force);
+
+            files.Add(CodeGenService.GenerateApiGlobalUsing(entityInfo, servicePath, dto.Force));
             files.Add(
                 CodeGenService.GenerateController(
                     entityInfo,
-                    servicePath,
+                    controllerPath,
                     TplContent.ControllerTpl(),
                     dto.Force
                 )
             );
+            // add project Reference
+            if (projectContext.ModulesPath.NotEmpty() && entityInfo.ModuleName.NotEmpty())
+            {
+                var moduleProjectPath = Path.Combine(
+                    projectContext.ModulesPath,
+                    entityInfo.ModuleName,
+                    entityInfo.ModuleName + ConstVal.CSharpProjectExtension
+                );
+
+                var serviceProjectPath = Path.Combine(
+                    servicePath,
+                    Path.GetFileName(servicePath) + ConstVal.CSharpProjectExtension
+                );
+                SolutionService.AddProjectReference(serviceProjectPath, moduleProjectPath);
+            }
         }
         return files;
     }

@@ -69,7 +69,7 @@ public partial class DtoCodeGenerate
             Properties =
                 EntityInfo
                     .PropertyInfos?.Where(p => p.Name is not ConstVal.IsDeleted)
-                    .Where(p => !p.IsJsonIgnore)
+                    .Where(p => !p.IsJsonIgnore && !p.IsNavigation)
                     .Where(p => !EntityInfo.IgnoreTypes.Contains(p.Type))
                     .Where(p => !(p.IsList && p.IsNavigation))
                     .ToList() ?? [],
@@ -157,6 +157,7 @@ public partial class DtoCodeGenerate
                 EntityInfo
                     .PropertyInfos?.Where(p =>
                         !p.IsShadow
+                        && !p.IsNavigation
                         && !EntityInfo.IgnoreTypes.Contains(p.Type)
                         && !EntityInfo.IgnoreProperties.Contains(p.Name)
                     )
@@ -194,6 +195,7 @@ public partial class DtoCodeGenerate
             Properties = EntityInfo
                 .PropertyInfos.Where(p =>
                     !p.IsShadow
+                    && !p.IsNavigation
                     && !EntityInfo.IgnoreTypes.Contains(p.Type)
                     && !EntityInfo.IgnoreProperties.Contains(p.Name)
                 )

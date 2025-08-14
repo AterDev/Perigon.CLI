@@ -9,7 +9,7 @@ namespace AdminService.Controllers;
 /// <see cref="SystemMenuManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemMenuController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<SystemMenuController> logger,
     IWebHostEnvironment env,
@@ -71,11 +71,11 @@ public class SystemMenuController(
         {
             if (!await _manager.ExistAsync(dto.ParentId.Value))
             {
-                return NotFound(ErrorKeys.NotFoundResource);
+                return NotFound(Localizer.NotFoundResource);
             }
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public class SystemMenuController(
         SystemMenu? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);

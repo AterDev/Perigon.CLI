@@ -6,7 +6,7 @@ namespace Http.API.Controllers;
 /// CommonController
 /// </summary>
 public class CommonController(
-    Localizer localizer,
+    Share.Localizer localizer,
     CommonManager manager,
     IUserContext user,
     ILogger<CommonController> logger

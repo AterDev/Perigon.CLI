@@ -519,4 +519,8 @@
   <data name="Else" xml:space="preserve">
     <value>其他</value>
   </data>
+  <data name="SelectServices" xml:space="preserve">
+    <value>选择要生成Controller的服务</value>
+    <comment>选择要生成Controller的服务</comment>
+  </data>
 </root>

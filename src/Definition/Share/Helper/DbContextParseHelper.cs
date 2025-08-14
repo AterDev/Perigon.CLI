@@ -64,6 +64,12 @@ public class DbContextParseHelper
                     e.ClrType.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase)
                 );
         }
+        else
+        {
+            throw new InvalidOperationException(
+                $"{entityName} not found in any DbContext, please Add it to the DbContext."
+            );
+        }
     }
 
     public EntityInfo? GetEntityInfo()

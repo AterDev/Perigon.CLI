@@ -251,78 +251,6 @@ public class SolutionService(
         }
     }
 
-    public async Task<(bool res, string? message)> SyncDataFromLocalAsync()
-    {
-        var filePath = Path.Combine(
-            _projectContext.SolutionPath!,
-            ConstVal.TemplateDir,
-            ConstVal.SyncJson
-        );
-        var projectId = _projectContext.ProjectId;
-        if (projectId == null)
-        {
-            return (false, "项目ID未设置，无法同步数据");
-        }
-
-        if (!File.Exists(filePath))
-        {
-            return (false, "templates/sync.json 文件不存在，无法同步");
-        }
-
-        var data = File.ReadAllText(filePath);
-        var model = JsonSerializer.Deserialize<SyncModel>(data);
-        if (model == null)
-        {
-            return (false, "没有有效数据");
-        }
-
-        try
-        {
-            var actions = await context
-                .GenActions.Where(a => a.ProjectId == projectId.Value)
-                .Include(a => a.GenSteps)
-                .ToListAsync();
-
-            context.RemoveRange(actions);
-            await context.SaveChangesAsync();
-
-            //var steps = await context.GenSteps.Where(a => a.ProjectId == projectId).ToListAsync();
-            //var relation = await context.GenActionGenSteps.ToListAsync();
-
-            // 去重并添加
-            var newActions = model.TemplateSync?.GenActions.ToList();
-            var newSteps = model.TemplateSync?.GenSteps.ToList();
-            var newRelation = model.TemplateSync?.GenActionGenSteps.ToList();
-
-            if (newActions != null && newActions.Count > 0)
-            {
-                newActions.ForEach(a => a.ProjectId = (Guid)projectId);
-                await context.GenActions.AddRangeAsync(newActions);
-            }
-            if (newSteps != null && newSteps.Count > 0)
-            {
-                newSteps.ForEach(a => a.ProjectId = (Guid)projectId);
-                await context.GenSteps.AddRangeAsync(newSteps);
-            }
-            await context.SaveChangesAsync();
-            context.ChangeTracker.Clear();
-            if (newRelation != null && newRelation.Count > 0)
-            {
-                await context.GenActionGenSteps.AddRangeAsync(newRelation);
-            }
-            await context.SaveChangesAsync();
-            // 新增数量
-            return (
-                true,
-                $"新增数据：{newActions?.Count}个操作，{newSteps?.Count}个步骤，{newRelation?.Count}个关联"
-            );
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
-    }
-
     /// <summary>
     /// 获取模块列表
     /// </summary>
@@ -729,7 +657,24 @@ public class SolutionService(
         }
         else
         {
+            OutputHelper.Success(error);
             return true;
         }
+    }
+
+    public static bool AddProjectReference(string projectPath, string referencePath)
+    {
+        if (
+            !ProcessHelper.RunCommand(
+                "dotnet",
+                $"add {projectPath} reference {referencePath}",
+                out string error
+            )
+        )
+        {
+            OutputHelper.Error($"add project reference {referencePath} failed!:{error}");
+            return false;
+        }
+        return true;
     }
 }

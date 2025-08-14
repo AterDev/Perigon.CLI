@@ -94,7 +94,7 @@ public class TplContent
                 {
                     var query = _dbSet.Where(q => q.Id == id);
                     // TODO:自定义数据权限验证
-                    // query = query.Where(q => q.UserId = userId)
+                    // query = query.Where(q => q.UserId == userId);
                     return await query.FirstOrDefaultAsync();
                 }
             }
@@ -134,10 +134,11 @@ public class TplContent
                 [HttpPost]
                 public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
+                    // 关联属性
                     // 冲突验证
-                    // if(await _manager.HasConflictAsync(dto.xxx)) { return Conflict(ErrorKeys.ConflictResource); }
+                    // if(await _manager.HasConflictAsync(dto.xxx)) { return Conflict(Localizer.ConflictResource); }
                     var id = await _manager.AddAsync(dto);
-                    return id == null ? Problem(ErrorMsg.AddFailed) : id;
+                    return id == null ? Problem(Localizer.AddFailed) : id;
                 }
 
                 /// <summary>
@@ -149,9 +150,9 @@ public class TplContent
                 [HttpPatch("{id}")]
                 public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
-                    var entity = await _manager.GetOwnedAsync(id);
-                    if (entity == null) { return NotFound(ErrorKeys.NotFoundResource); }
-                    // 冲突验证
+                    var entity = await _manager.GetOwnedAsync(id, _user.UserId);
+                    if (entity == null) { return NotFound(Localizer.NotFoundResource); }
+                   
                     return await _manager.UpdateAsync(entity, dto);
                 }
 
@@ -177,7 +178,7 @@ public class TplContent
                 public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
                 {
                     // 注意删除权限
-                    var entity = await _manager.GetOwnedAsync(id);
+                    var entity = await _manager.GetOwnedAsync(id, _user.UserId);
                     if (entity == null) { return NotFound(); };
                     // return Forbid();
                     return await _manager.DeleteAsync(entity, true);
@@ -238,7 +239,7 @@ export class EnumTextPipeModule { }
             global using System.ComponentModel.DataAnnotations;
             global using System.Diagnostics;
             global using System.Linq.Expressions;
-            global using ${Module}.Manager;
+            // global using ${Module}.Managers;
             global using {{ConstVal.ConventionLibName}};
             global using {{ConstVal.CoreLibName}}.Models;
             global using {{ConstVal.CoreLibName}}.Utils;
@@ -272,8 +273,8 @@ export class EnumTextPipeModule { }
                     <NoWarn>1701;1702;1591</NoWarn>
                 </PropertyGroup>
                 <ItemGroup>
-                    <ProjectReference Include="..\..\CommonMod\CommonMod.csproj" />
-                    <ProjectReference Include="..\..\Framework\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+                    <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
+                    <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.Web.Extension.csproj" />
                 </ItemGroup>
             </Project>
             """;

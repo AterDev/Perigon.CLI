@@ -13,7 +13,7 @@ public class RestApiGenerate(EntityInfo entityInfo)
     /// DataStore 项目的命名空间
     /// </summary>
     public string? ShareNamespace { get; set; } = entityInfo.GetShareNamespace();
-    public string? ApplicationNamespace { get; set; } = entityInfo.GetCommonNamespace();
+    public string? ModuleNamespace { get; set; } = entityInfo.GetCommonNamespace();
     public EntityInfo EntityInfo { get; init; } = entityInfo;
 
     public List<string> GetGlobalUsings()
@@ -28,11 +28,10 @@ public class RestApiGenerate(EntityInfo entityInfo)
             $"global using {ConstVal.CoreLibName}.Models;",
             $"global using {ConstVal.CoreLibName}.Utils;",
             $"global using {ConstVal.ConventionLibName};",
+            $"global using {ConstVal.ConventionLibName}.Abstraction;",
             $"global using {ConstVal.ExtensionLibName}.Services;",
             $"global using {EntityInfo.NamespaceName};",
-            $"global using {ApplicationNamespace}.Const;",
-            $"global using {ApplicationNamespace}.{ConstVal.ManagersDir};",
-            $"global using {ApplicationNamespace}.Implement;",
+            $"global using {ModuleNamespace}.{ConstVal.ManagersDir};",
         ];
     }
 

@@ -6,7 +6,7 @@ namespace AdminService.Controllers;
 /// <see cref="SystemPermissionGroupManager"/>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemPermissionGroupController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<SystemPermissionGroupController> logger,
     SystemPermissionGroupManager manager
@@ -34,7 +34,7 @@ public class SystemPermissionGroupController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemPermissionGroupAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public class SystemPermissionGroupController(
         SystemPermissionGroup? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);

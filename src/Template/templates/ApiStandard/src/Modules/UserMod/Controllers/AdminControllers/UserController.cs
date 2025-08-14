@@ -8,7 +8,7 @@ namespace UserMod.Controllers.AdminControllers;
 /// <see cref="CommonMod.Managers.UserManager"/>
 [Authorize(WebConst.AdminUser)]
 public class UserController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager
@@ -36,10 +36,10 @@ public class UserController(
         // 判断重复用户名
         if (await _manager.IsUniqueAsync(dto.UserName))
         {
-            return Conflict(ErrorKeys.ExistUser);
+            return Conflict(Localizer.ExistUser);
         }
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -53,8 +53,8 @@ public class UserController(
     {
         var current = await _manager.FindAsync(id);
         return current == null
-            ? NotFound(ErrorKeys.NotFoundResource)
-            : await _manager.UpdateAsync(current, dto);
+            ? base.NotFound(Localizer.NotFoundResource)
+            : await base._manager.UpdateAsync(current, dto);
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public class UserController(
         // 注意删除权限
         var res = await _manager.GetOwnedAsync(id);
         return res == null
-            ? NotFound(ErrorKeys.NotFoundResource)
-            : await _manager.DeleteAsync([id], true);
+            ? base.NotFound(Localizer.NotFoundResource)
+            : await base._manager.DeleteAsync([id], true);
     }
 }

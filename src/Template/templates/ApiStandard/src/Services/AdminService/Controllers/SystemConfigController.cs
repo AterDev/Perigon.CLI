@@ -8,7 +8,7 @@ namespace AdminService.Controllers;
 /// </summary>
 /// <see cref="SystemConfigManager"/>
 public class SystemConfigController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<SystemConfigController> logger,
     SystemConfigManager manager
@@ -46,7 +46,7 @@ public class SystemConfigController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemConfigAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public class SystemConfigController(
         SystemConfig? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);

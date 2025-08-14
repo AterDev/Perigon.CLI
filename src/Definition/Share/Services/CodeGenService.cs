@@ -144,7 +144,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             ? File.ReadLines(globalFilePath).ToList()
             : [];
         var globalList = apiGen.GetGlobalUsings();
-        // add globalList  item if globalLines not exist
+
         globalList.ForEach(g =>
         {
             if (!globalLines.Contains(g))

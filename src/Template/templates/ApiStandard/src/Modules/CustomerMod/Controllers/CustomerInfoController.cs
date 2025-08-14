@@ -7,7 +7,7 @@ namespace CustomerMod.Controllers;
 /// </summary>
 /// <see cref="CustomerInfoManager"/>
 public class CustomerInfoController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<CustomerInfoController> logger,
     CustomerInfoManager manager
@@ -36,10 +36,10 @@ public class CustomerInfoController(
     {
         if (await _manager.IsConflictAsync(dto.Name, dto.ContactInfo))
         {
-            return Conflict(ErrorKeys.ConflictResource);
+            return Conflict(Localizer.ConflictResource);
         }
         var id = await _manager.AddAsync(dto, _user.UserId);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>

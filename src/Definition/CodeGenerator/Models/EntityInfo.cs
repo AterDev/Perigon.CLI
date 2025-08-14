@@ -125,7 +125,7 @@ public class EntityInfo
     public List<PropertyInfo> GetFilterProperties()
     {
         return PropertyInfos
-                .Where(p => !p.IsList && !p.IsComplexType)
+                .Where(p => !p.IsList && !p.IsComplexType && !p.IsNavigation)
                 .Where(p => p.IsRequired || p.IsIndex || p.IsEnum || p.Type.Equals("bool"))
                 .Where(p => !IgnoreProperties.Contains(p.Name) && !IgnoreTypes.Contains(p.Type))
                 .Where(p => p.MaxLength is not (not null and > 100))

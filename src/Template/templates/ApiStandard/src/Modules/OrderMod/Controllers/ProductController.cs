@@ -1,6 +1,6 @@
 using OrderMod.Models.ProductDtos;
 
-namespace OrderMod.Controllers.AdminControllers;
+namespace OrderMod.Controllers;
 
 /// <summary>
 /// 产品
@@ -33,7 +33,7 @@ public class ProductController(
     public async Task<ActionResult<Guid?>> AddAsync(ProductAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class ProductController(
         Product? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);
@@ -63,7 +63,7 @@ public class ProductController(
     public async Task<ActionResult<ProductDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.FindAsync<ProductDetailDto>(d => d.Id == id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 
     /// <summary>

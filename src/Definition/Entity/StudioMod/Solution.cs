@@ -66,7 +66,7 @@ public class SolutionConfig
     public string ApiPath { get; set; } = PathConst.APIPath;
     public string ServicePath { get; set; } = PathConst.ServicesPath;
     public string SolutionPath { get; set; } = "";
-    public bool IsLight { get; private set; } = false;
+    public bool IsLight { get; private set; }
 }
 
 public enum SolutionType

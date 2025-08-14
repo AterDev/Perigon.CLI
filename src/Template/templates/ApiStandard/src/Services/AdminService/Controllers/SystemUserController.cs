@@ -12,7 +12,7 @@ namespace AdminService.Controllers;
 /// 系统用户
 /// </summary>
 public class SystemUserController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<SystemUserController> logger,
     SystemUserManager manager,
@@ -174,12 +174,12 @@ public class SystemUserController(
         var userId = await _cache.GetValueAsync<string>(refreshToken);
         if (userId == null || userId != _user.UserId.ToString())
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         SystemUser? user = await _manager.FindAsync(Guid.Parse(userId));
         if (user == null)
         {
-            return Forbid(ErrorKeys.NotFoundUser);
+            return Forbid(Localizer.NotFoundUser);
         }
         AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
         // 更新缓存
@@ -237,7 +237,7 @@ public class SystemUserController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -252,8 +252,8 @@ public class SystemUserController(
     {
         SystemUser? current = await _manager.GetCurrentAsync(id);
         return current == null
-            ? NotFound(ErrorKeys.NotFoundResource)
-            : await _manager.UpdateAsync(current, dto);
+            ? base.NotFound(Localizer.NotFoundResource)
+            : await base._manager.UpdateAsync(current, dto);
     }
 
     /// <summary>

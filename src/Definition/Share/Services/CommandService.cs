@@ -143,6 +143,12 @@ public class CommandService(
         }
 
         SolutionService.BuildSourceGeneration(solutionPath);
+        // restore dotnet tools
+        if (!ProcessHelper.RunCommand("dotnet", "tool restore", out string restoreMsg))
+        {
+            OutputHelper.Error(restoreMsg);
+        }
+
         OutputHelper.Success($"Create solution {dto.Name} completed!");
         return true;
     }

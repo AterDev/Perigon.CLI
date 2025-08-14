@@ -1,35 +1,38 @@
 # GitHub Copilot Instructions
 
-本仓库是一个使用.NET 开发的命令行工具。请在生成代码时遵循以下指导：
+本仓库是.NET解决方案。是基于`Ater.Web.template`模板的WebApi项目。在使用GitHub Copilot时，请遵循以下指导原则和偏好设置。
 
-**最重要的原则：当给出代码示例时，只给出确切的可验证的代码，不要按概率生成代码。**
+**最重要的原则：回答任何内容，只给出确定，可验证的内容，不知道不确定的不要回答**
 
 **技术栈和语言偏好:**
 
-* 主要语言是:C# 13，前端是TypeScript，在代码提示时使用最新语法
-* 项目基于ASP.NET Core 9.0
-* 前端使用**blazor server**(.NET9)和fluentui-blazor(4.x)
+* 主要语言是:C# 14，前端是TypeScript，在代码提示时使用最新语法
+* 项目基于ASP.NET Core 10.0 
+* 前端使用Angular 20+
 
 **代码风格偏好**
 
-* 必须使用可空类型
+* 使用可空类型
 * 使用[]来表示数据集合的默认值
 * if for 等语句必须使用大括号
 * 优先使用模式匹配
-* 业务逻辑代码通常封装在`Manager`类中实现，而不是直接在控制器中实现
-* 模型定义通常在`Definition\Entity`中定义
-* 要注意多语言支持，`Localizer`是封装的方法，以支持多语言输出，键通常会在`ConstVal.cs`中定义成常量。
 
 **重要的文件和目录:**
 
 * `src/Ater/Ater.Common`: 基础类库，提供基础帮助类。
 * `src/Definition/ServiceDefaults`: 是提供基础的服务注入的项目。
-* `src/Definition/Entity`: 实体模型项目
+* `src/Definition/Entity`: 包含所有的实体模型，按模块目录组织。
 * `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文
-* `src/Modules/`: 包含各个模块的程序集
-* `src/Modules/SystemMod`: 系统模块的业务逻辑实现
+* `src/Modules/`: 包含各个模块的程序集，主要用于业务逻辑实现
+* `src/Modules/XXXMod/Managers`: 各模块下，实际实现业务逻辑的目录
+* `src/Modules/XXXMod/Models`: 各模块下，Dto模型定义，按实体目录组织
 * `src/Services/Http.API`: 是接口服务项目，基于ASP.NET Core Web API。
-* `src/Services/IdentityServer`: 是使用OpenIdDict实现的OAuth统一验证和用户角色权限管理项目。
+* `src/Services/AdminService`: 后台管理服务接口项目
+
+**核心架构说明**
+
+* 实体集中定义；模块包含多个实体，实体Dto模型和对应的Manager实现；服务引用模块，通过调用Manager来实现功能。
+* 实体Manager，都继承`ManagerBase.cs`中的基类;控制器继承`RestControllerBase.cs`中的基类。
 
 **Agent及代码生成**
 

@@ -9,7 +9,7 @@ namespace AdminService.Controllers;
 /// </summary>
 [Authorize(WebConst.SuperAdmin)]
 public class SystemRoleController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<SystemRoleController> logger,
     SystemRoleManager manager
@@ -37,7 +37,7 @@ public class SystemRoleController(
     public async Task<ActionResult<Guid?>> AddAsync(SystemRoleAddDto dto)
     {
         var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public class SystemRoleController(
         SystemRole? current = await _manager.GetOwnedAsync(id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
 
         return await _manager.UpdateAsync(current, dto);
@@ -71,7 +71,7 @@ public class SystemRoleController(
         SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         SystemRole? res = await _manager.SetMenusAsync(current, dto);
         return Ok(res) ?? Problem("菜单更新失败");
@@ -90,7 +90,7 @@ public class SystemRoleController(
         SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         SystemRole? res = await _manager.SetPermissionGroupsAsync(current, dto);
         return Ok(res) ?? Problem("权限组更新失败");

@@ -14,11 +14,10 @@ public partial class EntityList
     [Parameter]
     public string? Id { get; set; }
     bool isLoading = true;
-    bool IsProcessing { get; set; }
     bool IsRefreshing { get; set; }
 
     bool IsCleaning { get; set; }
-    bool BatchOpen { get; set; } = false;
+    bool BatchOpen { get; set; }
 
     private PaginationState pagination = new() { ItemsPerPage = 20 };
 
@@ -26,11 +25,6 @@ public partial class EntityList
     private IQueryable<EntityFile>? FilteredEntityFiles { get; set; }
     private List<SubProjectInfo> Modules { get; set; } = [];
     private List<SubProjectInfo> Services { get; set; } = [];
-
-    string moduleFilter = string.Empty;
-
-    string entityName = string.Empty;
-    private bool Hidden { get; set; } = true;
 
     private string? SelectedModule { get; set; }
 
@@ -40,6 +34,7 @@ public partial class EntityList
 
     protected override async Task OnInitializedAsync()
     {
+        CheckProject();
         await GetEntityListAsync();
         GetModules();
         GetServices();
