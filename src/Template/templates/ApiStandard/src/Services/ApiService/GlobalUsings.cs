@@ -1,8 +1,6 @@
+global using ApiService.Extension;
 global using Ater.Common.Utils;
 global using Ater.Web.Convention.Abstraction;
-global using Http.API.Extension;
 global using Microsoft.AspNetCore.Mvc;
 global using ServiceDefaults;
-global using Share;
-global using Share.Constants;
 global using Share.Implement;

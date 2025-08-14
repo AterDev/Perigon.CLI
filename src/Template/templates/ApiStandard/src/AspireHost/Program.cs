@@ -43,7 +43,7 @@ _ = aspireSetting.CacheType?.ToLowerInvariant() switch
 #endregion
 
 var migration = builder.AddProject<Projects.MigrationService>("migrationservice");
-var httpApi = builder.AddProject<Projects.Http_API>("http-api");
+var httpApi = builder.AddProject<Projects.ApiService>("apiservice");
 var adminService = builder.AddProject<Projects.AdminService>("adminservice");
 
 if (database != null)

@@ -37,7 +37,7 @@
   </Folder>
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <Project Path="src/Services/AdminService/AdminService.csproj" />
-    <Project Path="src/Services/Http.API/Http.API.csproj" />
+    <Project Path="src/Services/ApiService/ApiService.csproj" />
     <Project Path="src/Services/MigrationService/MigrationService.csproj" />
   </Folder>
 </Solution>
