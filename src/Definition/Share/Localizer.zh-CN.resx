@@ -530,7 +530,7 @@
     <value>启用租户</value>
   </data>
   <data name="UserIdTips" xml:space="preserve">
-    <value>用于标识用户外键Id属性名，可填写多个,使用;分隔</value>
+    <value>用户外键Id属性名，如UserId，统一从IUserContext获取。可设置多个，使用；分隔</value>
   </data>
   <data name="UserForeignKeyId" xml:space="preserve">
     <value>用户外键属性名</value>

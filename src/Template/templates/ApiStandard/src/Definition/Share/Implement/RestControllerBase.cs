@@ -37,15 +37,9 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
     [NonAction]
     public ObjectResult Forbid(string? value)
     {
-        var res = new ErrorResult
-        {
-            Title = "Forbidden",
-            Detail = value?.ToString(),
-            Status = 403,
-            TraceId = HttpContext.TraceIdentifier,
-        };
+        var res = CreateResult("Forbidden", value, 403);
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", value));
+        _ = (at?.SetTag("responseError", value));
         return new ObjectResult(res) { StatusCode = 403 };
     }
 
@@ -57,13 +51,7 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
     [NonAction]
     public NotFoundObjectResult NotFound(string? value)
     {
-        var res = new ErrorResult
-        {
-            Title = "NotFound",
-            Detail = value?.ToString(),
-            Status = 404,
-            TraceId = HttpContext.TraceIdentifier,
-        };
+        var res = CreateResult("NotFound", value, 404);
         Activity? at = Activity.Current;
         return base.NotFound(res);
     }
@@ -78,7 +66,7 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
         var res = CreateResult("Conflict", detail, 409);
 
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", detail));
+        _ = (at?.SetTag("responseError", detail));
         return base.Conflict(res);
     }
 
@@ -95,7 +83,7 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
         var res = CreateResult("Problem", detail, errorCode, arguments);
 
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", detail));
+        _ = (at?.SetTag("responseError", detail));
 
         return new ObjectResult(res) { StatusCode = 500 };
     }

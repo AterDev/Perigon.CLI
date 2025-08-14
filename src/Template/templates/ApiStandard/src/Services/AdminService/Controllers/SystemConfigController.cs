@@ -8,8 +8,8 @@ namespace AdminService.Controllers;
 /// </summary>
 /// <see cref="SystemConfigManager"/>
 public class SystemConfigController(
-    Share.Localizer localizer,
-    UserContext user,
+    Localizer localizer,
+    IUserContext user,
     ILogger<SystemConfigController> logger,
     SystemConfigManager manager
 ) : RestControllerBase<SystemConfigManager>(localizer, manager, user, logger)

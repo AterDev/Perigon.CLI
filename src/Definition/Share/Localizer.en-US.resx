@@ -530,7 +530,7 @@
     <value>Enable Tenant</value>
   </data>
   <data name="UserIdTips" xml:space="preserve">
-    <value>Used to identify the user's foreign key Id attribute name, multiple entries can be filled in,separated by ;</value>
+    <value>User ForeignKey Id AttributeName, such as UserId, is obtained from IUserContext. You can set multiple, separated by ;</value>
   </data>
   <data name="UserForeignKeyId" xml:space="preserve">
     <value>User ForeignKey Id AttributeName</value>

@@ -49,16 +49,19 @@
                          Placeholder="@Lang(Localizer.Service,Localizer.Directory)"
                          Class="w-100" />
       </FluentStack>
-      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="2">
+          <FluentLabel>@Lang(Localizer.UserForeignKeyId)</FluentLabel>
+          <FluentIcon Id="UserIdTip" Class="cursor" Value="@(new Icons.Regular.Size20.QuestionCircle())"></FluentIcon>
+          <FluentTooltip Anchor="UserIdTip" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=100>@Lang(Localizer.UserIdTips)</FluentTooltip>
+        </FluentStack>
         <FluentTextField @bind-Value="UserIds"
                          AutoComplete="off"
-                         Label="@Lang(Localizer.UserForeignKeyId)"
                          Placeholder="@Lang(Localizer.UserForeignKeyExample)"
                          Class="w-100" />
-        <small>@Lang(Localizer.UserIdTips)</small>
       </FluentStack>
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
-        <FluentSwitch @bind-Value=dto.IsTenantMode Label="@Lang(Localizer.TenantMode)" Disabled="true"/>
+        <FluentSwitch @bind-Value=dto.IsTenantMode Label="@Lang(Localizer.TenantMode)" Disabled="true" />
       </FluentStack>
 
     </FluentStack>
@@ -95,7 +98,7 @@
     if (Content != null)
     {
       dto = Content.Config;
-      UserIds = string.Join(',', dto.UserIds??[]);
+      UserIds = string.Join(',', dto.UserIds ?? []);
     }
     editContext = new EditContext(dto);
     editContext.OnFieldChanged += HandleFieldChanged;
