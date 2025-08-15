@@ -107,14 +107,17 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
     /// <param name="tplContent">模板内容</param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public static List<GenFileInfo> GenerateManager(
+    public List<GenFileInfo> GenerateManager(
         EntityInfo entityInfo,
         string outputPath,
         string tplContent,
         bool isCover = false
     )
     {
-        var managerGen = new ManagerGenerate(entityInfo);
+        var managerGen = new ManagerGenerate(
+            entityInfo,
+            _projectContext.SolutionConfig?.UserEntities ?? []
+        );
         // GlobalUsing
         var globalContent = string.Join(Environment.NewLine, managerGen.GetGlobalUsings());
         var globalFile = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
@@ -148,14 +151,17 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
     /// <param name="tplContent"></param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public static GenFileInfo GenerateController(
+    public List<GenFileInfo> GenerateController(
         EntityInfo entityInfo,
         string outputPath,
         string tplContent,
         bool isCover = false
     )
     {
-        var apiGen = new RestApiGenerate(entityInfo);
+        var apiGen = new RestApiGenerate(
+            entityInfo,
+            _projectContext.SolutionConfig?.UserEntities ?? []
+        );
         var content = apiGen.GetRestApiContent(tplContent);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
@@ -163,17 +169,8 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
             FullName = Path.Combine(outputPath, $"{entityInfo.Name}{ConstVal.Controller}.cs"),
             ModuleName = entityInfo.ModuleName,
         };
-        return controllerFile;
-    }
 
-    public static GenFileInfo GenerateApiGlobalUsing(
-        EntityInfo entityInfo,
-        string outputPath,
-        bool isCover = false
-    )
-    {
-        var apiGen = new RestApiGenerate(entityInfo);
-
+        // global usings
         var globalFilePath = Path.Combine(outputPath, ConstVal.GlobalUsingsFile);
         var globalLines = File.Exists(globalFilePath)
             ? File.ReadLines(globalFilePath).ToList()
@@ -198,7 +195,8 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
             FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
             ModuleName = entityInfo.ModuleName,
         };
-        return globalFile;
+
+        return [globalFile, controllerFile];
     }
 
     /// <summary>

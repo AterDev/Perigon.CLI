@@ -8,4 +8,9 @@ public class ManagerViewModel
     public string? ShareNamespace { get; set; }
     public string? FilterCode { get; set; }
     public string? Comment { get; set; }
+
+    /// <summary>
+    /// 额外方法
+    /// </summary>
+    public string? AdditionMethods { get; set; }
 }

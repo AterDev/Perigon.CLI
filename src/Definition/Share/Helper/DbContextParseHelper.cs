@@ -20,7 +20,6 @@ public class DbContextParseHelper
 
     private readonly CompilationHelper _compilation;
 
-    private IEntityType? CurrentEntity { get; set; }
     public IModel CurrentModel { get; private set; }
     public INamedTypeSymbol? DbContextSymbol { get; private set; }
     public string EntityPath { get; init; }
@@ -43,7 +42,7 @@ public class DbContextParseHelper
         CurrentModel = _modelMap.FirstOrDefault().Value;
     }
 
-    public async Task LoadEntityAsync(string entityFilePath)
+    public async Task<IEntityType?> LoadEntityAsync(string entityFilePath)
     {
         EntityFilePath = entityFilePath ?? throw new ArgumentNullException(nameof(entityFilePath));
         var fileContent = await File.ReadAllTextAsync(EntityFilePath);
@@ -58,7 +57,7 @@ public class DbContextParseHelper
                     kvp.Key.Equals(DbContextSymbol.Name, StringComparison.OrdinalIgnoreCase)
                 )
                 .Value;
-            CurrentEntity = CurrentModel
+            return CurrentModel
                 .GetEntityTypes()
                 .FirstOrDefault(e =>
                     e.ClrType.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase)
@@ -66,15 +65,16 @@ public class DbContextParseHelper
         }
         else
         {
-            throw new InvalidOperationException(
+            OutputHelper.Error(
                 $"{entityName} not found in any DbContext, please Add it to the DbContext."
             );
+            return null;
         }
     }
 
-    public EntityInfo? GetEntityInfo()
+    public EntityInfo? GetEntityInfo(IEntityType entityType)
     {
-        if (CurrentEntity == null)
+        if (entityType == null)
         {
             OutputHelper.Warning("The Entity is not belongs to any DbContext");
             return null;
@@ -84,13 +84,13 @@ public class DbContextParseHelper
         var entityInfo = new EntityInfo
         {
             FilePath = EntityFilePath,
-            AssemblyName = CurrentEntity.ClrType.Assembly.GetName().Name,
+            AssemblyName = entityType.ClrType.Assembly.GetName().Name,
             DbContextName = DbContextSymbol!.Name,
             DbContextSpaceName = DbContextSymbol.ContainingNamespace.ToString(),
-            Name = CurrentEntity.ClrType.Name,
-            NamespaceName = CurrentEntity.ClrType.Namespace ?? namespaceName,
+            Name = entityType.ClrType.Name,
+            NamespaceName = entityType.ClrType.Namespace ?? namespaceName,
             Summary =
-                _xmlHelper.GetClassSummary(CurrentEntity.ClrType.FullName ?? namespaceName)
+                _xmlHelper.GetClassSummary(entityType.ClrType.FullName ?? namespaceName)
                 ?? string.Empty,
         };
         // module attribution
@@ -105,22 +105,22 @@ public class DbContextParseHelper
         }
         // class xml comment
         entityInfo.Comment = EntityParseHelper.GetClassComment(_compilation.ClassNode);
-        LoadEntityProperties(entityInfo);
-        LoadEntityNavigations(entityInfo);
+        LoadEntityProperties(entityInfo, entityType);
+        LoadEntityNavigations(entityInfo, entityType);
 
         return entityInfo;
     }
 
-    private void LoadEntityProperties(EntityInfo entityInfo)
+    private void LoadEntityProperties(EntityInfo entityInfo, IEntityType entityType)
     {
-        if (CurrentEntity == null)
+        if (entityType == null)
         {
-            OutputHelper.Error("The currentEntity is null");
+            OutputHelper.Error("The entityType is null");
             return;
         }
         var props = new List<PropertyInfo>();
         // 解析普通属性
-        foreach (var prop in CurrentEntity.GetProperties())
+        foreach (var prop in entityType.GetProperties())
         {
             var info = new PropertyInfo
             {
@@ -140,7 +140,7 @@ public class DbContextParseHelper
                 IsIndex = prop.IsIndex(),
                 CommentSummary =
                     _xmlHelper.GetPropertySummary(
-                        CurrentEntity.ClrType.FullName ?? string.Empty,
+                        entityType.ClrType.FullName ?? string.Empty,
                         prop.Name
                     ) ?? string.Empty,
             };
@@ -156,56 +156,16 @@ public class DbContextParseHelper
         entityInfo.PropertyInfos = props;
     }
 
-    private void LoadEntityNonDbProperties(EntityInfo entityInfo)
+    private void LoadEntityNavigations(EntityInfo entityInfo, IEntityType entityType)
     {
-        if (CurrentEntity == null)
+        if (entityType == null)
         {
-            OutputHelper.Error("The currentEntity is null");
-            return;
-        }
-
-        // 其他非映射属性
-        var nonDbProps = CurrentEntity
-            .ClrType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => !entityInfo.PropertyInfos.Any(ep => ep.Name == p.Name))
-            .Where(p => !entityInfo.Navigations.Any(n => n.Name == p.Name))
-            .ToList();
-
-        foreach (var prop in nonDbProps)
-        {
-            var info = new PropertyInfo
-            {
-                Name = prop.Name,
-                Type = CSharpAnalysisHelper.ToTypeName(prop.PropertyType),
-                IsNullable =
-                    !prop.PropertyType.IsValueType
-                    || Nullable.GetUnderlyingType(prop.PropertyType) != null,
-                IsForeignKey = false,
-                IsEnum = prop.PropertyType.IsEnum,
-                HasSet = prop.CanWrite,
-                IsList =
-                    prop.PropertyType.IsArray
-                    || prop.PropertyType.IsGenericType
-                        && typeof(System.Collections.IEnumerable).IsAssignableFrom(
-                            prop.PropertyType
-                        ),
-                IsDecimal = prop.PropertyType == typeof(decimal),
-            };
-            ParsePropertyAttributes(info, prop);
-            ParseSyntaxInfo(info);
-            entityInfo.PropertyInfos.Add(info);
-        }
-    }
-
-    private void LoadEntityNavigations(EntityInfo entityInfo)
-    {
-        if (CurrentEntity == null)
-        {
-            OutputHelper.Error("The currentEntity is null");
+            OutputHelper.Error("The entityType is null");
             return;
         }
         var navigations = new List<EntityNavigation>();
-        foreach (var nav in CurrentEntity.GetNavigations())
+
+        foreach (var nav in entityType.GetNavigations())
         {
             var navigation = new EntityNavigation
             {
@@ -215,6 +175,17 @@ public class DbContextParseHelper
                     .ForeignKey.Properties.Select(p => p.Name)
                     .Aggregate((current, next) => $"{current}, {next}"),
 
+                ForeignKeyProperties = nav
+                    .ForeignKey.Properties.Select(p => new PropertyInfo
+                    {
+                        Name = p.Name,
+                        Type = CSharpAnalysisHelper.ToTypeName(p.ClrType),
+                        IsNullable = p.IsNullable,
+                        IsForeignKey = true,
+                        IsShadow = p.IsShadowProperty(),
+                        IsIndex = p.IsIndex(),
+                    })
+                    .ToList(),
                 IsRequired = nav.ForeignKey.IsRequired,
                 IsUnique = nav.ForeignKey.IsUnique,
                 IsCollection = nav.IsCollection,
@@ -228,6 +199,12 @@ public class DbContextParseHelper
                     _xmlHelper.GetPropertySummary(nav.TargetEntityType.ClrType.FullName, nav.Name)
                     ?? string.Empty;
             }
+            // 同时解析导航属性的属性
+            var navEntityType = nav.TargetEntityType;
+
+            // TODO:未加载导航属性类内容，问题不大
+            navigation.EntityInfo = GetEntityInfo(navEntityType);
+
             navigations.Add(navigation);
         }
         entityInfo.Navigations = navigations;

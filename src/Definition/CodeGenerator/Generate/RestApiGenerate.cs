@@ -5,7 +5,7 @@ namespace CodeGenerator.Generate;
 /// <summary>
 /// 生成Rest API控制器
 /// </summary>
-public class RestApiGenerate(EntityInfo entityInfo)
+public class RestApiGenerate(EntityInfo entityInfo, ICollection<string> userEntities)
 {
     public string? EntityNamespace { get; set; } = entityInfo.NamespaceName;
 
@@ -15,6 +15,7 @@ public class RestApiGenerate(EntityInfo entityInfo)
     public string? ShareNamespace { get; set; } = entityInfo.GetShareNamespace();
     public string? ModuleNamespace { get; set; } = entityInfo.GetCommonNamespace();
     public EntityInfo EntityInfo { get; init; } = entityInfo;
+    public ICollection<string> UserEntities = userEntities;
 
     public List<string> GetGlobalUsings()
     {

@@ -184,9 +184,12 @@ public partial class EntityInfoManager(
             projectContext.EntityPath!,
             projectContext.EntityFrameworkPath!
         );
-        await dbContextHelper.LoadEntityAsync(dto.EntityPath);
-        var entityInfo = dbContextHelper.GetEntityInfo();
-
+        var entityType = await dbContextHelper.LoadEntityAsync(dto.EntityPath);
+        if (entityType == null)
+        {
+            throw new Exception($"Entity: {dto.EntityPath} Parse failed!");
+        }
+        var entityInfo = dbContextHelper.GetEntityInfo(entityType);
         _ = entityInfo ?? throw new Exception("Parse entity failed!");
 
         _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
@@ -226,14 +229,10 @@ public partial class EntityInfoManager(
         return codeGenService.GenerateDtos(entityInfo, modulePath, force);
     }
 
-    private static List<GenFileInfo> GenerateManagers(
-        EntityInfo entityInfo,
-        string modulePath,
-        bool force
-    )
+    private List<GenFileInfo> GenerateManagers(EntityInfo entityInfo, string modulePath, bool force)
     {
         var tplContent = TplContent.ManagerTpl();
-        return CodeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
+        return codeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
     }
 
     /// <summary>
@@ -249,9 +248,8 @@ public partial class EntityInfoManager(
         {
             var controllerPath = Path.Combine(servicePath, ConstVal.ControllersDir);
 
-            files.Add(CodeGenService.GenerateApiGlobalUsing(entityInfo, servicePath, dto.Force));
-            files.Add(
-                CodeGenService.GenerateController(
+            files.AddRange(
+                codeGenService.GenerateController(
                     entityInfo,
                     controllerPath,
                     TplContent.ControllerTpl(),

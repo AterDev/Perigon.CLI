@@ -97,6 +97,8 @@ public class TplContent
                     // query = query.Where(q => q.UserId == userId);
                     return await query.FirstOrDefaultAsync();
                 }
+
+                @(Model.AdditionMethods)
             }
             """;
     }

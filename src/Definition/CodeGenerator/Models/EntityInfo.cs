@@ -110,6 +110,7 @@ public class EntityInfo
             .Select(n => new PropertyInfo()
             {
                 Name = n.ForeignKey,
+                NavigationName = n.Name,
                 Type = n.Type,
                 IsRequired = n.IsRequired,
                 IsNullable = false,
@@ -148,4 +149,8 @@ public class EntityNavigation
     public bool IsUnique { get; set; }
     public bool IsSkipNavigation { get; set; }
     public bool IsOwnership { get; set; }
+
+    public List<PropertyInfo> ForeignKeyProperties { get; set; } = [];
+
+    public EntityInfo? EntityInfo { get; set; }
 }

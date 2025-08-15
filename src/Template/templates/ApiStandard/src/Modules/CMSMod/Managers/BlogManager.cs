@@ -40,6 +40,11 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
         return await ToPageAsync<BlogFilterDto, BlogItemDto>(filter);
     }
 
+    public async Task<bool> IsOwnedAsync(Guid id, Guid userId)
+    {
+        return await Queryable.AnyAsync(q => q.Id == id && q.User.Id == userId);
+    }
+
     /// <summary>
     /// 当前用户所拥有的对象
     /// </summary>
