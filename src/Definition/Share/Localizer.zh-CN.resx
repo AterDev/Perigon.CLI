@@ -529,13 +529,13 @@
   <data name="TenantMode" xml:space="preserve">
     <value>启用租户</value>
   </data>
-  <data name="UserIdTips" xml:space="preserve">
-    <value>用户外键Id属性名，如UserId，统一从IUserContext获取。可设置多个，使用；分隔</value>
+  <data name="UserEntityTips" xml:space="preserve">
+    <value>用来标识用户实体，如User，以区分与普通实体的处理，如用户Id从IUserContext中获取</value>
   </data>
-  <data name="UserForeignKeyId" xml:space="preserve">
-    <value>用户外键属性名</value>
+  <data name="UserEntityName" xml:space="preserve">
+    <value>用户实体类名称</value>
   </data>
-  <data name="UserForeignKeyExample" xml:space="preserve">
-    <value>如UserId;SystemUserId;AccountId</value>
+  <data name="UserEntityExample" xml:space="preserve">
+    <value>如User;SystemUser</value>
   </data>
 </root>

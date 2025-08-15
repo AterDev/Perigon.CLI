@@ -529,13 +529,13 @@
   <data name="TenantMode" xml:space="preserve">
     <value>Enable Tenant</value>
   </data>
-  <data name="UserIdTips" xml:space="preserve">
-    <value>User ForeignKey Id AttributeName, such as UserId, is obtained from IUserContext. You can set multiple, separated by ;</value>
+  <data name="UserEntityTips" xml:space="preserve">
+    <value>Used to identify user entities, such as User, to distinguish them from ordinary entities, such as user Id obtained from IUserContext</value>
   </data>
-  <data name="UserForeignKeyId" xml:space="preserve">
-    <value>User ForeignKey Id AttributeName</value>
+  <data name="UserEntityName" xml:space="preserve">
+    <value>User Entity Class Name</value>
   </data>
-  <data name="UserForeignKeyExample" xml:space="preserve">
-    <value>like UserId;SystemUserId;AccountId</value>
+  <data name="UserEntityExample" xml:space="preserve">
+    <value>like User;SystemUser</value>
   </data>
 </root>

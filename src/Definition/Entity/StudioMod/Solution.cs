@@ -73,9 +73,9 @@ public class SolutionConfig
     public bool IsTenantMode { get; set; }
 
     /// <summary>
-    /// 用来标识哪些为用户Id
+    /// 用来标识哪些为用户实体
     /// </summary>
-    public List<string> UserIds { get; set; } = ["UserId", "SystemUserId", "AccountId"];
+    public ICollection<string> UserEntities { get; set; } = ["User", "SystemUser"];
 }
 
 public enum SolutionType

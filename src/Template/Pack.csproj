@@ -48,7 +48,9 @@
     <Content Include="templates\ApiStandard\**\*" Exclude="@(ExcludePatterns)" />
     <Content Include="templates\ApiStandard\src\Modules\CommonMod\**" Exclude="**\bin\**;**\obj\**" />
     <Content Include="templates\ApiStandard\src\Modules\SystemMod\**" Exclude="**\bin\**;**\obj\**" />
+    <Content Include="templates\ApiStandard\src\Modules\UserMod\**" Exclude="**\bin\**;**\obj\**" />
     <Content Include="templates\ApiStandard\src\Definition\Entity\SystemMod\**" />
+    <Content Include="templates\ApiStandard\src\Definition\Entity\UserMod\**" />
     <Compile Remove="**\*" />
   </ItemGroup>
   <ItemGroup>

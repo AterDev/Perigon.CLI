@@ -16,8 +16,9 @@ public partial class DtoCodeGenerate
     /// dto 输出的 程序集名称
     /// </summary>
     public string Namespace { get; set; }
+    public ICollection<string> UserEntities { get; set; }
 
-    public DtoCodeGenerate(EntityInfo entityInfo)
+    public DtoCodeGenerate(EntityInfo entityInfo, ICollection<string>? userEntities)
     {
         Namespace = entityInfo.GetDtoNamespace();
         EntityInfo = entityInfo;
@@ -27,6 +28,7 @@ public partial class DtoCodeGenerate
             EntityKeyType.String => "String",
             _ => "Guid",
         };
+        UserEntities = userEntities ?? [];
     }
 
     /// <summary>
@@ -64,7 +66,7 @@ public partial class DtoCodeGenerate
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
             Name = EntityInfo.Name + ConstVal.DetailDto,
             EntityNamespace = EntityInfo.NamespaceName,
-            Comment = FormatComment(EntityInfo.Comment, " Detail"),
+            Comment = FormatComment(EntityInfo.Comment, ConstVal.DetailDto),
             Tag = EntityInfo.Name,
             Properties =
                 EntityInfo
@@ -89,7 +91,7 @@ public partial class DtoCodeGenerate
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
             Name = EntityInfo.Name + ConstVal.ItemDto,
             EntityNamespace = EntityInfo.NamespaceName,
-            Comment = FormatComment(EntityInfo.Comment, " ListItem"),
+            Comment = FormatComment(EntityInfo.Comment, ConstVal.ItemDto),
             Tag = EntityInfo.Name,
             Properties =
                 EntityInfo
@@ -120,7 +122,7 @@ public partial class DtoCodeGenerate
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
             Name = EntityInfo.Name + ConstVal.FilterDto,
             EntityNamespace = EntityInfo.NamespaceName,
-            Comment = FormatComment(EntityInfo.Comment, " Filter"),
+            Comment = FormatComment(EntityInfo.Comment, ConstVal.FilterDto),
             Tag = EntityInfo.Name,
             BaseType = ConstVal.FilterBase,
             Properties = EntityInfo.GetFilterProperties(),
@@ -166,7 +168,9 @@ public partial class DtoCodeGenerate
 
         EntityInfo
             .GetRequiredNavigationProperties()
-            ?.ForEach(item =>
+            .Where(r => !UserEntities.Contains(r.Type))
+            .ToList()
+            .ForEach(item =>
             {
                 if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
                 {
@@ -178,8 +182,7 @@ public partial class DtoCodeGenerate
     }
 
     /// <summary>
-    /// 更新dto
-    /// 导航属性 Name+Id,过滤列表属性
+    /// UpdateDto
     /// </summary>
     /// <returns></returns>
     public DtoInfo GetUpdateDto()
@@ -189,7 +192,7 @@ public partial class DtoCodeGenerate
             EntityFullName = $"{EntityInfo.NamespaceName}.{EntityInfo.Name}",
             Name = EntityInfo.Name + ConstVal.UpdateDto,
             EntityNamespace = EntityInfo.NamespaceName,
-            Comment = FormatComment(EntityInfo.Comment, " UpdateDTO"),
+            Comment = FormatComment(EntityInfo.Comment, ConstVal.UpdateDto),
             Tag = EntityInfo.Name,
             // 处理非 required的都设置为 nullable
             Properties = EntityInfo
@@ -204,6 +207,8 @@ public partial class DtoCodeGenerate
 
         EntityInfo
             .GetRequiredNavigationProperties()
+            .Where(r => !UserEntities.Contains(r.Type))
+            .ToList()
             .ForEach(item =>
             {
                 if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))

@@ -16,9 +16,8 @@ dotnet publish  (Join-Path $studioDir "AterStudio.csproj") -c Release -o (Join-P
 $path1 = "../src/Command/CommandLine/publish"
 $path2 = "../src/Services/AterStudio/publish"
 
-# 获取所有 .dll 文件的文件名（不含路径），转为 HashSet（通过 [System.Collections.Generic.HashSet[string]] 实现）
-$files1 = Get-ChildItem -Path $path1 -Recurse -Filter *.dll | Select-Object -ExpandProperty Name
-$files2 = Get-ChildItem -Path $path2 -Recurse -Filter *.dll | Select-Object -ExpandProperty Name
+$files1 = Get-ChildItem -Path $path1  -Filter *.dll | Select-Object -ExpandProperty Name
+$files2 = Get-ChildItem -Path $path2  -Filter *.dll | Select-Object -ExpandProperty Name
 
 # 转换为 HashSet 以便高效交集
 $set1 = [System.Collections.Generic.HashSet[string]]::new()

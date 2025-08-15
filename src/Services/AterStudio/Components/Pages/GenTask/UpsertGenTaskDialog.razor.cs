@@ -95,7 +95,7 @@ public partial class UpsertGenTaskDialog : IDisposable
             ToastService.ShowError(Localizer.Get(Localizer.MustSelectItem, Localizer.Step));
             return;
         }
-        Model.ProjectId = ProjectContext.ProjectId!.Value;
+        Model.ProjectId = ProjectContext.SolutionId!.Value;
         if (IsEdit)
         {
             var entity = await GenActionManager.GetCurrentAsync(Model.Id);

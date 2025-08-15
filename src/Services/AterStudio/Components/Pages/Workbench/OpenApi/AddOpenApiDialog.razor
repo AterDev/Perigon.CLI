@@ -91,7 +91,7 @@
             return;
         }
         var entity = Model.MapTo<ApiDocInfoAddDto, ApiDocInfo>();
-        entity.ProjectId = ProjectContext.ProjectId!.Value;
+        entity.ProjectId = ProjectContext.SolutionId!.Value;
         await _manager.AddAsync(entity);
         await Dialog.CloseAsync(Model);
     }

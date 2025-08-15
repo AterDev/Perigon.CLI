@@ -98,17 +98,18 @@ public class SolutionService(
 
         // project file
         string targetVersion = ConstVal.NetVersion;
-        var csprojFiles = Directory
+        var csprojFile = Directory
             .GetFiles(
-                _projectContext.ApiPath!,
+                _projectContext.ServicesPath!,
                 $"*{ConstVal.CSharpProjectExtension}",
-                SearchOption.TopDirectoryOnly
+                SearchOption.AllDirectories
             )
             .FirstOrDefault();
-        if (csprojFiles != null)
+        if (csprojFile != null)
         {
-            targetVersion = AssemblyHelper.GetTargetFramework(csprojFiles) ?? ConstVal.NetVersion;
+            targetVersion = AssemblyHelper.GetTargetFramework(csprojFile) ?? ConstVal.NetVersion;
         }
+
         string csprojContent = TplContent.DefaultModuleCSProject(targetVersion);
         await AssemblyHelper.GenerateFileAsync(
             projectPath,

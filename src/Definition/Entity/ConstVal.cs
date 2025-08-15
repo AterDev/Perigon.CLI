@@ -26,7 +26,7 @@ public static class ConstVal
     public const string CommonMod = "CommonMod";
     public const string ShareName = "Share";
     public const string EntityName = "Entity";
-    public const string APIName = "Http.API";
+    public const string APIName = "ApiService";
     public const string EntityFrameworkName = "EntityFramework";
 
     // dir names

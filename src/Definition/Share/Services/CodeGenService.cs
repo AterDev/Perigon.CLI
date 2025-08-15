@@ -10,9 +10,10 @@ namespace Share.Services;
 /// <summary>
 /// 代码生成服务
 /// </summary>
-public class CodeGenService(ILogger<CodeGenService> logger)
+public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext projectContext)
 {
     private readonly ILogger<CodeGenService> _logger = logger;
+    private readonly IProjectContext _projectContext = projectContext;
 
     /// <summary>
     /// 生成Dto
@@ -28,8 +29,7 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     )
     {
         _logger.LogInformation("🚀 Generating Dtos...");
-        // 生成Dto
-        var dtoGen = new DtoCodeGenerate(entityInfo);
+        var dtoGen = new DtoCodeGenerate(entityInfo, _projectContext.SolutionConfig?.UserEntities);
         var dirName = entityInfo.Name + "Dtos";
         // GlobalUsing
         var globalContent = string.Join(Environment.NewLine, dtoGen.GetGlobalUsings());
@@ -41,27 +41,62 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             ModuleName = entityInfo.ModuleName,
         };
 
-        var addDtoFile = GenerateDto(entityInfo, DtoType.Add);
-        addDtoFile.IsCover = isCover;
-        addDtoFile.FullName = Path.Combine(outputPath, addDtoFile.FullName);
+        // 统一生成各类型Dto文件
+        var dtoTypes = new[]
+        {
+            DtoType.Add,
+            DtoType.Update,
+            DtoType.Filter,
+            DtoType.Item,
+            DtoType.Detail,
+        };
+        var dtoFiles = dtoTypes
+            .Select(type =>
+            {
+                var file = GenerateDto(dtoGen, entityInfo, type);
+                file.IsCover = isCover;
+                file.FullName = Path.Combine(outputPath, file.FullName);
+                return file;
+            })
+            .ToList();
 
-        var updateDtoFile = GenerateDto(entityInfo, DtoType.Update);
-        updateDtoFile.IsCover = isCover;
-        updateDtoFile.FullName = Path.Combine(outputPath, updateDtoFile.FullName);
+        dtoFiles.Insert(0, globalFile);
+        return dtoFiles;
+    }
 
-        var filterDtoFile = GenerateDto(entityInfo, DtoType.Filter);
-        filterDtoFile.IsCover = isCover;
-        filterDtoFile.FullName = Path.Combine(outputPath, filterDtoFile.FullName);
+    /// <summary>
+    /// 生成单个Dto（优化：接收DtoCodeGenerate实例，避免重复创建）
+    /// </summary>
+    /// <param name="dtoGen">DtoCodeGenerate实例</param>
+    /// <param name="entityInfo"></param>
+    /// <param name="dtoType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public GenFileInfo GenerateDto(DtoCodeGenerate dtoGen, EntityInfo entityInfo, DtoType dtoType)
+    {
+        var dirName = entityInfo.Name + "Dtos";
+        var dto = dtoType switch
+        {
+            DtoType.Add => dtoGen.GetAddDto(),
+            DtoType.Update => dtoGen.GetUpdateDto(),
+            DtoType.Filter => dtoGen.GetFilterDto(),
+            DtoType.Item => dtoGen.GetItemDto(),
+            DtoType.Detail => dtoGen.GetDetailDto(),
+            _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null),
+        };
+        var content = dto.ToDtoContent(entityInfo.GetDtoNamespace(), entityInfo.Name);
+        return new GenFileInfo($"{dto.Name}.cs", content)
+        {
+            FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
+            ModuleName = entityInfo.ModuleName,
+        };
+    }
 
-        var itemDtoFile = GenerateDto(entityInfo, DtoType.Item);
-        itemDtoFile.IsCover = isCover;
-        itemDtoFile.FullName = Path.Combine(outputPath, itemDtoFile.FullName);
-
-        var detailDtoFile = GenerateDto(entityInfo, DtoType.Detail);
-        detailDtoFile.IsCover = isCover;
-        detailDtoFile.FullName = Path.Combine(outputPath, detailDtoFile.FullName);
-
-        return [globalFile, addDtoFile, updateDtoFile, filterDtoFile, itemDtoFile, detailDtoFile];
+    // 保留原有签名以兼容外部调用
+    public GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
+    {
+        var dtoGen = new DtoCodeGenerate(entityInfo, _projectContext.SolutionConfig?.UserEntities);
+        return GenerateDto(dtoGen, entityInfo, dtoType);
     }
 
     /// <summary>
@@ -339,67 +374,6 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             }
         }
         _logger.LogInformation("🆕[files]: {path}", sb.ToString());
-    }
-
-    /// <summary>
-    /// 生成单个Dto
-    /// </summary>
-    /// <param name="entityInfo"></param>
-    /// <param name="dtoType"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
-    {
-        // 生成Dto
-        var dtoGen = new DtoCodeGenerate(entityInfo);
-        var dirName = entityInfo.Name + "Dtos";
-
-        var dto = dtoType switch
-        {
-            DtoType.Add => dtoGen.GetAddDto(),
-            DtoType.Update => dtoGen.GetUpdateDto(),
-            DtoType.Filter => dtoGen.GetFilterDto(),
-            DtoType.Item => dtoGen.GetItemDto(),
-            DtoType.Detail => dtoGen.GetDetailDto(),
-            _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null),
-        };
-
-        //var md5Hash = HashCrypto.Md5Hash(dto.EntityNamespace + dto.Name);
-        //var oldDto = await context.EntityInfos.Where(e => e.Md5Hash == md5Hash)
-        //    .Include(e => e.PropertyInfos)
-        //    .SingleOrDefaultAsync();
-
-        //if (oldDto != null)
-        //{
-        //    var diff = PropertyInfo.GetDiffProperties(oldDto.PropertyInfos, dto.Properties);
-        //    if (diff.delete.Count > 0)
-        //    {
-        //        dto.Properties = dto.Properties.Except(diff.delete).ToList();
-        //    }
-        //    if (diff.add.Count > 0)
-        //    {
-        //        dto.Properties.AddRange(diff.add);
-        //    }
-        //    context.PropertyInfos.RemoveRange(oldDto.PropertyInfos);
-        //    dto.Properties.ForEach(p =>
-        //    {
-        //        p.EntityInfoId = oldDto.Id;
-        //    });
-        //    context.AddRange(dto.Properties);
-        //}
-        //else
-        //{
-        //    var newDto = dto.ToEntityInfo(entityInfo);
-        //    context.EntityInfos.Add(newDto);
-        //}
-        //await context.SaveChangesAsync();
-        var content = dto.ToDtoContent(entityInfo.GetDtoNamespace(), entityInfo.Name);
-
-        return new GenFileInfo($"{dto.Name}.cs", content)
-        {
-            FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
-            ModuleName = entityInfo.ModuleName,
-        };
     }
 
     /// <summary>

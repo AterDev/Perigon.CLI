@@ -41,7 +41,7 @@ public class PageBase : ComponentBase
 
     public void CheckProject()
     {
-        if (ProjectContext.ProjectId is null)
+        if (ProjectContext.SolutionId is null)
         {
             NavigationManager.NavigateTo("/");
         }

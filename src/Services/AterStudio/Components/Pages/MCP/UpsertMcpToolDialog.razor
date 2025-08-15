@@ -127,7 +127,7 @@
         CreatedTime = Content.CreatedTime,
         UpdatedTime = Content.UpdatedTime,
         IsDeleted = Content.IsDeleted,
-        ProjectId = ProjectContext.ProjectId!.Value
+        ProjectId = ProjectContext.SolutionId!.Value
 
       };
 
@@ -141,7 +141,7 @@
         Name = string.Empty,
         Description = string.Empty,
         PromptPath = string.Empty,
-        ProjectId = ProjectContext.ProjectId!.Value
+        ProjectId = ProjectContext.SolutionId!.Value
       };
     }
     EditContext = new EditContext(Model);

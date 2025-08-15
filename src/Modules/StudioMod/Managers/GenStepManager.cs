@@ -23,7 +23,7 @@ public class GenStepManager(
     public async Task<Guid?> CreateNewEntityAsync(GenStepAddDto dto)
     {
         var entity = dto.MapTo<GenStepAddDto, GenStep>();
-        entity.ProjectId = _projectContext.ProjectId!.Value;
+        entity.ProjectId = _projectContext.SolutionId!.Value;
 
         var fileExt = Path.GetExtension(dto.OutputPath ?? "");
         entity.FileType = fileExt;

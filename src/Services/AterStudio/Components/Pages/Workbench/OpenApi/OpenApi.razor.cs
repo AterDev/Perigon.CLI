@@ -52,7 +52,7 @@ public partial class OpenApi
     private async Task GetApiDocsAsync()
     {
         var res = await _manager.FilterAsync(
-            new ApiDocInfoFilterDto { PageSize = 999, ProjectId = ProjectContext.ProjectId }
+            new ApiDocInfoFilterDto { PageSize = 999, ProjectId = ProjectContext.SolutionId }
         );
         Docs = res.Data;
     }

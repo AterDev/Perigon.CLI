@@ -1,16 +1,14 @@
 using Entity;
-using Microsoft.AspNetCore.Http;
 
 namespace Share;
 
 /// <summary>
 /// 项目上下文
 /// </summary>
-public class ProjectContext : IProjectContext
+public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) : IProjectContext
 {
-    public Guid? ProjectId { get; set; }
+    public Guid? SolutionId { get; set; }
     public string? ProjectName { get; set; }
-    public Solution? Project { get; set; }
     public string? SolutionPath { get; set; }
     public string? SharePath { get; set; }
     public string? CommonModPath { get; set; }
@@ -20,41 +18,9 @@ public class ProjectContext : IProjectContext
     public string? ModulesPath { get; set; }
     public string? ServicesPath { get; set; }
 
-    private readonly DefaultDbContext _context;
+    public SolutionConfig? SolutionConfig { get; set; }
 
-    public ProjectContext(
-        IHttpContextAccessor httpContextAccessor,
-        IDbContextFactory<DefaultDbContext> contextFactory
-    )
-    {
-        _context = contextFactory.CreateDbContext();
-        string? id = httpContextAccessor.HttpContext?.Request.Headers["projectId"].ToString();
-
-        if (!string.IsNullOrWhiteSpace(id))
-        {
-            if (Guid.TryParse(id, out Guid projectId))
-            {
-                ProjectId = projectId;
-                Project = _context.Solutions.Find(projectId);
-                if (Project != null)
-                {
-                    SolutionPath = Project.Path;
-                    var config = Project.Config;
-                    SharePath = Path.Combine(SolutionPath, config.SharePath);
-                    CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);
-                    EntityPath = Path.Combine(SolutionPath, config.EntityPath);
-                    ApiPath = Path.Combine(SolutionPath, config.ApiPath);
-                    EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
-                    ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
-                    ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
-                }
-            }
-            else
-            {
-                throw new NullReferenceException("未获取到有效的ProjectId");
-            }
-        }
-    }
+    private readonly DefaultDbContext _context = contextFactory.CreateDbContext();
 
     /// <summary>
     ///
@@ -63,18 +29,18 @@ public class ProjectContext : IProjectContext
     /// <returns></returns>
     public async Task SetProjectByIdAsync(Guid id)
     {
-        ProjectId = id;
-        Project = await _context.Solutions.FindAsync(id);
-        if (Project != null)
+        SolutionId = id;
+        var solution = await _context.Solutions.FindAsync(id);
+        if (solution != null)
         {
-            ProjectName = Project.Name;
-            SolutionPath = Project.Path;
-            var config = Project.Config;
-            SharePath = Path.Combine(SolutionPath, config.SharePath);
-            CommonModPath = Path.Combine(SolutionPath, config.CommonModPath);
-            EntityPath = Path.Combine(SolutionPath, config.EntityPath);
-            ApiPath = Path.Combine(SolutionPath, config.ApiPath);
-            EntityFrameworkPath = Path.Combine(SolutionPath, config.EntityFrameworkPath);
+            ProjectName = solution.Name;
+            SolutionPath = solution.Path;
+            SolutionConfig = solution.Config;
+            SharePath = Path.Combine(SolutionPath, SolutionConfig.SharePath);
+            CommonModPath = Path.Combine(SolutionPath, SolutionConfig.CommonModPath);
+            EntityPath = Path.Combine(SolutionPath, SolutionConfig.EntityPath);
+            ApiPath = Path.Combine(SolutionPath, SolutionConfig.ApiPath);
+            EntityFrameworkPath = Path.Combine(SolutionPath, SolutionConfig.EntityFrameworkPath);
             ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
             ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
         }
@@ -83,20 +49,20 @@ public class ProjectContext : IProjectContext
     public async Task SetProjectAsync(string solutionPath)
     {
         SolutionPath = solutionPath;
-        var project = await _context
+        var solution = await _context
             .Solutions.Where(p => p.Path.Equals(solutionPath))
             .FirstOrDefaultAsync();
-        var config = project?.Config;
-        SharePath = Path.Combine(SolutionPath, config?.SharePath ?? PathConst.SharePath);
+        SolutionConfig = solution?.Config;
+        SharePath = Path.Combine(SolutionPath, SolutionConfig?.SharePath ?? PathConst.SharePath);
         CommonModPath = Path.Combine(
             SolutionPath,
-            config?.CommonModPath ?? PathConst.CommonModPath
+            SolutionConfig?.CommonModPath ?? PathConst.CommonModPath
         );
-        EntityPath = Path.Combine(SolutionPath, config?.EntityPath ?? PathConst.EntityPath);
-        ApiPath = Path.Combine(SolutionPath, config?.ApiPath ?? PathConst.APIPath);
+        EntityPath = Path.Combine(SolutionPath, SolutionConfig?.EntityPath ?? PathConst.EntityPath);
+        ApiPath = Path.Combine(SolutionPath, SolutionConfig?.ApiPath ?? PathConst.APIPath);
         EntityFrameworkPath = Path.Combine(
             SolutionPath,
-            config?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath
+            SolutionConfig?.EntityFrameworkPath ?? PathConst.EntityFrameworkPath
         );
         ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
         ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
@@ -163,15 +129,5 @@ public class ProjectContext : IProjectContext
         return moduleName.IsEmpty()
             ? Path.Combine(ApiPath ?? PathConst.APIPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
-    }
-
-    public string GetApplicationPath(string? moduleName = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task SetProjectByIdAsync(string id)
-    {
-        throw new NotImplementedException();
     }
 }

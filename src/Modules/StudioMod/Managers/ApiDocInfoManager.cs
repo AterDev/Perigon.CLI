@@ -26,7 +26,7 @@ public class ApiDocInfoManager(
     public async Task<ApiDocInfo> CreateNewEntityAsync(ApiDocInfoAddDto dto)
     {
         ApiDocInfo entity = dto.MapTo<ApiDocInfoAddDto, ApiDocInfo>();
-        entity.ProjectId = _project.ProjectId!.Value;
+        entity.ProjectId = _project.SolutionId!.Value;
         return await Task.FromResult(entity);
     }
 

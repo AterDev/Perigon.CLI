@@ -5,8 +5,7 @@ namespace Share;
 /// </summary>
 public interface IProjectContext
 {
-    Guid? ProjectId { get; set; }
-    Solution? Project { get; set; }
+    Guid? SolutionId { get; set; }
     string? SolutionPath { get; set; }
     string? SharePath { get; set; }
     string? CommonModPath { get; set; }
@@ -16,6 +15,7 @@ public interface IProjectContext
     string? ModulesPath { get; set; }
     string? ProjectName { get; set; }
     string? ServicesPath { get; set; }
+    SolutionConfig? SolutionConfig { get; set; }
 
     /// <summary>
     /// 获取Api目录路径

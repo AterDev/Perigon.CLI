@@ -51,13 +51,13 @@
       </FluentStack>
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
         <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="2">
-          <FluentLabel>@Lang(Localizer.UserForeignKeyId)</FluentLabel>
+          <FluentLabel>@Lang(Localizer.UserEntityName)</FluentLabel>
           <FluentIcon Id="UserIdTip" Class="cursor" Value="@(new Icons.Regular.Size20.QuestionCircle())"></FluentIcon>
-          <FluentTooltip Anchor="UserIdTip" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=100>@Lang(Localizer.UserIdTips)</FluentTooltip>
+          <FluentTooltip Anchor="UserIdTip" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=100>@Lang(Localizer.UserEntityTips)</FluentTooltip>
         </FluentStack>
         <FluentTextField @bind-Value="UserIds"
                          AutoComplete="off"
-                         Placeholder="@Lang(Localizer.UserForeignKeyExample)"
+                         Placeholder="@Lang(Localizer.UserEntityExample)"
                          Class="w-100" />
       </FluentStack>
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
@@ -98,7 +98,8 @@
     if (Content != null)
     {
       dto = Content.Config;
-      UserIds = string.Join(',', dto.UserIds ?? []);
+      Console.WriteLine(ToJson(dto.UserEntities));
+      UserIds = string.Join(';', dto.UserEntities ?? []);
     }
     editContext = new EditContext(dto);
     editContext.OnFieldChanged += HandleFieldChanged;
@@ -136,7 +137,7 @@
       return;
     }
 
-    dto.UserIds = UserIds
+    dto.UserEntities = UserIds
       .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
       .Select(x => x.Trim())
       .Where(x => !string.IsNullOrWhiteSpace(x))

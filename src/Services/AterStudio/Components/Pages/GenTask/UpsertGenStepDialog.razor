@@ -119,7 +119,7 @@
       ToastService.ShowError(Lang(Localizer.FormValidFailed));
       return;
     }
-    Model.ProjectId = ProjectContext.ProjectId!.Value;
+    Model.ProjectId = ProjectContext.SolutionId!.Value;
     Model.FileType = Path.GetExtension(Model.OutputPath);
     Model.TemplatePath = SelectedTemplate?.FullPath ?? Model.TemplatePath;
 

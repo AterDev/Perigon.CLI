@@ -107,7 +107,6 @@ public class EntityInfo
     {
         return Navigations
             .Where(n => !n.IsCollection && !n.IsSkipNavigation)
-            .Where(n => !n.Name.EndsWith("UserId"))
             .Select(n => new PropertyInfo()
             {
                 Name = n.ForeignKey,
