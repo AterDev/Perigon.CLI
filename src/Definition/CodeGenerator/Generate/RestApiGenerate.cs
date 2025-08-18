@@ -5,7 +5,7 @@ namespace CodeGenerator.Generate;
 /// <summary>
 /// 生成Rest API控制器
 /// </summary>
-public class RestApiGenerate(EntityInfo entityInfo, ICollection<string> userEntities)
+public class RestApiGenerate(EntityInfo entityInfo, string serviceName)
 {
     public string? EntityNamespace { get; set; } = entityInfo.NamespaceName;
 
@@ -15,7 +15,7 @@ public class RestApiGenerate(EntityInfo entityInfo, ICollection<string> userEnti
     public string? ShareNamespace { get; set; } = entityInfo.GetShareNamespace();
     public string? ModuleNamespace { get; set; } = entityInfo.GetCommonNamespace();
     public EntityInfo EntityInfo { get; init; } = entityInfo;
-    public ICollection<string> UserEntities = userEntities;
+    public string ServiceName { get; init; } = serviceName;
 
     public List<string> GetGlobalUsings()
     {
@@ -39,12 +39,12 @@ public class RestApiGenerate(EntityInfo entityInfo, ICollection<string> userEnti
     /// <summary>
     /// 生成控制器
     /// </summary>
-    public string GetRestApiContent(string tplContent)
+    public string GetRestApiContent(string tplContent, bool isSystem = false)
     {
         var genContext = new RazorGenContext();
         var model = new ControllerViewModel
         {
-            Namespace = EntityInfo.GetAPINamespace(),
+            Namespace = ServiceName,
             EntityName = EntityInfo.Name,
             Comment = EntityInfo.Comment,
             ShareNamespace = ShareNamespace,

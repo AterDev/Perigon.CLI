@@ -17,13 +17,15 @@ public class DbContextParseHelper
     private readonly FrozenDictionary<string, IModel> _modelMap;
     private readonly DbContextAnalyzer _analyzer;
     private readonly XmlDocHelper _xmlHelper;
-
     private readonly CompilationHelper _compilation;
 
     public IModel CurrentModel { get; private set; }
     public INamedTypeSymbol? DbContextSymbol { get; private set; }
     public string EntityPath { get; init; }
     private string EntityFilePath { get; set; } = string.Empty;
+
+    // 记录并用来避免循环引用解析
+    private HashSet<IEntityType> RelationEntityTypes = [];
 
     public DbContextParseHelper(string entityPath, string entityFrameworkPath)
     {
@@ -105,9 +107,9 @@ public class DbContextParseHelper
         }
         // class xml comment
         entityInfo.Comment = EntityParseHelper.GetClassComment(_compilation.ClassNode);
+        RelationEntityTypes.Add(entityType);
         LoadEntityProperties(entityInfo, entityType);
         LoadEntityNavigations(entityInfo, entityType);
-
         return entityInfo;
     }
 
@@ -199,12 +201,14 @@ public class DbContextParseHelper
                     _xmlHelper.GetPropertySummary(nav.TargetEntityType.ClrType.FullName, nav.Name)
                     ?? string.Empty;
             }
+
             // 同时解析导航属性的属性
             var navEntityType = nav.TargetEntityType;
-
-            // TODO:未加载导航属性类内容，问题不大
-            navigation.EntityInfo = GetEntityInfo(navEntityType);
-
+            if (!RelationEntityTypes.Contains(navEntityType))
+            {
+                // TODO:未加载导航属性类内容，问题不大
+                navigation.EntityInfo = GetEntityInfo(navEntityType);
+            }
             navigations.Add(navigation);
         }
         entityInfo.Navigations = navigations;

@@ -94,11 +94,6 @@ public class EntityInfo
         return ModuleName.IsEmpty() ? ConstVal.CommonMod : ModuleName;
     }
 
-    public string GetAPINamespace()
-    {
-        return ModuleName.IsEmpty() ? ConstVal.APIName : ModuleName;
-    }
-
     /// <summary>
     /// 获取导航属性
     /// </summary>

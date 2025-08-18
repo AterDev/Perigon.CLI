@@ -29,10 +29,11 @@ public class DbContextAnalyzerTests
             @"D:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\Entity";
         var service = new DbContextParseHelper(entityPath, entityFrameworkPath);
 
-        await service.LoadEntityAsync(
+        var entityType = await service.LoadEntityAsync(
             @"D:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\Entity\CMSMod\Blog.cs"
         );
-        var entityInfo = service.GetEntityInfo();
+        Assert.NotNull(entityType);
+        var entityInfo = service.GetEntityInfo(entityType);
         Assert.NotNull(entityInfo);
         //Assert.Equal("User", entityInfo.Name);
         //Assert.Equal("Entity.CMSMod", entityInfo.NamespaceName);

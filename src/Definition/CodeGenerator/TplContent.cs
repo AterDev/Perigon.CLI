@@ -20,7 +20,7 @@ public class TplContent
                 : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContext, logger)
             {
                 /// <summary>
-                /// 添加实体
+                /// Add entity
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
@@ -32,7 +32,7 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// 更新实体
+                /// Update entity
                 /// </summary>
                 /// <param name="entity"></param>
                 /// <param name="dto"></param>
@@ -50,7 +50,7 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// 获取实体详情
+                /// Get entity detail
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
@@ -60,10 +60,10 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// 是否冲突元素
+                /// has conflict with unique
                 /// </summary>
-                /// <param name="unique">唯一标识</param>
-                /// <param name="id">排除当前</param>
+                /// <param name="unique">unique</param>
+                /// <param name="id">exclude current id</param>
                 /// <returns></returns>
                 public async Task<bool> HasConflictAsync(string unique, Guid? id = null)
                 {
@@ -74,7 +74,7 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// 删除实体
+                /// Delete entity
                 /// </summary>
                 /// <param name="ids"></param>
                 /// <param name="softDelete"></param>
@@ -82,20 +82,6 @@ public class TplContent
                 public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
                 {
                     return await base.DeleteAsync(ids, softDelete);
-                }
-
-                /// <summary>
-                /// 获取权限范围的实体
-                /// </summary>
-                /// <param name="id"></param>
-                /// <param name="userId"></param>
-                /// <returns></returns>
-                public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id, Guid userId)
-                {
-                    var query = _dbSet.Where(q => q.Id == id);
-                    // TODO:自定义数据权限验证
-                    // query = query.Where(q => q.UserId == userId);
-                    return await query.FirstOrDefaultAsync();
                 }
 
                 @(Model.AdditionMethods)
@@ -118,33 +104,32 @@ public class TplContent
                 ) : RestControllerBase<@(Model.EntityName)Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
-                /// 分页数据 🛑
+                /// Page Filter ✍️
                 /// </summary>
                 /// <param name="filter"></param>
                 /// <returns></returns>
                 [HttpPost("filter")]
                 public async Task<ActionResult<PageList<@(Model.EntityName)ItemDto>>> FilterAsync(@(Model.EntityName)FilterDto filter)
                 {
+                    @(Model.FilterCodes)
                     return await _manager.ToPageAsync(filter);
                 }
 
                 /// <summary>
-                /// 新增 🛑
+                /// Add ✍️
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
                 [HttpPost]
                 public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
-                    // 关联属性
-                    // 冲突验证
-                    // if(await _manager.HasConflictAsync(dto.xxx)) { return Conflict(Localizer.ConflictResource); }
+                    @(Model.AddCodes)
                     var id = await _manager.AddAsync(dto);
                     return id == null ? Problem(Localizer.AddFailed) : id;
                 }
 
                 /// <summary>
-                /// 更新数据 🛑
+                /// Update ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <param name="dto"></param>
@@ -152,37 +137,33 @@ public class TplContent
                 [HttpPatch("{id}")]
                 public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
-                    var entity = await _manager.GetOwnedAsync(id, _user.UserId);
-                    if (entity == null) { return NotFound(Localizer.NotFoundResource); }
-                   
+                   @(Model.UpdateCodes)
                     return await _manager.UpdateAsync(entity, dto);
                 }
 
                 /// <summary>
-                /// 获取详情 🛑
+                /// Detail ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpGet("{id}")]
                 public async Task<ActionResult<@(Model.EntityName)DetailDto?>> GetDetailAsync([FromRoute] Guid id)
                 {
+                    @(Model.DetailCodes)
                     var res = await _manager.GetDetailAsync(id);
                     return (res == null) ? NotFound() : res;
                 }
 
                 /// <summary>
-                /// 删除 🛑
+                /// Delete ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpDelete("{id}")]
-                [NonAction]
                 public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
                 {
-                    // 注意删除权限
-                    var entity = await _manager.GetOwnedAsync(id, _user.UserId);
-                    if (entity == null) { return NotFound(); };
-                    // return Forbid();
+                    // attention permission
+                    @(Model.DeleteCodes)
                     return await _manager.DeleteAsync(entity, true);
                 }
             }

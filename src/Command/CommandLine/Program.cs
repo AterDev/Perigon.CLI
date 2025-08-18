@@ -29,6 +29,8 @@ builder.Services.AddScoped<NewCommand>();
 builder.Services.AddScoped<StudioCommand>();
 builder.Services.AddScoped<AddCommand>();
 
+builder.Services.AddMemoryCache();
+
 var host = builder.Build();
 
 var registrar = new DITypeRegistrar(host.Services);

@@ -59,10 +59,12 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
     /// <returns></returns>
     private string GenAdditionMethods()
     {
-        var methods = new List<string>();
-        methods.Add(GenGetOwnedMethod());
-        methods.Add(GenIsOwnedMethods());
-        methods.Add(GenValidateMethods());
+        var methods = new List<string>
+        {
+            GenGetOwnedMethod(),
+            GenIsOwnedMethods(),
+            GenValidateMethods(),
+        };
 
         return string.Join(Environment.NewLine, methods);
     }
@@ -70,7 +72,9 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
     private string GenValidateMethods()
     {
         // 仅对非用户实体的导航生成校验方法，如 Blog 的 Catalog，校验 Catalog 是否属于指定用户
-        var navigations = EntityInfo.Navigations.Where(n => !UserEntities.Contains(n.Type));
+        var navigations = EntityInfo.Navigations.Where(n =>
+            !UserEntities.Contains(n.Type) && n.Type != EntityInfo.Name
+        );
         if (!navigations.Any())
         {
             return string.Empty;
@@ -79,36 +83,56 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
         var methods = new List<string>();
         foreach (var navigation in navigations)
         {
-            // 推断外键参数名称（当前实体上的外键，如 CatalogId）
-            var foreignKey = navigation.ForeignKey;
-            if (navigation.ForeignKeyProperties.Count > 1)
+            var userNav = navigation
+                .EntityInfo?.Navigations.Where(n => UserEntities.Contains(n.Type))
+                .FirstOrDefault();
+
+            if (userNav != null)
             {
-                foreignKey = navigation
-                    .ForeignKey.Split(",")
-                    .Where(f => f.Contains(navigation.Name))
-                    .FirstOrDefault();
-
-                foreignKey ??= navigation.ForeignKeyProperties.First().Name;
-            }
-            var fkParam = foreignKey.ToCamelCase();
-            // 方法名基于导航类型
-            var methodName = $"IsValidate{navigation.Type}Async";
-            var entityType = navigation.Type;
-
-            var method = $$"""
-                /// <summary>
-                /// validate {{entityType}} owned by user
-                /// </summary>
-                public async Task<bool> {{methodName}}(Guid {{fkParam}}, Guid userId)
+                // 推断外键参数名称（当前实体上的外键，如 CatalogId）
+                var foreignKey = navigation.ForeignKey;
+                if (navigation.ForeignKeyProperties.Count > 1)
                 {
-                        return await _dbContext
-                            .Set<{{entityType}}>()
-                            .Where(q => q.Id == {{fkParam}} && q.UserId == userId)
-                            .AnyAsync();
-                }
-                """;
+                    foreignKey = navigation
+                        .ForeignKey.Split(",")
+                        .Where(f => f.Contains(navigation.Name))
+                        .FirstOrDefault();
 
-            methods.Add(method);
+                    foreignKey ??= navigation.ForeignKeyProperties.First().Name;
+                }
+                var fkParam = foreignKey.ToCamelCase();
+                // 方法名基于导航类型
+                var methodName = $"IsValidate{navigation.Type}Async";
+                var entityType = navigation.Type;
+
+                string navigationId = $"{userNav.Name}.Id";
+                // Using explicitly defined foreign keys
+                if (
+                    userNav.ForeignKeyProperties.Any(p =>
+                        !p.IsShadow && p.Name == userNav.ForeignKey
+                    )
+                )
+                {
+                    navigationId = userNav.ForeignKey;
+                }
+                var condition = $" && q.{navigationId} == userId";
+
+                var method = $$"""
+                        /// <summary>
+                        /// Validate {{entityType}} owned by user
+                        /// </summary>
+                        public async Task<bool> {{methodName}}(Guid {{fkParam}}, Guid userId)
+                        {
+                            return await _dbContext
+                                .Set<{{entityType}}>()
+                                .Where(q => q.Id == {{fkParam}}{{condition}})
+                                .AnyAsync();
+                        }
+
+                    """;
+
+                methods.Add(method);
+            }
         }
 
         return string.Join(Environment.NewLine, methods);
@@ -140,23 +164,23 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
                 foreignKey ??= navigation.ForeignKeyProperties.First().Name;
             }
             methodParams += $", Guid {foreignKey.ToCamelCase()}";
-            string navigationId = $"{navigation.Name}.Id";
+            string navigationId = $"q.{navigation.Name}.Id";
             // Using explicitly defined foreign keys
             if (navigation.ForeignKeyProperties.Any(p => !p.IsShadow && p.Name == foreignKey))
             {
                 navigationId = foreignKey;
             }
-            conditions += $" && {navigationId} == {foreignKey.ToCamelCase()})";
+            conditions += $" && q.{navigationId} == {foreignKey.ToCamelCase()}";
         }
         return $$"""
-            /// <summary>
-            /// has @(Model.EntityName)
-            /// </summary>
-            public async Task<bool> IsOwnedAsync(Guid id{{methodParams}})
-            {
-                    return await Queryable.AnyAsync(q => q.Id == id {{conditions}});
-                        
-            }
+                /// <summary>
+                /// Has {{EntityInfo.Name}}
+                /// </summary>
+                public async Task<bool> IsOwnedAsync(Guid id{{methodParams}})
+                {
+                    return await Queryable.AnyAsync(q => q.Id == id{{conditions}});
+                }
+
             """;
     }
 
@@ -194,23 +218,24 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
                 navigationId = foreignKey;
             }
             queryLines +=
-                $".Where(q => q.{navigationId} == {foreignKey.ToCamelCase()}){Environment.NewLine}";
+                $".Where(q => q.{navigationId} == {foreignKey.ToCamelCase()});{Environment.NewLine}";
         }
         if (queryLines.NotEmpty())
         {
-            queryLines = $"query = query.{queryLines};";
+            queryLines = $"query = query{queryLines}";
         }
 
         return $$"""
-            /// <summary>
-            /// get owned @(Model.EntityName)
-            /// </summary>
-            public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id{{methodParams}})
-            {
+                /// <summary>
+                /// Get owned {{EntityInfo.Name}}
+                /// </summary>
+                public async Task<{{EntityInfo.Name}}?> GetOwnedAsync(Guid id{{methodParams}})
+                {
                     var query = _dbSet.Where(q => q.Id == id);
                     {{queryLines}}
                     return await query.FirstOrDefaultAsync();
-            }
+                }
+
             """;
     }
 

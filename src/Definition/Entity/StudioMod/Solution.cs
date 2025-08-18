@@ -58,12 +58,22 @@ public class SolutionConfig
     public string CreatedTimeName { get; set; } = ConstVal.CreatedTime;
     public string UpdatedTimeName { get; set; } = ConstVal.UpdatedTime;
     public string Version { get; set; } = ConstVal.Version;
+
+    [Required]
     public string SharePath { get; set; } = PathConst.SharePath;
+
+    [Required]
     public string EntityPath { get; set; } = PathConst.EntityPath;
+
+    [Required]
     public string EntityFrameworkPath { get; set; } = PathConst.EntityFrameworkPath;
     public string CommonModPath { get; set; } = PathConst.CommonModPath;
+
+    [Required]
     public string ModulePath { get; set; } = PathConst.ModulesPath;
     public string ApiPath { get; set; } = PathConst.APIPath;
+
+    [Required]
     public string ServicePath { get; set; } = PathConst.ServicesPath;
     public string SolutionPath { get; set; } = string.Empty;
 
@@ -76,6 +86,9 @@ public class SolutionConfig
     /// 用来标识哪些为用户实体
     /// </summary>
     public ICollection<string> UserEntities { get; set; } = ["User", "SystemUser"];
+
+    [Required]
+    public string SystemModName { get; set; } = "SystemMod";
 }
 
 public enum SolutionType

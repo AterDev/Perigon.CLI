@@ -538,4 +538,10 @@
   <data name="UserEntityExample" xml:space="preserve">
     <value>like User;SystemUser</value>
   </data>
+  <data name="SystemModLabel" xml:space="preserve">
+    <value>System Module</value>
+  </data>
+  <data name="SystemModDes" xml:space="preserve">
+    <value>System module, which is considered as a management system and will affect the generated content of the controller</value>
+  </data>
 </root>

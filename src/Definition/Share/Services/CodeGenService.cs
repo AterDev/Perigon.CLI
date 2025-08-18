@@ -92,13 +92,6 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
         };
     }
 
-    // 保留原有签名以兼容外部调用
-    public GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
-    {
-        var dtoGen = new DtoCodeGenerate(entityInfo, _projectContext.SolutionConfig?.UserEntities);
-        return GenerateDto(dtoGen, entityInfo, dtoType);
-    }
-
     /// <summary>
     /// 生成manager的文件
     /// </summary>
@@ -147,31 +140,41 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
     /// RestAPI生成
     /// </summary>
     /// <param name="entityInfo"></param>
-    /// <param name="outputPath"></param>
+    /// <param name="servicePath"></param>
     /// <param name="tplContent"></param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GenerateController(
+    public async Task<List<GenFileInfo>> GenerateControllerAsync(
         EntityInfo entityInfo,
-        string outputPath,
+        string servicePath,
         string tplContent,
         bool isCover = false
     )
     {
-        var apiGen = new RestApiGenerate(
-            entityInfo,
-            _projectContext.SolutionConfig?.UserEntities ?? []
+        var serviceName = Path.GetFileName(servicePath);
+        var projectFile = Path.Combine(servicePath, serviceName + ConstVal.CSharpProjectExtension);
+
+        // weather is management project
+        var hasSystemMod = await SolutionService.HasProjectReferenceAsync(
+            projectFile,
+            _projectContext.SolutionConfig!.SystemModName
         );
-        var content = apiGen.GetRestApiContent(tplContent);
+
+        var apiGen = new RestApiGenerate(entityInfo, serviceName);
+        var content = apiGen.GetRestApiContent(tplContent, hasSystemMod);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
             IsCover = isCover,
-            FullName = Path.Combine(outputPath, $"{entityInfo.Name}{ConstVal.Controller}.cs"),
+            FullName = Path.Combine(
+                servicePath,
+                ConstVal.ControllersDir,
+                $"{entityInfo.Name}{ConstVal.Controller}.cs"
+            ),
             ModuleName = entityInfo.ModuleName,
         };
 
         // global usings
-        var globalFilePath = Path.Combine(outputPath, ConstVal.GlobalUsingsFile);
+        var globalFilePath = Path.Combine(servicePath, ConstVal.GlobalUsingsFile);
         var globalLines = File.Exists(globalFilePath)
             ? File.ReadLines(globalFilePath).ToList()
             : [];
@@ -192,7 +195,7 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
-            FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
+            FullName = Path.Combine(servicePath, ConstVal.GlobalUsingsFile),
             ModuleName = entityInfo.ModuleName,
         };
 

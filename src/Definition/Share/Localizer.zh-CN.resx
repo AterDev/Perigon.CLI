@@ -538,4 +538,10 @@
   <data name="UserEntityExample" xml:space="preserve">
     <value>如User;SystemUser</value>
   </data>
+  <data name="SystemModLabel" xml:space="preserve">
+    <value>系统模块</value>
+  </data>
+  <data name="SystemModDes" xml:space="preserve">
+    <value>系统模块，引用该模块的被认为是管理系统，将影响控制器的生成内容</value>
+  </data>
 </root>

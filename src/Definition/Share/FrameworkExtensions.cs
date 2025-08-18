@@ -17,9 +17,6 @@ public static partial class FrameworkExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<UserContext>();
-
         builder.AddDbContext();
         builder.Services.AddMemoryCache();
         return builder;

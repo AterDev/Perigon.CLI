@@ -17,6 +17,7 @@
                          AutoComplete="off"
                          Label="@Lang(Localizer.Entity,Localizer.Directory)"
                          Placeholder="@Lang(Localizer.Entity,Localizer.Directory)"
+                         Required
                          Class="w-100" />
       </FluentStack>
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
@@ -24,6 +25,7 @@
                          AutoComplete="off"
                          Label="@Lang(Localizer.EntityFramework,Localizer.Directory)"
                          Placeholder="@Lang(Localizer.EntityFramework,Localizer.Directory)"
+                         Required
                          Class="w-100" />
       </FluentStack>
 
@@ -32,6 +34,7 @@
                          AutoComplete="off"
                          Label="@Lang(Localizer.SharedDto,Localizer.Directory)"
                          Placeholder="@Lang(Localizer.SharedDto,Localizer.Directory)"
+                         Required
                          Class="w-100" />
       </FluentStack>
 
@@ -40,6 +43,7 @@
                          AutoComplete="off"
                          Label="@Lang(Localizer.Modules,Localizer.Directory)"
                          Placeholder="@Lang(Localizer.Modules,Localizer.Directory)"
+                         Required
                          Class="w-100" />
       </FluentStack>
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
@@ -47,8 +51,23 @@
                          AutoComplete="off"
                          Label="@Lang(Localizer.Service,Localizer.Directory)"
                          Placeholder="@Lang(Localizer.Service,Localizer.Directory)"
+                         Required
                          Class="w-100" />
       </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="2">
+          <FluentLabel>@Lang(Localizer.SystemModLabel)</FluentLabel>
+          <FluentIcon Id="SystemModTip" Class="cursor" Value="@(new Icons.Regular.Size20.QuestionCircle())"></FluentIcon>
+          <FluentTooltip Anchor="SystemModTip" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=100>@Lang(Localizer.SystemModDes)</FluentTooltip>
+        </FluentStack>
+        <FluentTextField @bind-Value="dto.SystemModName"
+                         AutoComplete="off"
+                         Placeholder="Module Name"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+
       <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
         <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="2">
           <FluentLabel>@Lang(Localizer.UserEntityName)</FluentLabel>
@@ -57,6 +76,7 @@
         </FluentStack>
         <FluentTextField @bind-Value="UserIds"
                          AutoComplete="off"
+                         Required
                          Placeholder="@Lang(Localizer.UserEntityExample)"
                          Class="w-100" />
       </FluentStack>
@@ -98,7 +118,6 @@
     if (Content != null)
     {
       dto = Content.Config;
-      Console.WriteLine(ToJson(dto.UserEntities));
       UserIds = string.Join(';', dto.UserEntities ?? []);
     }
     editContext = new EditContext(dto);

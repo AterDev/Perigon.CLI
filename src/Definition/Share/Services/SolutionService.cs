@@ -678,4 +678,25 @@ public class SolutionService(
         }
         return true;
     }
+
+    /// <summary>
+    /// determine if the project has a specific reference
+    /// </summary>
+    /// <param name="projectPath"></param>
+    /// <param name="referenceName"></param>
+    /// <returns></returns>
+    public static async Task<bool> HasProjectReferenceAsync(
+        string projectPath,
+        string referenceName
+    )
+    {
+        if (!File.Exists(projectPath))
+        {
+            return false;
+        }
+        var lines = await File.ReadAllLinesAsync(projectPath);
+
+        var searchText = $"\\{referenceName}\\{referenceName}{ConstVal.CSharpProjectExtension}";
+        return lines.Any(line => line.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+    }
 }

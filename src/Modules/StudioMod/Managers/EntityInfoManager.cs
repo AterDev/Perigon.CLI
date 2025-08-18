@@ -215,7 +215,7 @@ public partial class EntityInfoManager(
             case CommandType.API:
                 files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
                 files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
-                files.AddRange(GenerateControllers(entityInfo, dto));
+                files.AddRange(await GenerateControllersAsync(entityInfo, dto));
                 break;
             default:
                 break;
@@ -241,21 +241,21 @@ public partial class EntityInfoManager(
     /// <param name="entityInfo"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    private List<GenFileInfo> GenerateControllers(EntityInfo entityInfo, GenerateDto dto)
+    private async Task<List<GenFileInfo>> GenerateControllersAsync(
+        EntityInfo entityInfo,
+        GenerateDto dto
+    )
     {
         var files = new List<GenFileInfo>();
         foreach (var servicePath in dto.ServicePath)
         {
-            var controllerPath = Path.Combine(servicePath, ConstVal.ControllersDir);
-
-            files.AddRange(
-                codeGenService.GenerateController(
-                    entityInfo,
-                    controllerPath,
-                    TplContent.ControllerTpl(),
-                    dto.Force
-                )
+            var controllers = await codeGenService.GenerateControllerAsync(
+                entityInfo,
+                servicePath,
+                TplContent.ControllerTpl(),
+                dto.Force
             );
+            files.AddRange(controllers);
             // add project Reference
             if (projectContext.ModulesPath.NotEmpty() && entityInfo.ModuleName.NotEmpty())
             {
