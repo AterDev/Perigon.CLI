@@ -51,4 +51,11 @@ public class RestApiGenerate(EntityInfo entityInfo, string serviceName)
         };
         return genContext.GenCode(tplContent, model);
     }
+
+    private string GenFilterCodes(bool isSystem = false)
+    {
+        var result = string.Empty;
+        if (!isSystem) { }
+        return result;
+    }
 }
