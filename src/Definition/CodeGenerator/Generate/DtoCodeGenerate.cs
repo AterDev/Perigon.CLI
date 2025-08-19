@@ -138,10 +138,10 @@ public partial class DtoCodeGenerate
             .GetRequiredNavigationProperties()
             ?.ForEach(item =>
             {
-                if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
-                {
-                    dto.Properties.Add(item);
-                }
+                item.IsNullable = true;
+                item.Type = "Guid";
+                dto.Properties.RemoveAll(p => p.Name.Equals(item.Name));
+                dto.Properties.Add(item);
             });
         return dto;
     }
@@ -172,10 +172,9 @@ public partial class DtoCodeGenerate
             .ToList()
             .ForEach(item =>
             {
-                if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
-                {
-                    dto.Properties.Add(item);
-                }
+                item.Type = "Guid";
+                dto.Properties.RemoveAll(p => p.Name.Equals(item.Name));
+                dto.Properties.Add(item);
             });
 
         return dto;
@@ -211,10 +210,9 @@ public partial class DtoCodeGenerate
             .ToList()
             .ForEach(item =>
             {
-                if (!dto.Properties.Any(p => p.Name.Equals(item.Name)))
-                {
-                    dto.Properties.Add(item);
-                }
+                item.Type = "Guid";
+                dto.Properties.RemoveAll(p => p.Name.Equals(item.Name));
+                dto.Properties.Add(item);
             });
 
         foreach (PropertyInfo item in dto.Properties)

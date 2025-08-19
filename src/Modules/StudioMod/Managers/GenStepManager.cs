@@ -8,11 +8,9 @@ namespace StudioMod.Managers;
 public class GenStepManager(
     DefaultDbContext dbContext,
     ILogger<GenStepManager> logger,
-    IProjectContext projectContext,
-    UserContext userContext
+    IProjectContext projectContext
 ) : ManagerBase<DefaultDbContext, GenStep>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
 
     /// <summary>

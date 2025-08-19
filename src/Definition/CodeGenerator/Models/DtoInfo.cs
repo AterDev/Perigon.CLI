@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Entity;
 using Entity.StudioMod;
 
@@ -70,4 +71,22 @@ public class DtoInfo
         };
         return res;
     }
+}
+
+public enum DtoType
+{
+    [Description(ConstVal.AddDto)]
+    Add,
+
+    [Description(ConstVal.UpdateDto)]
+    Update,
+
+    [Description(ConstVal.FilterDto)]
+    Filter,
+
+    [Description(ConstVal.ItemDto)]
+    Item,
+
+    [Description(ConstVal.DetailDto)]
+    Detail,
 }

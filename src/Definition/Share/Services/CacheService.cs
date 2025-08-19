@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Share.Services;
 
 /// <summary>
-/// 内存缓存快捷服务
+/// 内存缓存服务
 /// </summary>
 public class CacheService(IMemoryCache cache)
 {

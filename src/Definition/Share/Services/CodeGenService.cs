@@ -1,4 +1,4 @@
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
@@ -10,10 +10,23 @@ namespace Share.Services;
 /// <summary>
 /// 代码生成服务
 /// </summary>
-public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext projectContext)
+public class CodeGenService(
+    ILogger<CodeGenService> logger,
+    IProjectContext projectContext,
+    CacheService cache
+)
 {
     private readonly ILogger<CodeGenService> _logger = logger;
     private readonly IProjectContext _projectContext = projectContext;
+    private readonly CacheService _cache = cache;
+    private readonly DtoType[] DtoTypes =
+    [
+        DtoType.Add,
+        DtoType.Update,
+        DtoType.Filter,
+        DtoType.Item,
+        DtoType.Detail,
+    ];
 
     /// <summary>
     /// 生成Dto
@@ -41,16 +54,7 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
             ModuleName = entityInfo.ModuleName,
         };
 
-        // 统一生成各类型Dto文件
-        var dtoTypes = new[]
-        {
-            DtoType.Add,
-            DtoType.Update,
-            DtoType.Filter,
-            DtoType.Item,
-            DtoType.Detail,
-        };
-        var dtoFiles = dtoTypes
+        var dtoFiles = DtoTypes
             .Select(type =>
             {
                 var file = GenerateDto(dtoGen, entityInfo, type);
@@ -65,7 +69,7 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
     }
 
     /// <summary>
-    /// 生成单个Dto（优化：接收DtoCodeGenerate实例，避免重复创建）
+    /// 生成单个Dto
     /// </summary>
     /// <param name="dtoGen">DtoCodeGenerate实例</param>
     /// <param name="entityInfo"></param>
@@ -84,6 +88,9 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
             DtoType.Detail => dtoGen.GetDetailDto(),
             _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null),
         };
+
+        // 缓存Dto信息
+        _cache.Set(entityInfo.Name + dtoType.ToString(), dto);
         var content = dto.ToDtoContent(entityInfo.GetDtoNamespace(), entityInfo.Name);
         return new GenFileInfo($"{dto.Name}.cs", content)
         {
@@ -154,14 +161,22 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
         var serviceName = Path.GetFileName(servicePath);
         var projectFile = Path.Combine(servicePath, serviceName + ConstVal.CSharpProjectExtension);
 
-        // weather is management project
+        // whether is management project
         var hasSystemMod = await SolutionService.HasProjectReferenceAsync(
             projectFile,
             _projectContext.SolutionConfig!.SystemModName
         );
 
-        var apiGen = new RestApiGenerate(entityInfo, serviceName);
-        var content = apiGen.GetRestApiContent(tplContent, hasSystemMod);
+        OutputHelper.Important(
+            $"{serviceName} with {_projectContext.SolutionConfig!.SystemModName} hasSystemMod: {hasSystemMod}"
+        );
+
+        var apiGen = new RestApiGenerate(
+            entityInfo,
+            _projectContext.SolutionConfig,
+            GetDtoCache(entityInfo)
+        );
+        var content = apiGen.GetRestApiContent(tplContent, serviceName, hasSystemMod);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
             IsCover = isCover,
@@ -445,22 +460,36 @@ public class CodeGenService(ILogger<CodeGenService> logger, IProjectContext proj
 
         return files;
     }
-}
 
-public enum DtoType
-{
-    [Description("Add")]
-    Add,
+    /// <summary>
+    /// get Dto from cache
+    /// </summary>
+    /// <param name="entityInfo"></param>
+    /// <returns></returns>
+    private ReadOnlyDictionary<string, DtoInfo> GetDtoCache(EntityInfo entityInfo)
+    {
+        var result = new Dictionary<string, DtoInfo>();
+        foreach (var dtoType in DtoTypes)
+        {
+            var key = entityInfo.Name + dtoType.ToString();
+            var dto = _cache.Get<DtoInfo>(key);
+            if (dto != null)
+            {
+                result.Add(dtoType.ToString(), dto);
+            }
+        }
+        return new ReadOnlyDictionary<string, DtoInfo>(result);
+    }
 
-    [Description("Update")]
-    Update,
+    public void ClearCodeGenCache(EntityInfo entityInfo)
+    {
+        _logger.LogInformation("🗑️ Clearing Dto cache...");
 
-    [Description("Filter")]
-    Filter,
-
-    [Description("Item")]
-    Item,
-
-    [Description("Detail")]
-    Detail,
+        foreach (var dtoType in DtoTypes)
+        {
+            var key = entityInfo.Name + dtoType.ToString();
+            _cache.Remove(key);
+        }
+        _logger.LogInformation("✅ Dto cache cleared.");
+    }
 }

@@ -12,11 +12,9 @@ public class GenActionManager(
     CodeGenService codeGenService,
     ILogger<GenActionManager> logger,
     IProjectContext projectContext,
-    CodeAnalysisService codeAnalysis,
-    UserContext userContext
+    CodeAnalysisService codeAnalysis
 ) : ManagerBase<DefaultDbContext, GenAction>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeGenService _codeGen = codeGenService;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;

@@ -67,16 +67,13 @@ public class EntityInfo
     public EntityKeyType KeyType { get; set; } = EntityKeyType.Guid;
 
     /// <summary>
-    /// 是否为枚举类
-    /// </summary>
-    public bool? IsEnum { get; set; } = false;
-    public bool IsList { get; set; }
-
-    /// <summary>
     /// 属性
     /// </summary>
     public List<PropertyInfo> PropertyInfos { get; set; } = [];
 
+    /// <summary>
+    /// 导航属性
+    /// </summary>
     public List<EntityNavigation> Navigations { get; set; } = [];
 
     public string GetDtoNamespace()
@@ -107,6 +104,7 @@ public class EntityInfo
                 Name = n.ForeignKey,
                 NavigationName = n.Name,
                 Type = n.Type,
+                IsNavigation = true,
                 IsRequired = n.IsRequired,
                 IsNullable = false,
             })
@@ -138,9 +136,6 @@ public class EntityNavigation
     public string? Summary { get; set; }
     public bool IsRequired { get; set; }
 
-    /// <summary>
-    /// 用来判断一对一，还是一对多(多对多)
-    /// </summary>
     public bool IsUnique { get; set; }
     public bool IsSkipNavigation { get; set; }
     public bool IsOwnership { get; set; }

@@ -220,6 +220,7 @@ public partial class EntityInfoManager(
             default:
                 break;
         }
+        codeGenService.ClearCodeGenCache(entityInfo);
         codeGenService.GenerateFiles(files);
         return files;
     }

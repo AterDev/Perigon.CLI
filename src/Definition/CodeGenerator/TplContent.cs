@@ -137,7 +137,7 @@ public class TplContent
                 [HttpPatch("{id}")]
                 public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
-                   @(Model.UpdateCodes)
+                    @(Model.UpdateCodes)
                     return await _manager.UpdateAsync(entity, dto);
                 }
 
@@ -164,7 +164,7 @@ public class TplContent
                 {
                     // attention permission
                     @(Model.DeleteCodes)
-                    return await _manager.DeleteAsync(entity, true);
+                    return await _manager.DeleteAsync([id], true);
                 }
             }
             """;

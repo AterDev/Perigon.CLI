@@ -2,6 +2,7 @@ using CodeGenerator.Helper;
 using Entity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Share.Services;
 
 namespace Share;
 
@@ -19,6 +20,7 @@ public static partial class FrameworkExtensions
     {
         builder.AddDbContext();
         builder.Services.AddMemoryCache();
+        builder.Services.AddSingleton<CacheService>();
         return builder;
     }
 
