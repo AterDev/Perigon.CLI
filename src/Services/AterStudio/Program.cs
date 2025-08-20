@@ -49,7 +49,10 @@ lifetime.ApplicationStarted.Register(() =>
     var addressesFeature = server.Features.Get<IServerAddressesFeature>();
     foreach (var address in addressesFeature?.Addresses ?? [])
     {
-        OutputHelper.Success($"🤖 Mcp Server: {address}/mcp");
+        if (address.StartsWith("http://"))
+        {
+            OutputHelper.Success($"🤖 Mcp Server: {address}/mcp");
+        }
     }
 });
 
