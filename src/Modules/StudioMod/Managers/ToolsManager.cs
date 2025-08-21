@@ -7,7 +7,6 @@ namespace StudioMod.Managers;
 /// </summary>
 public class ToolsManager
 {
-    public ToolsManager() { }
 
     public static List<string>? ConvertToClass(string json)
     {
