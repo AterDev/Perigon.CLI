@@ -25,7 +25,7 @@ public class DbContextParseHelper
     private string EntityFilePath { get; set; } = string.Empty;
 
     // 记录并用来避免循环引用解析
-    private HashSet<IEntityType> RelationEntityTypes = [];
+    private readonly HashSet<IEntityType> RelationEntityTypes = [];
 
     public DbContextParseHelper(string entityPath, string entityFrameworkPath)
     {

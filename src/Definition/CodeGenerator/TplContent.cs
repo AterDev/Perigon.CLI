@@ -84,7 +84,7 @@ public class TplContent
                     return await base.DeleteAsync(ids, softDelete);
                 }
 
-                @(Model.AdditionMethods)
+            @(Model.AdditionMethods)
             }
             """;
     }

@@ -106,7 +106,7 @@ public class EntityInfo
                 Type = n.Type,
                 IsNavigation = true,
                 IsRequired = n.IsRequired,
-                IsNullable = false,
+                IsNullable = !n.IsRequired,
             })
             .ToList();
     }

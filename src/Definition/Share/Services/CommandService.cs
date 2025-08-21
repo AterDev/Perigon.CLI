@@ -104,11 +104,6 @@ public class CommandService(
         OutputHelper.Success($"Created new solution {solutionPath}");
 
         var id = await solutionService.SaveSolutionAsync(solutionPath, dto.Name);
-        if (id == null)
-        {
-            ErrorMsg = "Failed to save solution, id is null.";
-            return false;
-        }
         await projectContext.SetProjectByIdAsync(id);
 
         OutputHelper.Important($"Apply settings...");

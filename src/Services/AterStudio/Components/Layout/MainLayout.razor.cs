@@ -26,7 +26,7 @@ public partial class MainLayout : IDisposable
                 PrimaryAction = null,
                 SecondaryAction = null,
                 ShowDismiss = true,
-                Width = "400px",
+                Width = "auto",
             }
         );
         DialogResult result = await _dialog.Result;

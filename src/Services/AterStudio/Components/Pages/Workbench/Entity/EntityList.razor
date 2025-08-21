@@ -137,24 +137,31 @@
             </FluentButton>
             <FluentMenu Anchor="batchMenu"
                         @bind-Open="BatchOpen">
-              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Dto))">
-                <FluentIcon Value="@(new Icons.Regular.Size20.CodeBlock())"
-                            Color="Color.Accent"
-                            Slot="start" />
-                @Lang(Localizer.GenerateDtos)
-              </FluentMenuItem>
-              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Manager))">
-                <FluentIcon Value="@(new Icons.Regular.Size20.LinkSquare())"
-                            Color="Color.Accent"
-                            Slot="start" />
-                @Lang(Localizer.GenerateManagers)
-              </FluentMenuItem>
-              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.API))">
-                <FluentIcon Value="@(new Icons.Regular.Size20.PlugConnected())"
-                            Color="Color.Accent"
-                            Slot="start" />
-                @Lang(Localizer.GenerateController)
-              </FluentMenuItem>
+              <FluentStack Orientation="Orientation.Vertical"
+                           VerticalGap="4"
+                           Class="p-1">
+                <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Dto))"
+                                Class="w-100">
+
+                  <FluentIcon Value="@(new Icons.Regular.Size24.CodeBlock())"
+                              Color="Color.Accent"
+                              Slot="start" />
+                  @Lang(Localizer.GenerateDtos)
+                </FluentMenuItem>
+                <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Manager))">
+                  <FluentIcon Value="@(new Icons.Regular.Size24.LinkSquare())"
+                              Color="Color.Accent"
+                              Slot="start" />
+                  @Lang(Localizer.GenerateManagers)
+                </FluentMenuItem>
+                <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.API))">
+                  <FluentIcon Value="@(new Icons.Regular.Size24.PlugConnected())"
+                              Color="Color.Accent"
+                              Slot="start" />
+                  @Lang(Localizer.GenerateController)
+                </FluentMenuItem>
+              </FluentStack>
+
             </FluentMenu>
 
           </FluentStack>
