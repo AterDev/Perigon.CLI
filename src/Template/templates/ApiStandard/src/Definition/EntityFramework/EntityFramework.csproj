@@ -18,7 +18,4 @@
     <ProjectReference Include="..\Entity\Entity.csproj" />
     <ProjectReference Include="..\..\Ater\Ater.Web.Convention\Ater.Web.Convention.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
 </Project>

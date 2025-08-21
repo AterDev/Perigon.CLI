@@ -1,5 +1,4 @@
 using Entity.SystemMod;
-using Entity.UserMod;
 
 namespace EntityFramework.DBProvider;
 
@@ -24,8 +23,6 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<SystemPermissionGroup> SystemPermissionGroups { get; set; }
     public DbSet<SystemLogs> SystemLogs { get; set; }
     public DbSet<SystemOrganization> SystemOrganizations { get; set; } = null!;
-
-    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
