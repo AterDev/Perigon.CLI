@@ -7,6 +7,7 @@ using Entity;
 using Share.Helper;
 
 namespace Command.Share.Runners;
+
 public class StudioRunner
 {
     public static async Task RunStudioAsync()
@@ -18,6 +19,7 @@ public class StudioRunner
         string studioPath = AssemblyHelper.GetStudioPath();
         // 检查并更新
         string version = AssemblyHelper.GetCurrentToolVersion();
+        OutputHelper.Info($"current version:{version}");
         if (!File.Exists(Path.Combine(studioPath, $"{version}.txt")))
         {
             OutputHelper.Important($"find new version：{version}");
@@ -55,10 +57,9 @@ public class StudioRunner
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}")
-                    {
-                        CreateNoWindow = true
-                    });
+                    Process.Start(
+                        new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true }
+                    );
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
@@ -76,85 +77,27 @@ public class StudioRunner
             await process.WaitForExitAsync();
         }
     }
+
     /// <summary>
     /// 升级studio
     /// </summary>
     public static void UpdateStudio()
     {
-        string[] copyFiles =
-        [
-            "Ater.Common",
-"Ater.Web.Convention",
-"CodeGenerator",
-"Entity",
-"EntityFramework",
-"Humanizer",
-"Mapster.Core",
-"Mapster",
-"Microsoft.AspNetCore.Razor.Language",
-"Microsoft.Build",
-"Microsoft.Build.Framework",
-"Microsoft.Build.Locator",
-"Microsoft.Build.Tasks.Core",
-"Microsoft.Build.Utilities.Core",
-"Microsoft.CodeAnalysis.CSharp",
-"Microsoft.CodeAnalysis.CSharp.Workspaces",
-"Microsoft.CodeAnalysis",
-"Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler",
-"Microsoft.CodeAnalysis.Workspaces",
-"Microsoft.CodeAnalysis.Workspaces.MSBuild",
-"Microsoft.Data.Sqlite",
-"Microsoft.EntityFrameworkCore.Abstractions",
-"Microsoft.EntityFrameworkCore",
-"Microsoft.EntityFrameworkCore.Relational",
-"Microsoft.EntityFrameworkCore.Sqlite",
-"Microsoft.Extensions.DependencyModel",
-"Microsoft.IdentityModel.Abstractions",
-"Microsoft.IdentityModel.JsonWebTokens",
-"Microsoft.IdentityModel.Logging",
-"Microsoft.IdentityModel.Tokens",
-"Microsoft.NET.StringTools",
-"Microsoft.OpenApi",
-"Microsoft.OpenApi.Readers",
-"Microsoft.VisualStudio.Setup.Configuration.Interop",
-"Newtonsoft.Json",
-"RazorEngineCore",
-"Share",
-"SharpYaml",
-"Spectre.Console",
-"SQLitePCLRaw.batteries_v2",
-"SQLitePCLRaw.core",
-"SQLitePCLRaw.provider.e_sqlite3",
-"System.CodeDom",
-"System.Composition.AttributedModel",
-"System.Composition.Convention",
-"System.Composition.Hosting",
-"System.Composition.Runtime",
-"System.Composition.TypedParts",
-"System.Configuration.ConfigurationManager",
-"System.IdentityModel.Tokens.Jwt",
-"System.Reflection.MetadataLoadContext",
-"System.Resources.Extensions",
-"System.Security.Cryptography.ProtectedData",
-"System.Security.Permissions",
-"System.Windows.Extensions",
-"Microsoft.IO.Redist",
-"System.Buffers",
-"System.Collections.Immutable",
-"System.CommandLine",
-"System.Memory",
-"System.Numerics.Vectors",
-"System.Runtime.CompilerServices.Unsafe",
-"System.Threading.Tasks.Extensions",
-"Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost",
-"Share.resources"
-        ];
+        string[] copyFiles = [];
 
         string version = AssemblyHelper.GetCurrentToolVersion();
         string toolRootPath = AssemblyHelper.GetToolPath();
         string zipPath = Path.Combine(toolRootPath, ConstVal.StudioZip);
-        string templatePath = Path.Combine(toolRootPath, ConstVal.TemplateZip);
-
+        string modulesPath = Path.Combine(toolRootPath, ConstVal.ModulesZip);
+        string shareDllsPath = Path.Combine(toolRootPath, ConstVal.ShareDlls);
+        if (File.Exists(shareDllsPath))
+        {
+            copyFiles = File.ReadAllLines(shareDllsPath);
+        }
+        else
+        {
+            OutputHelper.Warning($"not found {ConstVal.ShareDlls} in:{toolRootPath}");
+        }
         if (!File.Exists(zipPath))
         {
             OutputHelper.Error($"not found studio.zip in:{toolRootPath}");
@@ -164,76 +107,84 @@ public class StudioRunner
         string dbFile = Path.Combine(studioPath, ConstVal.DbName);
         string tempDbFile = Path.Combine(Path.GetTempPath(), ConstVal.DbName);
 
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.Aesthetic).Start("Updating...", ctx =>
-            {
-                // 删除旧文件
-                if (Directory.Exists(studioPath))
+        AnsiConsole
+            .Status()
+            .Spinner(Spinner.Known.Aesthetic)
+            .Start(
+                "Updating...",
+                ctx =>
                 {
-                    ctx.Status("delete old files");
-                    if (File.Exists(dbFile))
+                    // 删除旧文件
+                    if (Directory.Exists(studioPath))
                     {
-                        File.Copy(dbFile, tempDbFile, true);
+                        ctx.Status("delete old files");
+                        if (File.Exists(dbFile))
+                        {
+                            File.Copy(dbFile, tempDbFile, true);
+                        }
+                        Directory.Delete(studioPath, true);
+                        OutputHelper.Important($"delete {studioPath}");
                     }
-                    Directory.Delete(studioPath, true);
-                    OutputHelper.Info($"delete {studioPath}");
-                }
 
-                // 解压
-                ctx.Status("copy new files");
-                if (File.Exists(templatePath))
-                {
-                    ZipFile.ExtractToDirectory(templatePath, studioPath, true);
-                }
-                ZipFile.ExtractToDirectory(zipPath, studioPath, true);
-                OutputHelper.Info($"extract {zipPath} to {studioPath}");
-
-                if (File.Exists(tempDbFile))
-                {
-                    OutputHelper.Info($"recover db file");
-                    File.Copy(tempDbFile, dbFile, true);
-                }
-
-                // copy其他文件
-                OutputHelper.Info($"start copy {copyFiles.Length} files to {studioPath}");
-                copyFiles.ToList().ForEach(file =>
-                {
-                    string sourceFile = Path.Combine(toolRootPath, file + ".dll");
-                    if (File.Exists(sourceFile))
+                    // 解压
+                    ctx.Status("copy new files");
+                    if (File.Exists(modulesPath))
                     {
-                        File.Copy(sourceFile, Path.Combine(studioPath, file + ".dll"), true);
+                        ZipFile.ExtractToDirectory(modulesPath, studioPath, true);
                     }
-                    else
+                    ZipFile.ExtractToDirectory(zipPath, studioPath, true);
+                    OutputHelper.Important($"extract {zipPath} to {studioPath}");
+
+                    if (File.Exists(tempDbFile))
                     {
-                        OutputHelper.Info($"{sourceFile} file not exist!");
+                        OutputHelper.Info($"recover db file");
+                        File.Copy(tempDbFile, dbFile, true);
                     }
-                });
 
-                string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
-                CreateSymbolicLink(studioPath, runtimesDir);
-                runtimesDir = Path.Combine(toolRootPath, "runtimes");
-                CreateSymbolicLink(studioPath, runtimesDir);
+                    // copy其他文件
+                    OutputHelper.Important($"start copy {copyFiles.Length} files to {studioPath}");
+                    copyFiles
+                        .ToList()
+                        .ForEach(file =>
+                        {
+                            string sourceFile = Path.Combine(toolRootPath, file);
+                            if (File.Exists(sourceFile))
+                            {
+                                File.Copy(sourceFile, Path.Combine(studioPath, file), true);
+                            }
+                            else
+                            {
+                                OutputHelper.Info($"{sourceFile} file not exist!");
+                            }
+                        });
 
-                // create version file
-                File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
-                ctx.Status("update template");
-                UpdateTemplate();
-                OutputHelper.Success($"update to {version} completed!");
-                ctx.Status("Done!");
-                ctx.Refresh();
-            });
+                    string runtimesDir = Path.Combine(toolRootPath, "BuildHost-netcore");
+                    string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
+                    CreateSymbolicLink(targetDir, runtimesDir);
+                    runtimesDir = Path.Combine(toolRootPath, "runtimes");
+                    targetDir = Path.Combine(studioPath, "runtimes");
+                    CreateSymbolicLink(targetDir, runtimesDir);
+
+                    // create version file
+                    File.Create(Path.Combine(studioPath, $"{version}.txt")).Close();
+                    ctx.Status("update template");
+                    UpdateTemplate();
+                    OutputHelper.Success($"update to {version} completed!");
+                    ctx.Status("Done!");
+                    ctx.Refresh();
+                }
+            );
     }
 
     /// <summary>
     /// 创建软链接
     /// </summary>
-    /// <param name="studioPath"></param>
+    /// <param name="targetDir"></param>
     /// <param name="runtimesDir"></param>
-    private static void CreateSymbolicLink(string studioPath, string runtimesDir)
+    private static void CreateSymbolicLink(string targetDir, string runtimesDir)
     {
         if (Directory.Exists(runtimesDir))
         {
-            string targetDir = Path.Combine(studioPath, "BuildHost-netcore");
             if (Directory.Exists(targetDir))
             {
                 Directory.Delete(targetDir, true);
@@ -261,13 +212,15 @@ public class StudioRunner
         var endPointsTcp = properties.GetActiveTcpListeners();
         foreach (var endPoint in endPointsTcp)
         {
-            if (endPoint.Port == defaultPort) return alternative;
+            if (endPoint.Port == defaultPort)
+                return alternative;
         }
 
         var endPointsUdp = properties.GetActiveUdpListeners();
         foreach (var endPoint in endPointsUdp)
         {
-            if (endPoint.Port == defaultPort) return alternative;
+            if (endPoint.Port == defaultPort)
+                return alternative;
         }
         return defaultPort;
     }
@@ -278,7 +231,7 @@ public class StudioRunner
     public static void UpdateTemplate()
     {
         // 安装模板
-        if (!ProcessHelper.RunCommand("dotnet", "new list atapi", out string _))
+        if (!ProcessHelper.RunCommand("dotnet", "new list ater", out string _))
         {
             if (!ProcessHelper.RunCommand("dotnet", "new install ater.web.templates", out _))
             {
@@ -287,9 +240,7 @@ public class StudioRunner
         }
         else
         {
-            if (ProcessHelper.RunCommand("dotnet", "new update", out string _))
-            {
-            }
+            if (ProcessHelper.RunCommand("dotnet", "new update", out string _)) { }
         }
     }
 }

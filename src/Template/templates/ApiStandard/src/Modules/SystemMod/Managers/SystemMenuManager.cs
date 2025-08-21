@@ -1,15 +1,13 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
-using Share.Implement;
+using EntityFramework.DBProvider;
 using SystemMod.Models.SystemMenuDtos;
 
 namespace SystemMod.Managers;
+
 /// <summary>
 /// 系统菜单
 /// </summary>
-public class SystemMenuManager(
-    DataAccessContext<SystemMenu> dataContext,
-    ILogger<SystemMenuManager> logger) : ManagerBase<SystemMenu>(dataContext, logger)
+public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuManager> logger)
+    : ManagerBase<DefaultDbContext, SystemMenu>(dbContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -35,7 +33,7 @@ public class SystemMenuManager(
     public async Task<bool> SyncSystemMenusAsync(List<SystemMenuSyncDto> menus)
     {
         // 查询当前菜单内容
-        List<SystemMenu> currentMenus = await Command.ToListAsync();
+        List<SystemMenu> currentMenus = await _dbSet.ToListAsync();
         List<SystemMenu> flatMenus = FlatTree(menus);
 
         var accessCodes = flatMenus.Select(m => m.AccessCode).ToList();
@@ -43,45 +41,49 @@ public class SystemMenuManager(
         var needDeleteMenus = currentMenus.Where(m => !accessCodes.Contains(m.AccessCode)).ToList();
         if (needDeleteMenus.Count != 0)
         {
-            Command.RemoveRange(needDeleteMenus);
+            _dbSet.RemoveRange(needDeleteMenus);
             currentMenus = currentMenus.Except(needDeleteMenus).ToList();
         }
 
         // 菜单新增与更新
         foreach (SystemMenu menu in flatMenus)
         {
-
             if (currentMenus.Any(c => c.AccessCode == menu.AccessCode))
             {
                 var index = currentMenus.FindIndex(m => m.AccessCode.Equals(menu.AccessCode));
                 currentMenus[index].Name = menu.Name;
                 currentMenus[index].Sort = menu.Sort;
                 currentMenus[index].Icon = menu.Icon;
-                Command.Update(currentMenus[index]);
+                _dbSet.Update(currentMenus[index]);
             }
             else
             {
                 if (menu.Parent != null)
                 {
-                    SystemMenu? parent = currentMenus.Where(c => c.AccessCode == menu.Parent.AccessCode).FirstOrDefault();
+                    SystemMenu? parent = currentMenus
+                        .Where(c => c.AccessCode == menu.Parent.AccessCode)
+                        .FirstOrDefault();
                     if (parent != null)
                     {
                         menu.Parent = parent;
                     }
                 }
-                await Command.AddAsync(menu);
+                await _dbSet.AddAsync(menu);
             }
         }
         return await SaveChangesAsync() > 0;
     }
 
     /// <summary>
-    /// flat tree 
+    /// flat tree
     /// </summary>
     /// <param name="list"></param>
     /// <param name="parent"></param>
     /// <returns></returns>
-    private List<SystemMenu> FlatTree(List<SystemMenuSyncDto> list, SystemMenu? parent = null)
+    private static List<SystemMenu> FlatTree(
+        List<SystemMenuSyncDto> list,
+        SystemMenu? parent = null
+    )
     {
         var res = new List<SystemMenu>();
         foreach (SystemMenuSyncDto item in list)
@@ -95,7 +97,7 @@ public class SystemMenuManager(
                     MenuType = (MenuType)item.MenuType,
                     Parent = parent,
                     Sort = item.Sort ?? 0,
-                    Icon = item.Icon
+                    Icon = item.Icon,
                 };
                 res.Add(menu);
                 List<SystemMenu> children = FlatTree(item.Children, menu);
@@ -110,7 +112,7 @@ public class SystemMenuManager(
                     MenuType = (MenuType)item.MenuType,
                     Parent = parent,
                     Sort = item.Sort ?? 0,
-                    Icon = item.Icon
+                    Icon = item.Icon,
                 };
                 res.Add(menu);
             }
@@ -129,31 +131,30 @@ public class SystemMenuManager(
         List<SystemMenu>? menus;
         if (filter.RoleId != null)
         {
-            menus = await Queryable.Where(q => q.Roles.Any(r => r.Id == filter.RoleId))
+            menus = await Queryable
+                .Where(q => q.Roles.Any(r => r.Id == filter.RoleId))
                 .ToListAsync();
             menus.BuildTree();
         }
         else if (filter.ParentId != null)
         {
-            menus = await Queryable.Where(q => q.Parent != null && q.ParentId == filter.ParentId)
+            menus = await Queryable
+                .Where(q => q.Parent != null && q.ParentId == filter.ParentId)
                 .ToListAsync();
         }
         else
         {
-            menus = await Queryable.AsNoTracking()
-            .OrderByDescending(t => t.Sort)
+            menus = await Queryable
+                .AsNoTracking()
+                .OrderByDescending(t => t.Sort)
                 .ThenByDescending(t => t.CreatedTime)
-            .Skip((filter.PageIndex - 1) * filter.PageIndex)
-            .Take(filter.PageSize)
-            .ToListAsync();
+                .Skip((filter.PageIndex - 1) * filter.PageIndex)
+                .Take(filter.PageSize)
+                .ToListAsync();
             menus = menus.BuildTree();
         }
 
-        return new PageList<SystemMenu>()
-        {
-            Data = menus,
-            PageIndex = filter.PageIndex
-        };
+        return new PageList<SystemMenu>() { Data = menus, PageIndex = filter.PageIndex };
     }
 
     /// <summary>
@@ -163,10 +164,8 @@ public class SystemMenuManager(
     /// <returns></returns>
     public async Task<SystemMenu?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemMenu> query = Command.Where(q => q.Id == id);
+        IQueryable<SystemMenu> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

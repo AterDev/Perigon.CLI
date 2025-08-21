@@ -1,4 +1,3 @@
-
 using Entity;
 
 namespace Share.Models;
@@ -6,6 +5,7 @@ namespace Share.Models;
 public class EntityFile
 {
     public required string Name { get; set; }
+
     /// <summary>
     /// 注释说明
     /// </summary>
@@ -13,6 +13,7 @@ public class EntityFile
     public string BaseDirPath { get; set; } = string.Empty;
     public required string FullName { get; set; }
     public string? Content { get; set; }
+
     /// <summary>
     /// 所属模块
     /// </summary>
@@ -31,9 +32,19 @@ public class EntityFile
     {
         var name = Path.GetFileNameWithoutExtension(Name);
         return ModuleName.IsEmpty()
-            ? Path.Combine(project.SharePath ?? PathConst.SharePath, ConstVal.ModelsDir, $"{name}Dtos")
-            : Path.Combine(project.ModulesPath ?? PathConst.ModulesPath, ModuleName, ConstVal.ModelsDir, $"{name}Dtos");
+            ? Path.Combine(
+                project.SharePath ?? PathConst.SharePath,
+                ConstVal.ModelsDir,
+                $"{name}Dtos"
+            )
+            : Path.Combine(
+                project.ModulesPath ?? PathConst.ModulesPath,
+                ModuleName,
+                ConstVal.ModelsDir,
+                $"{name}Dtos"
+            );
     }
+
     /// <summary>
     /// 获取manager路径
     /// </summary>
@@ -43,11 +54,15 @@ public class EntityFile
     {
         return ModuleName.IsEmpty()
             ? Path.Combine(project.CommonModPath ?? PathConst.CommonModPath, ConstVal.ManagersDir)
-            : Path.Combine(project.ModulesPath ?? PathConst.ModulesPath, ModuleName, ConstVal.ManagersDir);
+            : Path.Combine(
+                project.ModulesPath ?? PathConst.ModulesPath,
+                ModuleName,
+                ConstVal.ManagersDir
+            );
     }
 
     /// <summary>
-    /// controller Path
+    /// controller TemplatePath
     /// </summary>
     /// <param name="project"></param>
     /// <returns></returns>
@@ -55,6 +70,10 @@ public class EntityFile
     {
         return ModuleName.IsEmpty()
             ? Path.Combine(project.ApiPath ?? PathConst.APIPath, ConstVal.ControllersDir)
-            : Path.Combine(project.ModulesPath ?? PathConst.ModulesPath, ModuleName, ConstVal.ControllersDir);
+            : Path.Combine(
+                project.ModulesPath ?? PathConst.ModulesPath,
+                ModuleName,
+                ConstVal.ControllersDir
+            );
     }
 }

@@ -1,0 +1,10 @@
+@AdminService_HostAddress = http://localhost:7001/api/
+
+POST {{AdminService_HostAddress}}/systemuser/login
+Accept: application/json
+{
+  "userName": "admin",
+  "password":"Hello.Net"
+}
+
+###

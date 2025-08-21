@@ -18,5 +18,45 @@
   },
   "sourceName": "MyProjectName",
   "preferNameDirectory": true,
-  "sources": []
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        "**/[Bb]in/**",
+        "**/[Oo]bj/**",
+        "**/.template.config/**",
+        "**/*.filelist",
+        "**/*.user",
+        "**/*.lock.json",
+        ".git/**",
+        "src/ClientApp/WebApp/**"
+      ]
+    },
+    {
+      "source": "./src/ClientApp/WebApp",
+      "target": "./src/ClientApp/WebApp",
+      "condition": "frontType == 'Angular'"
+    }
+  ],
+  "symbols": {
+    "frontType": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "None",
+          "description": "No front-end",
+          "displayName": "None"
+        },
+        {
+          "choice": "Angular",
+          "description": "Using Angular 20 with Material",
+          "displayName": "Angular 20"
+        }
+      ],
+      "defaultValue": "None",
+      "description": "Select a Frontend framework"
+    }
+  }
 }

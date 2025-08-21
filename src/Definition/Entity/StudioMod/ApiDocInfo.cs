@@ -1,4 +1,5 @@
 namespace Entity.StudioMod;
+
 /// <summary>
 /// 接口文档
 /// </summary>
@@ -32,6 +33,6 @@ public class ApiDocInfo : EntityBase
     [MaxLength(200)]
     public string? LocalPath { get; set; }
 
-    public Project Project { get; set; } = null!;
+    public Solution Project { get; set; } = null!;
     public Guid ProjectId { get; set; } = default!;
 }

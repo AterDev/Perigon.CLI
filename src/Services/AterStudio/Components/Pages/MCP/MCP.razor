@@ -1,0 +1,78 @@
+@using Entity.StudioMod
+@using StudioMod.Managers
+@using AterStudio.Components.Shared
+@layout MenuLayout
+
+@page "/codegen/mcp"
+@inherits PageBase
+
+<PageTitle>@Lang(Localizer.MCP, Localizer.Tools)@Lang(Localizer.List)</PageTitle>
+
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="8">
+  <FluentToolbar Class="w-100 bg-bottom-2">
+    <FluentStack Orientation="Orientation.Horizontal"
+                 HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                 VerticalAlignment="VerticalAlignment.Center">
+
+      <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentLabel Typo="Typography.Subject">
+          @Lang(Localizer.MCP, Localizer.List)
+        </FluentLabel>
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Horizontal"
+                   HorizontalAlignment="HorizontalAlignment.Right"
+                   VerticalAlignment="VerticalAlignment.Center">
+        <FluentButton Appearance="Appearance.Stealth"
+                      IconStart="@(new Icons.Regular.Size24.Add())"
+                      Title="@Lang(Localizer.Add,Localizer.Tools)"
+                      OnClick="OpenAddDialogAsync">
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Stealth"
+                      Title="@Lang(Localizer.Refresh)"
+                      IconStart="@(new Icons.Regular.Size24.ArrowSync())"
+                      OnClick="LoadMcpToolsAsync">
+        </FluentButton>
+      </FluentStack>
+    </FluentStack>
+  </FluentToolbar>
+
+  <FluentDataGrid Class="w-100"
+                  Items="@McpTools.AsQueryable()"
+                  RowSize="DataGridRowSize.Medium"
+                  MultiLine="true"
+                  @bind-SelectedItem="SelectedMcpTool">
+    <PropertyColumn Property="@(t => t.Name)" Title="@Lang(Localizer.Name)" />
+    <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Name)" />
+
+    <TemplateColumn Title="@Lang(Localizer.Prompt, Localizer.Path)">
+      @context.PromptPath?.Replace(ProjectContext.SolutionPath ?? "", "")
+    </TemplateColumn>
+
+    <TemplateColumn Title="@Lang(Localizer.Template, Localizer.Path)">
+      <div class="flex items-center">
+        @if (context.TemplatePaths.Count() > 0)
+        {
+          foreach (var item in context.TemplatePaths)
+          {
+            <span>@item.Replace(ProjectContext.SolutionPath ?? "", "") </span>
+            <br>
+          }
+        }
+      </div>
+
+    </TemplateColumn>
+    <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+      <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+        <FluentButton Appearance="Appearance.Stealth"
+                      OnClick="@(() => OpenEditDialogAsync(context))"
+                      IconStart="@(new Icons.Regular.Size20.Edit())"
+                      Title="@Lang(Localizer.Edit)" />
+        <FluentButton Appearance="Appearance.Stealth"
+                      OnClick="@(() => DeleteMcpTool(context))"
+                      IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
+                      Title="@Lang(Localizer.Delete)" />
+      </FluentStack>
+    </TemplateColumn>
+  </FluentDataGrid>
+</FluentStack>

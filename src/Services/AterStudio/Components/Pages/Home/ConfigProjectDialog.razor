@@ -1,0 +1,179 @@
+@inherits PageBase
+@implements IDialogContentComponent<Solution>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">@Content.DisplayName</FluentLabel>
+  <FluentLabel Typo="Typography.Subject" Color="Color.Accent">
+    @Lang(Localizer.Edit, Localizer.Configuration)
+  </FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.EntityPath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.Entity,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.Entity,Localizer.Directory)"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.EntityFrameworkPath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.EntityFramework,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.EntityFramework,Localizer.Directory)"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.SharePath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.SharedDto,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.SharedDto,Localizer.Directory)"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.ModulePath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.Modules,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.Modules,Localizer.Directory)"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="dto.ServicePath"
+                         AutoComplete="off"
+                         Label="@Lang(Localizer.Service,Localizer.Directory)"
+                         Placeholder="@Lang(Localizer.Service,Localizer.Directory)"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="2">
+          <FluentLabel>@Lang(Localizer.SystemModLabel)</FluentLabel>
+          <FluentIcon Id="SystemModTip" Class="cursor" Value="@(new Icons.Regular.Size20.QuestionCircle())"></FluentIcon>
+          <FluentTooltip Anchor="SystemModTip" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=100>@Lang(Localizer.SystemModDes)</FluentTooltip>
+        </FluentStack>
+        <FluentTextField @bind-Value="dto.SystemModName"
+                         AutoComplete="off"
+                         Placeholder="Module Name"
+                         Required
+                         Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="2">
+          <FluentLabel>@Lang(Localizer.UserEntityName)</FluentLabel>
+          <FluentIcon Id="UserIdTip" Class="cursor" Value="@(new Icons.Regular.Size20.QuestionCircle())"></FluentIcon>
+          <FluentTooltip Anchor="UserIdTip" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=100>@Lang(Localizer.UserEntityTips)</FluentTooltip>
+        </FluentStack>
+        <FluentTextField @bind-Value="UserIds"
+                         AutoComplete="off"
+                         Required
+                         Placeholder="@Lang(Localizer.UserEntityExample)"
+                         Class="w-100" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentSwitch @bind-Value=dto.IsTenantMode Label="@Lang(Localizer.TenantMode)" Disabled="true" />
+      </FluentStack>
+
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Confirm)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+  [Parameter]
+  public Solution Content { get; set; } = null!;
+
+  [Inject]
+  SolutionManager Manager { get; set; } = null!;
+
+  SolutionConfig dto = new();
+  EditContext? editContext;
+  bool formValid { get; set; }
+  string UserIds { get; set; } = string.Empty;
+
+  protected override async Task OnInitializedAsync()
+  {
+    if (Content != null)
+    {
+      dto = Content.Config;
+      UserIds = string.Join(';', dto.UserEntities ?? []);
+    }
+    editContext = new EditContext(dto);
+    editContext.OnFieldChanged += HandleFieldChanged;
+    await Task.CompletedTask;
+  }
+
+  private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    if (editContext is not null)
+    {
+      formValid = editContext.Validate();
+      StateHasChanged();
+    }
+  }
+
+  public void Dispose()
+  {
+    if (editContext is not null)
+    {
+      editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+  }
+
+  private async Task SaveAsync()
+  {
+    if (!editContext!.Validate())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+    var solution = await Manager.GetCurrentAsync(Content.Id);
+    if (solution == null)
+    {
+      ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName, Content.Name));
+      return;
+    }
+
+    dto.UserEntities = UserIds
+      .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+      .Select(x => x.Trim())
+      .Where(x => !string.IsNullOrWhiteSpace(x))
+      .ToList();
+
+    var res = await Manager.UpdateConfigAsync(solution, dto);
+    if (res)
+    {
+      await Dialog.CloseAsync();
+    }
+    else
+    {
+      ToastService.ShowError(Lang(Localizer.Save, Localizer.Failed));
+    }
+  }
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

@@ -1,9 +1,9 @@
 using System.Text.Json;
 using Ater.Common.Options;
-using Ater.Common.Utils;
 using EntityFramework.DBProvider;
 
 namespace SystemMod;
+
 public class InitModule
 {
     /// <summary>
@@ -14,14 +14,15 @@ public class InitModule
     public static async Task InitializeAsync(IServiceProvider provider)
     {
         ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
+        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
         ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
         IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
         CacheService cache = provider.GetRequiredService<CacheService>();
 
         try
         {
-            var isInitString = context.SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
+            var isInitString = context
+                .SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
                 .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
                 .Select(c => c.Value)
                 .FirstOrDefault();
@@ -46,9 +47,15 @@ public class InitModule
         }
     }
 
-    private static async Task InitRoleAndUserAsync(CommandDbContext context, ILogger<InitModule> logger, IConfiguration configuration)
+    private static async Task InitRoleAndUserAsync(
+        DefaultDbContext context,
+        ILogger<InitModule> logger,
+        IConfiguration configuration
+    )
     {
-        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r => r.NameValue == WebConst.SuperAdmin);
+        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r =>
+            r.NameValue == WebConst.SuperAdmin
+        );
         // 初始化管理员账号和角色
         if (role == null)
         {
@@ -87,7 +94,11 @@ public class InitModule
             context.SystemUsers.Add(adminUser);
             context.SystemUsers.Add(manager);
             await context.SaveChangesAsync();
-            logger.LogInformation("初始化管理员账号:{username}/{password}", adminUser.UserName, defaultPassword);
+            logger.LogInformation(
+                "初始化管理员账号:{username}/{password}",
+                adminUser.UserName,
+                defaultPassword
+            );
         }
     }
 
@@ -98,15 +109,28 @@ public class InitModule
     /// <param name="configuration"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
-    private static async Task InitConfigAsync(CommandDbContext context, IConfiguration configuration, ILogger logger)
+    private static async Task InitConfigAsync(
+        DefaultDbContext context,
+        IConfiguration configuration,
+        ILogger logger
+    )
     {
         // 初始化配置信息
-        var initConfig = SystemConfig.NewSystemConfig(WebConst.SystemGroup, WebConst.IsInit, "true");
+        var initConfig = SystemConfig.NewSystemConfig(
+            WebConst.SystemGroup,
+            WebConst.IsInit,
+            "true"
+        );
 
-        var loginSecurityPolicy = configuration.GetSection(WebConst.LoginSecurityPolicy)
-            .Get<LoginSecurityPolicyOption>() ?? new LoginSecurityPolicyOption();
+        var loginSecurityPolicy =
+            configuration.GetSection(WebConst.LoginSecurityPolicy).Get<LoginSecurityPolicyOption>()
+            ?? new LoginSecurityPolicyOption();
 
-        var loginSecurityPolicyConfig = SystemConfig.NewSystemConfig(WebConst.SystemGroup, WebConst.LoginSecurityPolicy, JsonSerializer.Serialize(loginSecurityPolicy));
+        var loginSecurityPolicyConfig = SystemConfig.NewSystemConfig(
+            WebConst.SystemGroup,
+            WebConst.LoginSecurityPolicy,
+            JsonSerializer.Serialize(loginSecurityPolicy)
+        );
 
         context.SystemConfigs.Add(loginSecurityPolicyConfig);
         context.SystemConfigs.Add(initConfig);
@@ -122,11 +146,15 @@ public class InitModule
     /// <param name="cache"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
-    private static async Task InitCacheAsync(CommandDbContext context, CacheService cache, ILogger logger)
+    private static async Task InitCacheAsync(
+        DefaultDbContext context,
+        CacheService cache,
+        ILogger logger
+    )
     {
         logger.LogInformation("加载配置缓存");
-        var securityPolicy = context.SystemConfigs
-            .Where(c => c.Key.Equals(WebConst.LoginSecurityPolicy))
+        var securityPolicy = context
+            .SystemConfigs.Where(c => c.Key.Equals(WebConst.LoginSecurityPolicy))
             .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
             .Select(c => c.Value)
             .FirstOrDefault();

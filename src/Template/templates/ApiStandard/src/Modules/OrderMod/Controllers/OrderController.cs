@@ -1,29 +1,45 @@
 using OrderMod.Models.OrderDtos;
-using Share;
-using Share.Implement;
+
 namespace OrderMod.Controllers;
 
 /// <summary>
 /// 订单
 /// </summary>
-/// <see cref="Managers.OrderManager"/>
+/// <see cref="OrderManager"/>
 public class OrderController(
     Localizer localizer,
     UserContext user,
     ILogger<OrderController> logger,
-    OrderManager manager) : ClientControllerBase<OrderManager>(localizer, manager, user, logger)
+    OrderManager manager
+) : RestControllerBase<OrderManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
-    /// 订单列表 ✅
+    /// 筛选 ✅
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpPost("filter")]
     public async Task<ActionResult<PageList<OrderItemDto>>> FilterAsync(OrderFilterDto filter)
     {
-        filter.UserId = _user.UserId;
         return await _manager.ToPageAsync(filter);
+    }
+
+    /// <summary>
+    /// 更新订单状态 ✅
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, OrderUpdateDto dto)
+    {
+        Order? current = await _manager.GetCurrentAsync(id);
+        if (current == null)
+        {
+            return NotFound(Localizer.NotFoundResource);
+        }
+        ;
+        return await _manager.UpdateAsync(current, dto);
     }
 
     /// <summary>
@@ -35,6 +51,6 @@ public class OrderController(
     public async Task<ActionResult<OrderDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.FindAsync<OrderDetailDto>(d => d.Id == id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 }

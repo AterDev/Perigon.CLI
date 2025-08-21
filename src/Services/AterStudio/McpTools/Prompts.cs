@@ -10,7 +10,8 @@ public static class Prompts
     [McpServerPrompt, Description("create a prompt for create entity class")]
     public static ChatMessage CreateEntity()
     {
-        return new ChatMessage(ChatRole.User,
+        return new ChatMessage(
+            ChatRole.User,
             """
             <rules>
             实体模型需要创建在`src/Definition`目录下的`Entity`项目中；
@@ -28,6 +29,7 @@ public static class Prompts
             8 如果是List类型，默认使用默认值`= []`;
             9 将枚举类型定义跟实体类型定义放在同一个文件中，枚举类型放在实体类型的后面；
             </rules>
-            """);
+            """
+        );
     }
 }

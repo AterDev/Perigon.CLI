@@ -1,20 +1,21 @@
 namespace Ater.Common.Utils;
+
 /// <summary>
 /// 日期时间扩展
 /// </summary>
 public static class DateTimeExtensions
 {
     /// <summary>
-    /// dateOnly转DateTimeOffset
+    /// dateOnly(local)转DateTimeOffset(utc)
     /// </summary>
     /// <param name="dateOnly"></param>
     /// <param name="zone"></param>
     /// <returns></returns>
-    public static DateTimeOffset ToDateTimeOffset(this DateOnly dateOnly, TimeZoneInfo? zone = null)
+    public static DateTimeOffset ToDateTimeOffset(this DateOnly dateOnly)
     {
-        zone ??= TimeZoneInfo.Local;
-        var dateTime = dateOnly.ToDateTime(new TimeOnly(0));
-        return new DateTimeOffset(dateTime, zone.GetUtcOffset(dateTime));
+        var localDateTime = dateOnly.ToDateTime(TimeOnly.MinValue, DateTimeKind.Local);
+        var utcDateTime = localDateTime.ToUniversalTime();
+        return new DateTimeOffset(utcDateTime, TimeSpan.Zero);
     }
 
     public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime, TimeZoneInfo? zone = null)
@@ -50,7 +51,7 @@ public static class DateTimeExtensions
             DayOfWeek.Thursday => 4,
             DayOfWeek.Friday => 5,
             DayOfWeek.Saturday => 6,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(),
         };
     }
 }

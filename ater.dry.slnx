@@ -1,6 +1,5 @@
 <Solution>
   <Folder Name="/scripts/" Id="6dec682d-5f0d-1973-951c-0b9630672490">
-    <File Path="scripts/CheckSharedDlls.cs" />
     <File Path="scripts/CheckSharedDlls.ps1" />
     <File Path="scripts/installTemplate.ps1" />
     <File Path="scripts/PackFramework.ps1" />
@@ -10,15 +9,17 @@
     <File Path="scripts/SyncInfrastructure.ps1" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
     <File Path=".github/copilot-instructions.md" />
+    <File Path=".github/prompts/form.prompt.md" />
     <File Path=".mcp.json" />
   </Folder>
   <Folder Name="/src/">
   </Folder>
 
   <Folder Name="/src/Definition/">
+    <Project Path="src/Definition/EntityFramework/EfCoreContext.csproj" />
     <Project Path="src\Definition\CodeGenerator\CodeGenerator.csproj" />
-    <Project Path="src\Definition\EntityFramework\EntityFramework.csproj" />
     <Project Path="src\Definition\Entity\Entity.csproj" />
     <Project Path="src\Definition\Share\Share.csproj" />
   </Folder>

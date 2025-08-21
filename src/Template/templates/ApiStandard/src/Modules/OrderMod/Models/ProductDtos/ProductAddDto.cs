@@ -1,10 +1,11 @@
 using Entity.OrderMod;
 
 namespace OrderMod.Models.ProductDtos;
+
 /// <summary>
 /// 产品添加时请求结构
 /// </summary>
-/// <see cref="Entity.OrderMod.Product"/>
+/// <see cref="Product"/>
 public class ProductAddDto
 {
     /// <summary>
@@ -12,11 +13,13 @@ public class ProductAddDto
     /// </summary>
     [MaxLength(60)]
     public required string Name { get; set; }
+
     /// <summary>
     /// 描述
     /// </summary>
     [MaxLength(500)]
     public string? Description { get; set; }
+
     /// <summary>
     /// 价格
     /// </summary>
@@ -26,6 +29,7 @@ public class ProductAddDto
     /// 排序
     /// </summary>
     public int Sort { get; set; }
+
     /// <summary>
     /// 原价
     /// </summary>

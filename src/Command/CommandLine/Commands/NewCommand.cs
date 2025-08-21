@@ -1,12 +1,13 @@
 using System.ComponentModel;
-using System.Data;
 using Share;
 using Share.Helper;
 using Share.Models.CommandDtos;
 using Share.Services;
 
 namespace CommandLine.Commands;
-public class NewCommand(Localizer localizer, CommandService commandService) : AsyncCommand<NewCommand.Settings>
+
+public class NewCommand(Localizer localizer, CommandService commandService)
+    : AsyncCommand<NewCommand.Settings>
 {
     public class Settings : CommandSettings
     {
@@ -21,37 +22,44 @@ public class NewCommand(Localizer localizer, CommandService commandService) : As
         // 1. 选择项目类型
         var solutionType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title(localizer.Get(TipConst.SelectSolutionType))
-                .AddChoices([TipConst.SolutionTypeStandard, TipConst.SolutionTypeMini]));
+                .Title(localizer.Get(Localizer.SelectSolutionType))
+                .AddChoices([Localizer.SolutionTypeStandard])
+        );
 
         // 2. 选择数据库类型
         var dbType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title(localizer.Get(TipConst.SelectDatabaseProvider))
-                .AddChoices(TipConst.DatabasePostgreSql, TipConst.DatabaseSqlServer));
+                .Title(localizer.Get(Localizer.SelectDatabaseProvider))
+                .AddChoices(Localizer.DatabasePostgreSql, Localizer.DatabaseSqlServer)
+        );
 
         // 3. 输入数据库连接字符串
         var dbConnectionString = AnsiConsole.Prompt(
-         new TextPrompt<string?>(localizer.Get(TipConst.InputDbConnectionString))
-            .AllowEmpty()
-            .PromptStyle("green"));
+            new TextPrompt<string?>(localizer.Get(Localizer.InputDbConnectionString))
+                .AllowEmpty()
+                .PromptStyle("green")
+        );
 
         OutputHelper.ClearLine();
 
         // 4. 选择缓存类型
         var cacheType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title(localizer.Get(TipConst.SelectCacheType))
-                .AddChoices([TipConst.CacheTypeHybrid, TipConst.CacheTypeMemory, TipConst.CacheTypeRedis]));
+                .Title(localizer.Get(Localizer.SelectCacheType))
+                .AddChoices(
+                    [Localizer.CacheTypeHybrid, Localizer.CacheTypeMemory, Localizer.CacheTypeRedis]
+                )
+        );
 
         string? cacheConnectionString = null;
         // 如果缓存类型不是内存，则要求输入连接字符串
-        if (cacheType != TipConst.CacheTypeMemory)
+        if (cacheType != Localizer.CacheTypeMemory)
         {
             cacheConnectionString = AnsiConsole.Prompt(
-                new TextPrompt<string?>(localizer.Get(TipConst.InputCacheConnectionString))
-                   .AllowEmpty()
-                   .PromptStyle("green"));
+                new TextPrompt<string?>(localizer.Get(Localizer.InputCacheConnectionString))
+                    .AllowEmpty()
+                    .PromptStyle("green")
+            );
             OutputHelper.ClearLine();
         }
 
@@ -60,20 +68,27 @@ public class NewCommand(Localizer localizer, CommandService commandService) : As
         // 7. 其他配置 (暂不支持)
 
         // 8. 模块选择(多选)
-        var options = ModuleInfo.GetModules();
+        //var options = ModuleInfo.GetModules();
 
-        var selectModules = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<ModuleInfo>()
-                .Title(localizer.Get(TipConst.SelectModules))
-                .InstructionsText(localizer.Get(TipConst.CommandSelectTip))
-                .NotRequired()
-                .AddChoices(options)
-                .UseConverter(opt => $"{localizer.Get(opt.Description)}"));
+        //var selectModules = AnsiConsole.Prompt(
+        //    new MultiSelectionPrompt<ModuleInfo>()
+        //        .Title(localizer.Get(Localizer.SelectModules))
+        //        .InstructionsText(localizer.Get(Localizer.CommandSelectTip))
+        //        .NotRequired()
+        //        .AddChoices(options)
+        //        .UseConverter(opt => $"{localizer.Get(opt.Description)}")
+        //);
+
+        var frontType = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title(localizer.Get(Localizer.SelectFrontType))
+                .AddChoices([Localizer.None, Localizer.Angular])
+        );
 
         // 9. 输入目录
         var defaultDirectory = "./";
         var targetDirectory = AnsiConsole.Prompt(
-             new TextPrompt<string>(localizer.Get(TipConst.InputDirectory))
+            new TextPrompt<string>(localizer.Get(Localizer.InputDirectory))
                 .PromptStyle("green")
                 .DefaultValue(defaultDirectory)
                 .ValidationErrorMessage("[red]Invalid directory path.[/]")
@@ -89,53 +104,63 @@ public class NewCommand(Localizer localizer, CommandService commandService) : As
                     {
                         return false;
                     }
-                }));
+                })
+        );
         OutputHelper.ClearLine();
 
-        AnsiConsole.Write(new Spectre.Console.Rule(localizer.Get(TipConst.SolutionSummary))
-            .RuleStyle("yellow").Centered()); // 打印一个规则线作为分隔和标题
+        AnsiConsole.Write(
+            new Spectre.Console.Rule(localizer.Get(Localizer.SolutionSummary))
+                .RuleStyle("yellow")
+                .Centered()
+        ); // 打印一个规则线作为分隔和标题
 
         var summaryTable = new Table()
-            .AddColumn(localizer.Get(FieldConst.ConfigurationItem))
-            .AddColumn(localizer.Get(FieldConst.Values))
-            .AddRow(localizer.Get(FieldConst.SolutionType), solutionType)
-            .AddRow(localizer.Get(FieldConst.DatabaseProvider), dbType)
-            .AddRow(localizer.Get(FieldConst.DbConnectionString), dbConnectionString ?? "")
-            .AddRow(localizer.Get(FieldConst.CacheType), cacheType)
-            .AddRow(localizer.Get(FieldConst.CacheConnectionString), cacheConnectionString ?? "")
-            .AddRow(localizer.Get(FieldConst.Modules), string.Join(", ", selectModules))
-            .AddRow(localizer.Get(FieldConst.Directory), targetDirectory);
+            .AddColumn(localizer.Get(Localizer.ConfigurationItem))
+            .AddColumn(localizer.Get(Localizer.Values))
+            .AddRow(localizer.Get(Localizer.SolutionType), solutionType)
+            .AddRow(localizer.Get(Localizer.DatabaseProvider), dbType)
+            .AddRow(localizer.Get(Localizer.DbConnectionString), dbConnectionString ?? "")
+            .AddRow(localizer.Get(Localizer.CacheType), cacheType)
+            .AddRow(localizer.Get(Localizer.CacheConnectionString), cacheConnectionString ?? "")
+            //.AddRow(localizer.Get(Localizer.Modules), string.Join(", ", selectModules))
+            .AddRow(localizer.Get(Localizer.FrontEnd), frontType)
+            .AddRow(localizer.Get(Localizer.Directory), targetDirectory);
 
         AnsiConsole.Write(summaryTable);
         AnsiConsole.WriteLine();
 
         // 确认创建
         var confirm = AnsiConsole.Prompt(
-            new ConfirmationPrompt(localizer.Get(TipConst.RunSolutionCreate)));
+            new ConfirmationPrompt(localizer.Get(Localizer.RunSolutionCreate))
+        );
 
         if (confirm)
         {
             OutputHelper.Info("creating solution!");
 
-            // TODO:具体创建逻辑
+            // 具体创建逻辑
             var dto = new CreateSolutionDto
             {
                 Name = settings.Name,
                 Path = targetDirectory,
-                IsLight = solutionType == TipConst.SolutionTypeMini,
-                DBType = dbType == TipConst.DatabasePostgreSql ? DBType.PostgreSQL : DBType.SQLServer,
-                CacheType = cacheType == TipConst.CacheTypeHybrid ? CacheType.Hybrid
-                    : cacheType == TipConst.CacheTypeMemory ? CacheType.Memory : CacheType.Redis,
+                IsLight = solutionType == Localizer.SolutionTypeMini,
+                DBType =
+                    dbType == Localizer.DatabasePostgreSql ? DBType.PostgreSQL : DBType.SQLServer,
+                CacheType =
+                    cacheType == Localizer.CacheTypeHybrid ? CacheType.Hybrid
+                    : cacheType == Localizer.CacheTypeMemory ? CacheType.Memory
+                    : CacheType.Redis,
                 CommandDbConnStrings = dbConnectionString,
                 QueryDbConnStrings = dbConnectionString,
                 CacheConnStrings = cacheConnectionString,
+                FrontType = frontType == Localizer.None ? FrontType.None : FrontType.Angular,
             };
-            if (selectModules.Count > 0)
-            {
-                dto.Modules = selectModules.Select(m => m.Name).ToList();
-            }
+            //if (selectModules.Count > 0)
+            //{
+            //    dto.Modules = selectModules.Select(m => m.Name).ToList();
+            //}
             await commandService.CreateSolutionAsync(dto);
-            OutputHelper.Success(localizer.Get(TipConst.CreateSolutionSuccess));
+            OutputHelper.Success(localizer.Get(Localizer.CreateSolutionSuccess));
         }
         return 0;
     }

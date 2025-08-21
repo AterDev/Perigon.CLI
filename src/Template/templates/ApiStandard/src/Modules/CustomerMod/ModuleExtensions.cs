@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 
 namespace CustomerMod;
+
 /// <summary>
 /// 模块服务扩展
 /// </summary>
@@ -15,4 +16,3 @@ public static class ModuleExtensions
         return builder;
     }
 }
-

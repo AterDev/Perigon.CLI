@@ -1,16 +1,21 @@
-using Ater.Common.Options;
 using Microsoft.Extensions.Configuration;
 
 namespace EntityFramework.DBProvider;
+
 /// <summary>
 /// create DbContext from factory
 /// </summary>
 /// <param name="configuration"></param>
 public class DbContextFactory(IConfiguration configuration)
 {
-    public TContext CreateDbContext<TContext>(DatabaseType databaseType = DatabaseType.SqlServer) where TContext : DbContext
+    public TContext CreateDbContext<TContext>(DatabaseType databaseType = DatabaseType.SqlServer)
+        where TContext : DbContext
     {
         var contextName = typeof(TContext).Name;
+        if (contextName.EndsWith("DbContext"))
+        {
+            contextName = contextName[..^"DbContext".Length];
+        }
         var connectionStrings = configuration.GetConnectionString(contextName);
         if (string.IsNullOrEmpty(connectionStrings))
         {
@@ -27,21 +32,31 @@ public class DbContextFactory(IConfiguration configuration)
                 builder.UseNpgsql(connectionStrings);
                 break;
             default:
-                throw new NotSupportedException($"Database provider {databaseType} is not supported.");
+                throw new NotSupportedException(
+                    $"Database provider {databaseType} is not supported."
+                );
         }
         try
         {
             var context = (TContext?)Activator.CreateInstance(typeof(TContext), builder.Options);
-            return context ?? throw new InvalidOperationException($"Failed to create an instance of {contextName} using Activator.CreateInstance.");
+            return context
+                ?? throw new InvalidOperationException(
+                    $"Failed to create an instance of {contextName} using Activator.CreateInstance."
+                );
         }
         catch (MissingMethodException ex)
         {
-            throw new InvalidOperationException($"Could not find a constructor on '{contextName}' that accepts 'DbContextOptions<{contextName}>'. Ensure the constructor exists.", ex);
+            throw new InvalidOperationException(
+                $"Could not find a constructor on '{contextName}' that accepts 'DbContextOptions<{contextName}>'. Ensure the constructor exists.",
+                ex
+            );
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"An error occurred while creating an instance of {contextName}.", ex);
+            throw new InvalidOperationException(
+                $"An error occurred while creating an instance of {contextName}.",
+                ex
+            );
         }
     }
-
 }

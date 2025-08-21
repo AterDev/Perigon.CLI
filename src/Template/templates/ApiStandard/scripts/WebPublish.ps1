@@ -1,3 +1,4 @@
+# 前端发布脚本示例
 [CmdletBinding()]
 param (
     [Parameter()]

@@ -1,20 +1,21 @@
-
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 using Ater.Common.Utils;
 
 namespace Ater.Common.Utils;
+
 /// <summary>
 /// 提供常用加解密方法
 /// </summary>
 public class HashCrypto
 {
     private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
-    private static JsonSerializerOptions JsonSerializerOptions => new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        ReferenceHandler = ReferenceHandler.IgnoreCycles
-    };
+    private static JsonSerializerOptions JsonSerializerOptions =>
+        new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        };
 
     /// <summary>
     /// SHA512 encrypt
@@ -24,7 +25,12 @@ public class HashCrypto
     /// <returns></returns>
     public static string GeneratePwd(string value, string salt)
     {
-        using var encrpty = new Rfc2898DeriveBytes(value, Encoding.UTF8.GetBytes(salt), 100, HashAlgorithmName.SHA512);
+        using var encrpty = new Rfc2898DeriveBytes(
+            value,
+            Encoding.UTF8.GetBytes(salt),
+            100,
+            HashAlgorithmName.SHA512
+        );
         var valueBytes = encrpty.GetBytes(32);
         return Convert.ToBase64String(valueBytes);
     }
@@ -38,7 +44,12 @@ public class HashCrypto
     public static string GeneratePAT(string value)
     {
         var salt = BuildSalt();
-        using var encrpty = new Rfc2898DeriveBytes(value, Encoding.UTF8.GetBytes(salt), 100, HashAlgorithmName.SHA512);
+        using var encrpty = new Rfc2898DeriveBytes(
+            value,
+            Encoding.UTF8.GetBytes(salt),
+            100,
+            HashAlgorithmName.SHA512
+        );
         var valueBytes = encrpty.GetBytes(32);
         return Convert.ToBase64String(valueBytes);
     }
@@ -98,7 +109,7 @@ public class HashCrypto
     public static string HashString(string str, HashType type = HashType.MD5)
     {
         var bytes = HashData(str, type);
-        return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        return Convert.ToHexStringLower(bytes);
     }
 
     private static byte[] HashData(string str, HashType type = HashType.MD5)
@@ -109,7 +120,7 @@ public class HashCrypto
             HashType.MD5 => MD5.HashData(bytes),
             HashType.SHA256 => SHA256.HashData(bytes),
             HashType.SHA512 => SHA512.HashData(bytes),
-            _ => throw new NotSupportedException()
+            _ => throw new NotSupportedException(),
         };
     }
 
@@ -140,7 +151,14 @@ public class HashCrypto
     /// <param name="useSpe"></param>
     /// <param name="custom"></param>
     /// <returns></returns>
-    public static string GetRnd(int length = 4, bool useNum = true, bool useLow = false, bool useUpp = true, bool useSpe = false, string custom = "")
+    public static string GetRnd(
+        int length = 4,
+        bool useNum = true,
+        bool useLow = false,
+        bool useUpp = true,
+        bool useSpe = false,
+        string custom = ""
+    )
     {
         var sb = new StringBuilder(custom);
         if (useNum)
@@ -246,7 +264,8 @@ public class HashCrypto
     /// <typeparam name="T"></typeparam>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static T? JsonDecrypt<T>(string value) where T : class
+    public static T? JsonDecrypt<T>(string value)
+        where T : class
     {
         var bytes = Convert.FromBase64String(value);
         if (bytes != null)
@@ -270,4 +289,3 @@ public enum HashType
     SHA256,
     SHA512,
 }
-

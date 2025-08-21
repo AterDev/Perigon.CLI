@@ -1,10 +1,11 @@
 using Ater.Common.Models;
 
 namespace CustomerMod.Models.CustomerInfoDtos;
+
 /// <summary>
 /// 客户信息列表元素
 /// </summary>
-/// <see cref="Entity.CustomerMod.CustomerInfo"/>
+/// <see cref="CustomerInfo"/>
 public class CustomerInfoItemDto
 {
     /// <summary>
@@ -12,6 +13,7 @@ public class CustomerInfoItemDto
     /// </summary>
     [MaxLength(40)]
     public string? RealName { get; set; }
+
     [MaxLength(40)]
     public string Name { get; set; } = default!;
 
@@ -19,11 +21,13 @@ public class CustomerInfoItemDto
     /// 生日
     /// </summary>
     public DateTimeOffset? BirthDay { get; set; }
+
     /// <summary>
     /// 年龄
     /// </summary>
     public int Age { get; set; }
     public GenderType GenderType { get; set; } = GenderType.Male;
+
     /// <summary>
     /// 客户类型
     /// </summary>
@@ -33,6 +37,7 @@ public class CustomerInfoItemDto
     /// 跟进状态
     /// </summary>
     public FollowUpStatus? FollowUpStatus { get; set; }
+
     /// <summary>
     /// 联系信息
     /// </summary>

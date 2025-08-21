@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace CodeGenerator.Helper;
+
 /// <summary>
 /// csharp 转换帮助
 /// </summary>
@@ -8,6 +9,7 @@ public class CSharpCovertHelper
 {
     public List<string> ClassCodes { get; set; } = [];
     public List<JsonMetadata> JsonMetadataList { get; } = [];
+
     /// <summary>
     /// 判断是否为合法的 json
     /// </summary>
@@ -25,7 +27,6 @@ public class CSharpCovertHelper
             return false;
         }
     }
-
 
     /// <summary>
     /// json转C#模型类
@@ -71,7 +72,8 @@ public class CSharpCovertHelper
                 propertyName = "The" + propertyName;
             }
 
-            string propertyLine = $"public {csharpType} {propertyName.ToPascalCase()} {{ get; set; }}";
+            string propertyLine =
+                $"public {csharpType} {propertyName.ToPascalCase()} {{ get; set; }}";
             if (!string.IsNullOrEmpty(defaultValue))
             {
                 propertyLine += $" = {defaultValue};";
@@ -84,8 +86,11 @@ public class CSharpCovertHelper
                 GenerateClass(propertyValue, propertyName);
             }
             // 数组处理
-            else if (propertyValue.ValueKind == JsonValueKind.Array && propertyValue.GetArrayLength() > 0
-                && propertyValue[0].ValueKind == JsonValueKind.Object)
+            else if (
+                propertyValue.ValueKind == JsonValueKind.Array
+                && propertyValue.GetArrayLength() > 0
+                && propertyValue[0].ValueKind == JsonValueKind.Object
+            )
             {
                 GenerateClass(propertyValue[0], propertyName);
             }
@@ -93,7 +98,6 @@ public class CSharpCovertHelper
         sb.AppendLine("}");
         ClassCodes.Add(sb.ToString());
     }
-
 
     public void ToCsharpClassContent(JsonElement jsonElement)
     {
@@ -104,10 +108,7 @@ public class CSharpCovertHelper
 
     public JsonMetadata ConvertJsonToMetadata(JsonElement jsonElement, string? rootName = "Model")
     {
-        JsonMetadata metadata = new()
-        {
-            Name = rootName
-        };
+        JsonMetadata metadata = new() { Name = rootName };
 
         if (jsonElement.ValueKind == JsonValueKind.Object)
         {
@@ -116,7 +117,10 @@ public class CSharpCovertHelper
 
             foreach (JsonProperty property in jsonElement.EnumerateObject())
             {
-                JsonMetadata child = ConvertJsonToMetadata(property.Value, property.Name.ToPascalCase());
+                JsonMetadata child = ConvertJsonToMetadata(
+                    property.Value,
+                    property.Name.ToPascalCase()
+                );
                 child.Parent = metadata;
                 metadata.Descents.Add(child);
             }
@@ -142,7 +146,7 @@ public class CSharpCovertHelper
         return metadata;
     }
 
-    private string ConvertToType(JsonElement element, string? propertyName = null)
+    private static string ConvertToType(JsonElement element, string? propertyName = null)
     {
         // 类型处理
         var csharpType = element.ValueKind switch
@@ -194,20 +198,36 @@ public class CSharpCovertHelper
             }
             string? stringValue = element.GetString();
             string[] formats = ["HH:mm:ss", "HH:mm"];
-            if (DateTime.TryParseExact(stringValue, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
+            if (
+                DateTime.TryParseExact(
+                    stringValue,
+                    formats,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out _
+                )
+            )
             {
                 csharpType = "TimeOnly";
             }
             formats = ["yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss"];
-            if (DateTime.TryParseExact(stringValue, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
+            if (
+                DateTime.TryParseExact(
+                    stringValue,
+                    formats,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out _
+                )
+            )
             {
                 csharpType = "DateTime";
             }
         }
         return csharpType ?? "object";
     }
-
 }
+
 /// <summary>
 /// json 解析的元信息
 /// </summary>
@@ -245,6 +265,6 @@ public class JsonMetadata
         Object,
         Array,
         Dictionary,
-        KeyValue
+        KeyValue,
     }
 }

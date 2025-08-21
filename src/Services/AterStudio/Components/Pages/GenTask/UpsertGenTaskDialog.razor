@@ -1,0 +1,105 @@
+@using StudioMod.Models.GenActionDtos
+@using StudioMod.Models.GenStepDtos;
+@using Entity.StudioMod
+@inherits PageBase
+@implements IDialogContentComponent<GenActionItemDto?>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">
+    @(IsEdit? Lang(Localizer.Edit, Localizer.Task) : Lang(Localizer.Add, Localizer.Task))
+  </FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.Name"
+                         Placeholder="@Lang(Localizer.Task, Localizer.Name)"
+                         Class="w-100"
+                         Required
+                         Label="@Lang(Localizer.Task, Localizer.Name)"
+                         Maxlength="40" />
+        <FluentValidationMessage For="@(() => Model.Name)" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.Description"
+                         Placeholder="@Lang(Localizer.Description)"
+                         Label="@Lang(Localizer.Description)"
+                         Class="w-100"
+                         Maxlength="200" />
+
+        <FluentValidationMessage For="@(() => Model.Description)" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentSelect TOption="GenSourceType"
+                      Required
+                      Label="@Lang(Localizer.Context,Localizer.Type)"
+                      Items="@SourceTypes"
+                      OptionText="@(x => Lang(x.ToString()))"
+                      @bind-SelectedOption="@Model.SourceType"
+                      Class="w-100" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentAutocomplete TOption="GenStepItemDto"
+                            MaximumSelectedOptions="20"
+                            KeepOpen="true"
+                            Class="w-100"
+                            Required
+                            AutoComplete="off"
+                            Autofocus="true"
+                            Label="Select steps"
+                            Multiple="true"
+                            Placeholder="Select steps"
+                            MaxAutoHeight="260px"
+                            OptionComparer="StepItemComparer.Instance"
+                            OnOptionsSearch="@OnStepSearch"
+                            OptionText="@(item => item.Name)"
+                            OptionValue="@(item => item.Id.ToString())"
+                            @bind-SelectedOptions="@SelectedGenSteps" />
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Horizontal"
+                   Class="mt-1"
+                   HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+        <FluentLabel Typo="Typography.H5">
+          @Lang(Localizer.Add, Localizer.Variable)
+        </FluentLabel>
+        <FluentButton IconStart="@(new Icons.Regular.Size24.Add())"
+                      OnClick="()=>AddVariable()"
+                      Appearance="Appearance.Stealth">
+        </FluentButton>
+      </FluentStack>
+      @foreach (var item in Model.Variables)
+      {
+        <FluentStack Orientation="Orientation.Horizontal"
+                     HorizontalAlignment="HorizontalAlignment.Stretch">
+          <FluentTextField @bind-Value=item.Key
+                           Placeholder="@Lang(Localizer.Variable, Localizer.Key)" />
+          <FluentTextField @bind-Value=item.Value
+                           Placeholder="@Lang(Localizer.Variable,Localizer.Values)" />
+          <FluentButton Appearance="Appearance.Neutral"
+                        OnClick="()=>RemoveVariable(item)">
+            <FluentLabel Color="Color.Warning">
+              @Lang(Localizer.Delete)
+            </FluentLabel>
+
+          </FluentButton>
+        </FluentStack>
+      }
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Save)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+

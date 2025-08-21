@@ -1,6 +1,7 @@
 using Spectre.Console;
 
 namespace Share.Helper;
+
 public class OutputHelper
 {
     public static void ShowLogo()
@@ -11,7 +12,7 @@ public class OutputHelper
               | |  | | | |__) |  \ \_/ / 
               | |  | | |  _  /    \   /  
               | |__| | | | \ \     | |   
-              |_____/  |_|  \_\    |_|
+              |_____/  |_|  \_\    |_|     Ater.Dry.Copilot
             """;
         string sign1 = "         —→ for freedom 🗽 ←—";
         string sign2 = "  🌐 [link]https://dusi.dev/docs[/]";
@@ -41,6 +42,7 @@ public class OutputHelper
     {
         AnsiConsole.MarkupLine($"{message}");
     }
+
     public static void Important(string message)
     {
         AnsiConsole.MarkupLine($"[blue]{message}[/]");
@@ -63,4 +65,3 @@ public class SubCommand
     public const string Generate = "generate";
     public const string Request = "request";
 }
-

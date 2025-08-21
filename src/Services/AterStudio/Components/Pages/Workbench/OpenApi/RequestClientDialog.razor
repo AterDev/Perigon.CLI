@@ -1,0 +1,128 @@
+@inherits PageBase
+@using AterStudio.Components.Pages.Workbench.OpenApi
+@using Microsoft.FluentUI.AspNetCore.Components
+@using StudioMod.Models.ApiDocInfoDtos
+@implements IDialogContentComponent<ApiDocInfoItemDto>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">
+    @Lang(Localizer.Generate, Localizer.RequestClient)
+  </FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentSelect TOption="RequestClientType"
+                      Items="Enum.GetValues<RequestClientType>()"
+                      OptionValue="@(t=>t.ToString())"
+                      OptionText="@(t=>t.ToString())"
+                      SelectedOption="Model.ClientType"
+                      OptionSelected="@(p=>p==RequestClientType.NgHttp)"
+                      Label="@Lang(Localizer.RequestClient)"
+                      Required
+                      Class="w-100">
+        </FluentSelect>
+        <ValidationMessage For="@(() => Model.ClientType)" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.OpenApiEndpoint"
+                         Label="@Lang(Localizer.OpenApiEndpoint)"
+                         Placeholder="@Lang(Localizer.OpenApiEndpoint)"
+                         Required
+                         Class="w-100"
+                         MaxLength="300" />
+        <ValidationMessage For="@(() => Model.OpenApiEndpoint)" />
+      </FluentStack>
+
+
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentTextField @bind-Value="Model.OutputPath"
+                         Label="@Lang(Localizer.OutputPath)"
+                         Placeholder="@Lang(Localizer.OutputPath)"
+                         Required
+                         Class="w-100"
+                         MaxLength="200" />
+        <ValidationMessage For="@(() => Model.OutputPath)" />
+      </FluentStack>
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Confirm)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+
+  [Parameter]
+  public ApiDocInfoItemDto Content { get; set; } = null!;
+
+  [Inject]
+  ApiDocInfoManager ApiDocInfoManager { get; set; } = default!;
+
+  EditContext? editContext;
+  RequestClientDto Model { get; set; } = default!;
+  bool formValid { get; set; }
+
+  protected override void OnInitialized()
+  {
+    Model = new RequestClientDto()
+    {
+      OpenApiEndpoint = Content.Path
+    };
+    editContext = new EditContext(Model);
+    editContext.OnFieldChanged += HandleFieldChanged;
+  }
+
+  private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    if (editContext is not null)
+    {
+      formValid = editContext.Validate();
+      StateHasChanged();
+    }
+  }
+
+  public void Dispose()
+  {
+    if (editContext is not null)
+    {
+      editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+  }
+
+  private async Task SaveAsync()
+  {
+    if (!editContext!.Validate())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+
+    var res = await ApiDocInfoManager.GenerateRequestClientAsync(Content.Id, Model);
+    if (res == null)
+    {
+      ToastService.ShowError(ApiDocInfoManager.ErrorMsg);
+      return;
+    }
+    await Dialog.CloseAsync(res);
+
+  }
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

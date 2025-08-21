@@ -1,0 +1,95 @@
+@inherits PageBase
+@implements IDialogContentComponent<SelectDialogData>
+
+
+<FluentDialogHeader></FluentDialogHeader>
+
+
+<FluentStack Orientation="Orientation.Horizontal">
+
+  @if (CatalogOptions.Count > 0)
+  {
+    {
+      <FluentStack Orientation="Orientation.Vertical">
+        <FluentNavMenu Class="w-100 list" Expanded="true">
+          @foreach (var item in CatalogOptions)
+          {
+            var _active = SelectedCatalog == item ? "selected" : "";
+            <FluentNavLink Class="@("p-0 " + _active)"
+                           Style="margin-left:-8px"
+                           OnClick="() => OnCatalogSelected(item)">
+              <FluentStack>
+                <FluentLabel Typo="Typography.Subject">@item.DisplayName</FluentLabel>
+              </FluentStack>
+            </FluentNavLink>
+          }
+        </FluentNavMenu>
+
+      </FluentStack>
+
+      <FluentStack Orientation="Orientation.Vertical">
+        <FluentNavMenu Class="w-100 list" Expanded="true">
+          @foreach (var item in Options)
+          {
+            var _active = SelectedOption == item ? "selected" : "";
+            <FluentNavLink Class="@("p-0 " + _active)"
+                           Style="margin-left:-8px"
+                           OnClick="() => OnOptionSelected(item)">
+              <FluentStack>
+                <FluentLabel Typo="Typography.Subject">@item.DisplayName</FluentLabel>
+              </FluentStack>
+            </FluentNavLink>
+          }
+        </FluentNavMenu>
+      </FluentStack>
+    }
+
+  }
+  else
+  {
+    <span>No data!</span>
+  }
+
+</FluentStack>
+
+<FluentDialogFooter></FluentDialogFooter>
+
+@code {
+  [CascadingParameter]
+  public FluentDialog Dialog { get; set; } = default!;
+  [Parameter]
+  public SelectDialogData Content { get; set; } = default!;
+
+  SelectOption? SelectedOption { get; set; }
+  SelectOption? SelectedCatalog { get; set; }
+  string Title => Content.Titlee;
+  List<SelectOption> CatalogOptions => Content.Options;
+
+  List<SelectOption> Options { get; set; } = [];
+
+  protected override void OnInitialized()
+  {
+    if (CatalogOptions.Count > 0)
+    {
+      SelectedCatalog = CatalogOptions.FirstOrDefault();
+      Options = SelectedCatalog!.Children;
+    }
+  }
+
+  private void OnCatalogSelected(SelectOption option)
+  {
+    SelectedCatalog = option;
+    Options = SelectedCatalog.Children;
+  }
+
+  private async Task OnOptionSelected(SelectOption option)
+  {
+    SelectedOption = option;
+    await Dialog.CloseAsync(SelectedOption);
+  }
+
+  private async Task OnDialogClose()
+  {
+    await Dialog.CancelAsync();
+  }
+}

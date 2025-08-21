@@ -1,9 +1,11 @@
 namespace Share.Models.CommandDtos;
+
 /// <summary>
 /// 模块信息
 /// </summary>
 public class ModuleInfo
 {
+    public const string User = "UserMod";
     public const string CMS = "CMSMod";
     public const string FileManager = "FileManagerMod";
     public const string Order = "OrderMod";
@@ -30,35 +32,31 @@ public class ModuleInfo
     /// 获取所有模块内容
     /// </summary>
     /// <returns></returns>
-    public static List<ModuleInfo> GetModules() => [
-            //new() {
-            //    Name = "系统模块",
-            //    Value = System,
-            //    Description = "含角色/用户/菜单/系统日志等基础功能"
-            //},
+    public static List<ModuleInfo> GetModules() =>
+        [
             new ModuleInfo
             {
-                Name = "客户模块",
+                Name = "Customer",
                 Value = Customer,
-                Description = TipConst.CustomerModuleDes
+                Description = Localizer.CustomerModuleDes,
             },
             new ModuleInfo
             {
-                Name = "文件管理模块",
+                Name = "FileManage",
                 Value = FileManager,
-                Description = TipConst.FileManagerModuleDes
+                Description = Localizer.FileManagerModuleDes,
             },
             new ModuleInfo
             {
-                Name = "订单模块",
+                Name = "Order",
                 Value = Order,
-                Description = TipConst.OrderModuleDes
+                Description = Localizer.OrderModuleDes,
             },
             new ModuleInfo
             {
-                Name = "内容管理模块",
+                Name = "CMS",
                 Value = CMS,
-                Description = TipConst.CMSModuleDes
+                Description = Localizer.CMSModuleDes,
             },
             //new ModuleInfo
             //{

@@ -1,10 +1,11 @@
 using Entity.FileManagerMod;
 
 namespace FileManagerMod.Models.FolderDtos;
+
 /// <summary>
 /// 文件夹概要
 /// </summary>
-/// <see cref="Entity.FileManagerMod.Folder"/>
+/// <see cref="Folder"/>
 public class FolderDetailDto
 {
     /// <summary>
@@ -14,10 +15,10 @@ public class FolderDetailDto
     public string Name { get; set; } = default!;
     public Folder? Parent { get; set; }
     public Guid? ParentId { get; set; }
+
     /// <summary>
     /// 路径
     /// </summary>
     public string? Path { get; set; }
     public Guid Id { get; set; }
-
 }

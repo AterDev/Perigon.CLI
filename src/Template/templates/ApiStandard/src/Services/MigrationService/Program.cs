@@ -1,3 +1,4 @@
+using Ater.Common;
 using MigrationService;
 using ServiceDefaults;
 
@@ -6,10 +7,20 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.AddServiceDefaults();
 builder.Services.AddHostedService<Worker>();
 
-builder.Services.AddOpenTelemetry()
+builder
+    .Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing.AddSource(Worker.ActivitySourceName));
 
-builder.AddNpgsqlDbContext<CommandDbContext>(WebConst.CommandDb);
+var databaseType = builder.Configuration["Components:Database"]?.ToLowerInvariant() ?? "postgresql";
+
+if (databaseType == "postgresql")
+{
+    builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Database);
+}
+else if (databaseType == "sqlserver")
+{
+    builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Database);
+}
 
 var host = builder.Build();
 host.Run();

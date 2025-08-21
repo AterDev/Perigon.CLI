@@ -1,0 +1,233 @@
+@using System.ComponentModel.DataAnnotations
+@using CodeGenerator.Helper
+@using Entity
+@using Entity.StudioMod
+@inherits PageBase
+@implements IDialogContentComponent<McpTool?>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.Subject">
+    @if (IsEdit)
+    {
+      <span>@Lang(Localizer.Edit): @Content?.Name</span>
+    }
+    else
+    {
+      <span>@Lang(Localizer.Add)@Lang(Localizer.MCP, Localizer.Tools)</span>
+    }
+  </FluentLabel>
+</FluentDialogHeader>
+
+<EditForm EditContext="@EditContext">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+  <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+      <FluentTextField @bind-Value="Model.Name"
+                       Label="@Lang(Localizer.Name)"
+                       Placeholder="@Lang(Localizer.Name)"
+                       Class="w-100"
+                       Maxlength="40"
+                       Required />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+      <FluentTextField @bind-Value="Model.Description"
+                       Label="@Lang(Localizer.Description)"
+                       Placeholder="@Lang(Localizer.Description)"
+                       Class="w-100"
+                       Maxlength="300"
+                       Required />
+    </FluentStack>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+      <FluentAutocomplete TOption="DataFile"
+                          Class="w-100"
+                          Required
+                          AutoComplete="off"
+                          Autofocus="true"
+                          Label="@Lang(Localizer.Select,Localizer.Prompt)"
+                          Multiple="false"
+                          Placeholder="@Lang(Localizer.Select,Localizer.Prompt)"
+                          MaxAutoHeight="260px"
+                          OnOptionsSearch="@OnPromptSearch"
+                          OptionText="@(item => item.Name)"
+                          OptionValue="@(item => item.FullPath)"
+                          @bind-SelectedOption="@SelectedPrompt" />
+    </FluentStack>
+
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+      <FluentAutocomplete TOption="DataFile"
+                          Class="w-100"
+                          Required
+                          AutoComplete="off"
+                          Autofocus="true"
+                          KeepOpen="true"
+                          MaximumSelectedOptions="5"
+                          MaximumSelectedOptionsMessage="MaxMessage"
+                          Label="@Lang(Localizer.Select,Localizer.Template)"
+                          Multiple="true"
+                          Placeholder="@Lang(Localizer.Select,Localizer.Template)"
+                          MaxAutoHeight="260px"
+                          OnOptionsSearch="@OnTemplateSearch"
+                          OptionText="@(item => item.Name)"
+                          OptionValue="@(item => item.FullPath)"
+                          @bind-SelectedOptions="@SelectedTemplates" />
+    </FluentStack>
+  </FluentStack>
+
+</EditForm>
+
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Save)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+
+  [Parameter]
+  public McpTool? Content { get; set; }
+
+  [Inject]
+  private McpToolManager McpToolManager { get; set; } = null!;
+
+  RenderFragment MaxMessage =>@<span>only select 5 template</span>;
+
+  List<DataFile> PromptFiles = [];
+  List<DataFile> TemplateFiles = [];
+
+  IEnumerable<DataFile> SelectedTemplates { get; set; } = [];
+
+  DataFile? SelectedPrompt { get; set; }
+
+  EditContext EditContext { get; set; } = null!;
+
+  private McpTool Model { get; set; } = new McpTool { Name = string.Empty, Description = string.Empty, PromptPath = string.Empty };
+  private bool IsEdit => Content != null;
+
+  protected override void OnInitialized()
+  {
+    GetFiles();
+    if (Content != null)
+    {
+      Model = new McpTool
+      {
+        Id = Content.Id,
+        Name = Content.Name,
+        Description = Content.Description,
+        PromptPath = Content.PromptPath,
+        TemplatePaths = Content.TemplatePaths?.ToArray() ?? [],
+        CreatedTime = Content.CreatedTime,
+        UpdatedTime = Content.UpdatedTime,
+        IsDeleted = Content.IsDeleted,
+        ProjectId = ProjectContext.SolutionId!.Value
+
+      };
+
+      SelectedPrompt = PromptFiles.FirstOrDefault(i => i.FullPath == Model.PromptPath);
+      SelectedTemplates = TemplateFiles.Where(i => Model.TemplatePaths?.Contains(i.FullPath) ?? false).ToList();
+    }
+    else
+    {
+      Model = new McpTool
+      {
+        Name = string.Empty,
+        Description = string.Empty,
+        PromptPath = string.Empty,
+        ProjectId = ProjectContext.SolutionId!.Value
+      };
+    }
+    EditContext = new EditContext(Model);
+    EditContext.OnFieldChanged += OnFieldChanged;
+  }
+
+  private void GetFiles()
+  {
+    var localFileHelper = new LocalFileHelper(Path.Combine(ProjectContext.SolutionPath!, ConstVal.TemplateDir));
+    TemplateFiles = localFileHelper.GetFiles();
+
+    localFileHelper = new LocalFileHelper(Path.Combine(ProjectContext.SolutionPath!, PathConst.PromptPath));
+    PromptFiles = localFileHelper.GetFiles();
+
+  }
+
+  private void OnPromptSearch(OptionsSearchEventArgs<DataFile> e)
+  {
+    e.Items = PromptFiles.Where(i => i.FullPath.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
+                          .OrderBy(i => i.Name);
+  }
+  private void OnTemplateSearch(OptionsSearchEventArgs<DataFile> e)
+  {
+    e.Items = TemplateFiles.Where(i => i.FullPath.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
+                          .OrderBy(i => i.Name);
+  }
+
+  private void OnFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    if (EditContext is not null)
+    {
+      StateHasChanged();
+    }
+  }
+  private void Dispose()
+  {
+    if (EditContext != null)
+    {
+      EditContext.OnFieldChanged -= OnFieldChanged;
+    }
+  }
+
+  private async Task SaveAsync()
+  {
+    if (!EditContext.Validate() || SelectedPrompt == null)
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+    Model.PromptPath = SelectedPrompt.FullPath;
+    Model.TemplatePaths = SelectedTemplates.Select(t => t.FullPath).ToArray();
+
+    if (IsEdit)
+    {
+      var entity = await McpToolManager.GetCurrentAsync(Model.Id);
+      if (entity != null)
+      {
+        entity.Merge(Model);
+        var res = await McpToolManager.UpdateAsync(entity);
+        if (res)
+        {
+          await Dialog.CloseAsync(entity);
+        }
+        else
+        {
+          ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
+        }
+      }
+
+    }
+    else
+    {
+      var res = await McpToolManager.AddAsync(Model);
+      if (res)
+      {
+        await Dialog.CloseAsync(Model);
+      }
+      else
+      {
+        ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
+      }
+    }
+  }
+
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

@@ -1,21 +1,14 @@
-using Ater.Common.Models;
-using Ater.Common.Utils;
 using CMSMod.Models.BlogDtos;
-
-using EntityFramework;
-using Share.Implement;
+using EntityFramework.DBProvider;
 
 namespace CMSMod.Managers;
+
 /// <summary>
 /// 博客
 /// </summary>
-public class BlogManager(
-    DataAccessContext<Blog> dataContext,
-    ILogger<BlogManager> logger,
-    UserContext userContext) : ManagerBase<Blog>(dataContext, logger)
+public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
+    : ManagerBase<DefaultDbContext, Blog>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -23,10 +16,7 @@ public class BlogManager(
     /// <returns></returns>
     public async Task<Guid?> AddAsync(BlogAddDto dto)
     {
-        Blog entity = dto.MapTo<BlogAddDto, Blog>();
-        entity.UserId = _userContext.UserId;
-        entity.CatalogId = dto.CatalogId;
-        // other required props
+        Blog entity = dto.MapTo<Blog>();
         return await AddAsync(entity) ? entity.Id : null;
     }
 
@@ -50,6 +40,11 @@ public class BlogManager(
         return await ToPageAsync<BlogFilterDto, BlogItemDto>(filter);
     }
 
+    public async Task<bool> IsOwnedAsync(Guid id, Guid userId)
+    {
+        return await Queryable.AnyAsync(q => q.Id == id && q.User.Id == userId);
+    }
+
     /// <summary>
     /// 当前用户所拥有的对象
     /// </summary>
@@ -57,10 +52,9 @@ public class BlogManager(
     /// <returns></returns>
     public async Task<Blog?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Blog> query = Command.Where(q => q.Id == id);
-        // 获取用户所属的对象
+        IQueryable<Blog> query = _dbSet.Where(q => q.Id == id);
+        // 获取权限范围的实体
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

@@ -1,0 +1,203 @@
+@page "/create"
+@using Share.Models.CommandDtos
+@using Share.Services
+@inherits PageBase
+
+<PageTitle>@Lang(Localizer.Create, Localizer.Solution)</PageTitle>
+
+<div style="width:800px">
+  <FluentStack Orientation="Orientation.Vertical"
+               VerticalGap="12"
+               Class="p-2">
+    <FluentLabel Typo="Typography.PageTitle">
+      ✨ @Lang(Localizer.Create, Localizer.Solution)
+    </FluentLabel>
+
+    <FluentLabel Typo="Typography.H3">🤟 @Lang(Localizer.Base, Localizer.Info)</FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentTextField Label="@Lang(Localizer.Solution, Localizer.Name)"
+                       Class="w-240"
+                       AutoComplete="off"
+                       Placeholder="@Lang(Localizer.Solution, Localizer.Name)"
+                       @bind-Value="AddDto.Name"
+                       Required="true" />
+    </FluentStack>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentTextField Label="@Lang(Localizer.Local, Localizer.Path)"
+                       @bind-Value="AddDto.Path"
+                       Class="w-240"
+                       AutoComplete="off"
+                       Placeholder="@Lang(Localizer.Local,Localizer.Path)"
+                       Required="true" />
+    </FluentStack>
+
+    <FluentLabel>
+      @if (!string.IsNullOrWhiteSpace(AddDto.Path))
+      {
+        <span>Solution File: </span>
+        <strong>@AddDto.Path\@AddDto.Name\@(AddDto.Name).slnx</strong>
+      }
+    </FluentLabel>
+
+    <FluentDivider Class="w-100" />
+    <FluentLabel Typo="Typography.H3">
+      📚 @Lang(Localizer.Component, Localizer.Configuration)
+    </FluentLabel>
+
+    <FluentLabel Typo="Typography.Subject">@Lang(Localizer.DatabaseProvider)</FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentSelect TOption="DBType"
+                    Items="@(Enum.GetValues<DBType>())"
+                    Width="240px"
+                    @bind-SelectedOption="@AddDto.DBType" />
+    </FluentStack>
+
+    <FluentSpacer></FluentSpacer>
+    <FluentLabel Typo="Typography.Subject">@Lang(Localizer.CacheType)</FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentSelect TOption="CacheType"
+                    Items="@(Enum.GetValues<CacheType>())"
+                    @bind-SelectedOption="@AddDto.CacheType"
+                    Width="240px" />
+    </FluentStack>
+    <FluentDivider Class="w-100"></FluentDivider>
+
+@*     <FluentLabel Typo="Typography.H3">
+      🎁 @Lang(Localizer.Modules)
+    </FluentLabel>
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentSelect TOption="ModuleInfo"
+                    Label="@Lang(Localizer.Select,Localizer.Modules)"
+                    Items="@Modules.AsEnumerable()"
+                    Multiple="true"
+                    OptionValue="@(p => p.Value.ToString())"
+                    @bind-SelectedOptions="@SelectedModules">
+        <OptionTemplate>
+          <FluentStack Orientation="Orientation.Horizontal"
+                       Class="w-100"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+            <FluentLabel Typo="Typography.H6" Color="Color.Accent">
+              @context.Name
+            </FluentLabel>
+            <FluentLabel Typo="Typography.Body">
+              (@Lang(context.Description))
+            </FluentLabel>
+          </FluentStack>
+
+        </OptionTemplate>
+      </FluentSelect>
+    </FluentStack> *@
+
+    <FluentDivider Class="w-100"></FluentDivider>
+    <FluentLabel Typo="Typography.H3">
+      🅰️ @Lang(Localizer.Else)
+    </FluentLabel>
+
+    <FluentLabel Typo="Typography.Subject">@Lang(Localizer.SelectFrontType)</FluentLabel>
+
+    <FluentSelect TOption="FrontType"
+                  Items="@(Enum.GetValues<FrontType>())"
+                  @bind-SelectedOption="@AddDto.FrontType"
+                  Width="240px" />
+
+    <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
+      <FluentStack HorizontalAlignment="HorizontalAlignment.Right">
+        <FluentButton Appearance="Appearance.Accent"
+                      OnClick="OpenSplashDefaultAsync"
+                      Disabled="!IsValid()">
+          🎊@Lang(Localizer.Create, Localizer.Solution)
+        </FluentButton>
+      </FluentStack>
+    </FluentStack>
+  </FluentStack>
+</div>
+
+@code {
+  CreateSolutionDto AddDto { get; set; } = null!;
+  List<ModuleInfo> Modules = ModuleInfo.GetModules();
+  IEnumerable<ModuleInfo> SelectedModules = [];
+  bool IsProcessing { get; set; } = false;
+
+  [Inject]
+  private CommandService CommandService { get; set; } = null!;
+
+  private IDialogReference? _dialog;
+
+  protected override void OnInitialized()
+  {
+    AddDto = new CreateSolutionDto
+    {
+      Name = string.Empty,
+      Path = string.Empty,
+      CacheType = CacheType.Memory,
+      DBType = DBType.PostgreSQL,
+    };
+  }
+
+  private async Task CreateAsync()
+  {
+    IsProcessing = true;
+    ToastService.ShowInfo("Creating Solution, please wait seconds!");
+    await Task.Yield();
+
+    AddDto.Modules = SelectedModules.Select(p => p.Value).ToList();
+    var res = await CommandService.CreateSolutionAsync(AddDto);
+    ToastService.ShowSuccess(Lang(Localizer.Create, res ? Localizer.Success : Localizer.Failed));
+    IsProcessing = false;
+  }
+
+  private bool IsValid()
+  {
+    return !string.IsNullOrWhiteSpace(AddDto.Path) &&
+           !string.IsNullOrWhiteSpace(AddDto.Name);
+
+  }
+
+  private async Task OpenSplashDefaultAsync()
+  {
+    if (!IsValid())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+
+    AddDto.Modules = SelectedModules.Select(p => p.Value).ToList();
+    DialogParameters<SplashScreenContent> parameters = new()
+    {
+      Content = new()
+      {
+        DisplayTime = 0,
+        Title = Lang(Localizer.Create, Localizer.Solution),
+        SubTitle = $"{AddDto.Path}\\{AddDto.Name}\\{AddDto.Name}.slnx",
+        LoadingText = "🚀 Running...",
+      },
+      PreventDismissOnOverlayClick = true,
+      Modal = false,
+      Width = "520px",
+      Height = "360px",
+    };
+    _dialog = await DialogService.ShowSplashScreenAsync(parameters);
+    var splashScreen = (SplashScreenContent)_dialog.Instance.Content;
+
+    splashScreen.UpdateLabels(loadingText: "⏲️ Wait seconds...");
+    var res = await CommandService.CreateSolutionAsync(AddDto);
+
+    splashScreen.UpdateLabels(message: (MarkupString)(res ? "🎉 Success!" : "❌ Failed!"), loadingText: "Create completed! To home page.");
+    await Task.Delay(1000);
+    await _dialog.CloseAsync();
+    if (res)
+    {
+      NavigationManager.NavigateTo("/");
+    }
+  }
+}

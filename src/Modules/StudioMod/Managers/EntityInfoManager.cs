@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -6,86 +5,48 @@ using Microsoft.CodeAnalysis;
 namespace StudioMod.Managers;
 
 public partial class EntityInfoManager(
-    DataAccessContext<ModelInfo> dataContext,
     ILogger<EntityInfoManager> logger,
-    CodeAnalysisService codeAnalysis,
     CodeGenService codeGenService,
-    IProjectContext projectContext)
-    : ManagerBase<ModelInfo>(dataContext, logger)
+    IProjectContext projectContext
+) : ManagerBase(logger)
 {
-    private readonly IProjectContext _projectContext = projectContext;
-    private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
-    private readonly CodeGenService _codeGenService = codeGenService;
-
     public string ModuleName { get; set; } = string.Empty;
 
     /// <summary>
     /// 获取实体列表
     /// </summary>
-    /// <param name="serviceName">服务名称</param>
     /// <returns></returns>
-    public List<EntityFile> GetEntityFiles(string entityPath)
+    public List<EntityFile> GetEntityFiles(string entityPath, bool forceRefresh = false)
     {
         List<EntityFile> entityFiles = [];
-        try
+        //try
+        //{
+        var entityProjectPath = Path.Combine(
+            entityPath,
+            ConstVal.EntityName + ConstVal.CSharpProjectExtension
+        );
+        if (File.Exists(entityProjectPath) && forceRefresh)
         {
-            var filePaths = CodeAnalysisService.GetEntityFilePaths(entityPath);
-
-            if (filePaths.Count != 0)
+            if (!SolutionService.BuildProject(entityProjectPath, true))
             {
-                entityFiles = _codeAnalysis.GetEntityFiles(_projectContext.EntityPath!, filePaths);
-                foreach (var item in entityFiles)
-                {
-                    // 查询生成的dto\manager\api状态
-                    (bool hasDto, bool hasManager, bool hasAPI) = GetEntityStates(item);
-                    item.HasDto = hasDto;
-                    item.HasManager = hasManager;
-                    item.HasAPI = hasAPI;
-                }
-                // 排序
-                entityFiles = [.. entityFiles.OrderByDescending(e => e.ModuleName).ThenBy(e => e.Name)];
+                OutputHelper.Error($"build entity project: {entityProjectPath} failed.");
             }
         }
-        catch (Exception ex)
+
+        var filePaths = CodeAnalysisService.GetEntityFilePaths(entityPath);
+        if (filePaths.Count != 0)
         {
-            _logger.LogInformation(ex.Message);
-            return entityFiles;
+            entityFiles = CodeAnalysisService.GetEntityFiles(projectContext.EntityPath!, filePaths);
+            // 排序
+            entityFiles = [.. entityFiles.OrderByDescending(e => e.ModuleName).ThenBy(e => e.Name)];
         }
+        //}
+        //catch (Exception ex)
+        //{
+        //    _logger.LogInformation("{message}", ex.Message);
+        //    return entityFiles;
+        //}
         return entityFiles;
-    }
-
-    /// <summary>
-    /// 判断生成状态
-    /// </summary>
-    /// <param name="serviceName"></param>
-    /// <param name="entityName"></param>
-    /// <param name="moduleName"></param>
-    /// <returns></returns>
-    private (bool hasDto, bool hasManager, bool hasAPI) GetEntityStates(EntityFile entity)
-    {
-        bool hasDto = false;
-        bool hasManager = false;
-        bool hasAPI = false;
-        var entityName = Path.GetFileNameWithoutExtension(entity.Name);
-
-        string dtoPath = Path.Combine(entity.GetDtoPath(_projectContext), $"{entityName}AddDto.cs");
-        string managerPath = Path.Combine(entity.GetManagerPath(_projectContext), $"{entityName}Manager.cs");
-        string apiPath = Path.Combine(entity.GetControllerPath(_projectContext));
-
-        string servicePath = Path.Combine(_projectContext.SolutionPath!, "src");
-
-        if (Directory.Exists(apiPath))
-        {
-            if (File.Exists(Path.Combine(apiPath, $"{entityName}Controller.cs")) ||
-                File.Exists(Path.Combine(apiPath, "AdminControllers", $"{entityName}Controller.cs")))
-            {
-                hasAPI = true;
-            }
-        }
-
-        hasDto = File.Exists(dtoPath);
-        hasManager = File.Exists(managerPath);
-        return (hasDto, hasManager, hasAPI);
     }
 
     /// <summary>
@@ -97,14 +58,19 @@ public partial class EntityInfoManager(
     {
         List<EntityFile> dtoFiles = [];
         var dtoPath = GetDtoPath(entityFilePath);
-        if (dtoPath == null) { return dtoFiles; }
+        if (dtoPath == null)
+        {
+            return dtoFiles;
+        }
         // get files in directory
-        List<string> filePaths = [.. Directory.GetFiles(dtoPath, "*.cs", SearchOption.AllDirectories)];
+        List<string> filePaths =
+        [
+            .. Directory.GetFiles(dtoPath, "*.cs", SearchOption.AllDirectories),
+        ];
 
         if (filePaths.Count != 0)
         {
-            filePaths = filePaths.Where(f => !f.EndsWith(".g.cs"))
-                .ToList();
+            filePaths = filePaths.Where(f => !f.EndsWith(".g.cs")).ToList();
 
             foreach (string? path in filePaths)
             {
@@ -114,7 +80,7 @@ public partial class EntityInfoManager(
                     Name = file.Name,
                     BaseDirPath = dtoPath,
                     FullName = file.FullName,
-                    Content = File.ReadAllText(path)
+                    Content = File.ReadAllText(path),
                 };
 
                 dtoFiles.Add(item);
@@ -125,70 +91,11 @@ public partial class EntityInfoManager(
 
     private string? GetDtoPath(string entityFilePath)
     {
-        var entityFile = _codeAnalysis.GetEntityFile(_projectContext.EntityPath!, entityFilePath);
-        return entityFile?.GetDtoPath(_projectContext);
-    }
-
-    /// <summary>
-    /// 清理解决方案 bin/obj
-    /// </summary>
-    /// <returns></returns>
-    public bool CleanSolution(out string errorMsg)
-    {
-        errorMsg = string.Empty;
-        // delete all bin/obj dir  in solution path 
-        string?[] dirPaths = [
-            _projectContext.ApiPath,
-            _projectContext.EntityPath,
-            _projectContext.EntityFrameworkPath,
-            _projectContext.CommonModPath,
-            _projectContext.SharePath,
-            _projectContext.ModulesPath
-            ];
-
-        string[] dirs = [];
-
-        foreach (var path in dirPaths.Where(p => p.NotEmpty()))
-        {
-            string rootPath = Path.Combine(_projectContext.SolutionPath!, path!);
-            if (!Directory.Exists(rootPath))
-            {
-                continue;
-            }
-            dirs = dirs.Union(Directory.GetDirectories(rootPath, "bin", SearchOption.TopDirectoryOnly))
-            .Union(Directory.GetDirectories(rootPath, "obj", SearchOption.TopDirectoryOnly))
-            .ToArray();
-        }
-        try
-        {
-            foreach (string dir in dirs)
-            {
-                Directory.Delete(dir, true);
-            }
-            string? apiFiePath = Directory.GetFiles(_projectContext.ApiPath!, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
-
-            if (apiFiePath != null)
-            {
-                Console.WriteLine($"⛏️ build project:{apiFiePath}");
-                Process process = Process.Start("dotnet", $"build {apiFiePath}");
-                process.WaitForExit();
-                // if process has error message 
-                if (process.ExitCode != 0)
-                {
-                    errorMsg = "项目构建失败，请检查项目！";
-                    return false;
-                }
-                return true;
-            }
-            errorMsg = "未找到API项目，清理后请手动重新构建项目!";
-            return false;
-        }
-        catch (Exception ex)
-        {
-            errorMsg = "项目清理失败，请尝试关闭占用程序后重试.";
-            Console.WriteLine($"❌ Clean solution occur error:{ex.Message}");
-            return false;
-        }
+        var entityFile = CodeAnalysisService.GetEntityFile(
+            projectContext.EntityPath!,
+            entityFilePath
+        );
+        return entityFile?.GetDtoPath(projectContext);
     }
 
     /// <summary>
@@ -208,31 +115,31 @@ public partial class EntityInfoManager(
         {
             Name = entityName,
             FullName = entityName,
-            ModuleName = moduleName
+            ModuleName = moduleName,
         };
 
         string? filePath;
         if (isManager)
         {
-
-            filePath = entityFile.GetManagerPath(_projectContext);
+            filePath = entityFile.GetManagerPath(projectContext);
             filePath = Path.Combine(filePath, $"{entityName}Manager.cs");
         }
         else
         {
-            string entityDir = Path.Combine(_projectContext.EntityPath!);
-            filePath = Directory.GetFiles(entityDir, $"{entityName}.cs", SearchOption.AllDirectories)
+            string entityDir = Path.Combine(projectContext.EntityPath!);
+            filePath = Directory
+                .GetFiles(entityDir, $"{entityName}.cs", SearchOption.AllDirectories)
                 .FirstOrDefault();
         }
         if (filePath != null)
         {
-            FileInfo file = new(filePath);
+            System.IO.FileInfo file = new(filePath);
             return new EntityFile()
             {
                 Name = file.Name,
                 BaseDirPath = file.DirectoryName ?? "",
                 FullName = file.FullName,
-                Content = File.ReadAllText(filePath)
+                Content = File.ReadAllText(filePath),
             };
         }
         return default;
@@ -244,7 +151,7 @@ public partial class EntityInfoManager(
     /// <param name="filePath"></param>
     /// <param name="Content"></param>
     /// <returns></returns>
-    public async Task<bool> UpdateDtoContentAsync(string filePath, string Content)
+    public static async Task<bool> UpdateDtoContentAsync(string filePath, string Content)
     {
         try
         {
@@ -265,93 +172,106 @@ public partial class EntityInfoManager(
     /// <summary>
     /// 生成服务
     /// </summary>
-    /// <param name="project"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
-        if (!ProcessHelper.RunCommand("dotnet", $"build {_projectContext.EntityPath}", out string error))
+        SolutionService.BuildProject(projectContext.EntityPath!, false);
+        SolutionService.BuildProject(projectContext.EntityFrameworkPath!, false);
+
+        var dbContextHelper = new DbContextParseHelper(
+            projectContext.EntityPath!,
+            projectContext.EntityFrameworkPath!
+        );
+        var entityType = await dbContextHelper.LoadEntityAsync(dto.EntityPath);
+        if (entityType == null)
         {
-            _logger.LogError(error);
+            throw new Exception($"Entity: {dto.EntityPath} Parse failed!");
         }
+        var entityInfo = dbContextHelper.GetEntityInfo(entityType);
+        _ = entityInfo ?? throw new Exception("Parse entity failed!");
 
-        var helper = new EntityParseHelper(dto.EntityPath);
-        var entityInfo = await helper.ParseEntityAsync();
-        _ = entityInfo ?? throw new Exception("实体解析失败，请检查实体文件是否正确！");
-
-        _logger.LogInformation("✨ 解析到模块：{moduleName}", entityInfo.ModuleName);
+        _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
         if (string.IsNullOrWhiteSpace(entityInfo.ModuleName))
         {
-            _logger.LogWarning("⚠️ 未解析到模块信息，使用默认模块");
+            _logger.LogWarning("⚠️ Using default module when not found module");
             entityInfo.ModuleName = ConstVal.CommonMod;
         }
         ModuleName = entityInfo.ModuleName;
 
-        string modulePath = _projectContext.GetModulePath(entityInfo.ModuleName);
-        string apiPath = _projectContext.GetControllerPath(entityInfo.ModuleName);
-
+        string modulePath = projectContext.GetModulePath(entityInfo.ModuleName);
         var files = new List<GenFileInfo>();
+
         switch (dto.CommandType)
         {
             case CommandType.Dto:
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
+                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
                 break;
             case CommandType.Manager:
-            {
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
-                var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
-                files.AddRange(managerFiles);
+                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
                 break;
-            }
             case CommandType.API:
-            {
-                files = _codeGenService.GenerateDtos(entityInfo, modulePath, dto.Force);
-                var tplContent = TplContent.ManagerTpl();
-                var managerFiles = _codeGenService.GenerateManager(entityInfo, modulePath, tplContent, dto.Force);
-                files.AddRange(managerFiles);
-
-                _codeGenService.GenerateApiGlobalUsing(entityInfo, apiPath, true);
-                var controllerType = _projectContext.Project?.Config.ControllerType ?? ControllerType.Both;
-
-                switch (controllerType)
-                {
-                    case ControllerType.Client:
-                    {
-                        tplContent = TplContent.ControllerTpl(false);
-                        var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    case ControllerType.Admin:
-                    {
-                        tplContent = TplContent.ControllerTpl();
-                        apiPath = Path.Combine(apiPath, "AdminControllers");
-                        var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    case ControllerType.Both:
-                    {
-                        tplContent = TplContent.ControllerTpl(false);
-                        var controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-
-                        tplContent = TplContent.ControllerTpl();
-                        apiPath = Path.Combine(apiPath, "AdminControllers");
-                        controllerFiles = _codeGenService.GenerateController(entityInfo, apiPath, tplContent, dto.Force);
-                        files.Add(controllerFiles);
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
+                files.AddRange(await GenerateControllersAsync(entityInfo, dto));
                 break;
-            }
             default:
                 break;
         }
-        _codeGenService.GenerateFiles(files);
+        codeGenService.ClearCodeGenCache(entityInfo);
+        codeGenService.GenerateFiles(files);
+        return files;
+    }
+
+    private List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string modulePath, bool force)
+    {
+        return codeGenService.GenerateDtos(entityInfo, modulePath, force);
+    }
+
+    private List<GenFileInfo> GenerateManagers(EntityInfo entityInfo, string modulePath, bool force)
+    {
+        var tplContent = TplContent.ManagerTpl();
+        return codeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
+    }
+
+    /// <summary>
+    /// 控制器生成
+    /// </summary>
+    /// <param name="entityInfo"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    private async Task<List<GenFileInfo>> GenerateControllersAsync(
+        EntityInfo entityInfo,
+        GenerateDto dto
+    )
+    {
+        var files = new List<GenFileInfo>();
+        foreach (var servicePath in dto.ServicePath)
+        {
+            var controllers = await codeGenService.GenerateControllerAsync(
+                entityInfo,
+                servicePath,
+                TplContent.ControllerTpl(),
+                dto.Force
+            );
+            files.AddRange(controllers);
+            // add project Reference
+            if (projectContext.ModulesPath.NotEmpty() && entityInfo.ModuleName.NotEmpty())
+            {
+                var moduleProjectPath = Path.Combine(
+                    projectContext.ModulesPath,
+                    entityInfo.ModuleName,
+                    entityInfo.ModuleName + ConstVal.CSharpProjectExtension
+                );
+
+                var serviceProjectPath = Path.Combine(
+                    servicePath,
+                    Path.GetFileName(servicePath) + ConstVal.CSharpProjectExtension
+                );
+                SolutionService.AddProjectReference(serviceProjectPath, moduleProjectPath);
+            }
+        }
         return files;
     }
 }

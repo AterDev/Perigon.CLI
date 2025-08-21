@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddNewSolution" xml:space="preserve">
+    <value>There are no projects yet. Please add a local solution or click + to create a new solution.</value>
+  </data>
   <data name="CacheConnectionString" xml:space="preserve">
     <value>Cache ConnectionString</value>
   </data>
@@ -124,7 +130,7 @@
     <value>Cache Type</value>
   </data>
   <data name="CMSModuleDes" xml:space="preserve">
-    <value>Content manager System Module</value>
+    <value>Content Manager System</value>
   </data>
   <data name="CommandSelectTip" xml:space="preserve">
     <value>[gray](Press [blue]&lt;space&gt;[/] to toggle a option, [green]&lt;enter&gt;[/] to accept) [/]</value>
@@ -136,7 +142,7 @@
     <value>Create solution success!</value>
   </data>
   <data name="CustomerModuleDes" xml:space="preserve">
-    <value>Customer Information Module</value>
+    <value>Customer Information Management</value>
   </data>
   <data name="DatabaseProvider" xml:space="preserve">
     <value>Database Provider</value>
@@ -162,6 +168,9 @@
   <data name="InputDirectory" xml:space="preserve">
     <value>👉 Input solution root path</value>
   </data>
+  <data name="Local" xml:space="preserve">
+    <value>Local</value>
+  </data>
   <data name="Modules" xml:space="preserve">
     <value>Modules</value>
   </data>
@@ -169,7 +178,10 @@
     <value>Create new .NET solution</value>
   </data>
   <data name="OrderModuleDes" xml:space="preserve">
-    <value>Order Management Module</value>
+    <value>Order Management</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Project</value>
   </data>
   <data name="RequestDes" xml:space="preserve">
     <value>Generate client request service and models</value>
@@ -189,6 +201,9 @@
   <data name="SelectSolutionType" xml:space="preserve">
     <value>👇 Select Solution Type, Mini is use MinimalApi for mini application, Standard is recommend(default).</value>
   </data>
+  <data name="Solution" xml:space="preserve">
+    <value>Solution</value>
+  </data>
   <data name="SolutionSummary" xml:space="preserve">
     <value>Your solution configuration is:</value>
   </data>
@@ -198,10 +213,335 @@
   <data name="StudioDes" xml:space="preserve">
     <value>start Dry Studio</value>
   </data>
-  <data name="UpdateDes" xml:space="preserve">
-    <value>update studio,project etc</value>
+  <data name="Tools" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="UpdateStudioDes" xml:space="preserve">
+    <value>update studio</value>
   </data>
   <data name="Values" xml:space="preserve">
     <value>Values</value>
+  </data>
+  <data name="Workbench" xml:space="preserve">
+    <value>Workbench</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>Do you confirm to delete the object?</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>Detail</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="FormValidFailed" xml:space="preserve">
+    <value>Form validation error, please check your input</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="RowValueTip" xml:space="preserve">
+    <value>One value per line</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Setting" xml:space="preserve">
+    <value>Setting</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Enter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="DirectoryNotFound" xml:space="preserve">
+    <value>directory not found,please check！</value>
+  </data>
+  <data name="SolutionTypeStandard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="SolutionTypeMini" xml:space="preserve">
+    <value>Light Solution</value>
+  </data>
+  <data name="DatabasePostgreSql" xml:space="preserve">
+    <value>PostgreSql</value>
+  </data>
+  <data name="DatabaseSqlServer" xml:space="preserve">
+    <value>SqlServer</value>
+  </data>
+  <data name="CacheTypeHybrid" xml:space="preserve">
+    <value>Hybrid</value>
+  </data>
+  <data name="CacheTypeMemory" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="CacheTypeRedis" xml:space="preserve">
+    <value>Redis</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="LoadProjectDes" xml:space="preserve">
+    <value>Select local project to load</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="LoadProjectPathDes" xml:space="preserve">
+    <value>Input the root directory path of project, not file path</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="NotFoundWithName" xml:space="preserve">
+    <value>Not Found {0}</value>
+  </data>
+  <data name="Entity" xml:space="preserve">
+    <value>Entity</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="OpenAPI" xml:space="preserve">
+    <value>OpenAPI</value>
+  </data>
+  <data name="Operate" xml:space="preserve">
+    <value>Operate</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="CodeGen" xml:space="preserve">
+    <value>CodeGen</value>
+  </data>
+  <data name="Template" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="MCP" xml:space="preserve">
+    <value>MCP</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="OpenApiEndpoint" xml:space="preserve">
+    <value>OpenApi Endopint</value>
+  </data>
+  <data name="OpenApiPathTip" xml:space="preserve">
+    <value>Url or Local absolute path</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="MustSelectOption" xml:space="preserve">
+    <value>You must select a option</value>
+  </data>
+  <data name="GenerateDtos" xml:space="preserve">
+    <value>Generate Dtos</value>
+  </data>
+  <data name="GenerateManagers" xml:space="preserve">
+    <value>Generate Managers</value>
+  </data>
+  <data name="GenerateController" xml:space="preserve">
+    <value>Generate Controller</value>
+  </data>
+  <data name="SearchEntity" xml:space="preserve">
+    <value>Search Entities</value>
+  </data>
+  <data name="ClickToView" xml:space="preserve">
+    <value>Click to view</value>
+  </data>
+  <data name="QueryParameters" xml:space="preserve">
+    <value>QueryParameters</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="RequestBody" xml:space="preserve">
+    <value>RequestBody</value>
+  </data>
+  <data name="ResponseBody" xml:space="preserve">
+    <value>ResponseBody</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>Validate</value>
+  </data>
+  <data name="Clean" xml:space="preserve">
+    <value>Clean</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
+  <data name="WebService" xml:space="preserve">
+    <value>WebService</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="Generate" xml:space="preserve">
+    <value>Generate</value>
+  </data>
+  <data name="OverwriteCurrent" xml:space="preserve">
+    <value>Overwrite Files</value>
+  </data>
+  <data name="Batch" xml:space="preserve">
+    <value>Batch</value>
+  </data>
+  <data name="RequestClient" xml:space="preserve">
+    <value>Request Client</value>
+  </data>
+  <data name="OutputPath" xml:space="preserve">
+    <value>OutputPath</value>
+  </data>
+  <data name="Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Prompt" xml:space="preserve">
+    <value>Prompt</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="FileSize" xml:space="preserve">
+    <value>FileSize(KB)</value>
+  </data>
+  <data name="UpdateTime" xml:space="preserve">
+    <value>UpdateTime</value>
+  </data>
+  <data name="SourceType" xml:space="preserve">
+    <value>Source Type</value>
+  </data>
+  <data name="Step" xml:space="preserve">
+    <value>Step</value>
+  </data>
+  <data name="List" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="Variable" xml:space="preserve">
+    <value>Variable</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="Context" xml:space="preserve">
+    <value>Context</value>
+  </data>
+  <data name="EntityClass" xml:space="preserve">
+    <value>Entity Class</value>
+  </data>
+  <data name="DtoModel" xml:space="preserve">
+    <value>Dto Model</value>
+  </data>
+  <data name="Execute" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="MustSelectItem" xml:space="preserve">
+    <value>You must select {0} </value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="Base" xml:space="preserve">
+    <value>Base</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Component" xml:space="preserve">
+    <value>Component</value>
+  </data>
+  <data name="Configuration" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="Database" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="Read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>Write</value>
+  </data>
+  <data name="EntityFramework" xml:space="preserve">
+    <value>EntityFramework</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="SelectFrontType" xml:space="preserve">
+    <value>👇 Select which frontEnd framework you need</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Angular" xml:space="preserve">
+    <value>Angular 20</value>
+  </data>
+  <data name="FrontEnd" xml:space="preserve">
+    <value>FrontEnd</value>
+  </data>
+  <data name="Else" xml:space="preserve">
+    <value>Else</value>
+  </data>
+  <data name="SelectServices" xml:space="preserve">
+    <value>Select the services to generate the Controllers</value>
+    <comment>选择要生成Controller的服务</comment>
+  </data>
+  <data name="SharedDto" xml:space="preserve">
+    <value>shared Dto</value>
+  </data>
+  <data name="TenantMode" xml:space="preserve">
+    <value>Enable Tenant</value>
+  </data>
+  <data name="UserEntityTips" xml:space="preserve">
+    <value>Used to identify user entities, such as User, to distinguish them from ordinary entities, such as user Id obtained from IUserContext</value>
+  </data>
+  <data name="UserEntityName" xml:space="preserve">
+    <value>User Entity Class Name</value>
+  </data>
+  <data name="UserEntityExample" xml:space="preserve">
+    <value>like User;SystemUser</value>
+  </data>
+  <data name="SystemModLabel" xml:space="preserve">
+    <value>System Module</value>
+  </data>
+  <data name="SystemModDes" xml:space="preserve">
+    <value>System module, which is considered as a management system and will affect the generated content of the controller</value>
   </data>
 </root>

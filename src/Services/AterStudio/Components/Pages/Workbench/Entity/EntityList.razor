@@ -1,0 +1,222 @@
+@page "/workbench/entity"
+@using AterStudio.Components.Layout
+@inherits PageBase
+@layout MenuLayout
+
+<PageTitle>@Lang(Localizer.Entity, Localizer.Manage)</PageTitle>
+
+
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+  @if (!isLoading)
+  {
+    @* top Toolbar *@
+    <FluentToolbar Orientation="Orientation.Horizontal" Class="w-100 p-2 bg-1 bg-bottom-2">
+      <FluentStack Orientation="Orientation.Horizontal"
+                   HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+        <FluentLabel Typo="Typography.PaneHeader">
+          @ProjectContext.ProjectName
+        </FluentLabel>
+        <FluentStack Orientation="Orientation.Horizontal"
+                     HorizontalGap="4"
+                     Class="pe-2"
+                     HorizontalAlignment="HorizontalAlignment.End">
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="refresh"
+                        Loading="@IsRefreshing"
+                        OnClick="()=>GetEntityListAsync(true)"
+                        IconStart="@(new Icons.Regular.Size24.ArrowClockwise())"></FluentButton>
+          <FluentButton Appearance="Appearance.Stealth"
+                        Title="clean solution obj & bin files"
+                        OnClick="()=>CleanSolutionAsync()"
+                        Loading="@IsCleaning"
+                        IconEnd="@(new Icons.Regular.Size24.Broom().WithColor(Color.Warning))">
+          </FluentButton>
+
+          <FluentCounterBadge Appearance="Appearance.Accent"
+                              Count="@Services.Count">
+            <FluentButton Appearance="Appearance.Stealth"
+                          Title="services"
+                          OnClick="()=>OpenServicesDialog()"
+                          IconStart="@(new Icons.Regular.Size24.Connected())">
+            </FluentButton>
+          </FluentCounterBadge>
+
+        </FluentStack>
+      </FluentStack>
+    </FluentToolbar>
+    <FluentSplitter Orientation="Orientation.Horizontal"
+                    Panel1Size="260px"
+                    Panel1MinSize="200px"
+                    Panel2MinSize="60%"
+                    BarSize="5"
+                    Class="w-100" Style="height:calc(100vh - 110px)">
+      <Panel1>
+        @* modules *@
+        <FluentStack Orientation="Orientation.Vertical"
+                     Class="px-1"
+                     VerticalGap="0">
+          <FluentToolbar Orientation="Orientation.Horizontal"
+                         Class="w-100 bg-1">
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.SpaceBetween"
+                         HorizontalGap="0">
+              <FluentStack>
+                <FluentLabel Typo="Typography.Subject">
+                  @Lang(Localizer.Modules)
+                </FluentLabel>
+              </FluentStack>
+
+              <FluentStack Orientation="Orientation.Horizontal"
+                           HorizontalAlignment="HorizontalAlignment.Right">
+
+                <FluentButton Appearance="Appearance.Stealth"
+                              Title=@Lang(Localizer.Add, Localizer.Modules)
+                              OnClick="()=>OpenAddModuleDialogAsync()"
+                              IconStart="@(new Icons.Regular.Size20.Add())">
+                </FluentButton>
+
+                <FluentButton Appearance="Appearance.Stealth"
+                              Title=@Lang(Localizer.Delete, Localizer.Modules)
+                              OnClick="()=>DeleteModuleAsync()"
+                              IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))">
+                </FluentButton>
+              </FluentStack>
+
+            </FluentStack>
+          </FluentToolbar>
+
+
+          <FluentNavMenu Class="w-100 list" Expanded="true">
+            @{
+              var active = string.IsNullOrWhiteSpace(SelectedModule) ? "selected" : "";
+              <FluentNavLink Class="@("p-0 " + active)"
+                             Style="margin-left:-8px"
+                             OnClick="() => SelectModel()">
+                <FluentStack>
+                  <FluentLabel Typo="Typography.Subject">@Lang(Localizer.All)</FluentLabel>
+                </FluentStack>
+              </FluentNavLink>
+            }
+
+            @foreach (var item in Modules)
+            {
+              var _active = SelectedModule == item.Name ? "selected" : "";
+              <FluentNavLink Class="@("p-0 " + _active)"
+                             Style="margin-left:-8px"
+                             OnClick="() => SelectModel(item.Name)">
+                <FluentStack>
+                  <FluentLabel Typo="Typography.Subject">@item.Name</FluentLabel>
+                </FluentStack>
+              </FluentNavLink>
+            }
+          </FluentNavMenu>
+        </FluentStack>
+      </Panel1>
+
+      <Panel2>
+        @* entity list *@
+        <FluentStack Orientation="Orientation.Vertical" Style="overflow:hidden" Class="p-1">
+          <FluentStack Orientation="Orientation.Horizontal"
+                       HorizontalAlignment="HorizontalAlignment.SpaceBetween">
+            @* <EntityListSearch OnSearched="OnSearch" Placeholder="@Lang(Localizer.SearchEntity)" /> *@
+            <FluentSearch @bind-Value=SearchModelKey
+                          @bind-Value:after="OnSearch"
+                          Placeholder="@Lang(Localizer.SearchEntity)"
+                          AriaLabel="Search"
+                          Immediate="true"
+                          ImmediateDelay="100"
+                          AutoComplete="off " />
+
+            <FluentButton Id="batchMenu"
+                          IconStart="@(new Icons.Regular.Size24.AddSquareMultiple())"
+                          Appearance="Appearance.Neutral"
+                          OnClick="()=>BatchOpen=!BatchOpen"
+                          Disabled="!SelectedEntity.Any()">
+              @Lang(Localizer.Batch, Localizer.Generate)
+            </FluentButton>
+            <FluentMenu Anchor="batchMenu"
+                        @bind-Open="BatchOpen">
+              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Dto))">
+                <FluentIcon Value="@(new Icons.Regular.Size20.CodeBlock())"
+                            Color="Color.Accent"
+                            Slot="start" />
+                @Lang(Localizer.GenerateDtos)
+              </FluentMenuItem>
+              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.Manager))">
+                <FluentIcon Value="@(new Icons.Regular.Size20.LinkSquare())"
+                            Color="Color.Accent"
+                            Slot="start" />
+                @Lang(Localizer.GenerateManagers)
+              </FluentMenuItem>
+              <FluentMenuItem OnClick="@(() => OpenGenerateDialog(CommandType.API))">
+                <FluentIcon Value="@(new Icons.Regular.Size20.PlugConnected())"
+                            Color="Color.Accent"
+                            Slot="start" />
+                @Lang(Localizer.GenerateController)
+              </FluentMenuItem>
+            </FluentMenu>
+
+          </FluentStack>
+          <FluentDataGrid Class="w-100"
+                          Items="@FilteredEntityFiles"
+                          ResizableColumns=true
+                          RowSize="@DataGridRowSize.Medium"
+                          Pagination="@pagination"
+                          AutoFit="true">
+
+            <SelectColumn TGridItem="EntityFile"
+                          SelectMode="DataGridSelectMode.Multiple"
+                          SelectFromEntireRow="false"
+                          @bind-SelectedItems="@SelectedEntity" />
+
+            <TemplateColumn Title="@Lang(Localizer.Entity)"
+                            Sortable="true">
+              <FluentStack Orientation="Orientation.Horizontal"
+                           VerticalAlignment="VerticalAlignment.Center">
+                <FluentButton Appearance="Appearance.Lightweight">
+                  @context.Name
+                </FluentButton>
+              </FluentStack>
+            </TemplateColumn>
+            <PropertyColumn Property="@(c => c.Comment)"
+                            Title="@Lang(Localizer.Description)"
+                            Width="200px" />
+
+            <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+              <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+                <FluentButton Appearance="Appearance.Stealth"
+                              OnClick="@(_ => OpenGenerateDialog(CommandType.Dto, context))"
+                              IconStart="@(new Icons.Regular.Size24.CodeBlock())"
+                              Title="@Lang(Localizer.GenerateDtos)">
+
+                </FluentButton>
+                <FluentButton Appearance="Appearance.Stealth"
+                              OnClick="@(_ => OpenGenerateDialog(CommandType.Manager, context))"
+                              IconStart="@(new Icons.Regular.Size24.LinkSquare())"
+                              Title="@Lang(Localizer.GenerateManagers)">
+
+                </FluentButton>
+                <FluentButton Appearance="Appearance.Stealth"
+                              OnClick="@(_ => OpenGenerateDialog(CommandType.API, context))"
+                              IconStart="@(new Icons.Regular.Size24.PlugConnected())"
+                              Title="@Lang(Localizer.GenerateController)">
+                </FluentButton>
+              </FluentStack>
+            </TemplateColumn>
+          </FluentDataGrid>
+          <FluentPaginator State="@pagination" Style="width:100%" />
+        </FluentStack>
+      </Panel2>
+    </FluentSplitter>
+  }
+  else
+  {
+
+    <FluentStack Class="mt-2"
+                 VerticalAlignment="VerticalAlignment.Center"
+                 HorizontalAlignment="HorizontalAlignment.Center">
+      <FluentProgressRing Style="width:50px;height:50px"></FluentProgressRing>
+    </FluentStack>
+  }
+</FluentStack>

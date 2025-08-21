@@ -2,11 +2,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Entity;
+
 public static class ConstVal
 {
+    public const string CommandName = "ater";
     public const string Version = "10.0.0";
     public const string NetVersion = "net9.0";
-    public const string PackageId = "ater.dry";
+    public const string PackageId = "ater.dry.copilot";
 
     public const string Mini = "mini";
     public const string Standard = "standard";
@@ -24,7 +26,7 @@ public static class ConstVal
     public const string CommonMod = "CommonMod";
     public const string ShareName = "Share";
     public const string EntityName = "Entity";
-    public const string APIName = "Http.API";
+    public const string APIName = "ApiService";
     public const string EntityFrameworkName = "EntityFramework";
 
     // dir names
@@ -35,9 +37,11 @@ public static class ConstVal
     public const string ControllersDir = "Controllers";
     public const string SrcDir = "src";
     public const string TemplateDir = "templates";
-    public const string MicroserviceDir = "Microservice";
-
+    public const string ShareDlls = "ShareDlls.txt";
+    public const string ServicesDir = "Services";
+    public const string AterDir = "Ater";
     public const string StudioDir = "DryStudio";
+    public const string AspireDir = "AspireHost";
 
     // names
     public const string Manager = "Manager";
@@ -57,11 +61,17 @@ public static class ConstVal
     public const string CreatedTime = "CreatedTime";
     public const string UpdatedTime = "UpdatedTime";
     public const string IsDeleted = "IsDeleted";
+    public const string TenantId = "TenantId";
+    public const string PageSize = "PageSize";
+    public const string PageIndex = "PageIndex";
 
-    // files 
+    // files
     public const string TemplateZip = "template.zip";
+    public const string ModulesZip = "modules.zip";
     public const string StudioZip = "studio.zip";
     public const string SyncJson = "sync.json";
+    public const string AppSettingJson = "appsettings.json";
+    public const string AppSettingDevelopmentJson = "appsettings.Development.json";
 
     public const string SolutionExtension = ".sln";
     public const string SolutionXMLExtension = ".slnx";
@@ -70,10 +80,9 @@ public static class ConstVal
     public const string CoreLibName = "Ater.Common";
     public const string ConventionLibName = "Ater.Web.Convention";
     public const string ExtensionLibName = "Ater.Web.Extension";
+    public const string SourceGenerationLibName = "Ater.Web.SourceGeneration";
 
     public const string GlobalUsingsFile = "GlobalUsings.cs";
-    public const string ServiceExtensionsFile = "ServiceCollectionExtensions.cs";
-    public const string ManagerServiceExtensionsFile = "AppManagerServiceExtensions.cs";
 }
 
 /// <summary>
@@ -81,13 +90,42 @@ public static class ConstVal
 /// </summary>
 public static class PathConst
 {
-    public static readonly string APIPath = Path.Combine(ConstVal.SrcDir, ConstVal.APIName);
-    public static readonly string CommonModPath = Path.Combine(ConstVal.SrcDir, ConstVal.ModulesDir, ConstVal.CommonMod);
-    public static readonly string DefinitionPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir);
-    public static readonly string SharePath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.ShareName);
+    public static readonly string APIPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.ServicesDir,
+        ConstVal.APIName
+    );
+    public static readonly string CommonModPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.ModulesDir,
+        ConstVal.CommonMod
+    );
+    public static readonly string DefinitionPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir
+    );
+    public static readonly string SharePath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir,
+        ConstVal.ShareName
+    );
 
-    public static readonly string EntityPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityName);
-    public static readonly string EntityFrameworkPath = Path.Combine(ConstVal.SrcDir, ConstVal.DefinitionDir, ConstVal.EntityFrameworkName);
+    public static readonly string EntityPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir,
+        ConstVal.EntityName
+    );
+    public static readonly string EntityFrameworkPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.DefinitionDir,
+        ConstVal.EntityFrameworkName
+    );
     public static readonly string ModulesPath = Path.Combine(ConstVal.SrcDir, ConstVal.ModulesDir);
-    public static readonly string MicroservicePath = Path.Combine(ConstVal.SrcDir, ConstVal.MicroserviceDir);
+    public static readonly string ServicesPath = Path.Combine(
+        ConstVal.SrcDir,
+        ConstVal.ServicesDir
+    );
+    public static readonly string AspirePath = Path.Combine(ConstVal.SrcDir, ConstVal.AspireDir);
+    public static readonly string AterPath = Path.Combine(ConstVal.SrcDir, ConstVal.AterDir);
+    public static readonly string PromptPath = Path.Combine(".github", "prompts");
 }

@@ -1,30 +1,23 @@
 using Share.Models.CommandDtos;
-using System.Text.Json.Nodes;
 
 namespace StudioMod.Managers;
+
 /// <summary>
-/// 功能集成
+/// Solution manager
 /// </summary>
 public class SolutionManager(
+    DefaultDbContext dbContext,
     IProjectContext projectContext,
-    ProjectManager projectManager,
     ILogger<SolutionManager> logger,
     CommandService commandService,
     SolutionService solution
-    ) : ManagerBase(logger)
+) : ManagerBase<DefaultDbContext, Solution>(dbContext, logger)
 {
-    private readonly IProjectContext _projectContext = projectContext;
-    private readonly ProjectManager _projectManager = projectManager;
-    private readonly SolutionService _solution = solution;
-    private readonly CommandService _commandService = commandService;
-
-    public string ErrorMsg { get; set; } = string.Empty;
-
     /// <summary>
     /// 获取默认模块
     /// </summary>
     /// <returns></returns>
-    public List<ModuleInfo> GetDefaultModules()
+    public static List<ModuleInfo> GetDefaultModules()
     {
         return ModuleInfo.GetModules();
     }
@@ -35,51 +28,76 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<bool> CreateNewSolutionAsync(CreateSolutionDto dto)
     {
-        return await _commandService.CreateSolutionAsync(dto);
+        return await commandService.CreateSolutionAsync(dto);
     }
 
     /// <summary>
-    /// 更新配置文件
+    /// 获取项目列表
+    /// </summary>
+    /// <returns></returns>
+    public async Task<List<Solution>> ListAsync()
+    {
+        var projects = await _dbSet.ToListAsync();
+        for (int i = 0; i < projects.Count; i++)
+        {
+            var p = projects[i];
+            // 移除不存在的项目
+            if (!Directory.Exists(p.Path))
+            {
+                _dbSet.Remove(p);
+                projects.Remove(p);
+            }
+            await SaveChangesAsync();
+        }
+        return projects;
+    }
+
+    public static string GetToolVersion()
+    {
+        return AssemblyHelper.GetCurrentToolVersion();
+    }
+
+    /// <summary>
+    /// 添加项目
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="projectPath"></param>
+    /// <returns></returns>
+    public async Task<Guid?> AddProjectAsync(string name, string projectPath)
+    {
+        return await commandService.AddProjectAsync(name, projectPath);
+    }
+
+    /// <summary>
+    /// 更新配置内容
     /// </summary>
     /// <param name="dto"></param>
-    /// <param name="path"></param>
-    /// <param name="apiName"></param>
-    private static void UpdateAppSettings(CreateSolutionDto dto, string path, string apiName)
+    /// <returns></returns>
+    public async Task<bool> UpdateConfigAsync(Solution project, SolutionConfig dto)
     {
-        // 修改配置文件
-        string configFile = Path.Combine(path, "src", apiName, "appsettings.json");
-        string jsonString = File.ReadAllText(configFile);
-        JsonNode? jsonNode = JsonNode.Parse(jsonString, documentOptions: new JsonDocumentOptions
-        {
-            CommentHandling = JsonCommentHandling.Skip
-        });
-        if (jsonNode != null)
-        {
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Database", dto.DBType.ToString());
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "Components.Cache", dto.CacheType.ToString());
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "Key.DefaultPassword", dto.DefaultPassword ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CommandDb", dto.CommandDbConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.QueryDb", dto.QueryDbConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.Cache", dto.CacheConnStrings ?? "");
-            JsonHelper.AddOrUpdateJsonNode(jsonNode, "ConnectionStrings.CacheInstanceName", dto.CacheInstanceName ?? "");
-
-            jsonString = jsonNode.ToString();
-            File.WriteAllText(configFile, jsonString);
-        }
+        project!.Config = dto;
+        return await UpdateAsync(project);
     }
 
     /// <summary>
     /// 获取模块信息
     /// </summary>
     /// <returns></returns>
-    public List<SubProjectInfo> GetModulesInfo()
+    public List<SubProjectInfo> GetModules()
     {
         List<SubProjectInfo> res = [];
-        if (!Directory.Exists(_projectContext.ModulesPath!))
+        if (!Directory.Exists(projectContext.ModulesPath!))
         {
             return [];
         }
-        var projectFiles = Directory.GetFiles(_projectContext.ModulesPath!, $"*{ConstVal.CSharpProjectExtension}", SearchOption.AllDirectories).ToList() ?? [];
+        var projectFiles =
+            Directory
+                .GetFiles(
+                    projectContext.ModulesPath!,
+                    $"*{ConstVal.CSharpProjectExtension}",
+                    SearchOption.AllDirectories
+                )
+                .ToList() ?? [];
 
         projectFiles.ForEach(path =>
         {
@@ -87,11 +105,20 @@ public class SolutionManager(
             {
                 Name = Path.GetFileNameWithoutExtension(path),
                 Path = path,
-                ProjectType = ProjectType.Module
+                ProjectType = ProjectType.Module,
             };
             res.Add(moduleInfo);
         });
         return res;
+    }
+
+    /// <summary>
+    /// 获取服务列表
+    /// </summary>
+    /// <returns></returns>
+    public List<SubProjectInfo> GetServices(bool onlyWeb = true)
+    {
+        return solution.GetServices(onlyWeb);
     }
 
     /// <summary>
@@ -103,12 +130,70 @@ public class SolutionManager(
         moduleName = moduleName.EndsWith("Mod") ? moduleName : moduleName + "Mod";
         try
         {
-            await _solution.CreateModuleAsync(moduleName);
+            await solution.CreateModuleAsync(moduleName);
             return true;
         }
         catch (Exception ex)
         {
             ErrorMsg = ex.Message;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 移除模块
+    /// </summary>
+    /// <param name="moduleName"></param>
+    /// <returns></returns>
+    public bool DeleteModule(string moduleName)
+    {
+        try
+        {
+            solution.DeleteModule(moduleName);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ErrorMsg = ex.Message;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 清理解决方案
+    /// </summary>
+    /// <returns></returns>
+    public bool CleanSolution()
+    {
+        try
+        {
+            if (solution.CleanSolution(out string error))
+            {
+                return true;
+            }
+            else
+            {
+                ErrorMsg = error;
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMsg = ex.Message;
+            return false;
+        }
+    }
+
+    public async Task<bool> CreateServiceAsync(string serviceName)
+    {
+        var (res, error) = await solution.CreateServiceAsync(serviceName);
+        if (res)
+        {
+            return true;
+        }
+        else
+        {
+            ErrorMsg = error ?? string.Empty;
             return false;
         }
     }

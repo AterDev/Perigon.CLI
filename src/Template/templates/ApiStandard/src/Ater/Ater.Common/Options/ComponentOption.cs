@@ -18,7 +18,7 @@ public class ComponentOption
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public MQType MQType { get; set; } = MQType.None;
-    public bool UseCORS { get; set; } = true;
+    public bool UseCors { get; set; } = true;
     public bool UseSMS { get; set; }
     public bool UseSmtp { get; set; }
     public bool UseAWSS3 { get; set; }
@@ -29,23 +29,25 @@ public enum AuthType
 {
     Jwt,
     Cookie,
-    OAuth
+    OAuth,
 }
+
 public enum DatabaseType
 {
     SqlServer,
     PostgreSql,
 }
+
 public enum CacheType
 {
     Memory,
     Redis,
-    Hybrid
+    Hybrid,
 }
 
 public enum MQType
 {
     None,
     RabbitMQ,
-    Kafka
+    Kafka,
 }

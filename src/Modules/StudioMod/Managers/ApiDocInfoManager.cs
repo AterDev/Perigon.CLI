@@ -1,16 +1,19 @@
-using Microsoft.OpenApi.Readers;
+using CodeGenerator.Models;
+using Microsoft.OpenApi;
 using StudioMod.Models.ApiDocInfoDtos;
 
 namespace StudioMod.Managers;
+
 /// <summary>
 /// 接口文档
 /// </summary>
 public class ApiDocInfoManager(
-    DataAccessContext<ApiDocInfo> dataContext,
+    DefaultDbContext dbContext,
     IProjectContext project,
     ILogger<ApiDocInfoManager> logger,
-    CodeGenService codeGenService
-    ) : ManagerBase<ApiDocInfo>(dataContext, logger)
+    CodeGenService codeGenService,
+    Localizer localizer
+) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContext, logger)
 {
     private readonly IProjectContext _project = project;
     private readonly CodeGenService _codeGenService = codeGenService;
@@ -23,7 +26,7 @@ public class ApiDocInfoManager(
     public async Task<ApiDocInfo> CreateNewEntityAsync(ApiDocInfoAddDto dto)
     {
         ApiDocInfo entity = dto.MapTo<ApiDocInfoAddDto, ApiDocInfo>();
-        entity.ProjectId = _project.ProjectId;
+        entity.ProjectId = _project.SolutionId!.Value;
         return await Task.FromResult(entity);
     }
 
@@ -42,7 +45,6 @@ public class ApiDocInfoManager(
         return await ToPageAsync<ApiDocInfoFilterDto, ApiDocInfoItemDto>(filter);
     }
 
-
     /// <summary>
     /// 解析并获取文档内容
     /// </summary>
@@ -52,52 +54,28 @@ public class ApiDocInfoManager(
     {
         ApiDocInfo? apiDocInfo = await GetCurrentAsync(id);
         string path = apiDocInfo!.Path;
-        string openApiContent = "";
+        try
+        {
+            var (apiDocument, _) = await OpenApiDocument.LoadAsync(path);
 
-        if (!isFresh && apiDocInfo.Content.NotEmpty())
-        {
-            openApiContent = apiDocInfo.Content;
-        }
-        else
-        {
-            try
+            if (apiDocument == null)
             {
-                if (path.StartsWith("http://") || path.StartsWith("https://"))
-                {
-                    HttpClientHandler handler = new()
-                    {
-                        ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
-                    };
-                    using HttpClient http = new(handler);
-                    http.Timeout = TimeSpan.FromSeconds(60);
-                    openApiContent = await http.GetStringAsync(path);
-                }
-                else
-                {
-                    openApiContent = File.ReadAllText(path);
-                }
-                apiDocInfo.Content = openApiContent;
-                await SaveChangesAsync();
+                ErrorMsg = $"parse {path} faield!";
+                return null;
             }
-            catch (Exception ex)
+            var helper = new OpenApiService(apiDocument);
+            return new ApiDocContent
             {
-                ErrorMsg = $"{path} 请求失败！" + ex.Message;
-                return default;
-            }
+                TypeMeta = helper.ModelInfos,
+                OpenApiTags = helper.OpenApiTags,
+                RestApiGroups = helper.RestApiGroups,
+            };
         }
-
-        openApiContent = openApiContent
-               .Replace("«", "")
-               .Replace("»", "");
-
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
-        var helper = new OpenApiService(apiDocument);
-        return new ApiDocContent
+        catch (Exception ex)
         {
-            TypeMeta = helper.ModelInfos,
-            OpenApiTags = helper.OpenApiTags,
-            RestApiGroups = helper.RestApiGroups
-        };
+            ErrorMsg = ex.Message;
+            return null;
+        }
     }
 
     /// <summary>
@@ -105,27 +83,19 @@ public class ApiDocInfoManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<string> ExportDocAsync(Guid id)
+    public async Task<string?> ExportDocAsync(Guid id)
     {
         ApiDocInfo? apiDocInfo = await FindAsync(id);
-        if (apiDocInfo == null) return string.Empty;
+        if (apiDocInfo == null)
+            return string.Empty;
         string path = apiDocInfo.Path;
-        string openApiContent = "";
-        if (path.StartsWith("http://") || path.StartsWith("https://"))
-        {
-            using HttpClient http = new();
-            http.Timeout = TimeSpan.FromSeconds(60);
-            openApiContent = await http.GetStringAsync(path);
-        }
-        else
-        {
-            openApiContent = File.ReadAllText(path);
-        }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(path);
 
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
+        if (apiDocument == null)
+        {
+            ErrorMsg = $"parse {path} faield!";
+            return null;
+        }
 
         var helper = new OpenApiService(apiDocument);
         var groups = helper.RestApiGroups;
@@ -143,7 +113,7 @@ public class ApiDocInfoManager(
                 sb.AppendLine("|---------|---------|");
                 sb.AppendLine($"|接口说明|{api.Summary}|");
                 sb.AppendLine($"|接口地址|{api.Router}|");
-                sb.AppendLine($"|接口方法|{api.OperationType.ToString()}|");
+                sb.AppendLine($"|接口方法|{api.HttpMethod.ToString()}|");
                 sb.AppendLine();
 
                 sb.AppendLine("#### 请求内容");
@@ -151,12 +121,13 @@ public class ApiDocInfoManager(
                 var requestInfo = api.RequestInfo;
                 if (requestInfo != null)
                 {
-
                     sb.AppendLine("|名称|类型|是否必须|说明|");
                     sb.AppendLine("|---------|---------|---------|---------|");
                     foreach (var property in requestInfo.PropertyInfos)
                     {
-                        sb.AppendLine($"|{property.Name}|{property.Type}|{(property.IsRequired ? "是" : "否")}|{property.CommentSummary?.Trim()}|");
+                        sb.AppendLine(
+                            $"|{property.Name}|{property.Type}|{(property.IsRequired ? "是" : "否")}|{property.CommentSummary?.Trim()}|"
+                        );
                     }
                     sb.AppendLine();
                 }
@@ -173,7 +144,9 @@ public class ApiDocInfoManager(
                     sb.AppendLine("|---------|---------|---------|");
                     foreach (var property in responseInfo.PropertyInfos)
                     {
-                        sb.AppendLine($"|{property.Name}|{property.Type}|{property.CommentSummary?.Trim()}|");
+                        sb.AppendLine(
+                            $"|{property.Name}|{property.Type}|{property.CommentSummary?.Trim()}|"
+                        );
                     }
                 }
                 else
@@ -192,8 +165,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<bool> IsConflictAsync(string unique)
     {
-        // TODO:自定义唯一性验证参数和逻辑
-        return await Command.AnyAsync(q => q.Id == new Guid(unique));
+        return await _dbSet.AnyAsync(q => q.Id == new Guid(unique));
     }
 
     /// <summary>
@@ -203,42 +175,52 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<ApiDocInfo?> GetOwnedAsync(Guid id)
     {
-        var query = Command.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
 
     /// <summary>
-    /// 生成前端请求服务
+    /// 生成请求客户端
     /// </summary>
-    /// <param name="doc"></param>
-    /// <param name="webPath"></param>
-    /// <param name="type"></param>
-    /// <param name="swaggerPath"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task GenerateRequestAsync(ApiDocInfo doc, string webPath, RequestLibType type, string? swaggerPath = null)
+    public async Task<List<GenFileInfo>?> GenerateRequestClientAsync(
+        Guid openApiDocId,
+        RequestClientDto dto
+    )
     {
-        // 保存路径
-        doc.LocalPath = webPath;
+        var doc = await GetCurrentAsync(openApiDocId);
+        if (doc == null)
+        {
+            ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId);
+            return null;
+        }
+        doc.LocalPath = dto.OutputPath;
         await SaveChangesAsync();
 
-        swaggerPath ??= Path.Combine(_project.ApiPath!, "openapi.json");
-        var files = await _codeGenService.GenerateWebRequestAsync(swaggerPath, webPath, type);
-        _codeGenService.GenerateFiles(files);
-    }
+        var files = new List<GenFileInfo>();
+        switch (dto.ClientType)
+        {
+            case RequestClientType.NgHttp:
+                files = await _codeGenService.GenerateWebRequestAsync(
+                    dto.OpenApiEndpoint!,
+                    dto.OutputPath!,
+                    dto.ClientType
+                );
 
-
-    /// <summary>
-    /// 生成csharp请求服务
-    /// </summary>
-    /// <param name="webPath"></param>
-    /// <param name="swaggerPath"></param>
-    /// <returns></returns>
-    public async Task GenerateCsharpRequestAsync(string webPath, string? swaggerPath = null)
-    {
-        swaggerPath ??= Path.Combine(_project.ApiPath!, "openapi.json");
-        var files = await _codeGenService.GenerateCsharpApiClientAsync(swaggerPath, webPath);
+                break;
+            case RequestClientType.Csharp:
+                files = await CodeGenService.GenerateCsharpApiClientAsync(
+                    dto.OpenApiEndpoint!,
+                    dto.OutputPath!
+                );
+                break;
+            default:
+                break;
+        }
         _codeGenService.GenerateFiles(files);
+        return files;
     }
 }

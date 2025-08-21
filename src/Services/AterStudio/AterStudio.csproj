@@ -3,14 +3,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <SpaRoot>../ClientApp/</SpaRoot>
     <SpaProxyServerUrl>http://localhost:9160</SpaProxyServerUrl>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>10.0.0-beta1</Version>
+    <Version>10.0.0-beta3</Version>
     <SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
     <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
-    <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+    <CompressionEnabled>false</CompressionEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591</NoWarn>
@@ -21,23 +20,13 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ater.Web.Analyzers" Version="1.0.0-beta3" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.9" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.9" />
-    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.2.0-preview.1" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\StudioMod\StudioMod.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,17 +1,15 @@
 using Entity.UserMod;
-using Share.Models.UserDtos;
+using EntityFramework.DBProvider;
+using UserMod.UserDtos;
 
 namespace UserMod.Managers;
+
 /// <summary>
 /// 用户账户
 /// </summary>
-public class UserManager(
-    DataAccessContext<User> dataContext,
-    ILogger<UserManager> logger,
-    UserContext userContext) : ManagerBase<User>(dataContext, logger)
+public class UserManager(DefaultDbContext dbContext, ILogger<UserManager> logger)
+    : ManagerBase<DefaultDbContext, User>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 更新密码
     /// </summary>
@@ -22,7 +20,7 @@ public class UserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
-        Command.Update(user);
+        _dbSet.Update(user);
         return await SaveChangesAsync() > 0;
     }
 
@@ -33,11 +31,7 @@ public class UserManager(
     /// <returns></returns>
     public async Task<User> RegisterAsync(RegisterDto dto)
     {
-        var user = new User
-        {
-            UserName = dto.UserName,
-            PasswordSalt = HashCrypto.BuildSalt()
-        };
+        var user = new User { UserName = dto.UserName, PasswordSalt = HashCrypto.BuildSalt() };
         user.PasswordHash = HashCrypto.GeneratePwd(dto.Password, user.PasswordSalt);
         if (dto.Email != null)
         {
@@ -54,11 +48,7 @@ public class UserManager(
     /// <returns></returns>
     public async Task<Guid?> AddAsync(UserAddDto dto)
     {
-        var entity = new User
-        {
-            UserName = dto.UserName,
-            PasswordSalt = HashCrypto.BuildSalt()
-        };
+        var entity = new User { UserName = dto.UserName, PasswordSalt = HashCrypto.BuildSalt() };
         entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
         if (dto.Email != null)
         {
@@ -70,7 +60,7 @@ public class UserManager(
     public async Task<bool> UpdateAsync(User entity, UserUpdateDto dto)
     {
         entity.Merge(dto);
-        if (dto.Password != null && _userContext != null && _userContext.IsAdmin)
+        if (dto.Password != null)
         {
             entity.PasswordSalt = HashCrypto.BuildSalt();
             entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
@@ -86,7 +76,10 @@ public class UserManager(
             .WhereNotNull(filter.Email, q => q.Email == filter.Email)
             .WhereNotNull(filter.PhoneNumber, q => q.PhoneNumber == filter.PhoneNumber)
             .WhereNotNull(filter.EmailConfirmed, q => q.EmailConfirmed == filter.EmailConfirmed)
-            .WhereNotNull(filter.PhoneNumberConfirmed, q => q.PhoneNumberConfirmed == filter.PhoneNumberConfirmed);
+            .WhereNotNull(
+                filter.PhoneNumberConfirmed,
+                q => q.PhoneNumberConfirmed == filter.PhoneNumberConfirmed
+            );
 
         return await ToPageAsync<UserFilterDto, UserItemDto>(filter);
     }
@@ -100,7 +93,8 @@ public class UserManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // TODO:自定义唯一性验证参数和逻辑
-        return await Command.Where(q => q.UserName == unique)
+        return await _dbSet
+            .Where(q => q.UserName == unique)
             .WhereNotNull(id, q => q.Id != id)
             .AnyAsync();
     }
@@ -122,10 +116,8 @@ public class UserManager(
     /// <returns></returns>
     public async Task<User?> GetOwnedAsync(Guid id)
     {
-        var query = Command.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

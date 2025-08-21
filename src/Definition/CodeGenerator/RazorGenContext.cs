@@ -1,3 +1,4 @@
+using Entity;
 using Entity.StudioMod;
 using RazorEngineCore;
 
@@ -9,6 +10,7 @@ namespace CodeGenerator;
 public class RazorGenContext
 {
     public IRazorEngine RazorEngine { get; set; } = new RazorEngine();
+
     public string GenManager(string templateContent, ManagerViewModel model)
     {
         return GenCode(templateContent, model);
@@ -23,7 +25,9 @@ public class RazorGenContext
     /// <returns></returns>
     public string GenCode<T>(string templateContent, T model)
     {
-        IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> template = RazorEngine.Compile<RazorEngineTemplateBase<T>>(templateContent);
+        IRazorEngineCompiledTemplate<RazorEngineTemplateBase<T>> template = RazorEngine.Compile<
+            RazorEngineTemplateBase<T>
+        >(templateContent);
         string result = template.Run(instance =>
         {
             instance.Model = model;
@@ -39,10 +43,12 @@ public class RazorGenContext
     /// <returns></returns>
     public string GenTemplate(string templateContent, List<Variable> model)
     {
-        // model to dictionary 
+        // model to dictionary
         var dictionary = model.ToDictionary(v => v.Key, v => v.Value);
 
-        var template = RazorEngine.Compile<RazorEngineTemplateBase<Dictionary<string, string>>>(templateContent);
+        var template = RazorEngine.Compile<RazorEngineTemplateBase<Dictionary<string, string>>>(
+            templateContent
+        );
         string result = template.Run(instance =>
         {
             instance.Model = dictionary;
@@ -52,16 +58,22 @@ public class RazorGenContext
 
     public string GenTemplate(string templateContent, ActionRunModel model)
     {
-        templateContent = "@using Ater.Web.Core.Utils;" + Environment.NewLine + templateContent;
-        var dictionary = model.Variables.DistinctBy(v => v.Key).ToDictionary(v => v.Key, v => v.Value);
+        templateContent =
+            $"@using {ConstVal.CoreLibName}.Utils;" + Environment.NewLine + templateContent;
+        var dictionary = model
+            .Variables.DistinctBy(v => v.Key)
+            .ToDictionary(v => v.Key, v => v.Value);
 
-        var template = RazorEngine.Compile<CustomTemplate>(templateContent, builder =>
-        {
-            builder.AddAssemblyReferenceByName("System.Collections");
-            builder.AddAssemblyReferenceByName("System");
-            builder.AddAssemblyReferenceByName("Ater.Web.Core");
-            builder.AddAssemblyReferenceByName("Entity");
-        });
+        var template = RazorEngine.Compile<CustomTemplate>(
+            templateContent,
+            builder =>
+            {
+                builder.AddAssemblyReferenceByName("System.Collections");
+                builder.AddAssemblyReferenceByName("System");
+                builder.AddAssemblyReferenceByName($"{ConstVal.CoreLibName}");
+                builder.AddAssemblyReferenceByName("Entity");
+            }
+        );
 
         string result = template.Run(instance =>
         {
@@ -83,10 +95,12 @@ public class RazorGenContext
 public class CustomTemplate : RazorEngineTemplateBase
 {
     public Dictionary<string, string> Variables { get; set; } = [];
+
     /// <summary>
     /// 模型名称
     /// </summary>
     public string? ModelName { get; set; }
+
     /// <summary>
     /// 命名空间
     /// </summary>
@@ -110,14 +124,17 @@ public class CustomTemplate : RazorEngineTemplateBase
 public class ActionRunModel
 {
     public List<Variable> Variables { get; set; } = [];
+
     /// <summary>
     /// 模型名称
     /// </summary>
     public string? ModelName { get; set; }
+
     /// <summary>
     /// 命名空间
     /// </summary>
     public string? Namespace { get; set; }
+
     /// <summary>
     /// 类型描述
     /// </summary>

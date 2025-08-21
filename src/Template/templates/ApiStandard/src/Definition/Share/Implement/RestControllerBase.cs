@@ -4,43 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Share.Implement;
 
-/// <summary>
-/// 管理后台权限控制器
-/// </summary>
-[Route("api/admin/[controller]")]
-[Authorize(WebConst.AdminUser)]
-[ApiExplorerSettings(GroupName = "admin")]
-public class AdminControllerBase<TManager>(
+[ApiExplorerSettings(GroupName = "v1")]
+[Authorize(Policy = WebConst.User)]
+public class RestControllerBase<TManager>(
     Localizer localizer,
     TManager manager,
-    UserContext user,
-    ILogger logger) : RestControllerBase(localizer)
+    IUserContext user,
+    ILogger logger
+) : RestControllerBase(localizer)
     where TManager : class
 {
     protected readonly TManager _manager = manager;
     protected readonly ILogger _logger = logger;
-    protected readonly UserContext _user = user;
+    protected readonly IUserContext _user = user;
 }
-
-/// <summary>
-/// 用户端权限控制器
-/// </summary>
-/// <typeparam name="TManager"></typeparam>
-[Authorize(WebConst.User)]
-[ApiExplorerSettings(GroupName = "client")]
-public class ClientControllerBase<TManager>(
-    Localizer localizer,
-    TManager manager,
-    UserContext user,
-    ILogger logger
-        ) : RestControllerBase(localizer)
-     where TManager : class
-{
-    protected readonly TManager _manager = manager;
-    protected readonly ILogger _logger = logger;
-    protected readonly UserContext _user = user;
-}
-
 
 /// <summary>
 /// RestApi base
@@ -48,7 +25,7 @@ public class ClientControllerBase<TManager>(
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class RestControllerBase(Localizer localizer) : ControllerBase
+public abstract class RestControllerBase(Localizer localizer) : ControllerBase
 {
     protected readonly Localizer? _localizer = localizer;
 
@@ -60,20 +37,12 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
     [NonAction]
     public ObjectResult Forbid(string? value)
     {
-        var res = new ErrorResult
-        {
-            Title = "Forbidden",
-            Detail = value?.ToString(),
-            Status = 403,
-            TraceId = HttpContext.TraceIdentifier
-        };
+        var res = CreateResult("Forbidden", value, 403);
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", value));
-        return new ObjectResult(res)
-        {
-            StatusCode = 403
-        };
+        _ = (at?.SetTag("responseError", value));
+        return new ObjectResult(res) { StatusCode = 403 };
     }
+
     /// <summary>
     /// 404返回格式处理
     /// </summary>
@@ -82,13 +51,7 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
     [NonAction]
     public NotFoundObjectResult NotFound(string? value)
     {
-        var res = new ErrorResult
-        {
-            Title = "NotFound",
-            Detail = value?.ToString(),
-            Status = 404,
-            TraceId = HttpContext.TraceIdentifier
-        };
+        var res = CreateResult("NotFound", value, 404);
         Activity? at = Activity.Current;
         return base.NotFound(res);
     }
@@ -103,7 +66,7 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
         var res = CreateResult("Conflict", detail, 409);
 
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", detail));
+        _ = (at?.SetTag("responseError", detail));
         return base.Conflict(res);
     }
 
@@ -120,13 +83,11 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
         var res = CreateResult("Problem", detail, errorCode, arguments);
 
         Activity? at = Activity.Current;
-        _ = (at?.SetTag("responseBody", detail));
+        _ = (at?.SetTag("responseError", detail));
 
-        return new ObjectResult(res)
-        {
-            StatusCode = 500,
-        };
+        return new ObjectResult(res) { StatusCode = 500 };
     }
+
     /// <summary>
     /// 400返回格式处理
     /// </summary>
@@ -141,7 +102,12 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
     }
 
     [NonAction]
-    private ErrorResult CreateResult(string title, string? detail = null, int errorCode = 0, params object[] arguments)
+    private ErrorResult CreateResult(
+        string title,
+        string? detail = null,
+        int errorCode = 0,
+        params object[] arguments
+    )
     {
         var error = detail ?? string.Empty;
 
@@ -159,7 +125,7 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
             Title = title,
             Detail = error,
             Status = errorCode,
-            TraceId = HttpContext.TraceIdentifier
+            TraceId = HttpContext.TraceIdentifier,
         };
     }
 }

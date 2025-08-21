@@ -32,4 +32,5 @@ public class Modules
     /// 用户模块
     /// </summary>
     public const string User = "UserMod";
+    public const string Test = "TestMod";
 }

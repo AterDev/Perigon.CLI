@@ -1,85 +1,85 @@
 @page "/"
 @using System.Diagnostics
-@inject IDialogService DialogService
-@inject ProjectManager ProjectManager
+@inherits PageBase
+
 @inject SolutionManager SolutionManager
 
-<PageTitle>解决方案</PageTitle>
+<PageTitle>@Lang(Localizer.Solution)</PageTitle>
 
-<FluentStack HorizontalAlignment="HorizontalAlignment.Center" Orientation="Orientation.Vertical"
-             VerticalAlignment="VerticalAlignment.Center" Style="heigth: 100%;">
-    <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
-        <FluentButton Appearance="Appearance.Accent" OnClick="AddLocalProject">添加本地项目</FluentButton>
-        <a href="create-project">
-            <FluentButton Appearance="Appearance.Accent"
-                          IconStart="@(new Icons.Regular.Size24.AddSquare())" />
-        </a>
+<FluentStack Orientation="Orientation.Vertical">
+  <FluentToolbar Class="w-100">
+    <FluentButton Appearance="Appearance.Stealth"
+                  IconStart="@(new Icons.Regular.Size24.OpenFolder())"
+                  OnClick="AddLocalProject">
+      @Lang(Localizer.Load, Localizer.Project)
+    </FluentButton>
+    <FluentButton Appearance="Appearance.Stealth"
+                  IconStart="@(new Icons.Regular.Size24.Add())"
+                  onclick='()=>NavigationManager.NavigateTo("/create")'>
+      @Lang(Localizer.Create, Localizer.Solution)
+    </FluentButton>
+  </FluentToolbar>
+
+  @if (projects.Count == 0)
+  {
+    <FluentStack HorizontalAlignment="HorizontalAlignment.Center"
+                 Orientation="Orientation.Vertical">
+      <FluentLabel Typo="Typography.H6">
+        @Lang(Localizer.AddNewSolution)
+      </FluentLabel>
     </FluentStack>
-    @if (projects.Count == 0)
-    {
-        <FluentLabel Typo="Typography.H6">暂无任何项目，请添加已存在的本地项目或点击 + 创建新解决方案！</FluentLabel>
-    }
-    else
-    {
-        <FluentGrid AdaptiveRendering="true" Style="width: 100%;">
-            @foreach (var project in projects)
-            {
-                <FluentGridItem sm="12" md="6">
-                    <FluentCard Width="100%">
-                        <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
-                        <FluentLabel Typo="Typography.Body">@project.Name</FluentLabel>
-                        <FluentStack HorizontalAlignment="HorizontalAlignment.SpaceBetween" VerticalAlignment="VerticalAlignment.Center">
-                            <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
-                            <div>
-                                <FluentStack>
-                                    <FluentButton IconStart="@(new Icons.Filled.Size20.Delete().WithColor(Color.Error))" OnClick="() => DeleteProject(project)">删除项目</FluentButton>
-                                    <FluentButton Appearance="Appearance.Accent">进入工作台</FluentButton>
-                                </FluentStack>
-                            </div>
-                        </FluentStack>
-                    </FluentCard>
-                </FluentGridItem>
-            }
-        </FluentGrid>
-    }
+  }
+  else
+  {
+    <FluentStack Orientation="Orientation.Horizontal"
+                 HorizontalAlignment="HorizontalAlignment.Start"
+                 HorizontalGap="12"
+                 Wrap="true"
+                 Class="px-2"
+                 VerticalGap="8">
+      @foreach (var project in projects)
+      {
+        <FluentCard Style="min-width:300px;" Class="col">
+          <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center">
+              @if (project.SolutionType == SolutionType.DotNet)
+              {
+                <img src="assets/logo_net.svg" height="30" width="30">
+              }
+              @if (project.SolutionType == SolutionType.Node)
+              {
+                <img src="assets/nodejs.svg" height="30" width="30">
+              }
+              <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
+
+              <FluentButton Id="setting_btn"
+                            Title="@Lang(Localizer.Project, Localizer.Setting)"
+                            OnClick="()=>OpenConfigDialogAsync(project)"
+                            IconStart="@(new Icons.Regular.Size24.Settings())"
+                            Appearance="Appearance.Stealth">
+              </FluentButton>
+            </FluentStack>
+
+            <FluentLabel Typo="Typography.Subject" Color="Color.Accent">@project.Name</FluentLabel>
+            <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.End">
+
+              <FluentButton Class="delete-action"
+                            IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
+                            Appearance="Appearance.Stealth"
+                            OnClick="()=>DeleteProject(project)" />
+
+              <FluentButton Appearance="Appearance.Lightweight"
+                            OnClick='()=>ToSolution(project.Id)'>
+                @Lang(Localizer.Enter, Localizer.Workbench)
+              </FluentButton>
+            </FluentStack>
+          </FluentStack>
+        </FluentCard>
+      }
+    </FluentStack>
+  }
 </FluentStack>
-
-@code {
-    List<Project> projects = [];
-
-    private async Task AddLocalProject(MouseEventArgs arg)
-    {
-        DialogParameters parameters = new()
-        {
-            Title = "添加本地项目或解决方案",
-            PrimaryAction = "确定",
-            SecondaryAction = "取消",
-            Width = "400px",
-            Modal = false,
-            ShowDismiss = false,
-        };
-
-        var dto = new AddProjectDto();
-        var dialog = await DialogService.ShowDialogAsync<AddProjectDialog>(dto, parameters);
-
-        var result = await dialog.Result;
-        if (result.Cancelled) return;
-        Debug.Assert(dto.ProjectName is not null);
-        await ProjectManager.AddAsync(dto.ProjectName, dto.ProjectDirectory);
-        await OnInitializedAsync();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        projects = await ProjectManager.ListAsync();
-    }
-
-    private async Task DeleteProject(Project project)
-    {
-        var dialog = await DialogService.ShowConfirmationAsync($"是否确定删除项目【<strong>{project.Name}</strong>】？", primaryText: "确定", secondaryText: "取消", title: "删除项目");
-        var result = await dialog.Result;
-        if (result.Cancelled) return;
-        await ProjectManager.DeleteAsync([project.Id]);
-        await OnInitializedAsync();
-    }
-}

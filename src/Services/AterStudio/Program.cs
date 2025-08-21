@@ -1,9 +1,11 @@
+using Ater.Web.Convention.Abstraction;
 using AterStudio;
+using AterStudio.Components.Pages;
 using AterStudio.Worker;
-using Mapster;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Share.Helper;
 using Share.Services;
-
-TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -19,23 +21,40 @@ builder.AddBlazorServices();
 
 builder.Services.AddManagers();
 
-// services 
-builder.Services.AddScoped<IProjectContext, ProjectContext>();
+// services
+builder.Services.AddSingleton<IProjectContext, ProjectContext>();
 
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<SolutionService>();
+builder.Services.AddSingleton<StorageService>();
+
+builder.Services.AddSingleton<EntityTaskQueue<EventQueueModel<McpTool>>>();
 
 // add MCP Server
-builder.Services.AddMcpServer()
-    .WithHttpTransport()
-    .WithToolsFromAssembly();
+builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
+
+//builder.Services.AddHostedService<McpHandlerService>();
 
 WebApplication app = builder.Build();
 app.MapMcp("mcp");
 
 app.UseMiddlewareServices();
+
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+lifetime.ApplicationStarted.Register(() =>
+{
+    var server = app.Services.GetRequiredService<IServer>();
+    var addressesFeature = server.Features.Get<IServerAddressesFeature>();
+    foreach (var address in addressesFeature?.Addresses ?? [])
+    {
+        if (address.StartsWith("http://"))
+        {
+            OutputHelper.Success($"🤖 Mcp Server: {address}/mcp");
+        }
+    }
+});
 
 using (app)
 {
@@ -43,4 +62,3 @@ using (app)
     await InitDataTask.InitDataAsync(scope.ServiceProvider);
     app.Run();
 }
-

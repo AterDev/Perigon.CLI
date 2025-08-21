@@ -5,7 +5,7 @@ using Ater.Common.Utils;
 
 namespace Ater.Common.Utils;
 
-public static class StringExtension
+public static partial class StringExtension
 {
     /// <summary>
     /// to hyphen style: HelloWord->hello-word
@@ -73,7 +73,10 @@ public static class StringExtension
             _ = !char.IsLetterOrDigit(c) ? resultBuilder.Append(' ') : resultBuilder.Append(c);
         }
         var result = resultBuilder.ToString();
-        result = string.Join(string.Empty, result.Split(' ').Select(r => r.ToUpperFirst()).ToArray());
+        result = string.Join(
+            string.Empty,
+            result.Split(' ').Select(r => r.ToUpperFirst()).ToArray()
+        );
         return result;
     }
 
@@ -168,7 +171,10 @@ public static class StringExtension
             for (var j = 1; j <= targetWordCount; j++)
             {
                 var cost = targetSpan[j - 1] == sourceSpan[i - 1] ? 0 : 1;
-                distance[i, j] = Math.Min(Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1), distance[i - 1, j - 1] + cost);
+                distance[i, j] = Math.Min(
+                    Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1),
+                    distance[i - 1, j - 1] + cost
+                );
             }
         }
 
@@ -183,7 +189,8 @@ public static class StringExtension
     /// <returns></returns>
     public static double GetSimilar(this string source, string target)
     {
-        ReadOnlySpan<char> longerSpan, shorterSpan;
+        ReadOnlySpan<char> longerSpan,
+            shorterSpan;
         if (source.Length > target.Length)
         {
             longerSpan = source.AsSpan();
@@ -232,7 +239,7 @@ public static class StringExtension
     /// <returns></returns>
     public static bool IsEmail(this string str)
     {
-        return Regex.IsMatch(str, @"^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$");
+        return EmailRegx().IsMatch(str);
     }
 
     /// <summary>
@@ -260,7 +267,12 @@ public static class StringExtension
         return result.ToString();
     }
 
-    private static readonly string[] dateFormats = { "yyyy-MM-dd", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm:ssZ" };
+    private static readonly string[] dateFormats =
+    [
+        "yyyy-MM-dd",
+        "yyyy-MM-ddTHH:mm:ss",
+        "yyyy-MM-ddTHH:mm:ssZ",
+    ];
 
     /// <summary>
     /// 字符串转换为 DateTimeOffset UTC 时间
@@ -276,20 +288,44 @@ public static class StringExtension
 
         ReadOnlySpan<char> span = str.AsSpan();
 
-        if (DateTimeOffset.TryParseExact(span, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.AllowInnerWhite, out DateTimeOffset dt))
+        if (
+            DateTimeOffset.TryParseExact(
+                span,
+                dateFormats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AllowInnerWhite,
+                out DateTimeOffset dt
+            )
+        )
         {
             return dt.ToUniversalTime();
         }
         else if (span.Contains('/'))
         {
-            if (DateTimeOffset.TryParseExact(span, new[] { "MM/dd/yyyy HH:mm", "M/d/yyyy HH:mm", "M/dd/yyyy", "M/d/yy", "M/d/yy HH:mm" }, CultureInfo.InvariantCulture, DateTimeStyles.AllowInnerWhite, out dt))
+            if (
+                DateTimeOffset.TryParseExact(
+                    span,
+                    ["MM/dd/yyyy HH:mm", "M/d/yyyy HH:mm", "M/dd/yyyy", "M/d/yy", "M/d/yy HH:mm"],
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowInnerWhite,
+                    out dt
+                )
+            )
             {
                 return dt.ToUniversalTime();
             }
         }
         else if (span.Contains('.'))
         {
-            if (DateTimeOffset.TryParseExact(span, new[] { "yyyy.MM.dd" }, CultureInfo.InvariantCulture, DateTimeStyles.AllowInnerWhite, out dt))
+            if (
+                DateTimeOffset.TryParseExact(
+                    span,
+                    ["yyyy.MM.dd"],
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AllowInnerWhite,
+                    out dt
+                )
+            )
             {
                 return dt.ToUniversalTime();
             }
@@ -304,7 +340,11 @@ public static class StringExtension
     /// <returns></returns>
     public static string? FromBase64String(this string str)
     {
-        ReadOnlySpan<byte> span = Convert.TryFromBase64String(str, new Span<byte>(new byte[str.Length * 3 / 4]), out var bytesWritten)
+        ReadOnlySpan<byte> span = Convert.TryFromBase64String(
+            str,
+            new Span<byte>(new byte[str.Length * 3 / 4]),
+            out var bytesWritten
+        )
             ? new Span<byte>(new byte[str.Length * 3 / 4], 0, bytesWritten)
             : ReadOnlySpan<byte>.Empty;
 
@@ -361,4 +401,7 @@ public static class StringExtension
             _ => throw new FormatException($"Invalid operator: {operation}"),
         };
     }
+
+    [GeneratedRegex(@"^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$")]
+    private static partial Regex EmailRegx();
 }

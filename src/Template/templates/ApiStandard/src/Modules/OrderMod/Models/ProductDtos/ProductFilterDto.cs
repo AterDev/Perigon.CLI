@@ -1,11 +1,12 @@
-using Entity.OrderMod;
 using Ater.Common.Models;
+using Entity.OrderMod;
 
 namespace OrderMod.Models.ProductDtos;
+
 /// <summary>
 /// 产品查询筛选
 /// </summary>
-/// <see cref="Entity.OrderMod.Product"/>
+/// <see cref="Product"/>
 public class ProductFilterDto : FilterBase
 {
     /// <summary>

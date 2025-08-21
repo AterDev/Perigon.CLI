@@ -1,4 +1,5 @@
 namespace StudioMod.Models.ApiDocInfoDtos;
+
 /// <summary>
 /// 接口文档概要
 /// </summary>
@@ -10,16 +11,17 @@ public class ApiDocInfoShortDto
     /// </summary>
     [MaxLength(100)]
     public string Name { get; set; } = default!;
+
     /// <summary>
     /// 文档地址
     /// </summary>
     [MaxLength(300)]
     public string Path { get; set; } = default!;
+
     /// <summary>
     /// 生成路径
     /// </summary>
     [MaxLength(200)]
     public string? LocalPath { get; set; }
-    public Project Project { get; set; } = default!;
-
+    public Solution Project { get; set; } = default!;
 }

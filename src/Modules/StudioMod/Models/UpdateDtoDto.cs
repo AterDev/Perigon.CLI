@@ -1,7 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace StudioMod.Models;
-
 
 public class UpdateDtoDto
 {
@@ -12,5 +9,4 @@ public class UpdateDtoDto
     public required string FileName { get; set; }
 
     public required string Content { get; set; }
-
 }

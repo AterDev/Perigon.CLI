@@ -14,7 +14,8 @@ public class AdminControllerBase<TManager>(
     Localizer localizer,
     TManager manager,
     UserContext user,
-    ILogger logger) : RestControllerBase(localizer)
+    ILogger logger
+) : RestControllerBase(localizer)
     where TManager : class
 {
     protected readonly TManager _manager = manager;
@@ -33,14 +34,13 @@ public class ClientControllerBase<TManager>(
     TManager manager,
     UserContext user,
     ILogger logger
-        ) : RestControllerBase(localizer)
-     where TManager : class
+) : RestControllerBase(localizer)
+    where TManager : class
 {
     protected readonly TManager _manager = manager;
     protected readonly ILogger _logger = logger;
     protected readonly UserContext _user = user;
 }
-
 
 /// <summary>
 /// RestApi base
@@ -65,15 +65,13 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
             Title = "Forbidden",
             Detail = value?.ToString(),
             Status = 403,
-            TraceId = HttpContext.TraceIdentifier
+            TraceId = HttpContext.TraceIdentifier,
         };
         Activity? at = Activity.Current;
         _ = (at?.SetTag("responseBody", value));
-        return new ObjectResult(res)
-        {
-            StatusCode = 403
-        };
+        return new ObjectResult(res) { StatusCode = 403 };
     }
+
     /// <summary>
     /// 404返回格式处理
     /// </summary>
@@ -87,9 +85,8 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
             Title = "NotFound",
             Detail = value?.ToString(),
             Status = 404,
-            TraceId = HttpContext.TraceIdentifier
+            TraceId = HttpContext.TraceIdentifier,
         };
-        Activity? at = Activity.Current;
         return base.NotFound(res);
     }
 
@@ -122,11 +119,9 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
         Activity? at = Activity.Current;
         _ = (at?.SetTag("responseBody", detail));
 
-        return new ObjectResult(res)
-        {
-            StatusCode = 500,
-        };
+        return new ObjectResult(res) { StatusCode = 500 };
     }
+
     /// <summary>
     /// 400返回格式处理
     /// </summary>
@@ -141,7 +136,12 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
     }
 
     [NonAction]
-    private ErrorResult CreateResult(string title, string? detail = null, int errorCode = 0, params object[] arguments)
+    private ErrorResult CreateResult(
+        string title,
+        string? detail = null,
+        int errorCode = 0,
+        params object[] arguments
+    )
     {
         var error = detail ?? string.Empty;
 
@@ -159,7 +159,7 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
             Title = title,
             Detail = error,
             Status = errorCode,
-            TraceId = HttpContext.TraceIdentifier
+            TraceId = HttpContext.TraceIdentifier,
         };
     }
 }

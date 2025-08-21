@@ -7,9 +7,11 @@ param (
 $location = Get-Location
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 
+$dotnetVersion = "net9.0"
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
 $studioPath = Join-Path $location "../src/Services/AterStudio";
-$dotnetVersion = "net9.0"
+$shareDllsFile = Join-Path $commandLinePath "ShareDlls.txt"
+
 
 try {
     Set-Location $location
@@ -48,7 +50,7 @@ try {
     $xml.Save($studioProjectPath)
 
     # pack modules
-    # & "./PackTemplate.ps1"
+    # & "./PackModules.ps1"
 
     # build web project
     if ($withStudio -eq $true) {
@@ -59,78 +61,21 @@ try {
         
         dotnet publish -c release -o ./publish -p:GenerateDocumentationFile=false -p:DebugType=None
         # 移除部分 dll文件，减少体积
+        # 读取ShareDlls.txt，获取dll列表
+        if (Test-Path $shareDllsFile) {
+            $shareDlls = Get-Content -Path $shareDllsFile
+            foreach ($dll in $shareDlls) {
+                $dllPath = ".\publish\$dll"
+                if (Test-Path $dllPath) {
+                    Remove-Item -Path $dllPath -Force
+                }
+            }
+        }
         $pathsToRemove = @(
             ".\publish\BuildHost-net472",
             ".\publish\BuildHost-netcore",
             ".\publish\runtimes",
-
-            ".\publish\Ater.Common.dll"
-            ".\publish\Ater.Web.Convention.dll"
-            ".\publish\CodeGenerator.dll"
-            ".\publish\Entity.dll"
-            ".\publish\EntityFramework.dll"
-            ".\publish\Humanizer.dll"
-            ".\publish\Mapster.Core.dll"
-            ".\publish\Mapster.dll"
-            ".\publish\Microsoft.AspNetCore.Razor.Language.dll"
-            ".\publish\Microsoft.Build.dll"
-            ".\publish\Microsoft.Build.Framework.dll"
-            ".\publish\Microsoft.Build.Locator.dll"
-            ".\publish\Microsoft.Build.Tasks.Core.dll"
-            ".\publish\Microsoft.Build.Utilities.Core.dll"
-            ".\publish\Microsoft.CodeAnalysis.CSharp.dll"
-            ".\publish\Microsoft.CodeAnalysis.CSharp.Workspaces.dll"
-            ".\publish\Microsoft.CodeAnalysis.dll"
-            ".\publish\Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll"
-            ".\publish\Microsoft.CodeAnalysis.Workspaces.dll"
-            ".\publish\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll"
-            ".\publish\Microsoft.Data.Sqlite.dll"
-            ".\publish\Microsoft.EntityFrameworkCore.Abstractions.dll"
-            ".\publish\Microsoft.EntityFrameworkCore.dll"
-            ".\publish\Microsoft.EntityFrameworkCore.Relational.dll"
-            ".\publish\Microsoft.EntityFrameworkCore.Sqlite.dll"
-            ".\publish\Microsoft.Extensions.DependencyModel.dll"
-            ".\publish\Microsoft.IdentityModel.Abstractions.dll"
-            ".\publish\Microsoft.IdentityModel.JsonWebTokens.dll"
-            ".\publish\Microsoft.IdentityModel.Logging.dll"
-            ".\publish\Microsoft.IdentityModel.Tokens.dll"
-            ".\publish\Microsoft.NET.StringTools.dll"
-            ".\publish\Microsoft.OpenApi.dll"
-            ".\publish\Microsoft.OpenApi.Readers.dll"
-            ".\publish\Microsoft.VisualStudio.Setup.Configuration.Interop.dll"
-            ".\publish\Newtonsoft.Json.dll"
-            ".\publish\RazorEngineCore.dll"
-            ".\publish\Share.dll"
-            ".\publish\SharpYaml.dll"
-            ".\publish\Spectre.Console.dll"
-            ".\publish\SQLitePCLRaw.batteries_v2.dll"
-            ".\publish\SQLitePCLRaw.core.dll"
-            ".\publish\SQLitePCLRaw.provider.e_sqlite3.dll"
-            ".\publish\System.CodeDom.dll"
-            ".\publish\System.Composition.AttributedModel.dll"
-            ".\publish\System.Composition.Convention.dll"
-            ".\publish\System.Composition.Hosting.dll"
-            ".\publish\System.Composition.Runtime.dll"
-            ".\publish\System.Composition.TypedParts.dll"
-            ".\publish\System.Configuration.ConfigurationManager.dll"
-            ".\publish\System.IdentityModel.Tokens.Jwt.dll"
-            ".\publish\System.Reflection.MetadataLoadContext.dll"
-            ".\publish\System.Resources.Extensions.dll"
-            ".\publish\System.Security.Cryptography.ProtectedData.dll"
-            ".\publish\System.Security.Permissions.dll"
-            ".\publish\System.Windows.Extensions.dll"
-            ".\publish\Microsoft.IO.Redist.dll"
-            ".\publish\System.Buffers.dll"
-            ".\publish\System.Collections.Immutable.dll"
-            ".\publish\System.CommandLine.dll"
-            ".\publish\System.Memory.dll"
-            ".\publish\System.Numerics.Vectors.dll"
-            ".\publish\System.Runtime.CompilerServices.Unsafe.dll"
-            ".\publish\System.Threading.Tasks.Extensions.dll"
-            ".\publish\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll"
-            ".\publish\Share.resources.dll" 
-            ".\publish\AterStudio.exe",
-            ".\publish\openapi_admin.json"
+            ".\publish\AterStudio.exe"
         );
         foreach ($path in $pathsToRemove) {
             if (Test-Path $path) {
@@ -139,7 +84,7 @@ try {
         }
 
         # remove pdb and xml files
-        $files = Get-ChildItem -Path .\publish -Recurse -Include *.pdb, *.xml
+        $files = Get-ChildItem -Path .\publish -Recurse -Include *.pdb, *.xml, *.map
         foreach ($file in $files) {
             Remove-Item $file.FullName -Force
         }
@@ -148,6 +93,9 @@ try {
             Remove-Item $zipPath -Force
         }
         Compress-Archive -Path .\publish\*  -DestinationPath $zipPath -CompressionLevel Optimal -Force
+
+        # 删除发布目录
+        Remove-Item .\publish -R -Force
     }
 
     Set-Location $location
@@ -185,6 +133,10 @@ try {
 
     # 重新将文件压缩，不包含最外层目录
     Compress-Archive -Path "./nupkg/$Version/*" -DestinationPath "./nupkg/$newPackName" -CompressionLevel Optimal -Force
+
+    # 获取并输出文件大小
+    $fileSize = (Get-Item "./nupkg/$newPackName").Length
+    Write-Host "New package size: $([Math]::Round($fileSize / 1MB, 2)) MB"
 
     # 删除临时文件
     Remove-Item -Path "./nupkg/$Version" -Recurse -Force

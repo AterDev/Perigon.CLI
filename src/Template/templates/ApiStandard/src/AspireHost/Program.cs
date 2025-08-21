@@ -1,37 +1,62 @@
+using AspireHost;
+using Ater.Common;
+
 var builder = DistributedApplication.CreateBuilder(args);
+var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 
 #region containers
-var devPassword = builder.AddParameter("sql-password", value: "MyProjectName_DevSecret", secret: true);
+IResourceBuilder<IResourceWithConnectionString>? database = null;
+IResourceBuilder<IResourceWithConnectionString>? cache = null;
 
-var devDb = builder.AddPostgres(name: "db", password: devPassword, port: 15432)
-    .WithDataVolume()
-    .AddDatabase("MyProjectName");
+var devPassword = builder.AddParameter(
+    "sql-password",
+    value: aspireSetting.DbPassword,
+    secret: true
+);
+var cachePassword = builder.AddParameter(
+    "cache-password",
+    value: aspireSetting.CachePassword,
+    secret: true
+);
 
-// sql server
-//var devDb = builder.AddSqlServer(name: "db", password: sqlPassword, port: 1433)
-//    .WithDataVolume()
-//    .AddDatabase("MyProjectName");
+_ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
+{
+    "postgresql" => database = builder
+        .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
+        .WithDataVolume()
+        .AddDatabase(AppConst.Database, databaseName: "MyProjectName"),
+    "sqlserver" => database = builder
+        .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.DbPort)
+        .WithDataVolume()
+        .AddDatabase(AppConst.Database, databaseName: "MyProjectName"),
+    _ => null,
+};
 
-var cache = builder.AddRedis("cache", password: devPassword, port: 16379)
-    .WithDataVolume()
-    .WithPersistence(interval: TimeSpan.FromMinutes(5));
+_ = aspireSetting.CacheType?.ToLowerInvariant() switch
+{
+    "memory" => null,
+    _ => cache = builder
+        .AddRedis("Cache", password: cachePassword, port: aspireSetting.CachePort)
+        .WithDataVolume()
+        .WithPersistence(interval: TimeSpan.FromMinutes(5)),
+};
 #endregion
 
+var migration = builder.AddProject<Projects.MigrationService>("migrationservice");
+var httpApi = builder.AddProject<Projects.ApiService>("apiservice");
+var adminService = builder.AddProject<Projects.AdminService>("adminservice");
 
-builder.AddProject<Projects.Http_API>("http-api")
-    .WithExternalHttpEndpoints()
-    .WithReference(devDb)
-    .WaitFor(devDb)
-    .WithReference(cache)
-    .WaitFor(cache);
-
-//builder.AddProject<Projects.IdentityServer>("identityserver")
-//    .WaitFor(devDb)
-//    .WithReference(devDb);
-
-builder.AddProject<Projects.MigrationService>("migrationservice")
-    .WaitFor(devDb)
-    .WithReference(devDb);
+if (database != null)
+{
+    migration.WithReference(database).WaitFor(database);
+    httpApi.WithReference(database).WaitFor(migration);
+    adminService.WithReference(database).WaitFor(migration);
+}
+if (cache != null)
+{
+    migration.WithReference(cache).WaitFor(cache);
+    httpApi.WithReference(cache).WaitFor(migration);
+    adminService.WithReference(cache).WaitFor(migration);
+}
 
 builder.Build().Run();
-

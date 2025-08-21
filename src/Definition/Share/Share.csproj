@@ -1,28 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <SatelliteResourceLanguages>None</SatelliteResourceLanguages>
-        <NoWarn>1701;1702;1591</NoWarn>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Remove="Managers\**" />
-        <Compile Remove="Models\ToolsDtos\**" />
-        <EmbeddedResource Remove="Managers\**" />
-        <EmbeddedResource Remove="Models\ToolsDtos\**" />
-        <None Remove="Managers\**" />
-        <None Remove="Models\ToolsDtos\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Spectre.Console" Version="0.50.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
-        <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <SatelliteResourceLanguages>None</SatelliteResourceLanguages>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Managers\**" />
+    <Compile Remove="Models\ToolsDtos\**" />
+    <EmbeddedResource Remove="Managers\**" />
+    <EmbeddedResource Remove="Models\ToolsDtos\**" />
+    <None Remove="Managers\**" />
+    <None Remove="Models\ToolsDtos\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Spectre.Console" Version="0.50.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
+    <PackageReference Include="Ater.Web.SourceGeneration" Version="1.0.0-beta6" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
+    <ProjectReference Include="..\EntityFramework\EfCoreContext.csproj" />
+  </ItemGroup>
 </Project>

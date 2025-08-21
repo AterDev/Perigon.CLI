@@ -15,7 +15,8 @@ public class CodeTools(
     EntityInfoManager manager,
     SolutionService solutionService,
     CodeGenService codeGenService,
-    IProjectContext projectContext)
+    IProjectContext projectContext
+)
 {
     [McpServerTool, Description("创建实体模型类")]
     public string? NewEntity([Description("用户输入的提示词内容")] string prompt)
@@ -27,7 +28,7 @@ public class CodeTools(
             {prompt}
             </prompt>
 
-            {message.ToString()}
+            {message}
             """;
 
         //logger.LogInformation(res);
@@ -35,25 +36,37 @@ public class CodeTools(
     }
 
     [McpServerTool, Description("根据实体模型生成Dto")]
-    public async Task<string?> GenerateDtoAsync(IMcpServer server, [Description("实体模型文件的绝对路径")] string entityPath)
+    public async Task<string?> GenerateDtoAsync(
+        IMcpServer server,
+        [Description("实体模型文件的绝对路径")] string entityPath
+    )
     {
         return await GenerateAsync(server, entityPath, CommandType.Dto);
     }
 
     [McpServerTool, Description("根据实体模型生成Manager")]
-    public async Task<string?> GenerateManagerAsync([Description("实体模型文件的绝对路径")] string entityPath, IMcpServer server)
+    public async Task<string?> GenerateManagerAsync(
+        [Description("实体模型文件的绝对路径")] string entityPath,
+        IMcpServer server
+    )
     {
         return await GenerateAsync(server, entityPath, CommandType.Manager);
     }
 
     [McpServerTool, Description("根据实体模型生成Controller/API接口")]
-    public async Task<string?> GenerateControllerAsync([Description("实体模型文件的绝对路径")] string entityPath, IMcpServer server)
+    public async Task<string?> GenerateControllerAsync(
+        [Description("实体模型文件的绝对路径")] string entityPath,
+        IMcpServer server
+    )
     {
         return await GenerateAsync(server, entityPath, CommandType.API);
     }
 
     [McpServerTool, Description("创建或添加新的模块")]
-    public async Task<string> CreateModuleAsync([Description("模块名称")] string moduleName, IMcpServer server)
+    public async Task<string> CreateModuleAsync(
+        [Description("模块名称")] string moduleName,
+        IMcpServer server
+    )
     {
         try
         {
@@ -74,24 +87,29 @@ public class CodeTools(
     public async Task<string?> GenerateServiceAsync(
         [Description("openapi的url地址或本地路径")] string openApiPath,
         [Description("代码生成的输出路径")] string outputPath,
-        [Description("前端请求类型,NgHttp或Axios")] RequestLibType clientType)
+        [Description("前端请求类型,NgHttp或Axios")] RequestClientType clientType
+    )
     {
-
         try
         {
-            var genFiles = await codeGenService.GenerateWebRequestAsync(openApiPath, outputPath, clientType);
-
-            codeGenService.GenerateFiles(genFiles);
-
-
-            var resDes = new StringBuilder();
-            resDes.AppendLine("生成的文件如下:");
-            foreach (var file in genFiles)
+            var genFiles = await codeGenService.GenerateWebRequestAsync(
+                openApiPath,
+                outputPath,
+                clientType
+            );
+            if (genFiles != null)
             {
-                resDes.AppendLine(file.FullName);
+                codeGenService.GenerateFiles(genFiles);
+                var resDes = new StringBuilder();
+                resDes.AppendLine("生成的文件如下:");
+                foreach (var file in genFiles)
+                {
+                    resDes.AppendLine(file.FullName);
+                }
+                resDes.AppendLine("");
+                return resDes.ToString();
             }
-            resDes.AppendLine("");
-            return resDes.ToString();
+            return "No validate files generated!";
         }
         catch (Exception ex)
         {
@@ -129,7 +147,9 @@ public class CodeTools(
             {
                 resDes.AppendLine("生成后的操作：");
                 resDes.AppendLine("<prompt>");
-                resDes.AppendLine($"检查src/Modules目录下是否包含{manager.ModuleName}/{manager.ModuleName}.csproj 程序集，如果不包含 则调用 添加新模块工具");
+                resDes.AppendLine(
+                    $"检查src/Modules目录下是否包含{manager.ModuleName}/{manager.ModuleName}.csproj 程序集，如果不包含 则调用 添加新模块工具"
+                );
                 resDes.AppendLine("</prompt>");
             }
             return resDes.ToString();
@@ -143,13 +163,12 @@ public class CodeTools(
 
     private async Task SetProjectContextAsync(IMcpServer server)
     {
-        var roots = await server.RequestRootsAsync(new ModelContextProtocol.Protocol.ListRootsRequestParams
-        {
-            Meta = new ModelContextProtocol.Protocol.RequestParamsMetadata
+        var roots = await server.RequestRootsAsync(
+            new ModelContextProtocol.Protocol.ListRootsRequestParams
             {
-                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools")
+                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools"),
             }
-        });
+        );
 
         var uri = roots.Roots.FirstOrDefault()?.Uri;
         if (string.IsNullOrEmpty(uri))

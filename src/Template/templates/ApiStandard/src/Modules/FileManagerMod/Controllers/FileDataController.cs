@@ -1,19 +1,21 @@
-using Ater.Common.Models;
 using FileManagerMod.Models.FileDataDtos;
-using Share.Implement;
-namespace FileManagerMod.Controllers;
+using Microsoft.AspNetCore.Http;
+
+namespace FileManagerMod.Controllers.AdminControllers;
 
 /// <summary>
 /// 文件数据
 /// </summary>
-/// <see cref="Managers.FileDataManager"/>
+/// <see cref="FileDataManager"/>
 public class FileDataController(
     Localizer localizer,
     UserContext user,
     ILogger<FileDataController> logger,
-    FileDataManager manager
-        ) : ClientControllerBase<FileDataManager>(localizer, manager, user, logger)
+    FileDataManager manager,
+    FolderManager folderManager
+) : RestControllerBase<FileDataManager>(localizer, manager, user, logger)
 {
+    private readonly FolderManager _folderManager = folderManager;
 
     /// <summary>
     /// 筛选 ✅
@@ -27,21 +29,38 @@ public class FileDataController(
     }
 
     /// <summary>
-    /// 更新 ✅
+    /// 上传 ✅
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="dto"></param>
     /// <returns></returns>
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, FileDataUpdateDto dto)
+    [HttpPost]
+    public async Task<ActionResult<int>> AddAsync(Guid? folderId, List<IFormFile> files)
     {
-        FileData? current = await _manager.GetCurrentAsync(id);
-        if (current == null)
+        Folder? folder = null;
+        if (folderId != null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            folder = await _folderManager.GetCurrentAsync(folderId.Value);
+            if (folder == null)
+            {
+                return NotFound("错误的目录");
+            }
         }
-        ;
-        return await _manager.UpdateAsync(current, dto);
+        List<FileData> data = await _manager.CreateNewEntityAsync(files, folder);
+        return await _manager.AddFilesAsync(data);
+    }
+
+    /// <summary>
+    /// 上传文件
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    [RequestSizeLimit(1024 * 500)]
+    [HttpPost("upload")]
+    public async Task<ActionResult<string>> UploadAsync(string path, IFormFile file)
+    {
+        var extension = Path.GetExtension(file.FileName);
+        FileData fileData = await _manager.AddFileAsync(file.OpenReadStream(), path, file.FileName);
+        return fileData != null ? fileData.Md5 : Problem("上传失败");
     }
 
     /// <summary>
@@ -49,7 +68,7 @@ public class FileDataController(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<FileDataDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.FindAsync<FileDataDetailDto>(d => d.Id == id);
@@ -57,38 +76,21 @@ public class FileDataController(
     }
 
     /// <summary>
-    /// 文件内容 ✅
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="md5"></param>
-    /// <returns></returns>
-    [HttpGet("content")]
-    [AllowAnonymous]
-    public async Task<ActionResult<string>> GetContentAsync(string path, string md5)
-    {
-        FileData? res = await _manager.GetByMd5Async(path, md5);
-        if (res == null)
-        {
-            return NoContent();
-        }
-
-        var contentType = "application/octet-stream;charset=utf-8";
-        string encodedFileName = System.Web.HttpUtility.UrlEncode(res.FileName, System.Text.Encoding.UTF8);
-        Response.Headers.Append(new KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues>("Content-Disposition", $"attachment; filename={encodedFileName}"));
-        return new FileContentResult(res.Content, contentType);
-    }
-
-    /// <summary>
-    /// 删除 ✅
+    /// ⚠删除 ✅
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     // [ApiExplorerSettings(IgnoreApi = true)]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        FileData? entity = await _manager.GetCurrentAsync(id);
+        var entity = await _manager.GetCurrentAsync(id);
+        if (entity == null)
+        {
+            return NotFound();
+        }
+        ;
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

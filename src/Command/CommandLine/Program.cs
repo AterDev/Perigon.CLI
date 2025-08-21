@@ -1,12 +1,13 @@
+using System.Globalization;
+using System.Text;
 using CommandLine;
 using CommandLine.Commands;
+using Entity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Helper;
 using Share.Services;
-using System.Globalization;
-using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -18,7 +19,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
 builder.Services.AddScoped<Localizer>();
 
-builder.AddFrameworkServices();
+builder.AddDbContext();
 
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
@@ -28,6 +29,8 @@ builder.Services.AddScoped<NewCommand>();
 builder.Services.AddScoped<StudioCommand>();
 builder.Services.AddScoped<AddCommand>();
 
+builder.Services.AddMemoryCache();
+
 var host = builder.Build();
 
 var registrar = new DITypeRegistrar(host.Services);
@@ -36,37 +39,57 @@ var app = new CommandApp(registrar);
 var localizer = host.Services.GetRequiredService<Localizer>();
 app.Configure(config =>
 {
-
 #if DEBUG
     config.PropagateExceptions();
     config.ValidateExamples();
 #endif
-    config.SetApplicationName("ater");
-    config.SetApplicationVersion("10.0.0");
+    config.SetApplicationName(ConstVal.CommandName);
+    config.SetApplicationVersion(ConstVal.Version);
     config.SetApplicationCulture(systemCulture);
 
-    config.AddCommand<NewCommand>(SubCommand.New)
-        .WithDescription(localizer.Get(TipConst.NewDes))
+    config
+        .AddCommand<NewCommand>(SubCommand.New)
+        .WithDescription(localizer.Get(Localizer.NewDes))
         .WithExample(["new", "name"]);
 
-    config.AddCommand<StudioCommand>(SubCommand.Studio)
-        .WithDescription(localizer.Get(TipConst.StudioDes));
+    ConfiguratorExtensions.AddBranch(
+        config,
+        SubCommand.Studio,
+        studio =>
+        {
+            studio.SetDescription(localizer.Get(Localizer.StudioDes));
+            studio.SetDefaultCommand<StudioCommand>();
+            studio
+                .AddCommand<StudioUpdateCommand>(SubCommand.Update)
+                .WithDescription(Localizer.UpdateStudioDes);
+        }
+    );
 
-    config.AddBranch(SubCommand.Generate, config =>
-    {
-        config.SetDescription(localizer.Get(TipConst.GenerateDes));
+    ConfiguratorExtensions
+        .AddBranch(
+            config,
+            SubCommand.Generate,
+            config =>
+            {
+                config.SetDescription(localizer.Get(Localizer.GenerateDes));
 
-        config.AddCommand<RequestCommand>(SubCommand.Request)
-            .WithDescription(localizer.Get(TipConst.RequestDes))
-            .WithExample(["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]);
+                config
+                    .AddCommand<RequestCommand>(SubCommand.Request)
+                    .WithDescription(localizer.Get(Localizer.RequestDes))
+                    .WithExample(
+                        ["generate", "request", "./openapi.json", "./src/services", "-t", "angular"]
+                    );
+            }
+        )
+        .WithAlias("g");
 
-    }).WithAlias("g");
-
-    config.SetExceptionHandler((ex, resolver) =>
-    {
-        AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
-        return -1;
-    });
+    config.SetExceptionHandler(
+        (ex, resolver) =>
+        {
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            return -1;
+        }
+    );
 });
 
 return app.Run(args);

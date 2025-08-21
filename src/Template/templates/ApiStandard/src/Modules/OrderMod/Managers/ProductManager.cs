@@ -1,19 +1,14 @@
+using EntityFramework.DBProvider;
 using OrderMod.Models.ProductDtos;
-using Share;
-using Share.Implement;
 
 namespace OrderMod.Managers;
+
 /// <summary>
 /// 产品
 /// </summary>
-public class ProductManager(
-    DataAccessContext<Product> dataContext,
-    ILogger<ProductManager> logger,
-    UserContext userContext
-        ) : ManagerBase<Product>(dataContext, logger)
+public class ProductManager(DefaultDbContext dbContext, ILogger<ProductManager> logger)
+    : ManagerBase<DefaultDbContext, Product>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -37,10 +32,7 @@ public class ProductManager(
             .WhereNotNull(filter.ProductType, q => q.ProductType == filter.ProductType)
             .WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!));
 
-        filter.OrderBy = new Dictionary<string, bool>
-        {
-            ["Sort"] = true
-        };
+        filter.OrderBy = new Dictionary<string, bool> { ["Sort"] = true };
 
         return await ToPageAsync<ProductFilterDto, ProductItemDto>(filter);
     }
@@ -49,8 +41,9 @@ public class ProductManager(
     /// 购买商品
     /// </summary>
     /// <param name="productId"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Order?> BuyProductAsync(Guid productId)
+    public async Task<Order?> BuyProductAsync(Guid productId, Guid userId)
     {
         // 查询产品
         Product? product = await FindAsync(productId);
@@ -65,7 +58,7 @@ public class ProductManager(
         {
             ProductName = product.Name,
             ProductId = product.Id,
-            UserId = _userContext.UserId,
+            UserId = userId,
             OriginPrice = product.OriginPrice,
             TotalPrice = product.Price,
             Status = OrderStatus.Paid,
@@ -82,10 +75,8 @@ public class ProductManager(
     /// <returns></returns>
     public async Task<Product?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Product> query = Command.Where(q => q.Id == id);
+        IQueryable<Product> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
     }
-
 }

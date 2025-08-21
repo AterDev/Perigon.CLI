@@ -1,0 +1,162 @@
+@using CodeGenerator.Helper
+@using Entity
+@using StudioMod.Models.GenStepDtos
+@inherits PageBase
+@implements IDialogContentComponent<GenStepItemDto?>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">
+    @(IsEdit? Lang(Localizer.Edit, Localizer.Step) : Lang(Localizer.Add, Localizer.Step))
+  </FluentLabel>
+</FluentDialogHeader>
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+
+      <FluentStack Orientation="Orientation.Vertical"
+                   VerticalGap="2">
+        <FluentTextField @bind-Value="Model.Name"
+                         Label="@Lang(Localizer.Step, Localizer.Name)"
+                         Placeholder="@Lang(Localizer.Step, Localizer.Name)"
+                         Class="w-100"
+                         Required
+                         Maxlength="100" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical"
+                   VerticalGap="2">
+        <FluentAutocomplete TOption="DataFile"
+                            Class="w-100"
+                            Required
+                            AutoComplete="off"
+                            Autofocus="true"
+                            Label="Select a template"
+                            Multiple="false"
+                            Placeholder="Select a template"
+                            MaxAutoHeight="260px"
+                            OnOptionsSearch="@OnSearch"
+                            OptionText="@(item => item.Name)"
+                            OptionValue="@(item => item.FullPath)"
+                            @bind-SelectedOption="@SelectedTemplate" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical"
+                   VerticalGap="2">
+        <FluentTextField @bind-Value="Model.OutputPath"
+                         Label="@Lang(Localizer.OutputPath)"
+                         Placeholder="@Lang(Localizer.OutputPath)"
+                         Class="w-100"
+                         Maxlength="400" />
+        <FluentLabel Typo="Typography.Body"
+                     Color="Color.Neutral"
+                     Class="mt-1">
+          Support @Lang(Localizer.Variable): <span>@@{ModelName} or @@{ModelNameHyphen}</span>
+        </FluentLabel>
+      </FluentStack>
+
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                OnClick="SaveAsync">
+    @Lang(Localizer.Confirm)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+  [CascadingParameter] FluentDialog Dialog { get; set; } = null!;
+  [Parameter]
+  public GenStepItemDto? Content { get; set; }
+  bool IsEdit => Content != null;
+
+  [Inject]
+  GenActionManager GenActionManager { get; set; } = null!;
+
+  [Inject]
+  GenStepManager GenStepManager { get; set; } = null!;
+
+  LocalFileHelper FileHelper { get; set; } = null!;
+
+  EditContext? editContext;
+
+  GenStep Model { get; set; } = new() { Name = string.Empty, OutputPath = "src/" };
+
+  List<DataFile> Templates { get; set; } = [];
+
+  DataFile? SelectedTemplate { get; set; }
+
+  protected override void OnInitialized()
+  {
+    FileHelper = new LocalFileHelper(Path.Combine(ProjectContext.SolutionPath!, ConstVal.TemplateDir));
+    Templates = FileHelper.GetFiles();
+
+    if (Content != null)
+    {
+      Model.Id = Content.Id;
+      Model.Name = Content.Name;
+      Model.OutputPath = Content.OutputPath;
+      Model.TemplatePath = Content.TemplatePath;
+      SelectedTemplate = Templates.FirstOrDefault(i => i.FullPath == Content.TemplatePath);
+    }
+    editContext = new EditContext(Model);
+  }
+
+  private void OnSearch(OptionsSearchEventArgs<DataFile> e)
+  {
+    e.Items = Templates.Where(i => i.FullPath.Contains(e.Text, StringComparison.OrdinalIgnoreCase))
+                          .OrderBy(i => i.Name);
+  }
+
+  private async Task SaveAsync()
+  {
+    if (!editContext!.Validate())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+    Model.ProjectId = ProjectContext.SolutionId!.Value;
+    Model.FileType = Path.GetExtension(Model.OutputPath);
+    Model.TemplatePath = SelectedTemplate?.FullPath ?? Model.TemplatePath;
+
+    if (IsEdit)
+    {
+      var step = await GenStepManager.GetCurrentAsync(Model.Id);
+      if (step == null)
+      {
+        ToastService.ShowError(Localizer.Get(Localizer.NotFoundWithName, Model.Id.ToString()));
+        return;
+      }
+      step.Merge(Model);
+      var res = await GenStepManager.UpdateAsync(step);
+      if (res)
+      {
+        await Dialog.CloseAsync(Model);
+      }
+      else
+      {
+        ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
+      }
+    }
+    else
+    {
+      var res = await GenStepManager.AddAsync(Model);
+      if (res)
+      {
+        await Dialog.CloseAsync(Model);
+      }
+      else
+      {
+        ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
+      }
+    }
+  }
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

@@ -1,4 +1,5 @@
 namespace StudioMod.Models.GenActionDtos;
+
 /// <summary>
 /// 生成操作列表元素
 /// </summary>
@@ -18,19 +19,22 @@ public class GenActionItemDto
     /// 实体路径
     /// </summary>
     public string? EntityPath { get; set; }
+
     /// <summary>
     /// open api path
     /// </summary>
     public string? OpenApiPath { get; set; }
+
     /// <summary>
     /// source type
     /// </summary>
-    public GenSourceType? SourceType { get; set; }
+    public GenSourceType SourceType { get; set; }
+
     /// <summary>
     /// 操作状态
     /// </summary>
     public ActionStatus ActionStatus { get; set; } = ActionStatus.NotStarted;
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
     public DateTimeOffset CreatedTime { get; set; }
     public List<Variable> Variables { get; set; } = [];
 }

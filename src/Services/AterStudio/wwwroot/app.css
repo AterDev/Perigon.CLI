@@ -1,7 +1,7 @@
-﻿@import '_content/Microsoft.FluentUI.AspNetCore.Components/css/reboot.css';
+
+@import '_content/Microsoft.FluentUI.AspNetCore.Components/css/reboot.css';
 
 body {
-    --body-font: "Segoe UI Variable", "Segoe UI", sans-serif;
     margin: 0;
     padding: 0;
     height: 100vh;
@@ -10,61 +10,125 @@ body {
     line-height: var(--type-ramp-base-line-height);
     font-weight: var(--font-weight);
     color: var(--neutral-foreground-rest);
-    background: var(--neutral-fill-layer-rest);
+    background: var(--neutral-layer-1);
 }
 
-.navmenu-icon {
-    display: none;
+.bg-1 {
+    background: var(--neutral-layer-1);
 }
 
-.main {
-    min-height: calc(100dvh - 86px);
-    color: var(--neutral-foreground-rest);
-    align-items: stretch !important;
+.bg-2 {
+    background: var(--neutral-layer-2);
 }
 
-.body-content {
-    align-self: stretch;
-    height: calc(100dvh - 86px) !important;
-    display: flex;
+.bg-3 {
+    background: var(--neutral-layer-3);
 }
 
-.content {
-    padding: 0.5rem 1.5rem;
-    align-self: stretch !important;
-    width: 100%;
+.bg-neutral {
+    background: var(--neutral-background-rest);
 }
 
-.manage {
-    width: 100dvw;
+.bg-bottom-1 {
+    border-bottom: 1px solid var(--neutral-layer-1);
 }
 
-footer {
-    background: var(--neutral-layer-4);
-    color: var(--neutral-foreground-rest);
-    align-items: center;
-    padding: 10px 10px;
+.bg-bottom-2 {
+    border-bottom: 1px solid var(--neutral-layer-2);
 }
 
-    footer a {
-        color: var(--neutral-foreground-rest);
-        text-decoration: none;
-    }
-
-        footer a:focus {
-            outline: 1px dashed;
-            outline-offset: 3px;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-.alert {
-    border: 1px dashed var(--accent-fill-rest);
-    padding: 5px;
+.bg-bottom-3 {
+    border-bottom: 1px solid var(--neutral-layer-3);
 }
 
+.cursor {
+    cursor: pointer;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+.w-240 {
+    width: 240px !important;
+}
+
+.w-480 {
+    width: 480px !important;
+}
+
+.w-600 {
+    width: 600px !important;
+}
+
+.h-100 {
+    height: 100% !important;
+}
+
+.vh-100 {
+    height: 100vh !important;
+}
+
+.vh-75 {
+    height: 75vh !important;
+}
+
+.vh-50 {
+    height: 50vh !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.gap-3 {
+    gap: 0.75rem !important;
+}
+
+
+.fluent-nav-link .positioning-region {
+    min-height: 40px !important;
+}
+
+.list .fluent-nav-item {
+    margin: 0 !important;
+}
+
+.list .positioning-region .fluent-nav-link {
+    min-height: 40px !important;
+}
+
+.list .fluent-nav-item.selected .positioning-region {
+    background: var(--neutral-layer-2) !important;
+}
+
+.list .fluent-nav-group .content-region {
+    margin-left: -4px !important;
+}
+
+.list .fluent-nav-text {
+    margin-left: 4px !important;
+    width: 98% !important;
+}
+
+.fluent-nav-icon {
+    min-width: 0 !important;
+}
+
+#my-diff-editor {
+    height: 600px;
+}
+
+.nav-menu-side {
+    height: calc(100vh - 104px);
+    overflow-y: auto;
+}
+
+.footer {
+    height: 48px;
+    padding: 0 8px;
+    background: var(--neutral-layer-card-container);
+}
 
 #blazor-error-ui {
     background: lightyellow;
@@ -77,6 +141,7 @@ footer {
     width: 100%;
     z-index: 1000;
     margin: 20px 0;
+    color: red;
 }
 
     #blazor-error-ui .dismiss {
@@ -96,101 +161,51 @@ footer {
         content: "An error has occurred. "
     }
 
-.loading-progress {
-    position: relative;
-    display: block;
-    width: 8rem;
-    height: 8rem;
-    margin: 20vh auto 1rem auto;
+
+fluent-card:hover .delete-action {
+    display: inline-flex;
 }
 
-    .loading-progress circle {
-        fill: none;
-        stroke: #e0e0e0;
-        stroke-width: 0.6rem;
-        transform-origin: 50% 50%;
-        transform: rotate(-90deg);
-    }
-
-        .loading-progress circle:last-child {
-            stroke: #1b6ec2;
-            stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
-            transition: stroke-dasharray 0.05s ease-in-out;
-        }
-
-.loading-progress-text {
-    position: absolute;
-    text-align: center;
-    font-weight: bold;
-    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+.delete-action {
+    display: none;
 }
 
-    .loading-progress-text:after {
-        content: var(--blazor-load-percentage-text, "Loading");
-    }
 
-code {
-    color: #c02d76;
+.fluent-messagebar-notification-content {
+    word-break: break-word;
 }
 
-@media (max-width: 600px) {
-    .header-gutters {
-        margin: 0.5rem 3rem 0.5rem 1.5rem !important;
+.upsert-file-dialog {
+    min-width: 600px;
+    min-height: 400px;
+    height: auto;
+    width: auto;
+}
+
+.help table {
+    border-collapse: collapse;
+    margin: 0;
+}
+
+    .help table th {
+        text-align: left;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 24px;
+        border: 1px solid gray;
+        padding-left: 8px;
     }
 
-    [dir="rtl"] .header-gutters {
-        margin: 0.5rem 1.5rem 0.5rem 3rem !important;
+    .help table td {
+        margin: 0;
+        padding-left: 8px;
+        text-align: left;
+        font-size: 14px;
+        line-height: 24px;
+        border: 1px solid gray;
     }
 
-    .main {
-        flex-direction: column !important;
-        row-gap: 0 !important;
-    }
 
-    nav.sitenav {
-        width: 100%;
-        height: 100%;
-    }
-
-    #main-menu {
-        width: 100% !important;
-    }
-
-        #main-menu > div:first-child:is(.expander) {
-            display: none;
-        }
-
-    .navmenu {
-        width: 100%;
-    }
-
-    #navmenu-toggle {
-        appearance: none;
-    }
-
-        #navmenu-toggle ~ nav {
-            display: none;
-        }
-
-        #navmenu-toggle:checked ~ nav {
-            display: block;
-        }
-
-    .navmenu-icon {
-        cursor: pointer;
-        z-index: 10;
-        display: block;
-        position: absolute;
-        top: 15px;
-        left: unset;
-        right: 20px;
-        width: 20px;
-        height: 20px;
-        border: none;
-    }
-
-    [dir="rtl"] .navmenu-icon {
-        left: 20px;
-        right: unset;
-    }
+.fluent-data-grid-row .multiline-text {
+    align-content: center !important;
 }

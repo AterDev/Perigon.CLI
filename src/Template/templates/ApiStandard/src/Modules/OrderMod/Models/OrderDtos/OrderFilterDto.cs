@@ -1,15 +1,16 @@
-using Entity.OrderMod;
 using Ater.Common.Models;
+using Entity.OrderMod;
 
 namespace OrderMod.Models.OrderDtos;
+
 /// <summary>
 /// 订单查询筛选
 /// </summary>
-/// <see cref="Entity.OrderMod.Order"/>
+/// <see cref="Order"/>
 public class OrderFilterDto : FilterBase
 {
     /// <summary>
-    /// 订单编号 
+    /// 订单编号
     /// </summary>
     [MaxLength(30)]
     public string? OrderNumber { get; set; }

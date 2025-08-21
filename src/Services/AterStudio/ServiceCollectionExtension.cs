@@ -1,8 +1,4 @@
-﻿using AterStudio.Components;
-using Microsoft.FluentUI.AspNetCore.Components;
-using System.Text.Encodings.Web;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
+using AterStudio.Components;
 
 namespace AterStudio;
 
@@ -16,43 +12,16 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddMiddlewareServices(this WebApplicationBuilder builder)
     {
         builder.Services.ConfigureWebMiddleware(builder.Configuration);
-
-        builder.Services.AddControllers()
-            .ConfigureApiBehaviorOptions(o =>
-            {
-                o.InvalidModelStateResponseFactory = context =>
-                {
-                    return new CustomBadRequest(context, null);
-                };
-            }).AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-                options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-                options.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-            });
         return builder.Services;
     }
 
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
-        // 异常统一处理
-        app.UseExceptionHandler(ExceptionHandler.Handler());
-        app.UseCors(WebConst.Default);
-        app.MapOpenApi();
-
         app.UseStaticFiles();
-        app.UseRouting();
-        app.UseAuthentication();
-        app.UseAuthorization();
-
         app.UseAntiforgery();
         app.MapStaticAssets();
-        app.MapControllers();
-        app.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode();
+        app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
-        app.MapFallbackToFile("index.html");
         return app;
     }
 
@@ -62,14 +31,12 @@ public static class ServiceCollectionExtension
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureWebMiddleware(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureWebMiddleware(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
-        services.AddOpenApi("admin", options =>
-        {
-            options.AddSchemaTransformer<EnumOpenApiTransformer>();
-        });
         services.AddLocalizer();
-
         return services;
     }
 
@@ -84,7 +51,8 @@ public static class ServiceCollectionExtension
         services.AddRequestLocalization(options =>
         {
             var supportedCultures = new[] { "zh-CN", "en-US" };
-            options.SetDefaultCulture(supportedCultures[0])
+            options
+                .SetDefaultCulture(supportedCultures[0])
                 .AddSupportedCultures(supportedCultures)
                 .AddSupportedUICultures(supportedCultures);
             options.FallBackToParentCultures = true;
@@ -103,7 +71,12 @@ public static class ServiceCollectionExtension
     /// <returns></returns>
     public static IServiceCollection AddBlazorServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+        builder
+            .Services.AddRazorComponents(options =>
+            {
+                options.DetailedErrors = true;
+            })
+            .AddInteractiveServerComponents();
         builder.Services.AddFluentUIComponents();
         return builder.Services;
     }

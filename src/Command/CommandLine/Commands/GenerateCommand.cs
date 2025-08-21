@@ -25,6 +25,7 @@ public class RequestCommand : AsyncCommand<RequestSettings>
         }
     }
 }
+
 public sealed class RequestSettings : CommandSettings
 {
     [CommandArgument(0, "<path|url>")]
@@ -40,9 +41,10 @@ public sealed class RequestSettings : CommandSettings
     [Description("support types: axios, csharp, angular, default: axios")]
     public string Type { get; set; } = "axios";
 }
+
 public enum RequestType
 {
     Axios,
     Csharp,
-    Angular
+    Angular,
 }

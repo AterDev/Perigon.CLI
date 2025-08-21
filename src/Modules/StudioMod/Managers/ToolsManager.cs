@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Net;
 
 namespace StudioMod.Managers;
@@ -9,13 +8,7 @@ namespace StudioMod.Managers;
 public class ToolsManager
 {
 
-    public ToolsManager()
-    {
-
-    }
-
-
-    public List<string>? ConvertToClass(string json)
+    public static List<string>? ConvertToClass(string json)
     {
         if (CSharpCovertHelper.CheckJson(json))
         {
@@ -27,22 +20,20 @@ public class ToolsManager
         return null;
     }
 
-
-    public Dictionary<string, string> ConvertString(string content, StringConvertType type)
+    public static Dictionary<string, string> ConvertString(string content, StringConvertType type)
     {
         Dictionary<string, string> res = type switch
         {
-            StringConvertType.NamePolicy =>
-                    new Dictionary<string, string>
-                    {
-                        { "PascalCase", content.ToPascalCase() },
-                        { "HyphenCase", content.ToHyphen() },
-                        { "CamelCase", content.ToCamelCase() },
-                    },
+            StringConvertType.NamePolicy => new Dictionary<string, string>
+            {
+                { "PascalCase", content.ToPascalCase() },
+                { "HyphenCase", content.ToHyphen() },
+                { "CamelCase", content.ToCamelCase() },
+            },
 
             StringConvertType.Guid => new Dictionary<string, string>
             {
-                { "Guid", Guid.NewGuid().ToString() }
+                { "Guid", Guid.NewGuid().ToString() },
             },
             StringConvertType.Encode => new Dictionary<string, string>
             {
@@ -52,7 +43,7 @@ public class ToolsManager
             },
             StringConvertType.Decode => new Dictionary<string, string>
             {
-                { "Base64",  Basse64ToString(content)??""},
+                { "Base64", Basse64ToString(content) ?? "" },
                 { "UrlDecode", WebUtility.UrlDecode(content) },
                 { "HtmlDecode", WebUtility.HtmlDecode(content) },
             },
@@ -67,14 +58,15 @@ public class ToolsManager
 
         return res;
 
-        string? Basse64ToString(string str)
+        static string? Basse64ToString(string str)
         {
             byte[] buffer = new byte[str.Length * 3 / 4];
-            return Convert.TryFromBase64String(str, buffer, out int bytesWritten) ? Encoding.UTF8.GetString(buffer, 0, bytesWritten) : null;
+            return Convert.TryFromBase64String(str, buffer, out int bytesWritten)
+                ? Encoding.UTF8.GetString(buffer, 0, bytesWritten)
+                : null;
         }
     }
 }
-
 
 public enum StringConvertType
 {
@@ -83,21 +75,25 @@ public enum StringConvertType
     /// </summary>
     [Description("Guid")]
     Guid,
+
     /// <summary>
     /// 命名转换
     /// </summary>
     [Description("命名转换")]
     NamePolicy,
+
     /// <summary>
     /// 编码
     /// </summary>
     [Description("编码")]
     Encode,
+
     /// <summary>
     /// 解码
     /// </summary>
     [Description("解码")]
     Decode,
+
     /// <summary>
     /// 加密
     /// </summary>

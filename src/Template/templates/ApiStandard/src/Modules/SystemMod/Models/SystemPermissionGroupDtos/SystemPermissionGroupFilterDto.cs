@@ -2,7 +2,7 @@ using Ater.Common.Models;
 
 namespace SystemMod.Models.SystemPermissionGroupDtos;
 
-/// <see cref="Entity.SystemMod.SystemPermissionGroup"/>
+/// <see cref="SystemPermissionGroup"/>
 public class SystemPermissionGroupFilterDto : FilterBase
 {
     /// <summary>

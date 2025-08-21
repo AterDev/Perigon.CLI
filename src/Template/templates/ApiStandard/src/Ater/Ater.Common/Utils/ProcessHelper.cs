@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Ater.Common.Utils;
+
 /// <summary>
 /// 调用帮助类
 /// </summary>
@@ -68,7 +69,8 @@ public static class ProcessHelper
     /// <returns></returns>
     public static string ExecuteCommands(params string[] commands)
     {
-        string shell, argument;
+        string shell,
+            argument;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             shell = "powershell";
@@ -89,8 +91,8 @@ public static class ProcessHelper
                 Arguments = $"{argument} \"{commandString}\"",
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
-            }
+                CreateNoWindow = true,
+            },
         };
 
         var outputBuilder = new StringBuilder();
@@ -128,7 +130,6 @@ public static class ProcessHelper
         }
     }
 
-
     /// <summary>
     /// 执行命令
     /// </summary>
@@ -137,7 +138,12 @@ public static class ProcessHelper
     /// <param name="workingDirectory"></param>
     /// <param name="environmentVariables"></param>
     /// <returns></returns>
-    public static string ExecuteCommands(string fileName, string[] commands, string? workingDirectory = null, StringDictionary? environmentVariables = null)
+    public static string ExecuteCommands(
+        string fileName,
+        string[] commands,
+        string? workingDirectory = null,
+        StringDictionary? environmentVariables = null
+    )
     {
         var commandString = string.Join(" && ", commands);
         var process = new Process
@@ -149,8 +155,8 @@ public static class ProcessHelper
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
-            }
+                CreateNoWindow = true,
+            },
         };
 
         if (workingDirectory is not null)
@@ -163,7 +169,10 @@ public static class ProcessHelper
             {
                 if (entry.Key != null)
                 {
-                    process.StartInfo.EnvironmentVariables.Add(entry.Key.ToString()!, entry.Value!.ToString());
+                    process.StartInfo.EnvironmentVariables.Add(
+                        entry.Key.ToString()!,
+                        entry.Value!.ToString()
+                    );
                 }
             }
         }

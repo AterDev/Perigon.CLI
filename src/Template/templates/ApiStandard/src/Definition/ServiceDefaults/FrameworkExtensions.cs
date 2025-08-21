@@ -1,9 +1,13 @@
+using Ater.Common;
 using Ater.Web.Convention.Abstraction;
 using Ater.Web.Convention.Services;
 using Ater.Web.Extension.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Logging;
 
 namespace ServiceDefaults;
+
 /// <summary>
 /// 应用扩展服务
 /// </summary>
@@ -12,23 +16,22 @@ public static class FrameworkExtensions
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<UserContext>();
+        builder.Services.AddScoped<IUserContext, UserContext>();
         builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
-        var components = builder.Configuration.GetSection(ComponentOption.ConfigPath)
-            .Get<ComponentOption>()
+        var components =
+            builder.Configuration.GetSection(ComponentOption.ConfigPath).Get<ComponentOption>()
             ?? throw new Exception($"can't get {ComponentOption.ConfigPath} config");
 
         builder.AddOptions(components);
         builder.AddCache(components);
-        builder.Services.AddDbFactory();
+        builder.AddDbFactory(components);
         builder.AddDbContext(components);
 
         builder.Services.AddScoped<JwtService>();
         builder.Services.AddScoped<SmtpService>();
         return builder;
     }
-
 
     /// <summary>
     /// config options
@@ -37,12 +40,17 @@ public static class FrameworkExtensions
     /// <param name="components"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IHostApplicationBuilder AddOptions(this IHostApplicationBuilder builder, ComponentOption components)
+    public static IHostApplicationBuilder AddOptions(
+        this IHostApplicationBuilder builder,
+        ComponentOption components
+    )
     {
         var config = builder.Configuration;
         builder.Services.Configure<ComponentOption>(config.GetSection(ComponentOption.ConfigPath));
 
-        builder.Services.Configure<LoginSecurityPolicyOption>(config.GetSection(LoginSecurityPolicyOption.ConfigPath));
+        builder.Services.Configure<LoginSecurityPolicyOption>(
+            config.GetSection(LoginSecurityPolicyOption.ConfigPath)
+        );
 
         builder.Services.Configure<JwtOption>(config.GetSection(JwtOption.ConfigPath));
         builder.Services.Configure<CacheOption>(config.GetSection(CacheOption.ConfigPath));
@@ -67,56 +75,48 @@ public static class FrameworkExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection AddDbFactory(this IServiceCollection services)
+    public static IHostApplicationBuilder AddDbFactory(
+        this IHostApplicationBuilder builder,
+        ComponentOption components
+    )
     {
-        services.AddScoped(typeof(DbContextFactory));
-        services.AddScoped(typeof(TenantDbContextFactory));
-        return services;
+        builder.Services.AddSingleton<DbContextFactory>();
+        builder.Services.AddScoped<TenantDbContextFactory>();
+        return builder;
     }
 
     /// <summary>
     /// 添加数据库上下文
     /// </summary>
     /// <returns></returns>
-    public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder, ComponentOption components)
+    public static IHostApplicationBuilder AddDbContext(
+        this IHostApplicationBuilder builder,
+        ComponentOption components
+    )
     {
-        builder.Services.AddScoped(typeof(DataAccessContext<>));
-        builder.Services.AddScoped(typeof(DataAccessContext));
-
         switch (components.Database)
         {
             case DatabaseType.SqlServer:
+                builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Database);
+                break;
 
-                builder.AddSqlServerDbContext<CommandDbContext>(WebConst.CommandDb);
-                builder.AddSqlServerDbContext<QueryDbContext>(WebConst.QueryDb);
-                break;
             case DatabaseType.PostgreSql:
-                builder.AddNpgsqlDbContext<CommandDbContext>(WebConst.CommandDb, options =>
-                {
-#if DEBUG
-                    options.DisableRetry = true;
-#endif
-                });
-                builder.AddNpgsqlDbContext<QueryDbContext>(WebConst.QueryDb, options =>
-                {
-#if DEBUG
-                    options.DisableRetry = true;
-#endif
-                });
+                builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Database);
                 break;
-            default:
-                throw new NotSupportedException($"Database provider {components.Database} is not supported.");
         }
         return builder;
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="components"></param>
     /// <returns></returns>
-    public static IHostApplicationBuilder AddCache(this IHostApplicationBuilder builder, ComponentOption components)
+    public static IHostApplicationBuilder AddCache(
+        this IHostApplicationBuilder builder,
+        ComponentOption components
+    )
     {
         // 默认支持内存缓存
         builder.Services.AddMemoryCache();
@@ -124,17 +124,19 @@ public static class FrameworkExtensions
         // 分布式缓存
         if (components.Cache != CacheType.Memory)
         {
-            builder.AddRedisDistributedCache(WebConst.Cache);
+            builder.AddRedisDistributedCache(AppConst.Cache);
         }
         // 混合缓存
-        var cacheOption = builder.Configuration.GetSection(CacheOption.ConfigPath).Get<CacheOption>();
+        var cacheOption = builder
+            .Configuration.GetSection(CacheOption.ConfigPath)
+            .Get<CacheOption>();
         builder.Services.AddHybridCache(options =>
         {
             HybridCacheEntryFlags? flags = components.Cache switch
             {
                 CacheType.Memory => HybridCacheEntryFlags.DisableDistributedCache,
                 CacheType.Redis => HybridCacheEntryFlags.DisableLocalCache,
-                _ => HybridCacheEntryFlags.None
+                _ => HybridCacheEntryFlags.None,
             };
 
             options.MaximumPayloadBytes = cacheOption?.MaxPayloadBytes ?? 1024 * 1024;
@@ -143,11 +145,43 @@ public static class FrameworkExtensions
             {
                 Flags = flags,
                 Expiration = TimeSpan.FromMinutes(cacheOption?.Expiration ?? 20),
-                LocalCacheExpiration = TimeSpan.FromMinutes(cacheOption?.LocalCacheExpiration ?? 10)
+                LocalCacheExpiration = TimeSpan.FromMinutes(
+                    cacheOption?.LocalCacheExpiration ?? 10
+                ),
             };
         });
 
         builder.Services.AddSingleton<CacheService>();
         return builder;
+    }
+
+    /// <summary>
+    /// 仅在调试特殊异常时使用
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static WebApplication UseDomainException(this WebApplication app)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<WebApplication>>();
+        AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
+        {
+            if (eventArgs.Exception is OutOfMemoryException)
+            {
+                logger.LogError(
+                    "=== OutOfMemory: {message}, {stackTrace}",
+                    eventArgs.Exception.Message,
+                    eventArgs.Exception.StackTrace
+                );
+            }
+            else
+            {
+                logger.LogError(
+                    "=== FirstChanceException: {message}, {stackTrace}",
+                    eventArgs.Exception.Message,
+                    eventArgs.Exception.StackTrace
+                );
+            }
+        };
+        return app;
     }
 }

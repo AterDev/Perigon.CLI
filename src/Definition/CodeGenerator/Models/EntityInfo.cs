@@ -1,0 +1,146 @@
+using System.ComponentModel.DataAnnotations;
+using Entity;
+using Entity.StudioMod;
+
+namespace CodeGenerator.Models;
+
+public class EntityInfo
+{
+    public static string[] IgnoreTypes { get; } = ["JsonDocument?", "byte[]"];
+    public static string[] IgnoreProperties { get; } =
+        [
+            ConstVal.Id,
+            ConstVal.CreatedTime,
+            ConstVal.UpdatedTime,
+            ConstVal.IsDeleted,
+            ConstVal.TenantId,
+            ConstVal.PageSize,
+            ConstVal.PageIndex,
+        ];
+
+    /// <summary>
+    /// module name
+    /// </summary>
+    public string? ModuleName { get; set; }
+
+    /// <summary>
+    /// the db context name
+    /// </summary>
+    public string? DbContextName { get; set; }
+    public string? DbContextSpaceName { get; set; }
+
+    /// <summary>
+    /// file path
+    /// </summary>
+    [MaxLength(200)]
+    public required string FilePath { get; set; }
+
+    /// <summary>
+    /// 类名
+    /// </summary>
+    [MaxLength(100)]
+    public required string Name { get; set; }
+
+    /// <summary>
+    /// 命名空间
+    /// </summary>
+    [MaxLength(100)]
+    public required string NamespaceName { get; set; }
+
+    /// <summary>
+    /// 程序集名称
+    /// </summary>
+    [MaxLength(100)]
+    public string? AssemblyName { get; set; }
+
+    /// <summary>
+    /// 类注释
+    /// </summary>
+    [MaxLength(300)]
+    public string? Comment { get; set; }
+
+    /// <summary>
+    /// 类注释
+    /// </summary>
+    [MaxLength(100)]
+    public string? Summary { get; set; }
+    public EntityKeyType KeyType { get; set; } = EntityKeyType.Guid;
+
+    /// <summary>
+    /// 属性
+    /// </summary>
+    public List<PropertyInfo> PropertyInfos { get; set; } = [];
+
+    /// <summary>
+    /// 导航属性
+    /// </summary>
+    public List<EntityNavigation> Navigations { get; set; } = [];
+
+    public string GetDtoNamespace()
+    {
+        return GetShareNamespace();
+    }
+
+    public string GetShareNamespace()
+    {
+        return ModuleName.IsEmpty() ? ConstVal.ShareName : ModuleName;
+    }
+
+    public string GetCommonNamespace()
+    {
+        return ModuleName.IsEmpty() ? ConstVal.CommonMod : ModuleName;
+    }
+
+    /// <summary>
+    /// 获取导航属性
+    /// </summary>
+    /// <returns></returns>
+    public List<PropertyInfo> GetRequiredNavigationProperties()
+    {
+        return Navigations
+            .Where(n => !n.IsCollection && !n.IsSkipNavigation)
+            .Select(n => new PropertyInfo()
+            {
+                Name = n.ForeignKey,
+                NavigationName = n.Name,
+                Type = n.Type,
+                IsNavigation = true,
+                IsRequired = n.IsRequired,
+                IsNullable = false,
+            })
+            .ToList();
+    }
+
+    /// <summary>
+    /// 获取筛选属性
+    /// </summary>
+    /// <returns></returns>
+    public List<PropertyInfo> GetFilterProperties()
+    {
+        return PropertyInfos
+                .Where(p => !p.IsList && !p.IsComplexType && !p.IsNavigation)
+                .Where(p => p.IsRequired || p.IsIndex || p.IsEnum || p.Type.Equals("bool"))
+                .Where(p => !IgnoreProperties.Contains(p.Name) && !IgnoreTypes.Contains(p.Type))
+                .Where(p => p.MaxLength is not (not null and > 100))
+                .ToList() ?? [];
+    }
+}
+
+public class EntityNavigation
+{
+    public required string ForeignKey { get; set; }
+    public required string Name { get; set; }
+    public required string Type { get; set; }
+
+    public bool IsCollection { get; set; }
+    public string? Summary { get; set; }
+    public bool IsRequired { get; set; }
+
+    public bool IsUnique { get; set; }
+    public bool IsSkipNavigation { get; set; }
+    public bool IsOwnership { get; set; }
+
+    public List<PropertyInfo> ForeignKeyProperties { get; set; } = [];
+
+    public EntityInfo? EntityInfo { get; set; }
+}

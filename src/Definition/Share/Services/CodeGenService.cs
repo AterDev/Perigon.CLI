@@ -1,17 +1,32 @@
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
 using Entity;
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi;
 
 namespace Share.Services;
+
 /// <summary>
 /// 代码生成服务
 /// </summary>
-public class CodeGenService(ILogger<CodeGenService> logger)
+public class CodeGenService(
+    ILogger<CodeGenService> logger,
+    IProjectContext projectContext,
+    CacheService cache
+)
 {
     private readonly ILogger<CodeGenService> _logger = logger;
+    private readonly IProjectContext _projectContext = projectContext;
+    private readonly CacheService _cache = cache;
+    private readonly DtoType[] DtoTypes =
+    [
+        DtoType.Add,
+        DtoType.Update,
+        DtoType.Filter,
+        DtoType.Item,
+        DtoType.Detail,
+    ];
 
     /// <summary>
     /// 生成Dto
@@ -20,11 +35,14 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath">输出项目目录</param>
     /// <param name="isCover">是否覆盖</param>
     /// <returns></returns>
-    public List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string outputPath, bool isCover = false)
+    public List<GenFileInfo> GenerateDtos(
+        EntityInfo entityInfo,
+        string outputPath,
+        bool isCover = false
+    )
     {
         _logger.LogInformation("🚀 Generating Dtos...");
-        // 生成Dto
-        var dtoGen = new DtoCodeGenerate(entityInfo);
+        var dtoGen = new DtoCodeGenerate(entityInfo, _projectContext.SolutionConfig?.UserEntities);
         var dirName = entityInfo.Name + "Dtos";
         // GlobalUsing
         var globalContent = string.Join(Environment.NewLine, dtoGen.GetGlobalUsings());
@@ -33,38 +51,52 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             IsCover = isCover,
             FileType = GenFileType.Global,
             FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
 
-        var addDtoFile = GenerateDto(entityInfo, DtoType.Add);
-        addDtoFile.IsCover = isCover;
-        addDtoFile.FullName = Path.Combine(outputPath, addDtoFile.FullName);
+        var dtoFiles = DtoTypes
+            .Select(type =>
+            {
+                var file = GenerateDto(dtoGen, entityInfo, type);
+                file.IsCover = isCover;
+                file.FullName = Path.Combine(outputPath, file.FullName);
+                return file;
+            })
+            .ToList();
 
-        var updateDtoFile = GenerateDto(entityInfo, DtoType.Update);
-        updateDtoFile.IsCover = isCover;
-        updateDtoFile.FullName = Path.Combine(outputPath, updateDtoFile.FullName);
+        dtoFiles.Insert(0, globalFile);
+        return dtoFiles;
+    }
 
-        var filterDtoFile = GenerateDto(entityInfo, DtoType.Filter);
-        filterDtoFile.IsCover = isCover;
-        filterDtoFile.FullName = Path.Combine(outputPath, filterDtoFile.FullName);
+    /// <summary>
+    /// 生成单个Dto
+    /// </summary>
+    /// <param name="dtoGen">DtoCodeGenerate实例</param>
+    /// <param name="entityInfo"></param>
+    /// <param name="dtoType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public GenFileInfo GenerateDto(DtoCodeGenerate dtoGen, EntityInfo entityInfo, DtoType dtoType)
+    {
+        var dirName = entityInfo.Name + "Dtos";
+        var dto = dtoType switch
+        {
+            DtoType.Add => dtoGen.GetAddDto(),
+            DtoType.Update => dtoGen.GetUpdateDto(),
+            DtoType.Filter => dtoGen.GetFilterDto(),
+            DtoType.Item => dtoGen.GetItemDto(),
+            DtoType.Detail => dtoGen.GetDetailDto(),
+            _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null),
+        };
 
-        var itemDtoFile = GenerateDto(entityInfo, DtoType.Item);
-        itemDtoFile.IsCover = isCover;
-        itemDtoFile.FullName = Path.Combine(outputPath, itemDtoFile.FullName);
-
-        var detailDtoFile = GenerateDto(entityInfo, DtoType.Detail);
-        detailDtoFile.IsCover = isCover;
-        detailDtoFile.FullName = Path.Combine(outputPath, detailDtoFile.FullName);
-
-        return
-        [
-            globalFile,
-            addDtoFile,
-            updateDtoFile,
-            filterDtoFile,
-            itemDtoFile,
-            detailDtoFile
-        ];
+        // 缓存Dto信息
+        _cache.Set(entityInfo.Name + dtoType.ToString(), dto);
+        var content = dto.ToDtoContent(entityInfo.GetDtoNamespace(), entityInfo.Name);
+        return new GenFileInfo($"{dto.Name}.cs", content)
+        {
+            FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
+            ModuleName = entityInfo.ModuleName,
+        };
     }
 
     /// <summary>
@@ -75,9 +107,17 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="tplContent">模板内容</param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GenerateManager(EntityInfo entityInfo, string outputPath, string tplContent, bool isCover = false)
+    public List<GenFileInfo> GenerateManager(
+        EntityInfo entityInfo,
+        string outputPath,
+        string tplContent,
+        bool isCover = false
+    )
     {
-        var managerGen = new ManagerGenerate(entityInfo);
+        var managerGen = new ManagerGenerate(
+            entityInfo,
+            _projectContext.SolutionConfig?.UserEntities ?? []
+        );
         // GlobalUsing
         var globalContent = string.Join(Environment.NewLine, managerGen.GetGlobalUsings());
         var globalFile = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
@@ -85,15 +125,19 @@ public class CodeGenService(ILogger<CodeGenService> logger)
             IsCover = isCover,
             FileType = GenFileType.Global,
             FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
-            ModuleName = entityInfo.ModuleName
+            ModuleName = entityInfo.ModuleName,
         };
 
-        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetManagerNamespace());
+        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace());
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
             IsCover = isCover,
-            FullName = Path.Combine(outputPath, ConstVal.ManagersDir, $"{entityInfo.Name}{ConstVal.Manager}.cs"),
-            ModuleName = entityInfo.ModuleName
+            FullName = Path.Combine(
+                outputPath,
+                ConstVal.ManagersDir,
+                $"{entityInfo.Name}{ConstVal.Manager}.cs"
+            ),
+            ModuleName = entityInfo.ModuleName,
         };
 
         return [globalFile, managerFile];
@@ -103,49 +147,74 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// RestAPI生成
     /// </summary>
     /// <param name="entityInfo"></param>
-    /// <param name="outputPath"></param>
+    /// <param name="servicePath"></param>
     /// <param name="tplContent"></param>
     /// <param name="isCover"></param>
     /// <returns></returns>
-    public GenFileInfo GenerateController(EntityInfo entityInfo, string outputPath, string tplContent, bool isCover = false)
+    public async Task<List<GenFileInfo>> GenerateControllerAsync(
+        EntityInfo entityInfo,
+        string servicePath,
+        string tplContent,
+        bool isCover = false
+    )
     {
-        var apiGen = new RestApiGenerate(entityInfo);
-        var content = apiGen.GetRestApiContent(tplContent);
+        var serviceName = Path.GetFileName(servicePath);
+        var projectFile = Path.Combine(servicePath, serviceName + ConstVal.CSharpProjectExtension);
+
+        // whether is management project
+        var hasSystemMod = await SolutionService.HasProjectReferenceAsync(
+            projectFile,
+            _projectContext.SolutionConfig!.SystemModName
+        );
+
+        OutputHelper.Important(
+            $"{serviceName} with {_projectContext.SolutionConfig!.SystemModName} hasSystemMod: {hasSystemMod}"
+        );
+
+        var apiGen = new RestApiGenerate(
+            entityInfo,
+            _projectContext.SolutionConfig,
+            GetDtoCache(entityInfo)
+        );
+        var content = apiGen.GetRestApiContent(tplContent, serviceName, hasSystemMod);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
             IsCover = isCover,
-            FullName = Path.Combine(outputPath, $"{entityInfo.Name}{ConstVal.Controller}.cs"),
-            ModuleName = entityInfo.ModuleName
+            FullName = Path.Combine(
+                servicePath,
+                ConstVal.ControllersDir,
+                $"{entityInfo.Name}{ConstVal.Controller}.cs"
+            ),
+            ModuleName = entityInfo.ModuleName,
         };
-        return controllerFile;
-    }
 
-    public GenFileInfo GenerateApiGlobalUsing(EntityInfo entityInfo, string outputPath, bool isCover = false)
-    {
-        var apiGen = new RestApiGenerate(entityInfo);
-
-        var globalFilePath = Path.Combine(outputPath, ConstVal.GlobalUsingsFile);
+        // global usings
+        var globalFilePath = Path.Combine(servicePath, ConstVal.GlobalUsingsFile);
         var globalLines = File.Exists(globalFilePath)
-            ? File.ReadLines(globalFilePath)
+            ? File.ReadLines(globalFilePath).ToList()
             : [];
         var globalList = apiGen.GetGlobalUsings();
-        // add globalList  item if globalLines not exist 
+
         globalList.ForEach(g =>
         {
             if (!globalLines.Contains(g))
             {
-                globalLines.Append(g);
+                globalLines.Add(g);
             }
         });
 
-        var globalFile = new GenFileInfo(ConstVal.GlobalUsingsFile, string.Join(Environment.NewLine, globalLines))
+        var globalFile = new GenFileInfo(
+            ConstVal.GlobalUsingsFile,
+            string.Join(Environment.NewLine, globalLines)
+        )
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
-            FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
-            ModuleName = entityInfo.ModuleName
+            FullName = Path.Combine(servicePath, ConstVal.GlobalUsingsFile),
+            ModuleName = entityInfo.ModuleName,
         };
-        return globalFile;
+
+        return [globalFile, controllerFile];
     }
 
     /// <summary>
@@ -155,86 +224,78 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     /// <param name="outputPath"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateWebRequestAsync(string url = "", string outputPath = "", RequestLibType type = RequestLibType.NgHttp)
+    public async Task<List<GenFileInfo>?> GenerateWebRequestAsync(
+        string url = "",
+        string outputPath = "",
+        RequestClientType type = RequestClientType.NgHttp
+    )
     {
         _logger.LogInformation("🚀 Generating ts models and {type} request services...", type);
         var files = new List<GenFileInfo>();
 
-        // 1 parse openApi json from url
-        string openApiContent = "";
-
         string docName = string.Empty;
-        if (url.StartsWith("http://") || url.StartsWith("https://"))
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(url);
+        if (apiDocument == null)
         {
-            HttpClientHandler handler = new()
-            {
-                ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
-            };
-            using HttpClient http = new(handler);
-
-            openApiContent = await http.GetStringAsync(url);
-            docName = url.Split('/').Reverse().First();
-            docName = Path.GetFileNameWithoutExtension(docName);
+            OutputHelper.Error($"OpenApi document is parsed failed: {url}");
+            return null;
         }
-        else
-        {
-            openApiContent = File.ReadAllText(url);
-        }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
-
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
-
 
         // base service
         string content = RequestGenerate.GetBaseService(type);
         string dir = Path.Combine(outputPath, "services", docName);
         Directory.CreateDirectory(dir);
-        files.Add(new GenFileInfo("base.service.ts", content)
-        {
-            FullName = Path.Combine(dir, "base.service.ts"),
-            IsCover = false
-        });
+        files.Add(
+            new GenFileInfo("base.service.ts", content)
+            {
+                FullName = Path.Combine(dir, "base.service.ts"),
+                IsCover = false,
+            }
+        );
 
         // 枚举pipe
-        if (type == RequestLibType.NgHttp)
+        if (type == RequestClientType.NgHttp)
         {
-            var schemas = apiDocument!.Components.Schemas;
-            dir = Path.Combine(outputPath, "pipe", docName);
-            Directory.CreateDirectory(dir);
-            var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
-            bool isNgModule = false;
-            if (File.Exists(enumTextPath))
+            var schemas = apiDocument.Components?.Schemas;
+            if (schemas != null)
             {
-                using (StreamReader reader = new(enumTextPath))
+                dir = Path.Combine(outputPath, "pipe", docName);
+                Directory.CreateDirectory(dir);
+                var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
+                bool isNgModule = false;
+                if (File.Exists(enumTextPath))
                 {
-                    string? firstLine = reader.ReadLine();
-                    string? secondLine = reader.ReadLine();
-                    if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
+                    using (StreamReader reader = new(enumTextPath))
                     {
-                        isNgModule = true;
-                    }
+                        string? firstLine = reader.ReadLine();
+                        string? secondLine = reader.ReadLine();
+                        if (!string.IsNullOrWhiteSpace(firstLine) && firstLine.Contains("NgModule"))
+                        {
+                            isNgModule = true;
+                        }
 
-                    if (!string.IsNullOrWhiteSpace(secondLine) && secondLine.Contains("NgModule"))
-                    {
-                        isNgModule = true;
+                        if (
+                            !string.IsNullOrWhiteSpace(secondLine)
+                            && secondLine.Contains("NgModule")
+                        )
+                        {
+                            isNgModule = true;
+                        }
                     }
                 }
-            }
-            string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
+                string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
 
-            files.Add(new GenFileInfo("enum-text.pipe.ts", pipeContent)
-            {
-                FullName = enumTextPath,
-                IsCover = true
-            });
+                files.Add(
+                    new GenFileInfo("enum-text.pipe.ts", pipeContent)
+                    {
+                        FullName = enumTextPath,
+                        IsCover = true,
+                    }
+                );
+            }
         }
         // request services
-        var ngGen = new RequestGenerate(apiDocument!)
-        {
-            LibType = type
-        };
+        var ngGen = new RequestGenerate(apiDocument!) { LibType = type };
         // 获取对应的ts模型类，生成文件
         var tsModels = ngGen.GetTSInterfaces();
         tsModels.ForEach(m =>
@@ -245,13 +306,16 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         });
         files.AddRange(tsModels);
         // 获取请求服务并生成文件
-        var services = ngGen.GetServices(apiDocument!.Tags);
-        services.ForEach(s =>
+        if (apiDocument.Tags != null)
         {
-            dir = Path.Combine(outputPath, "services", docName, s.FullName);
-            s.FullName = Path.Combine(dir, s.Name);
-        });
-        files.AddRange(services);
+            var services = ngGen.GetServices(apiDocument.Tags);
+            services.ForEach(s =>
+            {
+                dir = Path.Combine(outputPath, "services", docName, s.FullName);
+                s.FullName = Path.Combine(dir, s.Name);
+            });
+            files.AddRange(services);
+        }
         return files;
     }
 
@@ -303,7 +367,10 @@ public class CodeGenService(ILogger<CodeGenService> logger)
                         ? File.ReadLines(file.FullName)
                         : [];
 
-                    var newLines = file.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                    var newLines = file.Content.Split(
+                        new[] { Environment.NewLine },
+                        StringSplitOptions.RemoveEmptyEntries
+                    );
 
                     var lines = globalLines.ToList();
                     foreach (var line in newLines)
@@ -326,111 +393,43 @@ public class CodeGenService(ILogger<CodeGenService> logger)
     }
 
     /// <summary>
-    /// 生成单个Dto
-    /// </summary>
-    /// <param name="entityInfo"></param>
-    /// <param name="dtoType"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public GenFileInfo GenerateDto(EntityInfo entityInfo, DtoType dtoType)
-    {
-        // 生成Dto
-        var dtoGen = new DtoCodeGenerate(entityInfo);
-        var dirName = entityInfo.Name + "Dtos";
-
-        var dto = dtoType switch
-        {
-            DtoType.Add => dtoGen.GetAddDto(),
-            DtoType.Update => dtoGen.GetUpdateDto(),
-            DtoType.Filter => dtoGen.GetFilterDto(),
-            DtoType.Item => dtoGen.GetItemDto(),
-            DtoType.Detail => dtoGen.GetDetailDto(),
-            _ => throw new ArgumentOutOfRangeException(nameof(dtoType), dtoType, null)
-        };
-
-        //var md5Hash = HashCrypto.Md5Hash(dto.EntityNamespace + dto.Name);
-        //var oldDto = await context.EntityInfos.Where(e => e.Md5Hash == md5Hash)
-        //    .Include(e => e.PropertyInfos)
-        //    .SingleOrDefaultAsync();
-
-        //if (oldDto != null)
-        //{
-        //    var diff = PropertyInfo.GetDiffProperties(oldDto.PropertyInfos, dto.Properties);
-        //    if (diff.delete.Count > 0)
-        //    {
-        //        dto.Properties = dto.Properties.Except(diff.delete).ToList();
-        //    }
-        //    if (diff.add.Count > 0)
-        //    {
-        //        dto.Properties.AddRange(diff.add);
-        //    }
-        //    context.PropertyInfos.RemoveRange(oldDto.PropertyInfos);
-        //    dto.Properties.ForEach(p =>
-        //    {
-        //        p.EntityInfoId = oldDto.Id;
-        //    });
-        //    context.AddRange(dto.Properties);
-        //}
-        //else
-        //{
-        //    var newDto = dto.ToEntityInfo(entityInfo);
-        //    context.EntityInfos.Add(newDto);
-        //}
-        //await context.SaveChangesAsync();
-        var content = dto.ToDtoContent(entityInfo.GetDtoNamespace(), entityInfo.Name);
-
-        return new GenFileInfo($"{dto.Name}.cs", content)
-        {
-            FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
-            ModuleName = entityInfo.ModuleName
-        };
-    }
-
-    /// <summary>
     /// 生成Csharp请求客户端类库
     /// </summary>
     /// <param name="docUrl"></param>
     /// <param name="outputPath"></param>
     /// <returns></returns>
-    public async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(string docUrl, string outputPath)
+    public static async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(
+        string docUrl,
+        string outputPath
+    )
     {
         var files = new List<GenFileInfo>();
         var docName = docUrl.Split('/').Reverse().Skip(1).First();
         var projectName = docName.ToPascalCase() + "API";
         outputPath = Path.Combine(outputPath, projectName);
 
-        string openApiContent = "";
-        if (docUrl.StartsWith("http://") || docUrl.StartsWith("https://"))
-        {
-            using HttpClient http = new();
-            openApiContent = await http.GetStringAsync(docUrl);
-        }
-        else
-        {
-            openApiContent = File.ReadAllText(docUrl);
-        }
-        openApiContent = openApiContent
-            .Replace("«", "")
-            .Replace("»", "");
-
-        var apiDocument = new OpenApiStringReader().Read(openApiContent, out _);
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(docUrl);
         var gen = new CSHttpClientGenerate(apiDocument!);
 
         string nspName = new DirectoryInfo(outputPath).Name;
         string baseContent = CSHttpClientGenerate.GetBaseService(nspName);
         string globalUsingContent = CSHttpClientGenerate.GetGlobalUsing(projectName);
 
-        files.Add(new GenFileInfo("BaseService", baseContent)
-        {
-            FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
-            IsCover = true
-        });
+        files.Add(
+            new GenFileInfo("BaseService", baseContent)
+            {
+                FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
+                IsCover = true,
+            }
+        );
 
-        files.Add(new GenFileInfo("GlobalUsings", globalUsingContent)
-        {
-            FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
-            IsCover = false
-        });
+        files.Add(
+            new GenFileInfo("GlobalUsings", globalUsingContent)
+            {
+                FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
+                IsCover = false,
+            }
+        );
 
         // services
         List<GenFileInfo> services = gen.GetServices(nspName);
@@ -448,29 +447,49 @@ public class CodeGenService(ILogger<CodeGenService> logger)
         });
         // csproj
         var csprojContent = CSHttpClientGenerate.GetCsprojContent();
-        files.Add(new GenFileInfo(projectName, csprojContent)
-        {
-            FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
-            IsCover = true
-        });
+        files.Add(
+            new GenFileInfo(projectName, csprojContent)
+            {
+                FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
+                IsCover = true,
+            }
+        );
 
         files.AddRange(services);
         files.AddRange(models);
 
         return files;
     }
-}
 
-public enum DtoType
-{
-    [Description("Add")]
-    Add,
-    [Description("Update")]
-    Update,
-    [Description("Filter")]
-    Filter,
-    [Description("Item")]
-    Item,
-    [Description("Detail")]
-    Detail
+    /// <summary>
+    /// get Dto from cache
+    /// </summary>
+    /// <param name="entityInfo"></param>
+    /// <returns></returns>
+    private ReadOnlyDictionary<string, DtoInfo> GetDtoCache(EntityInfo entityInfo)
+    {
+        var result = new Dictionary<string, DtoInfo>();
+        foreach (var dtoType in DtoTypes)
+        {
+            var key = entityInfo.Name + dtoType.ToString();
+            var dto = _cache.Get<DtoInfo>(key);
+            if (dto != null)
+            {
+                result.Add(dtoType.ToString(), dto);
+            }
+        }
+        return new ReadOnlyDictionary<string, DtoInfo>(result);
+    }
+
+    public void ClearCodeGenCache(EntityInfo entityInfo)
+    {
+        _logger.LogInformation("🗑️ Clearing Dto cache...");
+
+        foreach (var dtoType in DtoTypes)
+        {
+            var key = entityInfo.Name + dtoType.ToString();
+            _cache.Remove(key);
+        }
+        _logger.LogInformation("✅ Dto cache cleared.");
+    }
 }

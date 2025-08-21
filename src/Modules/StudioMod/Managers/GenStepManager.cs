@@ -1,17 +1,16 @@
-using StudioMod;
 using StudioMod.Models.GenStepDtos;
 
 namespace StudioMod.Managers;
+
 /// <summary>
 /// task step
 /// </summary>
 public class GenStepManager(
-    DataAccessContext<GenStep> dataContext,
+    DefaultDbContext dbContext,
     ILogger<GenStepManager> logger,
-    IProjectContext projectContext,
-    UserContext userContext) : ManagerBase<GenStep>(dataContext, logger)
+    IProjectContext projectContext
+) : ManagerBase<DefaultDbContext, GenStep>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
     private readonly IProjectContext _projectContext = projectContext;
 
     /// <summary>
@@ -22,7 +21,7 @@ public class GenStepManager(
     public async Task<Guid?> CreateNewEntityAsync(GenStepAddDto dto)
     {
         var entity = dto.MapTo<GenStepAddDto, GenStep>();
-        entity.ProjectId = _projectContext.ProjectId;
+        entity.ProjectId = _projectContext.SolutionId!.Value;
 
         var fileExt = Path.GetExtension(dto.OutputPath ?? "");
         entity.FileType = fileExt;
@@ -49,7 +48,6 @@ public class GenStepManager(
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!))
             .WhereNotNull(filter.FileType, q => q.FileType == filter.FileType)
-            .WhereNotNull(filter.GenStepType, q => q.GenStepType == filter.GenStepType)
             .WhereNotNull(filter.ProjectId, q => q.ProjectId == filter.ProjectId);
 
         return await ToPageAsync<GenStepFilterDto, GenStepItemDto>(filter);
@@ -74,7 +72,8 @@ public class GenStepManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        return await Command.Where(q => q.Id.ToString() == unique)
+        return await _dbSet
+            .Where(q => q.Id.ToString() == unique)
             .WhereNotNull(id, q => q.Id != id)
             .AnyAsync();
     }
@@ -85,7 +84,7 @@ public class GenStepManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         return await base.DeleteAsync(ids, softDelete);
     }
@@ -97,7 +96,7 @@ public class GenStepManager(
     /// <returns></returns>
     public async Task<GenStep?> GetOwnedAsync(Guid id)
     {
-        var query = Command.Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

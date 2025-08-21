@@ -1,4 +1,5 @@
 namespace StudioMod.Models.GenStepDtos;
+
 /// <summary>
 /// task step列表元素
 /// </summary>
@@ -22,11 +23,12 @@ public class GenStepItemDto
     /// </summary>
     [MaxLength(400)]
     public string? Path { get; set; }
-    /// <summary>
-    /// step type
-    /// </summary>
-    public GenStepType GenStepType { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
     public DateTimeOffset CreatedTime { get; set; }
 
+    /// <summary>
+    /// 模板路径
+    /// </summary>
+    [MaxLength(400)]
+    public string? TemplatePath { get; set; }
 }

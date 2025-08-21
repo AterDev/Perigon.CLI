@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="AddNewSolution" xml:space="preserve">
+    <value>暂无任何项目，请添加本地解决方案或点击+创建新解决方案</value>
+  </data>
   <data name="CacheConnectionString" xml:space="preserve">
     <value>缓存连接字符串</value>
   </data>
@@ -124,7 +130,7 @@
     <value>缓存类型</value>
   </data>
   <data name="CMSModuleDes" xml:space="preserve">
-    <value>内容管理系统模块</value>
+    <value>内容管理系统</value>
   </data>
   <data name="CommandSelectTip" xml:space="preserve">
     <value>[gray](按 [blue]&lt;空格键&gt;[/] 选择, [green]&lt;回车键&gt;[/] 确认) [/]</value>
@@ -136,7 +142,7 @@
     <value>创建解决方案成功！</value>
   </data>
   <data name="CustomerModuleDes" xml:space="preserve">
-    <value>客户信息管理模块</value>
+    <value>客户信息管理</value>
   </data>
   <data name="DatabaseProvider" xml:space="preserve">
     <value>数据库类型</value>
@@ -148,7 +154,7 @@
     <value>目录</value>
   </data>
   <data name="FileManagerModuleDes" xml:space="preserve">
-    <value>基于数据库的文件管理模块</value>
+    <value>基于数据库的文件管理</value>
   </data>
   <data name="GenerateDes" xml:space="preserve">
     <value>代码生成</value>
@@ -162,6 +168,9 @@
   <data name="InputDirectory" xml:space="preserve">
     <value>👉 输入解决方案根目录</value>
   </data>
+  <data name="Local" xml:space="preserve">
+    <value>本地</value>
+  </data>
   <data name="Modules" xml:space="preserve">
     <value>模块</value>
   </data>
@@ -169,7 +178,10 @@
     <value>创建新解决方案</value>
   </data>
   <data name="OrderModuleDes" xml:space="preserve">
-    <value>订单管理模块</value>
+    <value>订单管理</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>项目</value>
   </data>
   <data name="RequestDes" xml:space="preserve">
     <value>生成客户端请求服务及模型</value>
@@ -189,6 +201,9 @@
   <data name="SelectSolutionType" xml:space="preserve">
     <value>👇 选择解决方案模板类型，Light使用minimalApi，仅适用小型接口程序，推荐Standard（默认值）.</value>
   </data>
+  <data name="Solution" xml:space="preserve">
+    <value>解决方案</value>
+  </data>
   <data name="SolutionSummary" xml:space="preserve">
     <value>你的解决方案配置:</value>
   </data>
@@ -198,10 +213,335 @@
   <data name="StudioDes" xml:space="preserve">
     <value>开启Dry Studio</value>
   </data>
-  <data name="UpdateDes" xml:space="preserve">
-    <value>升级studio,project等</value>
+  <data name="Tools" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="UpdateStudioDes" xml:space="preserve">
+    <value>更新studio</value>
   </data>
   <data name="Values" xml:space="preserve">
     <value>值</value>
+  </data>
+  <data name="Workbench" xml:space="preserve">
+    <value>工作台</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>是否确认删除该对象？</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>详情</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>失败</value>
+  </data>
+  <data name="FormValidFailed" xml:space="preserve">
+    <value>表单验证错误，请检查您的输入</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="RowValueTip" xml:space="preserve">
+    <value>每行一个值</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Setting" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="Enter" xml:space="preserve">
+    <value>进入</value>
+  </data>
+  <data name="DirectoryNotFound" xml:space="preserve">
+    <value>文件夹不存在，请检查！</value>
+  </data>
+  <data name="SolutionTypeStandard" xml:space="preserve">
+    <value>标准解决方案</value>
+  </data>
+  <data name="SolutionTypeMini" xml:space="preserve">
+    <value>轻量解决方案</value>
+  </data>
+  <data name="DatabasePostgreSql" xml:space="preserve">
+    <value>PostgreSql</value>
+  </data>
+  <data name="DatabaseSqlServer" xml:space="preserve">
+    <value>SqlServer</value>
+  </data>
+  <data name="CacheTypeHybrid" xml:space="preserve">
+    <value>混合缓存</value>
+  </data>
+  <data name="CacheTypeMemory" xml:space="preserve">
+    <value>内存</value>
+  </data>
+  <data name="CacheTypeRedis" xml:space="preserve">
+    <value>Redis</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="LoadProjectDes" xml:space="preserve">
+    <value>选择本地要加载的项目</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>加载</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="LoadProjectPathDes" xml:space="preserve">
+    <value>输入项目要目录路径，而不是项目文件路径</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="NotFoundWithName" xml:space="preserve">
+    <value>未找到 {0}</value>
+  </data>
+  <data name="Entity" xml:space="preserve">
+    <value>实体</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="OpenAPI" xml:space="preserve">
+    <value>OpenAPI</value>
+  </data>
+  <data name="Operate" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>说明</value>
+  </data>
+  <data name="CodeGen" xml:space="preserve">
+    <value>代码生成</value>
+  </data>
+  <data name="Template" xml:space="preserve">
+    <value>模板</value>
+  </data>
+  <data name="MCP" xml:space="preserve">
+    <value>MCP</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>筛选</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="OpenApiEndpoint" xml:space="preserve">
+    <value>OpenApi终结点</value>
+  </data>
+  <data name="OpenApiPathTip" xml:space="preserve">
+    <value>Url或本地绝对路径</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="MustSelectOption" xml:space="preserve">
+    <value>你必须先选择一个选项</value>
+  </data>
+  <data name="GenerateDtos" xml:space="preserve">
+    <value>生成Dto</value>
+  </data>
+  <data name="GenerateManagers" xml:space="preserve">
+    <value>生成Manager</value>
+  </data>
+  <data name="GenerateController" xml:space="preserve">
+    <value>生成Controller</value>
+  </data>
+  <data name="SearchEntity" xml:space="preserve">
+    <value>搜索实体</value>
+  </data>
+  <data name="ClickToView" xml:space="preserve">
+    <value>点击查看</value>
+  </data>
+  <data name="QueryParameters" xml:space="preserve">
+    <value>查询参数</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>必需</value>
+  </data>
+  <data name="RequestBody" xml:space="preserve">
+    <value>请求体</value>
+  </data>
+  <data name="ResponseBody" xml:space="preserve">
+    <value>响应体</value>
+  </data>
+  <data name="Validate" xml:space="preserve">
+    <value>验证</value>
+  </data>
+  <data name="Clean" xml:space="preserve">
+    <value>清理</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>服务</value>
+  </data>
+  <data name="WebService" xml:space="preserve">
+    <value>Web服务</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>路径</value>
+  </data>
+  <data name="Generate" xml:space="preserve">
+    <value>生成</value>
+  </data>
+  <data name="OverwriteCurrent" xml:space="preserve">
+    <value>覆盖现有文件</value>
+  </data>
+  <data name="Batch" xml:space="preserve">
+    <value>批量</value>
+  </data>
+  <data name="RequestClient" xml:space="preserve">
+    <value>请求客户端</value>
+  </data>
+  <data name="OutputPath" xml:space="preserve">
+    <value>输出目录</value>
+  </data>
+  <data name="Data" xml:space="preserve">
+    <value>数据</value>
+  </data>
+  <data name="Prompt" xml:space="preserve">
+    <value>提示词</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>任务</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="FileSize" xml:space="preserve">
+    <value>大小(KB)</value>
+  </data>
+  <data name="UpdateTime" xml:space="preserve">
+    <value>更新时间</value>
+  </data>
+  <data name="SourceType" xml:space="preserve">
+    <value>来源类型</value>
+  </data>
+  <data name="Step" xml:space="preserve">
+    <value>步骤</value>
+  </data>
+  <data name="List" xml:space="preserve">
+    <value>列表</value>
+  </data>
+  <data name="Variable" xml:space="preserve">
+    <value>变量</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>键</value>
+  </data>
+  <data name="Context" xml:space="preserve">
+    <value>上下文</value>
+  </data>
+  <data name="EntityClass" xml:space="preserve">
+    <value>实体类</value>
+  </data>
+  <data name="DtoModel" xml:space="preserve">
+    <value>Dto模型</value>
+  </data>
+  <data name="Execute" xml:space="preserve">
+    <value>执行</value>
+  </data>
+  <data name="MustSelectItem" xml:space="preserve">
+    <value>必须选择 {0} </value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>模型</value>
+  </data>
+  <data name="Base" xml:space="preserve">
+    <value>基础</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Component" xml:space="preserve">
+    <value>组件</value>
+  </data>
+  <data name="Configuration" xml:space="preserve">
+    <value>配置</value>
+  </data>
+  <data name="Database" xml:space="preserve">
+    <value>数据库</value>
+  </data>
+  <data name="Read" xml:space="preserve">
+    <value>读</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>写</value>
+  </data>
+  <data name="EntityFramework" xml:space="preserve">
+    <value>EntityFramework</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="SelectFrontType" xml:space="preserve">
+    <value>👇 选择你需要集成的前端框架</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Angular" xml:space="preserve">
+    <value>Angular 20</value>
+  </data>
+  <data name="FrontEnd" xml:space="preserve">
+    <value>前端</value>
+  </data>
+  <data name="Else" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="SelectServices" xml:space="preserve">
+    <value>选择要生成Controller的服务</value>
+    <comment>选择要生成Controller的服务</comment>
+  </data>
+  <data name="SharedDto" xml:space="preserve">
+    <value>共享Dto</value>
+  </data>
+  <data name="TenantMode" xml:space="preserve">
+    <value>启用租户</value>
+  </data>
+  <data name="UserEntityTips" xml:space="preserve">
+    <value>用来标识用户实体，如User，以区分与普通实体的处理，如用户Id从IUserContext中获取</value>
+  </data>
+  <data name="UserEntityName" xml:space="preserve">
+    <value>用户实体类名称</value>
+  </data>
+  <data name="UserEntityExample" xml:space="preserve">
+    <value>如User;SystemUser</value>
+  </data>
+  <data name="SystemModLabel" xml:space="preserve">
+    <value>系统模块</value>
+  </data>
+  <data name="SystemModDes" xml:space="preserve">
+    <value>系统模块，引用该模块的被认为是管理系统，将影响控制器的生成内容</value>
   </data>
 </root>

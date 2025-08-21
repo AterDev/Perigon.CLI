@@ -1,10 +1,11 @@
 using Ater.Common.Models;
 
 namespace CustomerMod.Models.CustomerInfoDtos;
+
 /// <summary>
 /// 客户信息查询筛选
 /// </summary>
-/// <see cref="Entity.CustomerMod.CustomerInfo"/>
+/// <see cref="CustomerInfo"/>
 public class CustomerInfoFilterDto : FilterBase
 {
     /// <summary>
@@ -29,5 +30,4 @@ public class CustomerInfoFilterDto : FilterBase
     /// 跟进状态
     /// </summary>
     public FollowUpStatus? FollowUpStatus { get; set; }
-
 }

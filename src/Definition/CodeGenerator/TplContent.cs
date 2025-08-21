@@ -1,6 +1,7 @@
 using Entity;
 
 namespace CodeGenerator;
+
 /// <summary>
 /// 模板内容类
 /// </summary>
@@ -14,26 +15,24 @@ public class TplContent
             namespace @(Model.Namespace).Managers;
             @Model.Comment
             public class @(Model.EntityName)Manager(
-                DataAccessContext<@(Model.EntityName)> dataContext, 
-                ILogger<@(Model.EntityName)Manager> logger,
-                UserContext userContext) : ManagerBase<@(Model.EntityName)>(dataContext, logger)
+                @(Model.DbContextName) dbContext, 
+                ILogger<@(Model.EntityName)Manager> logger) 
+                : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContext, logger)
             {
-                private readonly UserContext _userContext = userContext;
-
                 /// <summary>
-                /// 添加实体
+                /// Add entity
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
-                public async Task<Guid?> CreateNewEntityAsync(@(Model.EntityName)AddDto dto)
+                public async Task<Guid?> AddAsync(@(Model.EntityName)AddDto dto)
                 {
-                    var entity = dto.MapTo<@(Model.EntityName)AddDto, @(Model.EntityName)>();
-                    // TODO:完善添加逻辑
+                    var entity = dto.MapTo<@(Model.EntityName)>();
+                    // add other logic
                     return await base.AddAsync(entity) ? entity.Id : null;
                 }
 
                 /// <summary>
-                /// 更新实体
+                /// Update entity
                 /// </summary>
                 /// <param name="entity"></param>
                 /// <param name="dto"></param>
@@ -41,7 +40,7 @@ public class TplContent
                 public async Task<bool> UpdateAsync(@(Model.EntityName) entity, @(Model.EntityName)UpdateDto dto)
                 {
                     entity.Merge(dto);
-                    // TODO:完善更新逻辑
+                    // add other logic
                     return await base.UpdateAsync(entity);
                 }
 
@@ -51,7 +50,7 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// 获取实体详情
+                /// Get entity detail
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
@@ -61,20 +60,21 @@ public class TplContent
                 }
 
                 /// <summary>
-                /// TODO:唯一性判断
+                /// has conflict with unique
                 /// </summary>
-                /// <param name="unique">唯一标识</param>
-                /// <param name="id">排除当前</param>
+                /// <param name="unique">unique</param>
+                /// <param name="id">exclude current id</param>
                 /// <returns></returns>
-                public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
+                public async Task<bool> HasConflictAsync(string unique, Guid? id = null)
                 {
-                    return await Command.Where(q => q.Id.ToString() == unique)
+                    // custom unique check
+                    return await _dbSet.Where(q => q.Id.ToString() == unique)
                         .WhereNotNull(id, q => q.Id != id)
                         .AnyAsync();
                 }
 
                 /// <summary>
-                /// 删除实体
+                /// Delete entity
                 /// </summary>
                 /// <param name="ids"></param>
                 /// <param name="softDelete"></param>
@@ -84,25 +84,13 @@ public class TplContent
                     return await base.DeleteAsync(ids, softDelete);
                 }
 
-                /// <summary>
-                /// 数据权限验证
-                /// </summary>
-                /// <param name="id"></param>
-                /// <returns></returns>
-                public async Task<@(Model.EntityName)?> GetOwnedAsync(Guid id)
-                {
-                    var query = Command.Where(q => q.Id == id);
-                    // TODO:自定义数据权限验证
-                    // query = query.Where(q => q.User.Id == _userContext.UserId);
-                    return await query.FirstOrDefaultAsync();
-                }
+                @(Model.AdditionMethods)
             }
             """;
     }
 
-    public static string ControllerTpl(bool isAdmin = true)
+    public static string ControllerTpl()
     {
-        var baseClass = isAdmin ? "RestControllerBase" : "ClientControllerBase";
         return $$"""
             using @(Model.ShareNamespace).Models.@(Model.EntityName)Dtos;
             namespace @(Model.Namespace).Controllers;
@@ -113,35 +101,35 @@ public class TplContent
                 IUserContext user,
                 ILogger<@(Model.EntityName)Controller> logger,
                 @(Model.EntityName)Manager manager
-                ) : {{baseClass}}<@(Model.EntityName)Manager>(localizer, manager, user, logger)
+                ) : RestControllerBase<@(Model.EntityName)Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
-                /// 分页数据 🛑
+                /// Page Filter ✍️
                 /// </summary>
                 /// <param name="filter"></param>
                 /// <returns></returns>
                 [HttpPost("filter")]
                 public async Task<ActionResult<PageList<@(Model.EntityName)ItemDto>>> FilterAsync(@(Model.EntityName)FilterDto filter)
                 {
+                    @(Model.FilterCodes)
                     return await _manager.ToPageAsync(filter);
                 }
 
                 /// <summary>
-                /// 新增 🛑
+                /// Add ✍️
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
                 [HttpPost]
                 public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
-                    // 冲突验证
-                    // if(await _manager.IsUniqueAsync(dto.xxx)) { return Conflict(ErrorKeys.ConflictResource); }
-                    var id = await _manager.CreateNewEntityAsync(dto);
-                    return id == null ? Problem(ErrorMsg.AddFailed) : id;
+                    @(Model.AddCodes)
+                    var id = await _manager.AddAsync(dto);
+                    return id == null ? Problem(Localizer.AddFailed) : id;
                 }
 
                 /// <summary>
-                /// 更新数据 🛑
+                /// Update ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <param name="dto"></param>
@@ -149,38 +137,34 @@ public class TplContent
                 [HttpPatch("{id}")]
                 public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
-                    var entity = await _manager.GetOwnedAsync(id);
-                    if (entity == null) { return NotFound(ErrorKeys.NotFoundResource); }
-                    // 冲突验证
+                    @(Model.UpdateCodes)
                     return await _manager.UpdateAsync(entity, dto);
                 }
 
                 /// <summary>
-                /// 获取详情 🛑
+                /// Detail ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpGet("{id}")]
                 public async Task<ActionResult<@(Model.EntityName)DetailDto?>> GetDetailAsync([FromRoute] Guid id)
                 {
+                    @(Model.DetailCodes)
                     var res = await _manager.GetDetailAsync(id);
                     return (res == null) ? NotFound() : res;
                 }
 
                 /// <summary>
-                /// 删除 🛑
+                /// Delete ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpDelete("{id}")]
-                [NonAction]
                 public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
                 {
-                    // 注意删除权限
-                    var entity = await _manager.GetOwnedAsync(id);
-                    if (entity == null) { return NotFound(); };
-                    // return Forbid();
-                    return await _manager.DeleteAsync(entity, true);
+                    // attention permission
+                    @(Model.DeleteCodes)
+                    return await _manager.DeleteAsync([id], true);
                 }
             }
             """;
@@ -188,16 +172,19 @@ public class TplContent
 
     public static string EnumPipeTpl(bool IsNgModule = false)
     {
-
-        string ngModule = IsNgModule ? """
+        string ngModule = IsNgModule
+            ? """
 @NgModule({
   declarations: [EnumTextPipe], exports: [EnumTextPipe]
 })
 export class EnumTextPipeModule { }
-""" : "";
+"""
+            : "";
         return $$"""
-            // 该文件自动生成，会被覆盖更新
-            import { {{(IsNgModule ? "NgModule, " : "")}}Injectable, Pipe, PipeTransform } from '@@angular/core';
+            // <auto-generate>
+            import { {{(
+                IsNgModule ? "NgModule, " : ""
+            )}}Injectable, Pipe, PipeTransform } from '@@angular/core';
 
             @@Pipe({
               name: 'enumText'
@@ -235,7 +222,7 @@ export class EnumTextPipeModule { }
             global using System.ComponentModel.DataAnnotations;
             global using System.Diagnostics;
             global using System.Linq.Expressions;
-            global using ${Module}.Manager;
+            // global using ${Module}.Managers;
             global using {{ConstVal.ConventionLibName}};
             global using {{ConstVal.CoreLibName}}.Models;
             global using {{ConstVal.CoreLibName}}.Utils;
@@ -269,43 +256,141 @@ export class EnumTextPipeModule { }
                     <NoWarn>1701;1702;1591</NoWarn>
                 </PropertyGroup>
                 <ItemGroup>
-                    <ProjectReference Include="..\..\CommonMod\CommonMod.csproj" />
-                    <ProjectReference Include="..\..\Framework\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+                    <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
+                    <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.Web.Extension.csproj" />
                 </ItemGroup>
             </Project>
             """;
     }
 
-    public static string ModuleServiceCollection(string moduleName)
+    /// <summary>
+    /// api service's program template
+    /// </summary>
+    /// <returns></returns>
+    public static string ServiceProgramTpl()
     {
-        return $$"""
-            namespace {{moduleName}};
-            /// <summary>
-            /// 服务注入扩展
-            /// </summary>
-            public static class ServiceCollectionExtensions
-            {
-                /// <summary>
-                /// 添加模块服务
-                /// </summary>
-                /// <param name="services"></param>
-                /// <returns></returns>
-                public static IServiceCollection Add{{moduleName}}Services(this IServiceCollection services)
-                {
-                    services.Add{{moduleName}}Managers();
-                    // TODO:注入其他服务
-                    return services;
-                }
+        return """
+             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-                /// <summary>
-                /// 注入Manager服务
-                /// </summary>
-                /// <param name="services"></param>
-                public static IServiceCollection Add{{moduleName}}Managers(this IServiceCollection services)
-                {
-                    // TODO: 注入Manager服务
-                    return services;
+            // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
+            builder.AddServiceDefaults();
+
+            // 框架依赖服务:options, cache, dbContext
+            builder.AddFrameworkServices();
+
+            // Web中间件服务:route, openapi, jwt, default cors, auth, rateLimiter etc.
+            builder.AddMiddlewareServices();
+
+            // this service's custom cors, auth, rateLimiter etc.
+
+            // add Managers, auto generate by source generator
+            // builder.Services.AddManagers();
+
+            // add modules, auto generate by source generator
+            // builder.AddModules();
+
+            WebApplication app = builder.Build();
+
+            app.MapDefaultEndpoints();
+
+            // 使用中间件
+            app.UseMiddlewareServices();
+            app.Run();
+
+            """;
+    }
+
+    /// <summary>
+    /// api service's global usings template
+    /// </summary>
+    /// <param name="namespaceName"></param>
+    /// <returns></returns>
+    public static string ServiceGlobalUsingsTpl(string namespaceName)
+    {
+        return $"""
+            global using {namespaceName}.Extension;
+            global using Ater.Common.Utils;
+            global using Ater.Web.Convention.Abstraction;
+            global using Microsoft.AspNetCore.Mvc;
+            global using Microsoft.EntityFrameworkCore;
+            global using ServiceDefaults;
+            global using Share;
+            global using Share.Constants;
+            global using Share.Implement;
+
+            """;
+    }
+
+    /// <summary>
+    /// api service 's http file template
+    /// </summary>
+    /// <param name="port"></param>
+    /// <returns></returns>
+    public static string ServiceHttpFileTpl(string port)
+    {
+        return $"""
+            @HostAddress = http://localhost:{port}
+            """;
+    }
+
+    /// <summary>
+    /// project file template for service
+    /// </summary>
+    /// <param name="version"></param>
+    /// <returns></returns>
+    public static string ServiceProjectFileTpl(string version = ConstVal.NetVersion)
+    {
+        return $"""
+            <Project Sdk="Microsoft.NET.Sdk.Web">
+              <PropertyGroup>
+                <TargetFramework>{version}</TargetFramework>
+                <Nullable>enable</Nullable>
+                <GenerateDocumentationFile>True</GenerateDocumentationFile>
+                <NoWarn>1701;1702;1591</NoWarn>
+                <ImplicitUsings>enable</ImplicitUsings>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+              </ItemGroup>
+              <ItemGroup>
+                <ProjectReference
+                  Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false"
+                />
+                <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+              </ItemGroup>
+              <ItemGroup>
+                <Folder Include="Controllers\" />
+              </ItemGroup>
+            </Project>
+
+            """;
+    }
+
+    public static string ServiceLaunchSettingsTpl(string serviceName)
+    {
+        var httpsPort = Random.Shared.Next(7100, 8000);
+
+        return $$"""
+            {
+              "$schema": "http://json.schemastore.org/launchsettings.json",
+              "profiles": {
+                "{{serviceName}}": {
+                  "commandName": "Project",
+                  "launchBrowser": false,
+                  "launchUrl": "openapi/v1.json",
+                  "applicationUrl": "https://localhost:{{httpsPort}}",
+                  "environmentVariables": {
+                    "ASPNETCORE_ENVIRONMENT": "Development"
+                  }
                 }
+              },
+              "Docker": {
+                "commandName": "Docker",
+                "publishAllPorts": true,
+                "useSSL": true
+              }
             }
             """;
     }

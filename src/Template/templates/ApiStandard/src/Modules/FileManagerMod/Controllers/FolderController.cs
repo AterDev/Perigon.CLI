@@ -1,20 +1,18 @@
-using Ater.Common.Models;
 using FileManagerMod.Models.FolderDtos;
-using Share.Implement;
+
 namespace FileManagerMod.Controllers;
 
 /// <summary>
 /// 文件夹
 /// </summary>
-/// <see cref="Managers.FolderManager"/>
+/// <see cref="FolderManager"/>
 public class FolderController(
     Localizer localizer,
     UserContext user,
     ILogger<FolderController> logger,
     FolderManager manager
-        ) : ClientControllerBase<FolderManager>(localizer, manager, user, logger)
+) : RestControllerBase<FolderManager>(localizer, manager, user, logger)
 {
-
     /// <summary>
     /// 筛选 ✅
     /// </summary>
@@ -34,26 +32,17 @@ public class FolderController(
     [HttpPost]
     public async Task<ActionResult<Guid?>> AddAsync(FolderAddDto dto)
     {
-        var id = await _manager.AddAsync(dto);
-        return id == null ? Problem(ErrorKeys.AddFailed) : id;
-    }
-
-    /// <summary>
-    /// 更新 ✅
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, FolderUpdateDto dto)
-    {
-        Folder? current = await _manager.GetCurrentAsync(id);
-        if (current == null)
+        if (dto.ParentId != null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            var exist = await _manager.ExistAsync(dto.ParentId.Value);
+            if (!exist)
+            {
+                return NotFound(Localizer.NotFoundResource);
+            }
+            ;
         }
-        ;
-        return await _manager.UpdateAsync(current, dto);
+        var id = await _manager.AddAsync(dto);
+        return id == null ? base.Problem(Localizer.AddFailed) : id;
     }
 
     /// <summary>
@@ -65,11 +54,11 @@ public class FolderController(
     public async Task<ActionResult<FolderDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.FindAsync<FolderDetailDto>(d => d.Id == id);
-        return (res == null) ? NotFound() : res;
+        return res == null ? NotFound() : res;
     }
 
     /// <summary>
-    /// 删除 ✅
+    /// ⚠删除 ✅
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -79,6 +68,7 @@ public class FolderController(
     {
         // 注意删除权限
         Folder? entity = await _manager.GetCurrentAsync(id);
+        // return Forbid();
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

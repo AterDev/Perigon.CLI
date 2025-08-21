@@ -1,7 +1,7 @@
 using Entity.UserMod;
 using Microsoft.Extensions.Configuration;
 using Share.Models.Auth;
-using Share.Models.UserDtos;
+using UserMod.UserDtos;
 
 namespace UserMod.Controllers;
 
@@ -10,14 +10,15 @@ namespace UserMod.Controllers;
 /// </summary>
 /// <see cref="CommonMod.Managers.UserManager"/>
 public class UserController(
-    Localizer localizer,
+    Share.Localizer localizer,
     UserContext user,
     ILogger<UserController> logger,
     UserManager manager,
     CacheService cache,
     JwtService jwtService,
     EmailManager emailManager,
-    IConfiguration config) : ClientControllerBase<UserManager>(localizer, manager, user, logger)
+    IConfiguration config
+) : RestControllerBase<UserManager>(localizer, manager, user, logger)
 {
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
@@ -34,7 +35,7 @@ public class UserController(
         // 判断重复用户名
         if (await _manager.ExistAsync(q => q.UserName.Equals(dto.UserName)))
         {
-            return Conflict(ErrorKeys.ExistUser);
+            return Conflict(Localizer.ExistUser);
         }
         // 根据实际需求自定义验证码逻辑
         if (dto.VerifyCode != null)
@@ -147,8 +148,16 @@ public class UserController(
             var refreshToken = JwtService.GetRefreshToken();
 
             // 缓存
-            await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, jwtService.ExpiredSecond);
-            await _cache.SetValueAsync(refreshToken, user.Id.ToString(), jwtService.RefreshExpiredSecond);
+            await _cache.SetValueAsync(
+                WebConst.LoginCachePrefix + user.Id.ToString(),
+                true,
+                jwtService.ExpiredSecond
+            );
+            await _cache.SetValueAsync(
+                refreshToken,
+                user.Id.ToString(),
+                jwtService.RefreshExpiredSecond
+            );
 
             return new LoginResult
             {
@@ -157,7 +166,7 @@ public class UserController(
                 AccessToken = token,
                 ExpiresIn = jwtService.ExpiredSecond,
                 RefreshToken = refreshToken,
-                Username = user.UserName
+                Username = user.UserName,
             };
         }
         else
@@ -179,21 +188,29 @@ public class UserController(
         var userId = await _cache.GetValueAsync<string>(refreshToken);
         if (userId == null || userId != _user.UserId.ToString())
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         // 获取用户信息
         var user = await _manager.FindAsync<User>(u => u.Id.ToString().Equals(userId));
         if (user == null)
         {
-            return Forbid(ErrorKeys.NotFoundUser);
+            return Forbid(Localizer.NotFoundUser);
         }
         var roles = new List<string> { WebConst.User };
         var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
         var newRefreshToken = JwtService.GetRefreshToken();
 
         // 缓存
-        await _cache.SetValueAsync(WebConst.LoginCachePrefix + user.Id.ToString(), true, jwtService.ExpiredSecond);
-        await _cache.SetValueAsync(newRefreshToken, user.Id.ToString(), jwtService.RefreshExpiredSecond);
+        await _cache.SetValueAsync(
+            WebConst.LoginCachePrefix + user.Id.ToString(),
+            true,
+            jwtService.ExpiredSecond
+        );
+        await _cache.SetValueAsync(
+            newRefreshToken,
+            user.Id.ToString(),
+            jwtService.RefreshExpiredSecond
+        );
         return new AccessTokenDto
         {
             AccessToken = token,
@@ -247,7 +264,7 @@ public class UserController(
         User? current = await _manager.GetCurrentAsync(_user.UserId);
         if (current == null)
         {
-            return NotFound(ErrorKeys.NotFoundResource);
+            return NotFound(Localizer.NotFoundResource);
         }
         ;
         return await _manager.UpdateAsync(current, dto);
@@ -261,7 +278,8 @@ public class UserController(
     public async Task<ActionResult<bool?>> GetDetailAsync()
     {
         User? res = await _manager.FindAsync(_user.UserId);
-        return res == null ? NotFound(ErrorKeys.NotFoundResource)
-            : await _manager.DeleteAsync([_user.UserId], true);
+        return res == null
+            ? base.NotFound(Localizer.NotFoundResource)
+            : await base._manager.DeleteAsync([base._user.UserId], true);
     }
 }

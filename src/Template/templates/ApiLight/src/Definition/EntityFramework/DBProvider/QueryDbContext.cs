@@ -1,20 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Definition.EntityFramework.DBProvider;
+
 /// <summary>
 /// 只读数据库上下文
 /// </summary>
 public class QueryDbContext : ContextBase
 {
-
-    public QueryDbContext(DbContextOptions<QueryDbContext> options) : base(options)
+    public QueryDbContext(DbContextOptions<QueryDbContext> options)
+        : base(options)
     {
         ChangeTracker.AutoDetectChangesEnabled = false;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-
         base.OnConfiguring(optionsBuilder);
     }
 
@@ -27,6 +27,7 @@ public class QueryDbContext : ContextBase
     {
         throw new InvalidOperationException("read-only context can't save data");
     }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         // 全局过滤

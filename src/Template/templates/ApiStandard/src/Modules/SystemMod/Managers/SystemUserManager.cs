@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Ater.Common.Options;
 using Ater.Web.Extension.Helpers;
+using EntityFramework.DBProvider;
 using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
@@ -9,15 +10,14 @@ using SystemMod.Models.SystemUserDtos;
 namespace SystemMod.Managers;
 
 public class SystemUserManager(
-    DataAccessContext<SystemUser> dataContext,
-    UserContext userContext,
+    DefaultDbContext dbContext,
     IConfiguration configuration,
     CacheService cache,
     JwtService jwtService,
     SystemConfigManager systemConfig,
-    ILogger<SystemUserManager> logger) : ManagerBase<SystemUser>(dataContext, logger)
+    ILogger<SystemUserManager> logger
+) : ManagerBase<DefaultDbContext, SystemUser>(dbContext, logger)
 {
-    private readonly UserContext _userContext = userContext;
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
@@ -28,7 +28,7 @@ public class SystemUserManager(
     /// </summary>
     /// <param name="length">验证码长度</param>
     /// <returns></returns>
-    public string GetCaptcha(int length = 6)
+    public static string GetCaptcha(int length = 6)
     {
         return HashCrypto.GetRnd(length);
     }
@@ -52,7 +52,11 @@ public class SystemUserManager(
     /// <param name="user"></param>
     /// <param name="loginPolicy"></param>
     /// <returns></returns>
-    public async Task<bool> ValidateLoginAsync(SystemLoginDto dto, SystemUser user, LoginSecurityPolicyOption loginPolicy)
+    public async Task<bool> ValidateLoginAsync(
+        SystemLoginDto dto,
+        SystemUser user,
+        LoginSecurityPolicyOption loginPolicy
+    )
     {
         if (loginPolicy == null)
         {
@@ -130,15 +134,14 @@ public class SystemUserManager(
     public AccessTokenDto GenerateJwtToken(SystemUser user)
     {
         // 加载关联数据
-        var roles = user.SystemRoles?.Select(r => r.NameValue)?.ToList()
-            ?? [WebConst.AdminUser];
+        var roles = user.SystemRoles?.Select(r => r.NameValue)?.ToList() ?? [WebConst.AdminUser];
 
         // 添加管理员用户标识
         if (!roles.Contains(WebConst.AdminUser))
         {
             roles.Add(WebConst.AdminUser);
         }
-        jwtService.Claims = [new(ClaimTypes.Name, user.UserName),];
+        jwtService.Claims = [new(ClaimTypes.Name, user.UserName)];
         var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
 
         return new AccessTokenDto
@@ -146,7 +149,7 @@ public class SystemUserManager(
             AccessToken = token,
             ExpiresIn = jwtService.ExpiredSecond,
             RefreshToken = JwtService.GetRefreshToken(),
-            RefreshExpiresIn = jwtService.RefreshExpiredSecond
+            RefreshExpiresIn = jwtService.RefreshExpiredSecond,
         };
     }
 
@@ -160,7 +163,7 @@ public class SystemUserManager(
     {
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
-        Command.Update(user);
+        _dbSet.Update(user);
         return await SaveChangesAsync() > 0;
     }
 
@@ -178,8 +181,7 @@ public class SystemUserManager(
         // 角色处理
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            var roles = CommandContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id))
-                .ToList();
+            var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
         return await AddAsync(entity) ? entity.Id : null;
@@ -202,8 +204,7 @@ public class SystemUserManager(
         if (dto.RoleIds != null)
         {
             await LoadManyAsync(entity, e => e.SystemRoles);
-            var roles = CommandContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id))
-                .ToList();
+            var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
         return await UpdateAsync(entity);
@@ -211,12 +212,17 @@ public class SystemUserManager(
 
     public async Task<PageList<SystemUserItemDto>> ToPageAsync(SystemUserFilterDto filter)
     {
-        Queryable = Queryable
-            .WhereNotNull(filter.UserName, q => q.UserName == filter.UserName || q.PhoneNumber == filter.UserName || q.Email == filter.UserName);
+        Queryable = Queryable.WhereNotNull(
+            filter.UserName,
+            q =>
+                q.UserName == filter.UserName
+                || q.PhoneNumber == filter.UserName
+                || q.Email == filter.UserName
+        );
 
         if (filter.RoleId != null)
         {
-            var role = await QueryContext.SystemRoles.FindAsync(filter.RoleId);
+            var role = await _dbContext.SystemRoles.FindAsync(filter.RoleId);
             if (role != null)
             {
                 Queryable = Queryable.Where(q => q.SystemRoles.Contains(role));
@@ -237,7 +243,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<bool> IsExistAsync(string email)
     {
-        return await Query.AnyAsync(q => q.Email == email);
+        return await Queryable.AnyAsync(q => q.Email == email);
     }
 
     /// <summary>
@@ -247,9 +253,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<SystemUser?> GetOwnedAsync(Guid id)
     {
-        IQueryable<SystemUser> query = Command.Where(q => q.Id == id);
-        // 获取用户所属的对象
-        query = query.Where(q => q.Id == _userContext.UserId);
+        IQueryable<SystemUser> query = _dbSet.Where(q => q.Id == id);
         return await query.FirstOrDefaultAsync();
     }
 
@@ -278,7 +282,7 @@ public class SystemUserManager(
             PasswordLevel.Simple => "",
             PasswordLevel.Normal => "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,60}$",
             PasswordLevel.Strict => "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$",
-            _ => "^.{6,16}$"
+            _ => "^.{6,16}$",
         };
         if (!Regex.IsMatch(password, pwdReg))
         {
@@ -287,7 +291,7 @@ public class SystemUserManager(
                 PasswordLevel.Simple => "密码长度6-60位",
                 PasswordLevel.Normal => "密码长度8-60位，必须包含大小写字母和数字",
                 PasswordLevel.Strict => "密码长度8位以上，必须包含大小写字母、数字和特殊字符",
-                _ => "密码长度6-16位"
+                _ => "密码长度6-16位",
             };
             return false;
         }
@@ -296,15 +300,16 @@ public class SystemUserManager(
 
     public override async Task<SystemUser?> FindAsync(Guid id)
     {
-        return await Query.Where(q => q.Id == id)
+        return await Queryable
+            .Where(q => q.Id == id)
             .Include(q => q.SystemRoles)
             .FirstOrDefaultAsync();
     }
 
-
     public async Task<SystemUser?> FindByUserNameAsync(string userName)
     {
-        return await Command.Where(u => u.UserName.Equals(userName))
+        return await _dbSet
+            .Where(u => u.UserName.Equals(userName))
             .Include(u => u.SystemRoles)
             .SingleOrDefaultAsync();
     }

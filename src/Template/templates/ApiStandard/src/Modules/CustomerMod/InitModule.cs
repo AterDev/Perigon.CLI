@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
+
 namespace CustomerMod;
+
 public class InitModule
 {
     /// <summary>
@@ -10,12 +12,12 @@ public class InitModule
     public static async Task InitializeAsync(IServiceProvider provider)
     {
         ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        CommandDbContext context = provider.GetRequiredService<CommandDbContext>();
+        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
         ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
         IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
         try
         {
-           // TODO:初始化逻辑
+            // TODO:初始化逻辑
             await Task.CompletedTask;
         }
         catch (Exception ex)
