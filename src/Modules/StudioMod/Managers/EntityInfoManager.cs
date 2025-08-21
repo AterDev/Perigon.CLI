@@ -6,7 +6,6 @@ namespace StudioMod.Managers;
 
 public partial class EntityInfoManager(
     ILogger<EntityInfoManager> logger,
-    //CodeAnalysisService codeAnalysis,
     CodeGenService codeGenService,
     IProjectContext projectContext
 ) : ManagerBase(logger)
