@@ -19,7 +19,8 @@
 ## 环境准备
 
 - .NET SDK 9.0 (正式版需要10.0)
-- Visual Studio 2022 (推荐使用最新版本并使用**GitHub Copilot**)
+- Visual Studio 2022/VS Code
+- PowerShell 7.0 或更高版本
 
 ## 项目结构说明
 
@@ -68,6 +69,9 @@ Studio包含了前后端，在开发过程中，你可以分别运行`AterStudio
 1. 执行`installTemplate.ps1`脚本将模板安装到本地，创建解决方案时需要使用。模板没有更新时，可以跳过此步骤。
 2. 执行``PublishToLocal.ps1`脚本将命令行工具安装到本地。以测试安装后的效果实际使用效果。
 3. 绝大多时间，直接运行`AterStudio`项目进行调试即可。
+
+> [!NOTE]
+> 请使用`powerShell 7.0` 或更高版本来运行脚本。
 
 ## 开发规范和注意事项
 

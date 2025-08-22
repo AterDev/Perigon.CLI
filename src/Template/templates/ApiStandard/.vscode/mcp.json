@@ -2,7 +2,7 @@
     "servers": {
         "ater.dry.copilot": {
             "type": "http",
-            "url": "https://localhost:19016/mcp/"
+            "url": "http://localhost:19160/mcp/"
         }
     }
 }
