@@ -81,7 +81,8 @@
   {
     Model = new RequestClientDto()
     {
-      OpenApiEndpoint = Content.Path
+      OpenApiEndpoint = Content.Path,
+      OutputPath = Content.LocalPath
     };
     editContext = new EditContext(Model);
     editContext.OnFieldChanged += HandleFieldChanged;

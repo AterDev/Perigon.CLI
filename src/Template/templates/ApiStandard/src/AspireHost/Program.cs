@@ -45,9 +45,9 @@ _ = aspireSetting.CacheType?.ToLowerInvariant() switch
 };
 #endregion
 
-var migration = builder.AddProject<Projects.MigrationService>("migrationservice");
-var apiService = builder.AddProject<Projects.ApiService>("apiservice");
-var adminService = builder.AddProject<Projects.AdminService>("adminservice");
+var migration = builder.AddProject<Projects.MigrationService>("MigrationService");
+var apiService = builder.AddProject<Projects.ApiService>("ApiService");
+var adminService = builder.AddProject<Projects.AdminService>("AdminService");
 
 if (database != null)
 {

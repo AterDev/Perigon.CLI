@@ -204,6 +204,7 @@ public class ApiDocInfoManager(
         switch (dto.ClientType)
         {
             case RequestClientType.NgHttp:
+            case RequestClientType.Axios:
                 files = await _codeGenService.GenerateWebRequestAsync(
                     dto.OpenApiEndpoint!,
                     dto.OutputPath!,

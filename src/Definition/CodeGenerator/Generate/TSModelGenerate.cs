@@ -235,8 +235,12 @@ public class TSModelGenerate : GenerateBase
  */
 ";
         }
-        var props = OpenApiHelper.ParseProperties(schema, false);
-        bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
+        var props = OpenApiHelper.ParseProperties(schema, true);
+        if (props.Count == 0)
+        {
+            return string.Empty;
+        }
+
         var tsProps = new List<TsProperty>();
         foreach (var p in props)
         {
@@ -257,8 +261,6 @@ public class TSModelGenerate : GenerateBase
         var importsProps = tsProps
             .Where(p => !string.IsNullOrEmpty(p.Reference))
             .DistinctBy(p => p.Reference)
-            //.GroupBy(p => p.Reference)
-            //.Select(g => new { g.First().IsEnum, g.First().Reference })
             .ToList();
         importsProps.ForEach(ip =>
         {

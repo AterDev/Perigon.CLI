@@ -266,10 +266,10 @@ public class OpenApiHelper
                     isNavigation = true;
                     navigationName = reference.Reference.Id ?? type;
                 }
-                else if (type != refType)
+                if (prop.Value.Items is not null and OpenApiSchemaReference reference1)
                 {
                     isNavigation = true;
-                    navigationName = refType ?? type;
+                    navigationName = reference1.Reference.Id ?? refType;
                 }
                 properties.Add(
                     new PropertyInfo

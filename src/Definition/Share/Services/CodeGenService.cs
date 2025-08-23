@@ -241,6 +241,20 @@ public class CodeGenService(
             return null;
         }
 
+        var title = apiDocument.Info.Title;
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            var matchName = title
+                .Split('|')
+                .Where(s => s.EndsWith("Service", StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+            matchName ??= title.Split('|').FirstOrDefault();
+
+            if (matchName != null)
+            {
+                docName = matchName.Trim().Replace("Service", "").ToHyphen();
+            }
+        }
         // base service
         string content = RequestGenerate.GetBaseService(type);
         string dir = Path.Combine(outputPath, "services", docName);

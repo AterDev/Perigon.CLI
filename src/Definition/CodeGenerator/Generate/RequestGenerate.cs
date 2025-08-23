@@ -340,10 +340,12 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
             // 参数中的类型
             List<string?> paramsRefs = functions
+                .Where(f => f.Params != null)
                 .SelectMany(f => f.Params!)
                 .Where(p => !baseTypes.Contains(p.Type))
                 .Select(p => p.Type)
                 .ToList();
+
             if (requestRefs != null)
             {
                 refTypes.AddRange(requestRefs!);
