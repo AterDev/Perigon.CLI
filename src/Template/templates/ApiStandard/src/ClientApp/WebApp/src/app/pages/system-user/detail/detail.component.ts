@@ -6,7 +6,7 @@ import { SystemUserDetailDto } from 'src/app/services/admin/system-user/models/s
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, forkJoin } from 'rxjs';
 import { Location } from '@angular/common';
-import { CommonListModules } from 'src/app/app.config';
+import { CommonListModules } from 'src/app/share/shared-modules';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model';

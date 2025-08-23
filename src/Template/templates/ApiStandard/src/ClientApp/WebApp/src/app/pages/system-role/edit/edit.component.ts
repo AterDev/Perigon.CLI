@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { CommonFormModules } from 'src/app/app.config';
+import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 
 
@@ -20,7 +20,7 @@ import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
   styleUrls: ['./edit.component.scss']
 })
 export class EditComponent implements OnInit {
-  
+
   formGroup!: FormGroup;
   id!: string;
   data = {} as SystemRoleDetailDto;
@@ -45,9 +45,9 @@ export class EditComponent implements OnInit {
     }
   }
 
-    get name() { return this.formGroup.get('name') as FormControl }; 
-  get nameValue() { return this.formGroup.get('nameValue') as FormControl }; 
-  get isSystem() { return this.formGroup.get('isSystem') as FormControl }; 
+    get name() { return this.formGroup.get('name') as FormControl };
+  get nameValue() { return this.formGroup.get('nameValue') as FormControl };
+  get isSystem() { return this.formGroup.get('isSystem') as FormControl };
 
 
   ngOnInit(): void {
@@ -69,7 +69,7 @@ export class EditComponent implements OnInit {
           this.isLoading = false;
         }
       });
-  } 
+  }
 
 
   initForm(): void {
@@ -77,22 +77,22 @@ export class EditComponent implements OnInit {
         name: new FormControl(this.data.name, [Validators.maxLength(30)]),
       nameValue: new FormControl(this.data.nameValue, [Validators.maxLength(60)]),
       isSystem: new FormControl(this.data.isSystem, []),
-    
+
     });
   }
 
   getValidatorMessage(type: string): string {
     switch (type) {
       case 'name':
-      return this.name?.hasError('required') ? '角色显示名称必填' : 
+      return this.name?.hasError('required') ? '角色显示名称必填' :
         this.name?.hasError('maxlength') ? '角色显示名称长度不超过30位': '';
     case 'nameValue':
-      return this.nameValue?.hasError('required') ? '角色名，系统标识必填' : 
+      return this.nameValue?.hasError('required') ? '角色名，系统标识必填' :
         this.nameValue?.hasError('maxlength') ? '角色名，系统标识长度不超过60位': '';
     case 'isSystem':
-      return this.isSystem?.hasError('required') ? '是否系统内置,系统内置不可删除必填' : 
+      return this.isSystem?.hasError('required') ? '是否系统内置,系统内置不可删除必填' :
         this.isSystem?.hasError('maxlength') ? '是否系统内置,系统内置不可删除长度不超过位': '';
-    
+
       default:
         return '';
     }

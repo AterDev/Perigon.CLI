@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { CommonFormModules } from 'src/app/app.config';
+import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model';
 
@@ -47,13 +47,13 @@ export class EditComponent implements OnInit {
     }
   }
 
-    get userName() { return this.formGroup.get('userName') as FormControl }; 
-  get password() { return this.formGroup.get('password') as FormControl }; 
-  get realName() { return this.formGroup.get('realName') as FormControl }; 
-  get email() { return this.formGroup.get('email') as FormControl }; 
-  get phoneNumber() { return this.formGroup.get('phoneNumber') as FormControl }; 
-  get avatar() { return this.formGroup.get('avatar') as FormControl }; 
-  get sex() { return this.formGroup.get('sex') as FormControl }; 
+    get userName() { return this.formGroup.get('userName') as FormControl };
+  get password() { return this.formGroup.get('password') as FormControl };
+  get realName() { return this.formGroup.get('realName') as FormControl };
+  get email() { return this.formGroup.get('email') as FormControl };
+  get phoneNumber() { return this.formGroup.get('phoneNumber') as FormControl };
+  get avatar() { return this.formGroup.get('avatar') as FormControl };
+  get sex() { return this.formGroup.get('sex') as FormControl };
 
 
   ngOnInit(): void {
@@ -75,7 +75,7 @@ export class EditComponent implements OnInit {
           this.isLoading = false;
         }
       });
-  } 
+  }
 
 
   initForm(): void {
@@ -87,34 +87,34 @@ export class EditComponent implements OnInit {
       phoneNumber: new FormControl(this.data.phoneNumber, [Validators.maxLength(20)]),
       avatar: new FormControl(this.data.avatar, [Validators.maxLength(200)]),
       sex: new FormControl(this.data.sex, []),
-    
+
     });
   }
 
   getValidatorMessage(type: string): string {
     switch (type) {
       case 'userName':
-      return this.userName?.hasError('required') ? '用户名必填' : 
+      return this.userName?.hasError('required') ? '用户名必填' :
         this.userName?.hasError('maxlength') ? '用户名长度不超过30位': '';
     case 'password':
-      return this.password?.hasError('required') ? '密码必填' : 
+      return this.password?.hasError('required') ? '密码必填' :
         this.password?.hasError('maxlength') ? '密码长度不超过60位': '';
     case 'realName':
-      return this.realName?.hasError('required') ? '真实姓名必填' : 
+      return this.realName?.hasError('required') ? '真实姓名必填' :
         this.realName?.hasError('maxlength') ? '真实姓名长度不超过30位': '';
     case 'email':
-      return this.email?.hasError('required') ? 'Email必填' : 
+      return this.email?.hasError('required') ? 'Email必填' :
         this.email?.hasError('maxlength') ? 'Email长度不超过100位': '';
     case 'phoneNumber':
-      return this.phoneNumber?.hasError('required') ? 'PhoneNumber必填' : 
+      return this.phoneNumber?.hasError('required') ? 'PhoneNumber必填' :
         this.phoneNumber?.hasError('maxlength') ? 'PhoneNumber长度不超过20位': '';
     case 'avatar':
-      return this.avatar?.hasError('required') ? '头像url必填' : 
+      return this.avatar?.hasError('required') ? '头像url必填' :
         this.avatar?.hasError('maxlength') ? '头像url长度不超过200位': '';
     case 'sex':
-      return this.sex?.hasError('required') ? '性别必填' : 
+      return this.sex?.hasError('required') ? '性别必填' :
         this.sex?.hasError('maxlength') ? '性别长度不超过位': '';
-    
+
       default:
         return '';
     }

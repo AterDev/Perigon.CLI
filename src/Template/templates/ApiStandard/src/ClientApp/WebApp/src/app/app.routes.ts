@@ -12,13 +12,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     children: [
-      {
-        path: 'customer',
-        children: [
-          { path: '', redirectTo: '/customer/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/customer-info/index/index.component').then(m => m.IndexComponent) },
-        ]
-      },
       // {
       //   path: 'team',
       //   children: [

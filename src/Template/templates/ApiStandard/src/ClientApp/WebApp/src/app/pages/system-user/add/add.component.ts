@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { CommonFormModules } from 'src/app/app.config';
+import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model';
 import { SystemRoleService } from 'src/app/services/admin/system-role/system-role.service';

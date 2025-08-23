@@ -9,7 +9,7 @@ import { Observable, forkJoin } from 'rxjs';
 import { SystemMenuPageList } from 'src/app/services/admin/system-menu/models/system-menu-page-list.model';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
-import { commonModules } from 'src/app/app.config';
+import { commonModules } from 'src/app/share/shared-modules';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 

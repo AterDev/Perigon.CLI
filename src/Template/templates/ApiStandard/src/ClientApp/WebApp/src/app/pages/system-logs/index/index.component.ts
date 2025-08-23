@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
 import { Observable, forkJoin } from 'rxjs';
-import { CommonFormModules, CommonListModules } from 'src/app/app.config';
+import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 import { TypedCellDefDirective } from 'src/app/share/typed-cell-def.directive';
 import { UserActionType } from 'src/app/services/admin/enum/models/user-action-type.model';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';

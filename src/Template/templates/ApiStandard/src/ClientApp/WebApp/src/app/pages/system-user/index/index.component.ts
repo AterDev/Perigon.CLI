@@ -11,7 +11,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
-import { CommonFormModules, CommonListModules } from 'src/app/app.config';
+import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 import { TypedCellDefDirective } from 'src/app/share/typed-cell-def.directive';
 import { DetailComponent } from '../detail/detail.component';
 
@@ -27,7 +27,7 @@ import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
   styleUrls: ['./index.component.scss']
 })
 export class IndexComponent implements OnInit {
-  
+
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   isLoading = true;
   isProcessing = false;

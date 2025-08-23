@@ -4,7 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 // import { OAuthService, OAuthErrorEvent, UserInfo } from 'angular-oauth2-oidc';
 import { Router } from '@angular/router';
-import { CommonFormModules } from 'src/app/app.config';
+import { CommonFormModules } from 'src/app/share/shared-modules';
 import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';
 import { AuthService } from 'src/app/services/auth.service';
 

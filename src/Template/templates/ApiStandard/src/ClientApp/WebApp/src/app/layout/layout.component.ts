@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationStart, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { baseMatModules, commonModules } from '../app.config';
+import { baseMatModules, commonModules } from 'src/app/share/shared-modules';
 import { NavigationComponent } from "./navigation/navigation.component";
 
 @Component({
@@ -37,7 +37,7 @@ export class LayoutComponent {
     this.isAdmin = this.auth.isAdmin;
     this.username = this.auth.userName;
   }
-  
+
   login(): void {
     this.router.navigateByUrl('/login')
   }
