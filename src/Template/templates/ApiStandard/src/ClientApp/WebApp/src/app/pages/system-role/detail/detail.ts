@@ -13,10 +13,10 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'app-detail',
   imports: [...CommonListModules, MatCardModule],
-  templateUrl: './detail.component.html',
-  styleUrls: ['./detail.component.scss']
+  templateUrl: './detail.html',
+  styleUrls: ['./detail.scss']
 })
-export class DetailComponent implements OnInit {
+export class Detail implements OnInit {
   isLoading = true;
   data = {} as SystemRoleDetailDto;
   isProcessing = false;

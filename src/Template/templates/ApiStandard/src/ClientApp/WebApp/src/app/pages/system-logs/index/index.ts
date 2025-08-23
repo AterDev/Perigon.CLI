@@ -21,10 +21,10 @@ import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 @Component({
   selector: 'app-index',
   imports: [...CommonListModules, ...CommonFormModules, TypedCellDefDirective, ToKeyValuePipe, EnumTextPipe],
-  templateUrl: './index.component.html',
-  styleUrls: ['./index.component.scss']
+  templateUrl: './index.html',
+  styleUrls: ['./index.scss']
 })
-export class IndexComponent implements OnInit {
+export class Index implements OnInit {
   UserActionType = UserActionType;
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;

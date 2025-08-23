@@ -4,10 +4,10 @@ import { BaseService } from 'src/app/services/admin/base.service';
 
 @Component({
   selector: 'app-notfound',
-  templateUrl: './notfound.component.html',
-  styleUrl: './notfound.component.css'
+  templateUrl: './notfound.html',
+  styleUrl: './notfound.css'
 })
-export class NotfoundComponent {
+export class Notfound {
   constructor(
     private baseService: BaseService,
     private router: Router,

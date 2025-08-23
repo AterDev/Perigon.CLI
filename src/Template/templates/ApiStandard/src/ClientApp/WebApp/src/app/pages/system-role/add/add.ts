@@ -16,10 +16,10 @@ import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 @Component({
   selector: 'app-add',
   imports: [...CommonFormModules, ToKeyValuePipe],
-  templateUrl: './add.component.html',
-  styleUrls: ['./add.component.scss']
+  templateUrl: './add.html',
+  styleUrls: ['./add.scss']
 })
-export class AddComponent implements OnInit {
+export class Add implements OnInit {
 
   formGroup!: FormGroup;
   data = {} as SystemRoleAddDto;
@@ -31,7 +31,7 @@ export class AddComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    public dialogRef: MatDialogRef<AddComponent>,
+    public dialogRef: MatDialogRef<Add>,
     @Inject(MAT_DIALOG_DATA) public dlgData: { id: '' }
   ) {
 

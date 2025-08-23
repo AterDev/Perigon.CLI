@@ -17,10 +17,10 @@ import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model
 @Component({
   selector: 'app-edit',
   imports: [...CommonFormModules, ToKeyValuePipe],
-  templateUrl: './edit.component.html',
-  styleUrls: ['./edit.component.scss']
+  templateUrl: './edit.html',
+  styleUrls: ['./edit.scss']
 })
-export class EditComponent implements OnInit {
+export class Edit implements OnInit {
   GenderType = GenderType;
 
   formGroup!: FormGroup;
@@ -36,7 +36,7 @@ export class EditComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    public dialogRef: MatDialogRef<EditComponent>,
+    public dialogRef: MatDialogRef<Edit>,
     @Inject(MAT_DIALOG_DATA) public dlgData: { id: '' }
   ) {
     const id = this.route.snapshot.paramMap.get('id');

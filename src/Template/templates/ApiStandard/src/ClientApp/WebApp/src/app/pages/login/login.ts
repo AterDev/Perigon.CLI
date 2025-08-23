@@ -11,10 +11,10 @@ import { AuthService } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-login',
   imports: [CommonFormModules, MatCardModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  templateUrl: './login.html',
+  styleUrls: ['./login.scss']
 })
-export class LoginComponent implements OnInit {
+export class Login implements OnInit {
   public loginForm!: FormGroup;
   constructor(
     private authService: AuthService,

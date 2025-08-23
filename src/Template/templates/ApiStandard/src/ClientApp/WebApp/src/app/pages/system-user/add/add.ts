@@ -21,10 +21,10 @@ import { SystemRoleItemDto } from 'src/app/services/admin/system-role/models/sys
 @Component({
   selector: 'app-add',
   imports: [...CommonFormModules, ToKeyValuePipe],
-  templateUrl: './add.component.html',
-  styleUrls: ['./add.component.scss']
+  templateUrl: './add.html',
+  styleUrls: ['./add.scss']
 })
-export class AddComponent implements OnInit {
+export class Add implements OnInit {
   GenderType = GenderType;
   formGroup!: FormGroup;
   data = {} as SystemUserAddDto;
@@ -38,7 +38,7 @@ export class AddComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    public dialogRef: MatDialogRef<AddComponent>,
+    public dialogRef: MatDialogRef<Add>,
     @Inject(MAT_DIALOG_DATA) public dlgData: { id: '' }
   ) {
 

@@ -16,10 +16,10 @@ import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-menus',
   imports: [commonModules, MatTreeModule, MatCheckboxModule, MatButtonModule, MatCardModule],
-  templateUrl: './menus.component.html',
-  styleUrl: './menus.component.scss'
+  templateUrl: './menus.html',
+  styleUrl: './menus.scss'
 })
-export class MenusComponent {
+export class Menus {
   id!: string;
   isLoading = true;
   data: SystemMenu[] = [];
@@ -32,7 +32,7 @@ export class MenusComponent {
     private snb: MatSnackBar,
     private service: SystemMenuService,
     private roleService: SystemRoleService,
-    public dialogRef: MatDialogRef<MenusComponent>,
+    public dialogRef: MatDialogRef<Menus>,
     @Inject(MAT_DIALOG_DATA) public dlgData: { id: '' }
   ) {
     const id = this.route.snapshot.paramMap.get('id');
