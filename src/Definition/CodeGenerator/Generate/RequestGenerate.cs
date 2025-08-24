@@ -376,7 +376,6 @@ import {{ Observable }} from 'rxjs';
 /**
  * {serviceFile.Description}
  */
-@Injectable({{ providedIn: 'root' }})
 export class {serviceFile.Name}BaseService extends BaseService {{
 {functionstr}
 }}
