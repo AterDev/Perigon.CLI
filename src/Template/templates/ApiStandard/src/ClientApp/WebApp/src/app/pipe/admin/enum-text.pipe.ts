@@ -1,4 +1,4 @@
-// 该文件自动生成，会被覆盖更新
+// <auto-generate>
 import { Injectable, Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
@@ -9,15 +9,6 @@ export class EnumTextPipe implements PipeTransform {
   transform(value: unknown, type: string): string {
     let result = '';
     switch (type) {
-      case 'CustomerStatus':
-        {
-          switch (value) {
-            case 0: result = '启用'; break;
-            case 1: result = '禁用'; break;
-            default: result = '默认'; break;
-          }
-        }
-        break;
       case 'GenderType':
         {
           switch (value) {
@@ -37,16 +28,6 @@ export class EnumTextPipe implements PipeTransform {
           }
         }
         break;
-      case 'OrderStatus':
-        {
-          switch (value) {
-            case 0: result = '未支付'; break;
-            case 1: result = '已取消'; break;
-            case 2: result = '已支付'; break;
-            default: result = '默认'; break;
-          }
-        }
-        break;
       case 'PermissionType':
         {
           switch (value) {
@@ -61,49 +42,12 @@ export class EnumTextPipe implements PipeTransform {
           }
         }
         break;
-      case 'ProductStatus':
-        {
-          switch (value) {
-            case 0: result = '默认待上架'; break;
-            case 1: result = '上架'; break;
-            case 2: result = '下架'; break;
-            default: result = '默认'; break;
-          }
-        }
-        break;
-      case 'ProductType':
-        {
-          switch (value) {
-            case 0: result = '团队套餐'; break;
-            case 1: result = '个人套餐'; break;
-            default: result = '默认'; break;
-          }
-        }
-        break;
       case 'Sex':
         {
           switch (value) {
             case 0: result = '男性'; break;
             case 1: result = '女性'; break;
             case 2: result = '其他'; break;
-            default: result = '默认'; break;
-          }
-        }
-        break;
-      case 'TeamStatus':
-        {
-          switch (value) {
-            case 0: result = '启用'; break;
-            case 1: result = '禁用'; break;
-            default: result = '默认'; break;
-          }
-        }
-        break;
-      case 'TeamType':
-        {
-          switch (value) {
-            case 0: result = '个人'; break;
-            case 1: result = '团队'; break;
             default: result = '默认'; break;
           }
         }

@@ -314,7 +314,7 @@ public class CodeGenService(
         var tsModels = ngGen.GetTSInterfaces();
         tsModels.ForEach(m =>
         {
-            dir = Path.Combine(outputPath, "services", docName, m.FullName, "models");
+            dir = Path.Combine(outputPath, "services", docName, m.FullName);
             m.FullName = Path.Combine(dir, m.Name);
             m.IsCover = true;
         });

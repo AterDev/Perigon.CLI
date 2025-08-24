@@ -240,6 +240,8 @@ public class OpenApiHelper
         }
         if (schema.Properties?.Count > 0)
         {
+            var requiredList = schema.Required ?? new HashSet<string>();
+
             foreach (var prop in schema.Properties)
             {
                 var (type, refType) = useTypescript
@@ -248,17 +250,24 @@ public class OpenApiHelper
                 string name = prop.Key;
                 string? desc = prop.Value.Description;
                 var schemaType = prop.Value.Type;
-                bool isNullable = prop.Value.Required == null;
                 bool isEnum = prop.Value.Enum?.Count > 0;
                 bool isList = schemaType == JsonSchemaType.Array;
 
                 var isNavigation = false;
                 var navigationName = string.Empty;
+
                 var isRequired = true;
+                bool isNullable = false;
+                if (requiredList.Contains(name))
+                {
+                    isRequired = true;
+                    isNullable = false;
+                }
 
                 if (schemaType.HasValue && schemaType.Value.HasFlag(JsonSchemaType.Null))
                 {
                     isRequired = false;
+                    isNullable = true;
                 }
 
                 if (prop.Value is OpenApiSchemaReference reference)
@@ -271,20 +280,20 @@ public class OpenApiHelper
                     isNavigation = true;
                     navigationName = reference1.Reference.Id ?? refType;
                 }
-                properties.Add(
-                    new PropertyInfo
-                    {
-                        Name = name,
-                        Type = type,
-                        IsNullable = isNullable,
-                        CommentSummary = desc,
-                        IsEnum = isEnum,
-                        IsList = isList,
-                        IsNavigation = isNavigation,
-                        NavigationName = navigationName,
-                        IsRequired = isRequired,
-                    }
-                );
+
+                var propertyInfo = new PropertyInfo
+                {
+                    Name = name,
+                    Type = type,
+                    IsNullable = isNullable,
+                    CommentSummary = desc,
+                    IsEnum = isEnum,
+                    IsList = isList,
+                    IsNavigation = isNavigation,
+                    NavigationName = navigationName,
+                    IsRequired = isRequired,
+                };
+                properties.Add(propertyInfo);
             }
         }
         return properties;

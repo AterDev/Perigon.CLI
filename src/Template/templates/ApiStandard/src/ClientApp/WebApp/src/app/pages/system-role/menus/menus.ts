@@ -2,16 +2,16 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { SystemMenu } from 'src/app/services/admin/system-menu/models/system-menu.model';
-import { SystemMenuService } from 'src/app/services/admin/system-menu/system-menu.service';
-import { SystemRoleService } from 'src/app/services/admin/system-role/system-role.service';
+import { SystemMenu } from 'src/app/services/admin/models/system-menu.model';
+import { SystemMenuService } from 'src/app/services/admin/system-menu.service';
+import { SystemRoleService } from 'src/app/services/admin/system-role.service';
 import { Observable, forkJoin } from 'rxjs';
-import { SystemMenuPageList } from 'src/app/services/admin/system-menu/models/system-menu-page-list.model';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { commonModules } from 'src/app/share/shared-modules';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { PageListOfSystemMenu } from 'src/app/services/admin/models/page-list-of-system-menu.model';
 
 @Component({
   selector: 'app-menus',
@@ -77,11 +77,11 @@ export class Menus {
       });
   }
 
-  getMemusAsync(): Observable<SystemMenuPageList> {
+  getMemusAsync(): Observable<PageListOfSystemMenu> {
     return this.service.filter({ pageIndex: 1, pageSize: 999 });
   }
 
-  getRoleMenusAsync(): Observable<SystemMenuPageList> {
+  getRoleMenusAsync(): Observable<PageListOfSystemMenu> {
     return this.service.filter({
       pageIndex: 1,
       pageSize: 100,

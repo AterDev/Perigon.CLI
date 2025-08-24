@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, TemplateRef, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
-import { SystemRoleService } from 'src/app/services/admin/system-role/system-role.service';
-import { SystemRoleDetailDto } from 'src/app/services/admin/system-role/models/system-role-detail-dto.model';
+import { SystemRoleService } from 'src/app/services/admin/system-role.service';
+import { SystemRoleDetailDto } from 'src/app/services/admin/models/system-role-detail-dto.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, forkJoin } from 'rxjs';
 import { Location } from '@angular/common';

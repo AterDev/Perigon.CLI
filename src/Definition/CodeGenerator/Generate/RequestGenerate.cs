@@ -144,7 +144,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 _ => "",
             };
 
-            string path = currentTag.Name?.ToHyphen() ?? "";
+            string path = string.Empty;
             switch (LibType)
             {
                 // 同时生成基类和继承类，继承类可自定义
@@ -370,7 +370,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         }
         string result =
             $@"import {{ Injectable }} from '@angular/core';
-import {{ BaseService }} from '../base.service';
+import {{ BaseService }} from './base.service';
 import {{ Observable }} from 'rxjs';
 {importModels}
 /**
@@ -545,7 +545,8 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         string Path = function.Path;
         if (Server != null)
         {
-            Path = Server + Path;
+            var serverPath = Server.EndsWith('/') ? Server[0..^1] : Server;
+            Path = serverPath + Path;
         }
 
         // 函数名处理，去除tag前缀，然后格式化
@@ -659,25 +660,12 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         if (EnumModels.Contains(t))
         {
             importModels +=
-                $"import {{ {t} }} from '../enum/models/{t.ToHyphen()}.model';{Environment.NewLine}";
+                $"import {{ {t} }} from './enum/{t.ToHyphen()}.model';{Environment.NewLine}";
         }
         else
         {
-            string? dirName = TsModelFiles
-                .Where(f => f.ModelName == t)
-                .Select(f => f.DirName)
-                .FirstOrDefault();
-
-            if (dirName != serviceFile.Name.ToHyphen())
-            {
-                importModels +=
-                    $"import {{ {t} }} from '../{dirName}/models/{t.ToHyphen()}.model';{Environment.NewLine}";
-            }
-            else
-            {
-                importModels +=
-                    $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
-            }
+            importModels +=
+                $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
         }
         return importModels;
     }

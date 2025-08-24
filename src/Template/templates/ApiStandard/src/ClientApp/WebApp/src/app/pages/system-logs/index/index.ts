@@ -1,10 +1,9 @@
 import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
-import { SystemLogsService } from 'src/app/services/admin/system-logs/system-logs.service';
-import { SystemLogsItemDto } from 'src/app/services/admin/system-logs/models/system-logs-item-dto.model';
-import { SystemLogsFilterDto } from 'src/app/services/admin/system-logs/models/system-logs-filter-dto.model';
-import { SystemLogsItemDtoPageList } from 'src/app/services/admin/system-logs/models/system-logs-item-dto-page-list.model';
+import { SystemLogsService } from 'src/app/services/admin/system-logs.service';
+import { SystemLogsItemDto } from 'src/app/services/admin/models/system-logs-item-dto.model';
+import { SystemLogsFilterDto } from 'src/app/services/admin/models/system-logs-filter-dto.model';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,9 +12,10 @@ import { FormGroup } from '@angular/forms';
 import { Observable, forkJoin } from 'rxjs';
 import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 import { TypedCellDefDirective } from 'src/app/share/typed-cell-def.directive';
-import { UserActionType } from 'src/app/services/admin/enum/models/user-action-type.model';
+import { UserActionType } from 'src/app/services/admin/enum/user-action-type.model';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
+import { PageListOfSystemLogsItemDto } from 'src/app/services/admin/models/page-list-of-system-logs-item-dto.model';
 
 
 @Component({
@@ -75,7 +75,7 @@ export class Index implements OnInit {
     });
   }
 
-  getListAsync(): Observable<SystemLogsItemDtoPageList> {
+  getListAsync(): Observable<PageListOfSystemLogsItemDto> {
     return this.service.filter(this.filter);
   }
 

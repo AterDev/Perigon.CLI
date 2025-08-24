@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { SystemRoleService } from 'src/app/services/admin/system-role/system-role.service';
+import { SystemRoleService } from 'src/app/services/admin/system-role.service';
 import { SystemRoleUpdateDto } from
-'src/app/services/admin/system-role/models/system-role-update-dto.model';
+  'src/app/services/admin/models/system-role-update-dto.model';
 import { SystemRoleDetailDto } from
-'src/app/services/admin/system-role/models/system-role-detail-dto.model';
+  'src/app/services/admin/models/system-role-detail-dto.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -45,7 +45,7 @@ export class Edit implements OnInit {
     }
   }
 
-    get name() { return this.formGroup.get('name') as FormControl };
+  get name() { return this.formGroup.get('name') as FormControl };
   get nameValue() { return this.formGroup.get('nameValue') as FormControl };
   get isSystem() { return this.formGroup.get('isSystem') as FormControl };
 
@@ -54,7 +54,7 @@ export class Edit implements OnInit {
     this.getDetail();
   }
 
-   getDetail(): void {
+  getDetail(): void {
     this.service.getDetail(this.id)
       .subscribe({
         next: (res) => {
@@ -74,7 +74,7 @@ export class Edit implements OnInit {
 
   initForm(): void {
     this.formGroup = new FormGroup({
-        name: new FormControl(this.data.name, [Validators.maxLength(30)]),
+      name: new FormControl(this.data.name, [Validators.maxLength(30)]),
       nameValue: new FormControl(this.data.nameValue, [Validators.maxLength(60)]),
       isSystem: new FormControl(this.data.isSystem, []),
 
@@ -84,14 +84,14 @@ export class Edit implements OnInit {
   getValidatorMessage(type: string): string {
     switch (type) {
       case 'name':
-      return this.name?.hasError('required') ? '角色显示名称必填' :
-        this.name?.hasError('maxlength') ? '角色显示名称长度不超过30位': '';
-    case 'nameValue':
-      return this.nameValue?.hasError('required') ? '角色名，系统标识必填' :
-        this.nameValue?.hasError('maxlength') ? '角色名，系统标识长度不超过60位': '';
-    case 'isSystem':
-      return this.isSystem?.hasError('required') ? '是否系统内置,系统内置不可删除必填' :
-        this.isSystem?.hasError('maxlength') ? '是否系统内置,系统内置不可删除长度不超过位': '';
+        return this.name?.hasError('required') ? '角色显示名称必填' :
+          this.name?.hasError('maxlength') ? '角色显示名称长度不超过30位' : '';
+      case 'nameValue':
+        return this.nameValue?.hasError('required') ? '角色名，系统标识必填' :
+          this.nameValue?.hasError('maxlength') ? '角色名，系统标识长度不超过60位' : '';
+      case 'isSystem':
+        return this.isSystem?.hasError('required') ? '是否系统内置,系统内置不可删除必填' :
+          this.isSystem?.hasError('maxlength') ? '是否系统内置,系统内置不可删除长度不超过位' : '';
 
       default:
         return '';

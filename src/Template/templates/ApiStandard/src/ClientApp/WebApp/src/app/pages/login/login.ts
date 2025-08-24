@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 // import { OAuthService, OAuthErrorEvent, UserInfo } from 'angular-oauth2-oidc';
 import { Router } from '@angular/router';
 import { CommonFormModules } from 'src/app/share/shared-modules';
-import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';
+import { SystemUserService } from 'src/app/services/admin/system-user.service';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -69,7 +69,7 @@ export class Login implements OnInit {
     // 登录接口
     this.service.login(data)
       .subscribe(res => {
-        this.authService.saveLoginState(res.username, res.token);
+        this.authService.saveLoginState(res.username, res.accessToken);
 
         this.router.navigate(['/customer/index']);
       });

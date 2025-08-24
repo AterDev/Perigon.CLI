@@ -2,10 +2,10 @@ import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
-import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';
-import { SystemUserItemDto } from 'src/app/services/admin/system-user/models/system-user-item-dto.model';
-import { SystemUserFilterDto } from 'src/app/services/admin/system-user/models/system-user-filter-dto.model';
-import { SystemUserItemDtoPageList } from 'src/app/services/admin/system-user/models/system-user-item-dto-page-list.model';
+import { SystemUserService } from 'src/app/services/admin/system-user.service';
+// import { SystemUserItemDto } from 'src/app/services/admin/models/system-user-item-dto.model';
+import { SystemUserFilterDto } from 'src/app/services/admin/models/system-user-filter-dto.model';
+
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -19,6 +19,8 @@ import { Add } from '../add/add';
 import { Edit } from '../edit/edit';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
+import { PageListOfSystemUserItemDto } from 'src/app/services/admin/models/page-list-of-system-user-item-dto.model';
+import { SystemUserItemDto } from 'src/app/services/admin/models/system-user-item-dto.model';
 
 @Component({
   selector: 'app-index',
@@ -76,7 +78,7 @@ export class Index implements OnInit {
       });
   }
 
-  getListAsync(): Observable<SystemUserItemDtoPageList> {
+  getListAsync(): Observable<PageListOfSystemUserItemDto> {
     return this.service.filter(this.filter);
   }
 

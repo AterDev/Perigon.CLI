@@ -1,17 +1,17 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';
+import { SystemUserService } from 'src/app/services/admin/system-user.service';
 import { SystemUserUpdateDto } from
-'src/app/services/admin/system-user/models/system-user-update-dto.model';
+'src/app/services/admin/models/system-user-update-dto.model';
 import { SystemUserDetailDto } from
-'src/app/services/admin/system-user/models/system-user-detail-dto.model';
+'src/app/services/admin/models/system-user-detail-dto.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
-import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model';
+import { GenderType } from 'src/app/services/admin/enum/gender-type.model';
 
 
 @Component({

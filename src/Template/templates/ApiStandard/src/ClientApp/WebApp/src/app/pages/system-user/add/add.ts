@@ -1,20 +1,19 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';
-import { SystemUser } from 'src/app/services/admin/system-user/models/system-user.model';
+import { SystemUserService } from 'src/app/services/admin/system-user.service';
 import { SystemUserAddDto } from
-  'src/app/services/admin/system-user/models/system-user-add-dto.model';
+  'src/app/services/admin/models/system-user-add-dto.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
-import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model';
-import { SystemRoleService } from 'src/app/services/admin/system-role/system-role.service';
+import { GenderType } from 'src/app/services/admin/enum/gender-type.model';
+import { SystemRoleService } from 'src/app/services/admin/system-role.service';
 import { forkJoin, Observable } from 'rxjs';
-import { SystemRoleItemDtoPageList } from 'src/app/services/admin/system-role/models/system-role-item-dto-page-list.model';
-import { SystemRoleItemDto } from 'src/app/services/admin/system-role/models/system-role-item-dto.model';
+import { SystemRoleItemDto } from 'src/app/services/admin/models/system-role-item-dto.model';
+import { PageListOfSystemRoleItemDto } from 'src/app/services/admin/models/page-list-of-system-role-item-dto.model';
 
 
 
@@ -70,7 +69,7 @@ export class Add implements OnInit {
         }
       });
   }
-  getRoles(): Observable<SystemRoleItemDtoPageList> {
+  getRoles(): Observable<PageListOfSystemRoleItemDto> {
     {
       return this.roleService.filter({
         pageIndex: 1,

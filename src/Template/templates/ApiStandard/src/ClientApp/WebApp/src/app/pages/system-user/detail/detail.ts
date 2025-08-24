@@ -1,15 +1,15 @@
 import { Component, OnInit, ViewChild, TemplateRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
-import { SystemUserService } from 'src/app/services/admin/system-user/system-user.service';
-import { SystemUserDetailDto } from 'src/app/services/admin/system-user/models/system-user-detail-dto.model';
+import { SystemUserService } from 'src/app/services/admin/system-user.service';
+import { SystemUserDetailDto } from 'src/app/services/admin/models/system-user-detail-dto.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, forkJoin } from 'rxjs';
 import { Location } from '@angular/common';
 import { CommonListModules } from 'src/app/share/shared-modules';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GenderType } from 'src/app/services/admin/enum/models/gender-type.model';
+import { GenderType } from 'src/app/services/admin/enum/gender-type.model';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 
