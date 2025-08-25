@@ -8,8 +8,8 @@ import { MatListModule } from '@angular/material/list';
 @Component({
   selector: 'app-navigation',
   imports: [...baseMatModules, ...commonModules, MatSidenavModule, MatExpansionModule, MatListModule],
-  templateUrl: './navigation.component.html',
-  styleUrl: './navigation.component.scss'
+  templateUrl: './navigation.html',
+  styleUrl: './navigation.scss'
 })
 export class NavigationComponent {
   events: string[] = [];

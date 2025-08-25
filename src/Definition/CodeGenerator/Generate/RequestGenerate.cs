@@ -111,7 +111,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// </summary>
     /// <param name="tags"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GetServices(ISet<OpenApiTag> tags)
+    public List<GenFileInfo> GetServices(ISet<OpenApiTag> tags, string docName)
     {
         if (TsModelFiles.Count == 0)
         {
@@ -175,6 +175,24 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 default:
                     break;
             }
+        }
+        // api client
+        var serviceKeys = funcGroups.Where(g => g.Key != null).Select(g => g.Key).ToList();
+        var clientContent = LibType switch
+        {
+            RequestClientType.NgHttp => ToNgClient(docName, serviceKeys),
+            RequestClientType.Axios => "",
+            _ => "",
+        };
+        if (!string.IsNullOrWhiteSpace(clientContent))
+        {
+            var clientFile = new GenFileInfo($"{docName}-client.ts", clientContent)
+            {
+                FullName = string.Empty,
+                IsCover = true,
+                FileType = GenFileType.Global,
+            };
+            files.Add(clientFile);
         }
         return files;
     }
@@ -384,7 +402,7 @@ export class {serviceFile.Name}BaseService extends BaseService {{
     }
 
     /// <summary>
-    /// 生成ng 请求服务继承类,可自定义
+    /// 生成ng 请求服务继承类, 用来自定义
     /// </summary>
     /// <param name="serviceFile"></param>
     /// <returns></returns>
@@ -399,11 +417,40 @@ import { {{serviceFile.Name}}BaseService } from './{{serviceFile.Name.ToHyphen()
  */
 @Injectable({providedIn: 'root' })
 export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService {
-  id: string | null = null;
-  name: string | null = null;
 }
 """;
         return result;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="docName"></param>
+    /// <param name="serviceNames"></param>
+    /// <returns></returns>
+    private string ToNgClient(string docName, List<string> serviceNames)
+    {
+        string imports = "";
+        string injects = "";
+        serviceNames.ForEach(s =>
+        {
+            string className = s + "Service";
+            imports +=
+                $"import {{ {className} }} from './{s.ToHyphen()}.service';{Environment.NewLine}";
+            injects += $"  public {s.ToCamelCase()} = inject({className});{Environment.NewLine}";
+        });
+
+        return $$"""
+            import { inject, Injectable } from "@angular/core";
+            {{imports}}
+
+            @Injectable({
+              providedIn: 'root'
+            })
+            export class AdminClient {
+            {{injects}}
+            }
+            """;
     }
 
     /// <summary>
@@ -411,7 +458,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// </summary>
     /// <param name="function"></param>
     /// <returns></returns>
-    protected string ToAxiosFunction(RequestServiceFunction function)
+    private string ToAxiosFunction(RequestServiceFunction function)
     {
         string Name = function.Name;
         List<FunctionParams>? Params = function.Params;
@@ -421,13 +468,6 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             : function.ResponseType!;
 
         string Path = function.Path;
-        if (Server != null)
-        {
-            if (!Server.StartsWith("http://") && Server.StartsWith("https://"))
-            {
-                Path = Server + Path;
-            }
-        }
 
         // 函数名处理，去除tag前缀，然后格式化
         Name = Name.Replace(function.Tag + "_", "");
@@ -533,7 +573,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         return functionString;
     }
 
-    public string ToNgRequestFunction(RequestServiceFunction function)
+    private string ToNgRequestFunction(RequestServiceFunction function)
     {
         string Name = function.Name;
         List<FunctionParams>? Params = function.Params;
@@ -543,11 +583,6 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             : function.ResponseType!;
 
         string Path = function.Path;
-        if (Server != null)
-        {
-            var serverPath = Server.EndsWith('/') ? Server[0..^1] : Server;
-            Path = serverPath + Path;
-        }
 
         // 函数名处理，去除tag前缀，然后格式化
         Name = Name.Replace(function.Tag + "_", "");

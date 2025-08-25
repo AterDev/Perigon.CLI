@@ -322,7 +322,7 @@ public class CodeGenService(
         // 获取请求服务并生成文件
         if (apiDocument.Tags != null)
         {
-            var services = ngGen.GetServices(apiDocument.Tags);
+            var services = ngGen.GetServices(apiDocument.Tags, docName);
             services.ForEach(s =>
             {
                 dir = Path.Combine(outputPath, "services", docName, s.FullName);

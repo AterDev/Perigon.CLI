@@ -16,7 +16,7 @@ export class SystemPermissionBaseService extends BaseService {
    * @param data SystemPermissionFilterDto
    */
   filter(data: SystemPermissionFilterDto): Observable<PageListOfSystemPermissionItemDto> {
-    const _url = `https://localhost:7001/api/SystemPermission/filter`;
+    const _url = `/api/SystemPermission/filter`;
     return this.request<PageListOfSystemPermissionItemDto>('post', _url, data);
   }
 
@@ -25,7 +25,7 @@ export class SystemPermissionBaseService extends BaseService {
    * @param data SystemPermissionAddDto
    */
   add(data: SystemPermissionAddDto): Observable<string> {
-    const _url = `https://localhost:7001/api/SystemPermission`;
+    const _url = `/api/SystemPermission`;
     return this.request<string>('post', _url, data);
   }
 
@@ -35,7 +35,7 @@ export class SystemPermissionBaseService extends BaseService {
    * @param data SystemPermissionUpdateDto
    */
   update(id: string, data: SystemPermissionUpdateDto): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemPermission/${id}`;
+    const _url = `/api/SystemPermission/${id}`;
     return this.request<boolean>('patch', _url, data);
   }
 
@@ -44,7 +44,7 @@ export class SystemPermissionBaseService extends BaseService {
    * @param id string
    */
   getDetail(id: string): Observable<SystemPermissionDetailDto> {
-    const _url = `https://localhost:7001/api/SystemPermission/${id}`;
+    const _url = `/api/SystemPermission/${id}`;
     return this.request<SystemPermissionDetailDto>('get', _url);
   }
 
@@ -53,7 +53,7 @@ export class SystemPermissionBaseService extends BaseService {
    * @param id string
    */
   delete(id: string): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemPermission/${id}`;
+    const _url = `/api/SystemPermission/${id}`;
     return this.request<boolean>('delete', _url);
   }
 

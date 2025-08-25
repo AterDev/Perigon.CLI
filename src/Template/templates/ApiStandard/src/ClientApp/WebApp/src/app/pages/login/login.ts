@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 // import { OAuthService, OAuthErrorEvent, UserInfo } from 'angular-oauth2-oidc';
@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { SystemUserService } from 'src/app/services/admin/system-user.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { AdminClient } from 'src/app/services/admin/admin-client';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class Login implements OnInit {
   public loginForm!: FormGroup;
+  private adminClient = inject(AdminClient);
   constructor(
     private authService: AuthService,
     private service: SystemUserService,
@@ -67,7 +69,7 @@ export class Login implements OnInit {
   doLogin(): void {
     const data = this.loginForm.value;
     // 登录接口
-    this.service.login(data)
+    this.adminClient.systemUser.login(data)
       .subscribe(res => {
         this.authService.saveLoginState(res.username, res.accessToken);
 

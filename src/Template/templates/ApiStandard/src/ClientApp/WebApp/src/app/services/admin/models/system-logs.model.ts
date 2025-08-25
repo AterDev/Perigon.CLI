@@ -1,12 +1,12 @@
 import { UserActionType } from '../enum/user-action-type.model';
-import { SystemUser2 } from './system-user2.model';
+import { SystemUser } from './system-user.model';
 export interface SystemLogs {
 /**  */  actionUserName: string;
 /**  */  targetName?: string | null;
 /**  */  route: string;
 /**  */  actionType: UserActionType;
 /**  */  description?: string | null;
-/**  */  systemUser: SystemUser2;
+/**  */  systemUser: SystemUser;
 /**  */  systemUserId: string;
 /**  */  id: string;
 /**  */  createdTime: string;

@@ -1,11 +1,11 @@
 import { PermissionType } from '../enum/permission-type.model';
-import { SystemPermissionGroup2 } from './system-permission-group2.model';
+import { SystemPermissionGroup } from './system-permission-group.model';
 export interface SystemPermission2 {
 /**  */  name: string;
 /**  */  description?: string | null;
 /**  */  enable: boolean;
 /**  */  permissionType: PermissionType;
-/**  */  group: SystemPermissionGroup2;
+/**  */  group: SystemPermissionGroup;
 /**  */  groupId: string;
 /**  */  id: string;
 /**  */  createdTime: string;

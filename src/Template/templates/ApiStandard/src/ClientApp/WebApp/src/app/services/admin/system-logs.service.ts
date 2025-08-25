@@ -6,6 +6,4 @@ import { SystemLogsBaseService } from './system-logs-base.service';
  */
 @Injectable({providedIn: 'root' })
 export class SystemLogsService extends SystemLogsBaseService {
-  id: string | null = null;
-  name: string | null = null;
 }

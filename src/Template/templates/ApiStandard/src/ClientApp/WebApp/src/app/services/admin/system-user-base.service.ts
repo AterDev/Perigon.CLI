@@ -11,7 +11,7 @@ import { PageListOfSystemUserItemDto } from './models/page-list-of-system-user-i
 import { SystemUserDetailDto } from './models/system-user-detail-dto.model';
 
 /**
- *
+ * 
  */
 export class SystemUserBaseService extends BaseService {
   /**
@@ -19,7 +19,7 @@ export class SystemUserBaseService extends BaseService {
    * @param email string
    */
   sendVerifyCode(email: string | null): Observable<any> {
-    const _url = `https://localhost:7001/api/SystemUser/verifyCode?email=${email ?? ''}`;
+    const _url = `/api/SystemUser/verifyCode?email=${email ?? ''}`;
     return this.request<any>('post', _url);
   }
 
@@ -27,7 +27,7 @@ export class SystemUserBaseService extends BaseService {
    * getCaptchaImage
    */
   getCaptchaImage(): Observable<any> {
-    const _url = `https://localhost:7001/api/SystemUser/captcha`;
+    const _url = `/api/SystemUser/captcha`;
     return this.request<any>('get', _url);
   }
 
@@ -36,7 +36,7 @@ export class SystemUserBaseService extends BaseService {
    * @param data SystemLoginDto
    */
   login(data: SystemLoginDto): Observable<AuthResult> {
-    const _url = `https://localhost:7001/api/SystemUser/login`;
+    const _url = `/api/SystemUser/login`;
     return this.request<AuthResult>('post', _url, data);
   }
 
@@ -45,7 +45,7 @@ export class SystemUserBaseService extends BaseService {
    * @param refreshToken string
    */
   refreshToken(refreshToken: string | null): Observable<AccessTokenDto> {
-    const _url = `https://localhost:7001/api/SystemUser/refresh_token?refreshToken=${refreshToken ?? ''}`;
+    const _url = `/api/SystemUser/refresh_token?refreshToken=${refreshToken ?? ''}`;
     return this.request<AccessTokenDto>('get', _url);
   }
 
@@ -54,7 +54,7 @@ export class SystemUserBaseService extends BaseService {
    * @param id string
    */
   logout(id: string): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemUser/logout/${id}`;
+    const _url = `/api/SystemUser/logout/${id}`;
     return this.request<boolean>('post', _url);
   }
 
@@ -63,7 +63,7 @@ export class SystemUserBaseService extends BaseService {
    * @param data SystemUserFilterDto
    */
   filter(data: SystemUserFilterDto): Observable<PageListOfSystemUserItemDto> {
-    const _url = `https://localhost:7001/api/SystemUser/filter`;
+    const _url = `/api/SystemUser/filter`;
     return this.request<PageListOfSystemUserItemDto>('post', _url, data);
   }
 
@@ -72,7 +72,7 @@ export class SystemUserBaseService extends BaseService {
    * @param data SystemUserAddDto
    */
   add(data: SystemUserAddDto): Observable<string> {
-    const _url = `https://localhost:7001/api/SystemUser`;
+    const _url = `/api/SystemUser`;
     return this.request<string>('post', _url, data);
   }
 
@@ -82,7 +82,7 @@ export class SystemUserBaseService extends BaseService {
    * @param data SystemUserUpdateDto
    */
   update(id: string, data: SystemUserUpdateDto): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemUser/${id}`;
+    const _url = `/api/SystemUser/${id}`;
     return this.request<boolean>('patch', _url, data);
   }
 
@@ -91,7 +91,7 @@ export class SystemUserBaseService extends BaseService {
    * @param id string
    */
   getDetail(id: string): Observable<SystemUserDetailDto> {
-    const _url = `https://localhost:7001/api/SystemUser/${id}`;
+    const _url = `/api/SystemUser/${id}`;
     return this.request<SystemUserDetailDto>('get', _url);
   }
 
@@ -100,7 +100,7 @@ export class SystemUserBaseService extends BaseService {
    * @param id string
    */
   delete(id: string): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemUser/${id}`;
+    const _url = `/api/SystemUser/${id}`;
     return this.request<boolean>('delete', _url);
   }
 
@@ -110,7 +110,7 @@ export class SystemUserBaseService extends BaseService {
    * @param newPassword string
    */
   changePassword(password: string | null, newPassword: string | null): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemUser/changePassword?password=${password ?? ''}&newPassword=${newPassword ?? ''}`;
+    const _url = `/api/SystemUser/changePassword?password=${password ?? ''}&newPassword=${newPassword ?? ''}`;
     return this.request<boolean>('patch', _url);
   }
 

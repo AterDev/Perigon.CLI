@@ -1,8 +1,8 @@
-import { SystemPermission2 } from './system-permission2.model';
+import { SystemPermission } from './system-permission.model';
 export interface SystemPermissionGroupItemDto {
 /**  */  id: string;
 /**  */  name: string;
 /**  */  description?: string | null;
-/**  */  permissions?: SystemPermission2[] | null;
+/**  */  permissions?: SystemPermission[] | null;
 
 }

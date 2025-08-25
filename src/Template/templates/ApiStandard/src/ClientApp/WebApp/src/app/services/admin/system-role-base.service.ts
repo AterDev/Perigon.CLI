@@ -19,7 +19,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param data SystemRoleFilterDto
    */
   filter(data: SystemRoleFilterDto): Observable<PageListOfSystemRoleItemDto> {
-    const _url = `https://localhost:7001/api/SystemRole/filter`;
+    const _url = `/api/SystemRole/filter`;
     return this.request<PageListOfSystemRoleItemDto>('post', _url, data);
   }
 
@@ -28,7 +28,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param data SystemRoleAddDto
    */
   add(data: SystemRoleAddDto): Observable<string> {
-    const _url = `https://localhost:7001/api/SystemRole`;
+    const _url = `/api/SystemRole`;
     return this.request<string>('post', _url, data);
   }
 
@@ -38,7 +38,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param data SystemRoleUpdateDto
    */
   update(id: string, data: SystemRoleUpdateDto): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemRole/${id}`;
+    const _url = `/api/SystemRole/${id}`;
     return this.request<boolean>('patch', _url, data);
   }
 
@@ -47,7 +47,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param id string
    */
   getDetail(id: string): Observable<SystemRoleDetailDto> {
-    const _url = `https://localhost:7001/api/SystemRole/${id}`;
+    const _url = `/api/SystemRole/${id}`;
     return this.request<SystemRoleDetailDto>('get', _url);
   }
 
@@ -56,7 +56,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param id string
    */
   delete(id: string): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemRole/${id}`;
+    const _url = `/api/SystemRole/${id}`;
     return this.request<boolean>('delete', _url);
   }
 
@@ -65,7 +65,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param data SystemRoleSetMenusDto
    */
   updateMenus(data: SystemRoleSetMenusDto): Observable<SystemRole2> {
-    const _url = `https://localhost:7001/api/SystemRole/menus`;
+    const _url = `/api/SystemRole/menus`;
     return this.request<SystemRole2>('put', _url, data);
   }
 
@@ -74,7 +74,7 @@ export class SystemRoleBaseService extends BaseService {
    * @param data SystemRoleSetPermissionGroupsDto
    */
   updatePermissionGroups(data: SystemRoleSetPermissionGroupsDto): Observable<SystemRole2> {
-    const _url = `https://localhost:7001/api/SystemRole/permissionGroups`;
+    const _url = `/api/SystemRole/permissionGroups`;
     return this.request<SystemRole2>('put', _url, data);
   }
 

@@ -6,6 +6,4 @@ import { SystemPermissionGroupBaseService } from './system-permission-group-base
  */
 @Injectable({providedIn: 'root' })
 export class SystemPermissionGroupService extends SystemPermissionGroupBaseService {
-  id: string | null = null;
-  name: string | null = null;
 }

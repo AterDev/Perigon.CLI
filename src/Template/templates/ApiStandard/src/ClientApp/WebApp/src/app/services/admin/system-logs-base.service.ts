@@ -13,7 +13,7 @@ export class SystemLogsBaseService extends BaseService {
    * @param data SystemLogsFilterDto
    */
   filter(data: SystemLogsFilterDto): Observable<PageListOfSystemLogsItemDto> {
-    const _url = `https://localhost:7001/api/SystemLogs/filter`;
+    const _url = `/api/SystemLogs/filter`;
     return this.request<PageListOfSystemLogsItemDto>('post', _url, data);
   }
 

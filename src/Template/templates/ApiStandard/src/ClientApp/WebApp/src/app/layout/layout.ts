@@ -5,13 +5,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationStart, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { baseMatModules, commonModules } from 'src/app/share/shared-modules';
-import { NavigationComponent } from "./navigation/navigation.component";
+import { NavigationComponent } from "./navigation/navigation";
 
 @Component({
   selector: 'app-layout',
   imports: [MatToolbarModule, MatMenuModule, ...baseMatModules, ...commonModules, NavigationComponent],
-  templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss'
+  templateUrl: './layout.html',
+  styleUrl: './layout.scss'
 })
 export class LayoutComponent {
   isLogin = false;

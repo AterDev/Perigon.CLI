@@ -1,4 +1,4 @@
-import { BaseService, ExtOptions } from './base.service';
+import { BaseService, ExtOptions } from '../base.service';
 //[@Import]
 class //[@ServiceName]Service extends BaseService {
   constructor() {

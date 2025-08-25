@@ -15,7 +15,7 @@ export class SystemMenuBaseService extends BaseService {
    * @param data SystemMenuFilterDto
    */
   filter(data: SystemMenuFilterDto): Observable<PageListOfSystemMenu> {
-    const _url = `https://localhost:7001/api/SystemMenu/filter`;
+    const _url = `/api/SystemMenu/filter`;
     return this.request<PageListOfSystemMenu>('post', _url, data);
   }
 
@@ -24,7 +24,7 @@ export class SystemMenuBaseService extends BaseService {
    * @param data SystemMenuAddDto
    */
   add(data: SystemMenuAddDto): Observable<string> {
-    const _url = `https://localhost:7001/api/SystemMenu`;
+    const _url = `/api/SystemMenu`;
     return this.request<string>('post', _url, data);
   }
 
@@ -34,7 +34,7 @@ export class SystemMenuBaseService extends BaseService {
    * @param data SystemMenuUpdateDto
    */
   update(id: string, data: SystemMenuUpdateDto): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemMenu/${id}`;
+    const _url = `/api/SystemMenu/${id}`;
     return this.request<boolean>('patch', _url, data);
   }
 
@@ -43,7 +43,7 @@ export class SystemMenuBaseService extends BaseService {
    * @param id string
    */
   delete(id: string): Observable<boolean> {
-    const _url = `https://localhost:7001/api/SystemMenu/${id}`;
+    const _url = `/api/SystemMenu/${id}`;
     return this.request<boolean>('delete', _url);
   }
 
