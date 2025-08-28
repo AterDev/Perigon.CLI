@@ -44,8 +44,6 @@ public static class AppSettingsHelper
                 "sqlserver" => 11433,
                 _ => 13306,
             },
-            EnableES = components.GetValue<bool>("EnableES"),
-            EnableKafka = components.GetValue<bool>("EnableKafka"),
             EnableNats = components.GetValue<bool>("EnableNats"),
             EnableQdrant = components.GetValue<bool>("EnableQdrant"),
         };
