@@ -9,8 +9,14 @@ public class AspireSetting
 {
     public string DatabaseType { get; set; } = "PostgreSQL";
     public string CacheType { get; set; } = "Hybrid";
-    public string DbPassword { get; set; } = "MyProjectName_Database_Dev";
-    public string CachePassword { get; set; } = "MyProjectName_Cache_Dev";
+    public string DevPassword { get; set; } =
+        "MyProjectName_Dev@" + DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy");
+
+    /// <summary>
+    /// message queue, default nats
+    /// </summary>
+    public bool EnableNats { get; set; }
+    public bool EnableQdrant { get; set; }
     public int DbPort { get; set; } = 15432;
     public int CachePort { get; set; } = 16379;
 }
@@ -38,6 +44,10 @@ public static class AppSettingsHelper
                 "sqlserver" => 11433,
                 _ => 13306,
             },
+            EnableES = components.GetValue<bool>("EnableES"),
+            EnableKafka = components.GetValue<bool>("EnableKafka"),
+            EnableNats = components.GetValue<bool>("EnableNats"),
+            EnableQdrant = components.GetValue<bool>("EnableQdrant"),
         };
     }
 }

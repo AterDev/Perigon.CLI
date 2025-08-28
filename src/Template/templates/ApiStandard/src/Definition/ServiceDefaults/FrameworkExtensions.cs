@@ -81,7 +81,7 @@ public static class FrameworkExtensions
     )
     {
         builder.Services.AddSingleton<DbContextFactory>();
-        builder.Services.AddScoped<TenantDbContextFactory>();
+        //builder.Services.AddScoped<TenantDbContextFactory>();
         return builder;
     }
 

@@ -4,18 +4,23 @@ using Ater.Common;
 var builder = DistributedApplication.CreateBuilder(args);
 var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 
-#region containers
 IResourceBuilder<IResourceWithConnectionString>? database = null;
 IResourceBuilder<IResourceWithConnectionString>? cache = null;
+IResourceBuilder<IResourceWithConnectionString>? nats = null;
+
+IResourceBuilder<IResourceWithConnectionString>? qdrant = null;
+
+// if you have exist resource, you can set connection string here, without create container
+//var db = builder.AddConnectionString(AppConst.Database, "");
+//kafka = builder.AddConnectionString("mq", "");
+//es = builder.AddConnectionString("es", "");
+
+#region containers
+var defaultName = "MyProjectName_dev";
 
 var devPassword = builder.AddParameter(
     "sql-password",
-    value: aspireSetting.DbPassword,
-    secret: true
-);
-var cachePassword = builder.AddParameter(
-    "cache-password",
-    value: aspireSetting.CachePassword,
+    value: aspireSetting.DevPassword,
     secret: true
 );
 
@@ -25,12 +30,12 @@ _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
         .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithImageTag("17.6-alpine")
         .WithDataVolume()
-        .AddDatabase(AppConst.Database, databaseName: "MyProjectName_dev"),
+        .AddDatabase(AppConst.Database, databaseName: defaultName),
     "sqlserver" => database = builder
         .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithImageTag("2025-latest")
         .WithDataVolume()
-        .AddDatabase(AppConst.Database, databaseName: "MyProjectName_dev"),
+        .AddDatabase(AppConst.Database, databaseName: defaultName),
     _ => null,
 };
 
@@ -38,11 +43,27 @@ _ = aspireSetting.CacheType?.ToLowerInvariant() switch
 {
     "memory" => null,
     _ => cache = builder
-        .AddRedis("Cache", password: cachePassword, port: aspireSetting.CachePort)
+        .AddRedis("Cache", password: devPassword, port: aspireSetting.CachePort)
         .WithImageTag("8.2-alpine")
         .WithDataVolume()
         .WithPersistence(interval: TimeSpan.FromMinutes(5)),
 };
+if (aspireSetting.EnableNats)
+{
+    nats = builder
+        .AddNats(name: "mq", port: 14222)
+        .WithImageTag("2.11-alpine")
+        .WithJetStream()
+        .WithDataVolume();
+}
+if (aspireSetting.EnableQdrant)
+{
+    qdrant = builder
+        .AddQdrant("qdrant", devPassword, grpcPort: 16334, httpPort: 16333)
+        .WithLifetime(ContainerLifetime.Persistent)
+        .WithDataVolume();
+}
+
 #endregion
 
 var migration = builder.AddProject<Projects.MigrationService>("MigrationService");
