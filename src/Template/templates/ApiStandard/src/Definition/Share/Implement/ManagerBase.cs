@@ -11,6 +11,13 @@ public abstract class ManagerBase(ILogger logger)
     protected ILogger _logger = logger;
 }
 
+public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logger)
+    : ManagerBase(logger)
+    where TDbContext : DbContext
+{
+    protected readonly TDbContext _dbContext = dbContext;
+}
+
 /// <summary>
 /// Generic manager base class for entity operations.
 /// </summary>
