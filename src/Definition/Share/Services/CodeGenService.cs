@@ -210,7 +210,7 @@ public class CodeGenService(
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
-            FullName = Path.Combine(servicePath, ConstVal.GlobalUsingsFile),
+            FullName = globalFilePath,
             ModuleName = entityInfo.ModuleName,
         };
 
