@@ -8,7 +8,7 @@ namespace EntityFramework.DBProvider;
 /// <param name="configuration"></param>
 public class DbContextFactory(IConfiguration configuration)
 {
-    public TContext CreateDbContext<TContext>(DatabaseType databaseType = DatabaseType.SqlServer)
+    public TContext CreateDbContext<TContext>(DatabaseType databaseType = DatabaseType.PostgreSql)
         where TContext : DbContext
     {
         var contextName = typeof(TContext).Name;

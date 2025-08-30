@@ -11,7 +11,7 @@ IResourceBuilder<IResourceWithConnectionString>? nats = null;
 IResourceBuilder<IResourceWithConnectionString>? qdrant = null;
 
 // if you have exist resource, you can set connection string here, without create container
-//var db = builder.AddConnectionString(AppConst.Database, "");
+//var db = builder.AddConnectionString(AppConst.Default, "");
 //kafka = builder.AddConnectionString("mq", "");
 //es = builder.AddConnectionString("es", "");
 
@@ -30,12 +30,12 @@ _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
         .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithImageTag("17.6-alpine")
         .WithDataVolume()
-        .AddDatabase(AppConst.Database, databaseName: defaultName),
+        .AddDatabase(AppConst.Default, databaseName: defaultName),
     "sqlserver" => database = builder
         .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.DbPort)
         .WithImageTag("2025-latest")
         .WithDataVolume()
-        .AddDatabase(AppConst.Database, databaseName: defaultName),
+        .AddDatabase(AppConst.Default, databaseName: defaultName),
     _ => null,
 };
 
