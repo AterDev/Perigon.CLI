@@ -67,20 +67,22 @@ if (aspireSetting.EnableQdrant)
 #endregion
 
 var migration = builder.AddProject<Projects.MigrationService>("MigrationService");
-var apiService = builder.AddProject<Projects.ApiService>("ApiService");
-var adminService = builder.AddProject<Projects.AdminService>("AdminService");
+var apiService = builder.AddProject<Projects.ApiService>("ApiService").WaitForCompletion(migration);
+var adminService = builder
+    .AddProject<Projects.AdminService>("AdminService")
+    .WaitForCompletion(migration);
 
 if (database != null)
 {
     migration.WithReference(database).WaitFor(database);
-    apiService.WithReference(database).WaitFor(migration);
-    adminService.WithReference(database).WaitFor(migration);
+    apiService.WithReference(database);
+    adminService.WithReference(database);
 }
 if (cache != null)
 {
     migration.WithReference(cache).WaitFor(cache);
-    apiService.WithReference(cache).WaitFor(migration);
-    adminService.WithReference(cache).WaitFor(migration);
+    apiService.WithReference(cache);
+    adminService.WithReference(cache);
 }
 
 builder.Build().Run();
