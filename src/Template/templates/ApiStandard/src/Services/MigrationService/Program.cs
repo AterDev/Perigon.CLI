@@ -15,11 +15,11 @@ var databaseType = builder.Configuration["Components:Database"]?.ToLowerInvarian
 
 if (databaseType == "postgresql")
 {
-    builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Database);
+    builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Default);
 }
 else if (databaseType == "sqlserver")
 {
-    builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Database);
+    builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Default);
 }
 
 var host = builder.Build();

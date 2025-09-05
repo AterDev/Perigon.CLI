@@ -34,7 +34,7 @@ public class SystemLogService(
     {
         var _context = serviceProvider
             .CreateScope()
-            .ServiceProvider.GetRequiredService<UserContext>();
+            .ServiceProvider.GetRequiredService<IUserContext>();
 
         userId = _context.UserId == Guid.Empty ? userId : _context.UserId;
         userName = string.IsNullOrEmpty(_context.UserName) ? userName : _context.UserName;
