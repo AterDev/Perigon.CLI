@@ -1,9 +1,12 @@
 using Ater.Web.Convention.Abstraction;
 using AterStudio;
 using AterStudio.Components.Pages;
+using AterStudio.McpTools;
 using AterStudio.Worker;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using ModelContextProtocol.Protocol;
+using ModelContextProtocol.Server;
 using Share.Helper;
 using Share.Services;
 
@@ -33,6 +36,23 @@ builder.Services.AddSingleton<StorageService>();
 builder.Services.AddSingleton<EntityTaskQueue<EventQueueModel<McpTool>>>();
 
 // add MCP Server
+builder.Services.AddSingleton<ListToolsHandler>();
+
+builder
+    .Services.AddOptions<McpServerOptions>()
+    .Configure<ListToolsHandler>(
+        (opts, handler) =>
+        {
+            opts.Capabilities = new ServerCapabilities
+            {
+                Tools = new ToolsCapability
+                {
+                    ListToolsHandler = (req, ct) => handler.Handle(req, ct),
+                },
+            };
+        }
+    );
+
 builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
 
 //builder.Services.AddHostedService<McpHandlerService>();
