@@ -36,18 +36,19 @@ builder.Services.AddSingleton<StorageService>();
 builder.Services.AddSingleton<EntityTaskQueue<EventQueueModel<McpTool>>>();
 
 // add MCP Server
-builder.Services.AddSingleton<ListToolsHandler>();
+builder.Services.AddSingleton<McpToolsHandler>();
 
 builder
     .Services.AddOptions<McpServerOptions>()
-    .Configure<ListToolsHandler>(
+    .Configure<McpToolsHandler>(
         (opts, handler) =>
         {
             opts.Capabilities = new ServerCapabilities
             {
                 Tools = new ToolsCapability
                 {
-                    ListToolsHandler = (req, ct) => handler.Handle(req, ct),
+                    ListToolsHandler = (req, ct) => handler.ListToolsHandler(req, ct),
+                    CallToolHandler = (req, ct) => handler.CallToolsHandler(req, ct),
                 },
             };
         }
