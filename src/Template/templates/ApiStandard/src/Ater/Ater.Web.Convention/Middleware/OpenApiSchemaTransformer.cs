@@ -40,12 +40,6 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
                 continue;
             }
             var value = Convert.ToInt32(raw);
-
-            if (!schema.Enum.Any(n => n?.GetValue<int>() == value))
-            {
-                schema.Enum.Add(JsonValue.Create(value));
-            }
-
             string? description = null;
             var desAttr = field.GetCustomAttribute<DescriptionAttribute>();
             if (desAttr is not null && !string.IsNullOrWhiteSpace(desAttr.Description))
