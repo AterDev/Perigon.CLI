@@ -25,13 +25,13 @@ public class HashCrypto
     /// <returns></returns>
     public static string GeneratePwd(string value, string salt)
     {
-        using var encrpty = new Rfc2898DeriveBytes(
-            value,
-            Encoding.UTF8.GetBytes(salt),
-            100,
-            HashAlgorithmName.SHA512
+        var valueBytes = Rfc2898DeriveBytes.Pbkdf2(
+            password: value,
+            salt: Encoding.UTF8.GetBytes(salt),
+            iterations: 100,
+            hashAlgorithm: HashAlgorithmName.SHA512,
+            outputLength: 32
         );
-        var valueBytes = encrpty.GetBytes(32);
         return Convert.ToBase64String(valueBytes);
     }
 
@@ -44,13 +44,13 @@ public class HashCrypto
     public static string GeneratePAT(string value)
     {
         var salt = BuildSalt();
-        using var encrpty = new Rfc2898DeriveBytes(
-            value,
-            Encoding.UTF8.GetBytes(salt),
-            100,
-            HashAlgorithmName.SHA512
+        var valueBytes = Rfc2898DeriveBytes.Pbkdf2(
+            password: value,
+            salt: Encoding.UTF8.GetBytes(salt),
+            iterations: 100,
+            hashAlgorithm: HashAlgorithmName.SHA512,
+            outputLength: 32
         );
-        var valueBytes = encrpty.GetBytes(32);
         return Convert.ToBase64String(valueBytes);
     }
 

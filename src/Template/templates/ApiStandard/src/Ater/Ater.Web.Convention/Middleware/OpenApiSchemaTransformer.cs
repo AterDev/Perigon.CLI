@@ -1,8 +1,9 @@
 using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json.Nodes;
+using System.Linq;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Ater.Web.Convention.Middleware;
 
@@ -18,62 +19,81 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
     )
     {
         var type = context.JsonTypeInfo.Type;
-        HandleNullableEnum(schema, type);
         AddEnumExtension(schema, type);
-        // TODO:重复性类型处理
         return Task.CompletedTask;
-    }
-
-    private static void HandleNullableEnum(OpenApiSchema schema, Type type)
-    {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-        {
-            var underlyingType = Nullable.GetUnderlyingType(type);
-            if (underlyingType != null && underlyingType.IsEnum)
-            {
-                schema.Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.Schema,
-                    Id = underlyingType.Name,
-                };
-                schema.Nullable = true;
-                schema.Enum.Clear();
-                schema.Properties.Clear();
-            }
-        }
     }
 
     private static void AddEnumExtension(OpenApiSchema schema, Type type)
     {
-        if (type.IsEnum)
+        if (!type.IsEnum)
         {
-            var enumData = new OpenApiArray();
-            FieldInfo[] fields = type.GetFields();
-            foreach (FieldInfo f in fields)
+            return;
+        }
+
+        var extensions = new Dictionary<string, IOpenApiExtension>();
+        var enumItems = new List<EnumItem>();
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
+        {
+            var raw = field.GetRawConstantValue();
+            if (raw is null)
             {
-                if (f.Name != "value__")
-                {
-                    schema.Enum.Add(new OpenApiString(f.Name));
-                    var openApiObj = new OpenApiObject()
-                    {
-                        ["name"] = new OpenApiString(f.Name),
-                        ["value"] = new OpenApiInteger((int)f.GetRawConstantValue()!),
-                    };
-                    var desAttr = f.CustomAttributes.FirstOrDefault(a =>
-                        a.AttributeType == typeof(DescriptionAttribute)
-                    );
-                    if (desAttr != null)
-                    {
-                        var des = desAttr.ConstructorArguments.FirstOrDefault();
-                        if (des.Value != null)
-                        {
-                            openApiObj.Add("description", new OpenApiString(des.Value.ToString()));
-                        }
-                    }
-                    enumData.Add(openApiObj);
-                }
+                continue;
             }
-            schema.Extensions.Add("x-enumData", enumData);
+            var value = Convert.ToInt32(raw);
+
+            if (!schema.Enum.Any(n => n?.GetValue<int>() == value))
+            {
+                schema.Enum.Add(JsonValue.Create(value));
+            }
+
+            string? description = null;
+            var desAttr = field.GetCustomAttribute<DescriptionAttribute>();
+            if (desAttr is not null && !string.IsNullOrWhiteSpace(desAttr.Description))
+            {
+                description = desAttr.Description;
+            }
+
+            enumItems.Add(new EnumItem(field.Name, value, description));
+        }
+        extensions.Add("x-enumData", new EnumDataExtension(enumItems));
+        schema.Extensions = extensions;
+    }
+
+    private sealed record EnumItem(string Name, int Value, string? Description);
+
+    /// <summary>
+    /// 自定义扩展写出器，序列化为数组: [{ name, value, description? }]
+    /// </summary>
+    private sealed class EnumDataExtension : IOpenApiExtension
+    {
+        private readonly IReadOnlyList<EnumItem> _items;
+        public EnumDataExtension(IReadOnlyList<EnumItem> items) => _items = items;
+
+        // New 2.x interface method signature
+        public void Write(IOpenApiWriter writer, OpenApiSpecVersion specVersion)
+        {
+            WriteInternal(writer);
+        }
+
+        // Some tooling may still call old signature (if any extension methods exist); keep a helper method
+        private void WriteInternal(IOpenApiWriter writer)
+        {
+            writer.WriteStartArray();
+            foreach (var item in _items)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("name");
+                writer.WriteValue(item.Name);
+                writer.WritePropertyName("value");
+                writer.WriteValue(item.Value);
+                if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    writer.WritePropertyName("description");
+                    writer.WriteValue(item.Description);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
         }
     }
 }
