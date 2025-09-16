@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>10.0.0-beta3</PackageVersion>
+    <PackageVersion>10.0.0-beta4</PackageVersion>
     <PackageId>ater.web.templates</PackageId>
     <Title>Ater Web Templates</Title>
     <Authors>ater.NilTor</Authors>
