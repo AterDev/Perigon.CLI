@@ -25,27 +25,27 @@ public class OutputHelper
 
     public static void Error(string message)
     {
-        AnsiConsole.MarkupLine($"[red]✖️ {message}[/]");
+        AnsiConsole.MarkupLineInterpolated($"[red]✖️ {message}[/]");
     }
 
     public static void Success(string message)
     {
-        AnsiConsole.MarkupLine($"[green]✔️ {message}[/]");
+        AnsiConsole.MarkupLineInterpolated($"[green]✔️ {message}[/]");
     }
 
     public static void Warning(string message)
     {
-        AnsiConsole.MarkupLine($"[yellow]⚠️ {message}[/]");
+        AnsiConsole.MarkupLineInterpolated($"[yellow]⚠️ {message}[/]");
     }
 
     public static void Info(string message)
     {
-        AnsiConsole.MarkupLine($"{message}");
+        AnsiConsole.MarkupLineInterpolated($"{message}");
     }
 
     public static void Important(string message)
     {
-        AnsiConsole.MarkupLine($"[blue]{message}[/]");
+        AnsiConsole.MarkupLineInterpolated($"[blue]{message}[/]");
     }
 
     public static void ClearLine()
