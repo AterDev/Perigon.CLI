@@ -1,4 +1,5 @@
 namespace Ater.Common.Options;
+
 public class JwtOption
 {
     public const string ConfigPath = "Authentication:Jwt";
@@ -17,5 +18,5 @@ public class JwtOption
     /// 刷新过期时间:秒
     /// 默认7天
     /// </summary>
-    public int RefreshExpiredSecond { get; set; } = 604800;
+    public int RefreshExpiredSecond { get; set; } = 7 * 24 * 3600;
 }
