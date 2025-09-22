@@ -90,15 +90,14 @@ public static class WebExtensions
         else
         {
             app.UseCors(AppConst.Default);
-            app.MapOpenApi();
-            //app.MapOpenApi().CacheOutput("openapi");
+            app.MapOpenApi().CacheOutput("openapi");
         }
 
         app.UseRateLimiter();
         app.UseStaticFiles();
         app.UseRequestLocalization();
         app.UseRouting();
-        //app.UseOutputCache();
+        app.UseOutputCache();
         //app.UseMiddleware<JwtMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();

@@ -1,9 +1,7 @@
-using System.ComponentModel;
-using System.Reflection;
-using System.Text.Json.Nodes;
-using System.Linq;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace Ater.Web.Convention.Middleware;
 
@@ -69,7 +67,6 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
             WriteInternal(writer);
         }
 
-        // Some tooling may still call old signature (if any extension methods exist); keep a helper method
         private void WriteInternal(IOpenApiWriter writer)
         {
             writer.WriteStartArray();
