@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.1" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,15 +8,15 @@
     <UserSecretsId>a56db14e-ae84-4411-a0ab-6e8f2896f1c2</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
     <PackageReference Include="Aspire.Hosting.Elasticsearch" Version="9.4.1" />
-    <PackageReference Include="Aspire.Hosting.Kafka" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.Nats" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.Qdrant" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.4.2" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.Kafka" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.Nats" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.Qdrant" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.5.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ater\Ater.Common\Ater.Common.csproj" IsAspireProjectResource="false" />

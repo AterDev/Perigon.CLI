@@ -18,12 +18,12 @@
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="4.0.7.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.7.4" />
     <PackageReference Include="MailKit" Version="4.13.0" />
     <PackageReference Include="MiniExcel" Version="1.41.3" />
-    <PackageReference Include="EPPlus" Version="8.1.1" />
-    <PackageReference Include="SkiaSharp" Version="3.119.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
+    <PackageReference Include="EPPlus" Version="8.2.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ater.Web.Convention\Ater.Web.Convention.csproj" />
