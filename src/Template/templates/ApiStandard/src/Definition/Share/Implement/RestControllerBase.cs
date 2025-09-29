@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Share.Implement;
 
@@ -78,7 +78,7 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
     /// <param name="arguments"></param>
     /// <returns></returns>
     [NonAction]
-    public ObjectResult Problem(string detail = "", int errorCode = 0, params object[] arguments)
+    public ObjectResult Problem(string? detail = null, int errorCode = 0, params object[] arguments)
     {
         var res = CreateResult("Problem", detail, errorCode, arguments);
 

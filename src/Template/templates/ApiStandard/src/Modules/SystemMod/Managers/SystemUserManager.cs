@@ -1,9 +1,9 @@
-using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Ater.Common.Options;
 using Ater.Web.Extension.Helpers;
 using EntityFramework.DBProvider;
 using Share.Models.Auth;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 
@@ -58,7 +58,7 @@ public class SystemUserManager(
         LoginSecurityPolicyOption loginPolicy
     )
     {
-        if (loginPolicy == null)
+        if (loginPolicy == null || !loginPolicy.IsEnable)
         {
             return true;
         }
