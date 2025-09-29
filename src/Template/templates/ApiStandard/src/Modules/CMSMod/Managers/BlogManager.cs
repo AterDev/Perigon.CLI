@@ -35,14 +35,14 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
             .WhereNotNull(filter.IsAudit, q => q.IsAudit == filter.IsAudit)
             .WhereNotNull(filter.IsPublic, q => q.IsPublic == filter.IsPublic)
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
-            .WhereNotNull(filter.UserId, q => q.User.Id == filter.UserId)
+            .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
             .WhereNotNull(filter.CatalogId, q => q.Catalog.Id == filter.CatalogId);
         return await ToPageAsync<BlogFilterDto, BlogItemDto>(filter);
     }
 
     public async Task<bool> IsOwnedAsync(Guid id, Guid userId)
     {
-        return await Queryable.AnyAsync(q => q.Id == id && q.User.Id == userId);
+        return await Queryable.AnyAsync(q => q.Id == id && q.UserId == userId);
     }
 
     /// <summary>
