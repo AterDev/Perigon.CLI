@@ -5,5 +5,10 @@
     "password": "Password",
     "login": "Login"
   },
-  "language": "Language"
+  "language": "Language",
+  "validation": {
+    "required": "This field is required",
+    "minlength": "The minimum length is {{requiredLength}}",
+    "maxlength": "The maximum length is {{requiredLength}}"
+  }
 }

@@ -11,19 +11,20 @@
           <mat-label>{{i18nKeys.login.username|translate}}</mat-label>
           <input matInput type="text" placeholder="用户名4位以上" formControlName="username" required>
           @if (username?.invalid) {
-            <mat-error>{{getValidatorMessage('username')}}</mat-error>
+          <mat-error>{{getValidatorMessage(username) | async}}</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>{{i18nKeys.login.password|translate}}</mat-label>
           <input type="password" matInput placeholder="密码长度6位(含6位)以上" formControlName="password" required>
           @if (password?.invalid) {
-            <mat-error>{{getValidatorMessage('password')}}
-            </mat-error>
+          <mat-error>{{getValidatorMessage(password) | async}}
+          </mat-error>
           }
         </mat-form-field>
         <div class="d-flex justify-content-end">
-          <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid">{{i18nKeys.login.login|translate}}</button>
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="loginForm.invalid">{{i18nKeys.login.login|translate}}</button>
         </div>
       </form>
     </mat-card-content>

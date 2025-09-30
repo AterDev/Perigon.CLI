@@ -8,5 +8,10 @@ export const I18N_KEYS = {
     "password": "login.password",
     "login": "login.login"
   },
-  "language": "language"
+  "language": "language",
+  "validation": {
+    "required": "validation.required",
+    "minlength": "validation.minlength",
+    "maxlength": "validation.maxlength"
+  }
 };

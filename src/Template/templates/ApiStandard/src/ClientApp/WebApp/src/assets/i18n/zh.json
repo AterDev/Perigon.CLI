@@ -5,5 +5,10 @@
     "password": "密码",
     "login": "登录"
   },
-  "language": "语言"
+  "language": "语言",
+  "validation": {
+    "required": "此字段是必填项",
+    "minlength": "最小长度是 {{requiredLength}}",
+    "maxlength": "最大长度是 {{requiredLength}}"
+  }
 }

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 // import { OAuthService, OAuthErrorEvent, UserInfo } from 'angular-oauth2-oidc';
 import { Router } from '@angular/router';
@@ -7,12 +7,13 @@ import { CommonFormModules } from 'src/app/share/shared-modules';
 import { SystemUserService } from 'src/app/services/admin/system-user.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { AdminClient } from 'src/app/services/admin/admin-client';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonFormModules, MatCardModule, TranslateModule],
+  imports: [CommonFormModules, MatCardModule],
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
@@ -20,6 +21,7 @@ export class Login implements OnInit {
   public loginForm!: FormGroup;
   i18nKeys = I18N_KEYS;
   private adminClient = inject(AdminClient);
+  private translate = inject(TranslateService);
   constructor(
     private authService: AuthService,
     private service: SystemUserService,
@@ -48,24 +50,21 @@ export class Login implements OnInit {
     });
   }
 
-  /**
-   * 错误信息
-   * @param type 字段名称
-   */
-  getValidatorMessage(type: string): string {
-    switch (type) {
-      case 'username':
-        return this.username?.errors?.['required'] ? '用户名必填' :
-          this.username?.errors?.['minlength']
-            || this.username?.errors?.['maxlength'] ? '用户名长度3-20位' : '';
-      case 'password':
-        return this.password?.errors?.['required'] ? '密码必填' :
-          this.password?.errors?.['minlength'] ? '密码长度不可低于6位' :
-            this.password?.errors?.['maxlength'] ? '密码长度不可超过50' : '';
-      default:
-        break;
+  async getValidatorMessage(control: AbstractControl | null): Promise<string> {
+    if (!control || !control.errors) {
+      return '';
     }
-    return '';
+    const errors: ValidationErrors = control.errors;
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length === 0) {
+      return '';
+    }
+
+    const key = errorKeys[0];
+    const params = errors[key];
+    const translationKey = `validation.${key.toLowerCase()}`;
+    
+    return await firstValueFrom(this.translate.get(translationKey, params));
   }
 
   doLogin(): void {
