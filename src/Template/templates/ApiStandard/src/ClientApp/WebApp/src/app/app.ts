@@ -8,7 +8,7 @@ import { MatIconRegistry } from '@angular/material/icon';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class AppComponent {
+export class App {
   title = 'WebApp';
 
   constructor(private matIconReg: MatIconRegistry) {

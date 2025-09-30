@@ -8,14 +8,14 @@ import { SystemRoleService } from 'src/app/services/admin/system-role.service';
 import { Observable, forkJoin } from 'rxjs';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
-import { commonModules } from 'src/app/share/shared-modules';
+import { CommonModules } from 'src/app/share/shared-modules';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { PageListOfSystemMenu } from 'src/app/services/admin/models/page-list-of-system-menu.model';
 
 @Component({
   selector: 'app-menus',
-  imports: [commonModules, MatTreeModule, MatCheckboxModule, MatButtonModule, MatCardModule],
+  imports: [CommonModules, MatTreeModule, MatCheckboxModule, MatButtonModule, MatCardModule],
   templateUrl: './menus.html',
   styleUrl: './menus.scss'
 })

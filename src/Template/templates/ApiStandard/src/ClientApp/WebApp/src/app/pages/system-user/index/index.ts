@@ -18,13 +18,12 @@ import { Detail } from '../detail/detail';
 import { Add } from '../add/add';
 import { Edit } from '../edit/edit';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
-import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 import { PageListOfSystemUserItemDto } from 'src/app/services/admin/models/page-list-of-system-user-item-dto.model';
 import { SystemUserItemDto } from 'src/app/services/admin/models/system-user-item-dto.model';
 
 @Component({
   selector: 'app-index',
-  imports: [...CommonListModules, ...CommonFormModules, TypedCellDefDirective, ToKeyValuePipe, EnumTextPipe],
+  imports: [...CommonListModules, ...CommonFormModules, TypedCellDefDirective, EnumTextPipe],
   templateUrl: './index.html',
   styleUrls: ['./index.scss']
 })

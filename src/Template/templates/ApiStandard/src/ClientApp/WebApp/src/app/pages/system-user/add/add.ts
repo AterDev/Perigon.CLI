@@ -8,7 +8,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/share/shared-modules';
-import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
 import { GenderType } from 'src/app/services/admin/enum/gender-type.model';
 import { SystemRoleService } from 'src/app/services/admin/system-role.service';
 import { forkJoin, Observable } from 'rxjs';
@@ -19,7 +18,7 @@ import { PageListOfSystemRoleItemDto } from 'src/app/services/admin/models/page-
 
 @Component({
   selector: 'app-add',
-  imports: [...CommonFormModules, ToKeyValuePipe],
+  imports: [...CommonFormModules],
   templateUrl: './add.html',
   styleUrls: ['./add.scss']
 })

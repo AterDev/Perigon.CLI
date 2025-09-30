@@ -16,11 +16,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 
 
-export const baseMatModules = [
+export const BaseMatModules = [
   CommonModule, MatIconModule, MatTooltipModule, MatButtonModule, MatProgressSpinnerModule, MatToolbarModule
 ];
 // 表单页面依赖的模块
-export const CommonFormModules = [...baseMatModules, MatFormFieldModule, MatDialogModule, ReactiveFormsModule, FormsModule, MatInputModule, MatSelectModule, MatDatepickerModule];
+export const CommonFormModules = [...BaseMatModules, MatFormFieldModule, MatDialogModule, ReactiveFormsModule, FormsModule, MatInputModule, MatSelectModule, MatDatepickerModule];
 // 列表页面依赖的模块
-export const CommonListModules = [...baseMatModules, MatTableModule, MatPaginatorModule, MatDialogModule, RouterModule];
-export const commonModules = [CommonModule, RouterModule]
+export const CommonListModules = [...BaseMatModules, MatTableModule, MatPaginatorModule, MatDialogModule, RouterModule];
+export const CommonModules = [CommonModule, RouterModule]

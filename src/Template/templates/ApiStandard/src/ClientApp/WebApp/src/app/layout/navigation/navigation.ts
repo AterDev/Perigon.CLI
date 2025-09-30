@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { baseMatModules, commonModules } from 'src/app/share/shared-modules';
+import { BaseMatModules, CommonModules } from 'src/app/share/shared-modules';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-navigation',
-  imports: [...baseMatModules, ...commonModules, MatSidenavModule, MatExpansionModule, MatListModule],
+  imports: [...BaseMatModules, ...CommonModules, MatSidenavModule, MatExpansionModule, MatListModule],
   templateUrl: './navigation.html',
   styleUrl: './navigation.scss'
 })
