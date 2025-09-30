@@ -23,11 +23,11 @@ export class Login implements OnInit {
     private service: SystemUserService,
     private router: Router
   ) {
-    if (authService.isLogin && authService.isAdmin) {
+    if (authService.isLogin) {
       if (this.service.isMobile) {
         this.router.navigate(['/mobile']);
       } else {
-        this.router.navigate(['/admin']);
+        this.router.navigate(['/system-role']);
       }
     }
   }
@@ -72,8 +72,7 @@ export class Login implements OnInit {
     this.adminClient.systemUser.login(data)
       .subscribe(res => {
         this.authService.saveLoginState(res.username, res.accessToken);
-
-        this.router.navigate(['/customer/index']);
+        this.router.navigate(['/system-role']);
       });
   }
 

@@ -3,11 +3,9 @@ import { Login } from './pages/login/login';
 import { LayoutComponent } from './layout/layout';
 import { Notfound } from './pages/notfound/notfound';
 import { AuthGuard } from './share/auth.guard';
-import { Index } from './pages/index';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
   {
     path: '',
     component: LayoutComponent,
@@ -43,7 +41,8 @@ export const routes: Routes = [
       //   ]
       // },
     ],
-
   },
+  
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', component: Notfound },
 ];

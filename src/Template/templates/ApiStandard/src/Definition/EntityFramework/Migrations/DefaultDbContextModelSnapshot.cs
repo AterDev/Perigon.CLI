@@ -18,7 +18,7 @@ namespace EntityFramework.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "10.0.0-rc.1.25451.107")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -97,8 +97,6 @@ namespace EntityFramework.Migrations
                     b.HasIndex("CatalogId");
 
                     b.HasIndex("Title");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Blogs");
                 });
@@ -305,8 +303,6 @@ namespace EntityFramework.Migrations
 
                     b.HasIndex("ContactInfo");
 
-                    b.HasIndex("CreatedUserId");
-
                     b.HasIndex("CustomerRegisterId");
 
                     b.HasIndex("CustomerType");
@@ -314,8 +310,6 @@ namespace EntityFramework.Migrations
                     b.HasIndex("FollowUpStatus");
 
                     b.HasIndex("IsFormal");
-
-                    b.HasIndex("ManagerId");
 
                     b.HasIndex("Name");
 
@@ -503,9 +497,6 @@ namespace EntityFramework.Migrations
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CustomerInfoId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("DiscountCode")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
@@ -550,8 +541,6 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerInfoId");
-
                     b.HasIndex("DiscountCode");
 
                     b.HasIndex("OrderNumber");
@@ -559,8 +548,6 @@ namespace EntityFramework.Migrations
                     b.HasIndex("ProductId");
 
                     b.HasIndex("Status");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -1367,15 +1354,7 @@ namespace EntityFramework.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.UserMod.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Catalog");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Entity.CMSMod.Catalog", b =>
@@ -1408,27 +1387,11 @@ namespace EntityFramework.Migrations
 
             modelBuilder.Entity("Entity.CustomerMod.CustomerInfo", b =>
                 {
-                    b.HasOne("Entity.SystemMod.SystemUser", "CreatedUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Entity.CustomerMod.CustomerRegister", "CustomerRegister")
                         .WithMany()
                         .HasForeignKey("CustomerRegisterId");
 
-                    b.HasOne("Entity.SystemMod.SystemUser", "Manager")
-                        .WithMany()
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedUser");
-
                     b.Navigation("CustomerRegister");
-
-                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("Entity.FileManagerMod.FileData", b =>
@@ -1451,29 +1414,13 @@ namespace EntityFramework.Migrations
 
             modelBuilder.Entity("Entity.OrderMod.Order", b =>
                 {
-                    b.HasOne("Entity.CustomerMod.CustomerInfo", "CustomerInfo")
-                        .WithMany()
-                        .HasForeignKey("CustomerInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Entity.OrderMod.Product", "Product")
                         .WithMany("Orders")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.UserMod.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CustomerInfo");
-
                     b.Navigation("Product");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Entity.SystemMod.SystemLogs", b =>

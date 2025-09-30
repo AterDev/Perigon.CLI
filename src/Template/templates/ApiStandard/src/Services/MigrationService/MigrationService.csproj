@@ -1,22 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-MigrationService-a6847709-48df-4a73-8a2f-60d08c2f943f</UserSecretsId>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-rc.1.25451.107">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
-    <ProjectReference Include="..\..\Ater\Ater.Web.Convention\Ater.Web.Convention.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-MigrationService-a6847709-48df-4a73-8a2f-60d08c2f943f</UserSecretsId>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-rc.1.25451.107">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.0" />
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
+        <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
+        <ProjectReference Include="..\..\Ater\Ater.Web.Convention\Ater.Web.Convention.csproj" />
+    </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ param (
     $Name = $null
 )
 
+dotnet tool restore
 $location = Get-Location
 
 Set-Location ../src/Services/MigrationService
