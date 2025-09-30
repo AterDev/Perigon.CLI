@@ -1,4 +1,4 @@
-using AspireHost;
+using AppHost;
 using Ater.Common;
 
 var builder = DistributedApplication.CreateBuilder(args);

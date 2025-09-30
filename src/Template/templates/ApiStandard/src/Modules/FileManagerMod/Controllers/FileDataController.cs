@@ -1,7 +1,7 @@
 using FileManagerMod.Models.FileDataDtos;
 using Microsoft.AspNetCore.Http;
 
-namespace FileManagerMod.Controllers.AdminControllers;
+namespace FileManagerMod.Controllers;
 
 /// <summary>
 /// 文件数据

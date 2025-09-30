@@ -12,7 +12,7 @@
     <File Path="scripts/UpdateMenus.ps1" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/AspireHost/AspireHost.csproj" />
+    <Project Path="src/AppHost/AppHost.csproj" />
   </Folder>
   <Folder Name="/src/Definition/">
     <Project Path="src/Definition/Entity/Entity.csproj" />

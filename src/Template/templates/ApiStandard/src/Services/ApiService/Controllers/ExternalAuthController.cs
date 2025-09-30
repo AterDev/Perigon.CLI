@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 
-namespace Http.API.Controllers;
+namespace ApiService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

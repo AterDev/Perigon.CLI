@@ -1,6 +1,6 @@
 using CommonMod.Managers;
 
-namespace Http.API.Controllers;
+namespace ApiService.Controllers;
 
 /// <summary>
 /// CommonController

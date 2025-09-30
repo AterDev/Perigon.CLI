@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace AspireHost;
+namespace AppHost;
 
 /// <summary>
 /// Stores Aspire configuration settings parsed from appsettings.
