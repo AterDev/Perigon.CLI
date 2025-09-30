@@ -1,4 +1,3 @@
-
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,15 +7,18 @@ import { CommonFormModules } from 'src/app/share/shared-modules';
 import { SystemUserService } from 'src/app/services/admin/system-user.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { AdminClient } from 'src/app/services/admin/admin-client';
+import { TranslateModule } from '@ngx-translate/core';
+import { I18N_KEYS } from 'src/app/share/i18n-keys';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonFormModules, MatCardModule],
+  imports: [CommonFormModules, MatCardModule, TranslateModule],
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
 export class Login implements OnInit {
   public loginForm!: FormGroup;
+  i18nKeys = I18N_KEYS;
   private adminClient = inject(AdminClient);
   constructor(
     private authService: AuthService,

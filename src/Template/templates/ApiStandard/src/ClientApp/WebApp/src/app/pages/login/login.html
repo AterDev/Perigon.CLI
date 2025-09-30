@@ -2,20 +2,20 @@
   <mat-card class="col-sm-auto col-12">
     <mat-card-header>
       <mat-card-title>
-        登录
+        {{i18nKeys.login.title | translate}}
       </mat-card-title>
     </mat-card-header>
     <mat-card-content class="mt-2">
       <form [formGroup]="loginForm" (ngSubmit)="doLogin()" class="d-flex flex-column">
         <mat-form-field appearance="outline" class="mt-2">
-          <mat-label>用户名</mat-label>
+          <mat-label>{{i18nKeys.login.username|translate}}</mat-label>
           <input matInput type="text" placeholder="用户名4位以上" formControlName="username" required>
           @if (username?.invalid) {
             <mat-error>{{getValidatorMessage('username')}}</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>密码</mat-label>
+          <mat-label>{{i18nKeys.login.password|translate}}</mat-label>
           <input type="password" matInput placeholder="密码长度6位(含6位)以上" formControlName="password" required>
           @if (password?.invalid) {
             <mat-error>{{getValidatorMessage('password')}}
@@ -23,7 +23,7 @@
           }
         </mat-form-field>
         <div class="d-flex justify-content-end">
-          <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid">登录</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="loginForm.invalid">{{i18nKeys.login.login|translate}}</button>
         </div>
       </form>
     </mat-card-content>
