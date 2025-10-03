@@ -1,9 +1,11 @@
 {
+  "home": "Home",
+  "hello": "Hello",
   "login": {
-    "title": "Login",
     "username": "Username",
     "password": "Password",
-    "login": "Login"
+    "login": "Login",
+    "logout": "Logout"
   },
   "language": "Language",
   "validation": {

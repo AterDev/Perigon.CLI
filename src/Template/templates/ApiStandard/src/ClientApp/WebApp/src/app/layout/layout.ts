@@ -8,10 +8,12 @@ import { BaseMatModules, CommonModules } from 'src/app/share/shared-modules';
 import { NavigationComponent } from "./navigation/navigation";
 import { TranslateService } from '@ngx-translate/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { I18N_KEYS } from '../share/i18n-keys';
 
 @Component({
   selector: 'app-layout',
-  imports: [MatToolbarModule, MatMenuModule, ...BaseMatModules, ...CommonModules, NavigationComponent, MatButtonToggleModule],
+  imports: [MatToolbarModule, MatMenuModule, ...BaseMatModules, ...CommonModules,
+    NavigationComponent, MatButtonToggleModule],
   templateUrl: './layout.html',
   styleUrl: './layout.scss'
 })
@@ -19,6 +21,7 @@ export class LayoutComponent {
   isLogin = false;
   isAdmin = false;
   username?: string | null = null;
+  i18n = I18N_KEYS;
   translate = inject(TranslateService);
   constructor(
     private auth: AuthService,

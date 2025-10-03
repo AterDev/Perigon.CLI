@@ -1,9 +1,11 @@
 {
+  "home": "首页",
+  "hello": "你好",
   "login": {
-    "title": "登录",
     "username": "用户名",
     "password": "密码",
-    "login": "登录"
+    "login": "登录",
+    "logout": "登出"
   },
   "language": "语言",
   "validation": {

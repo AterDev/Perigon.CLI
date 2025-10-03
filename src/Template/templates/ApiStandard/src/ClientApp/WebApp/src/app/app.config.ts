@@ -16,7 +16,11 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     provideTranslateService({
+      fallbackLang: 'zh',
+      lang: 'zh',
       defaultLanguage: 'zh',
+      extend: true,
+      useDefaultLang: true,
     }),
     provideTranslateHttpLoader({
       prefix: './assets/i18n/',

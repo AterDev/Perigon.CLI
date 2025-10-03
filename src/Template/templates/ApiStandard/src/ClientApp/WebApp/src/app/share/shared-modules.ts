@@ -19,7 +19,8 @@ import { TranslateModule } from '@ngx-translate/core';
 
 export const BaseMatModules = [
   TranslateModule,
-  CommonModule, MatIconModule, MatTooltipModule, MatButtonModule, MatProgressSpinnerModule, MatToolbarModule
+  CommonModule, MatIconModule, MatTooltipModule, MatButtonModule, MatProgressSpinnerModule, MatToolbarModule,
+  TranslateModule
 ];
 // 表单页面依赖的模块
 export const CommonFormModules = [...BaseMatModules, MatFormFieldModule, MatDialogModule, ReactiveFormsModule, FormsModule, MatInputModule, MatSelectModule, MatDatepickerModule];
