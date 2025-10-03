@@ -1,6 +1,6 @@
 [
     {
-        "name": "业务管理",
+        "name": "menu.business",
         "path": null,
         "accessCode": "business",
         "icon": "assignment_ind",
@@ -8,7 +8,7 @@
         "menuType": 0,
         "children": [
             {
-                "name": "客户管理",
+                "name": "menu.customer",
                 "path": "/customer",
                 "accessCode": "customerInfo",
                 "icon": "person",
@@ -16,7 +16,7 @@
                 "menuType": 0
             },
             {
-                "name": "团队管理",
+                "name": "menu.team",
                 "path": "/team",
                 "accessCode": "team",
                 "icon": "groups",
@@ -24,7 +24,7 @@
                 "menuType": 0
             },
             {
-                "name": "产品管理",
+                "name": "menu.product",
                 "path": "/product",
                 "accessCode": "product",
                 "icon": "inventory_2",
@@ -32,7 +32,7 @@
                 "menuType": 0
             },
             {
-                "name": "订单管理",
+                "name": "menu.order",
                 "path": "/order",
                 "accessCode": "order",
                 "icon": "payments",
@@ -42,7 +42,7 @@
         ]
     },
     {
-        "name": "系统管理",
+        "name": "menu.system",
         "path": null,
         "accessCode": "system",
         "icon": "admin_panel_settings",
@@ -50,7 +50,7 @@
         "menuType": 0,
         "children": [
             {
-                "name": "角色管理",
+                "name": "menu.systemRole",
                 "path": "/system-role",
                 "accessCode": "system-role",
                 "icon": "groups",
@@ -58,7 +58,7 @@
                 "menuType": 0
             },
             {
-                "name": "账号管理",
+                "name": "menu.systemUser",
                 "path": "/system-user",
                 "accessCode": "system-user",
                 "icon": "manage_accounts",
@@ -66,7 +66,7 @@
                 "menuType": 0
             },
             {
-                "name": "系统日志",
+                "name": "menu.systemLogs",
                 "path": "/system-logs",
                 "accessCode": "system-logs",
                 "icon": "manage_search",
@@ -74,7 +74,7 @@
                 "menuType": 0
             },
             {
-                "name": "系统设置",
+                "name": "menu.systemConfig",
                 "path": "/system-config",
                 "accessCode": "system-config",
                 "icon": "settings",
