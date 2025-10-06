@@ -1,3 +1,5 @@
+using AterStudio.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
@@ -5,15 +7,23 @@ namespace AterStudio.Components.Layout;
 
 public partial class MainLayout : IDisposable
 {
+    [Inject]
+    protected CultureService CultureService { get; set; } = default!;
+
     public DesignThemeModes Mode { get; set; } = DesignThemeModes.System;
     private bool isDarkMode;
     private IDialogReference? _dialog;
-
     private ErrorBoundary? _errorBoundary;
+    private bool _visable;
 
     protected override void OnInitialized()
     {
         MessageService.OnMessageItemsUpdated += UpdateCount;
+    }
+
+    private void SetLanguage(string culture)
+    {
+        CultureService.SetCulture(culture);
     }
 
     private async Task OpenNotificationCenterAsync()

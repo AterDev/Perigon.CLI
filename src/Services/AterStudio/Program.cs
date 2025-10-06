@@ -5,6 +5,7 @@ using AterStudio.McpTools;
 using AterStudio.Worker;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Localization;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Share.Helper;
@@ -60,8 +61,35 @@ builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
 
 WebApplication app = builder.Build();
 app.MapMcp("mcp");
-
 app.UseMiddlewareServices();
+
+// 使用 Minimal API 处理语言切换
+app.MapGet("/Culture/SetCulture", (string culture, string? redirectUri, HttpContext context) =>
+{
+    if (string.IsNullOrWhiteSpace(culture))
+    {
+        culture = "zh-CN";
+    }
+
+    if (string.IsNullOrWhiteSpace(redirectUri))
+    {
+        redirectUri = "/";
+    }
+
+    context.Response.Cookies.Append(
+        CookieRequestCultureProvider.DefaultCookieName,
+        CookieRequestCultureProvider.MakeCookieValue(
+            new RequestCulture(culture, culture)),
+        new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax
+        }
+    );
+
+    return Results.LocalRedirect(redirectUri);
+});
 
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 lifetime.ApplicationStarted.Register(() =>
