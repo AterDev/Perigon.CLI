@@ -28,6 +28,7 @@ public partial class GenTask
     {
         CheckProject();
         await LoadActionsAsync();
+        await LoadStepsAsync();
         isLoading = false;
     }
 
@@ -40,7 +41,6 @@ public partial class GenTask
         if (GenActions.Count > 0)
         {
             SelectedAction = GenActions[0];
-            await LoadStepsAsync();
         }
         else
         {
@@ -142,8 +142,8 @@ public partial class GenTask
 
     private async Task OpenAddStepDialogAsync()
     {
-        if (SelectedAction == null)
-            return;
+        //if (SelectedAction == null)
+        //    return;
         var parameters = new DialogParameters { Modal = false };
         var dialog = await DialogService.ShowDialogAsync<UpsertGenStepDialog>(parameters);
         var result = await dialog.Result;

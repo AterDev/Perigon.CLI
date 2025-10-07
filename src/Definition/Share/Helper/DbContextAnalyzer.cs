@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Reflection;
 using CodeGenerator.Helper;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -15,9 +16,7 @@ public class DbContextAnalyzer(string entityFrameworkPath)
     public FrozenDictionary<string, IModel> GetDbContextModels()
     {
         var dict = new Dictionary<string, IModel>(StringComparer.Ordinal);
-        var dbContextNames = _helper
-            .DbContextNamedTypeSymbols.Select(s => s.ToDisplayString())
-            .ToArray();
+        var dbContextNames = _helper.DbContextNamedTypeSymbols.Select(s => s.ToDisplayString()).ToArray();
 
         var loadContext = new PluginLoadContext(_helper.DllPath);
         var assembly = loadContext.LoadFromAssemblyName(
@@ -71,7 +70,7 @@ public class DbContextAnalyzer(string entityFrameworkPath)
             {
                 return null;
             }
-            // use tool's sqlite assembly
+            // use tool sqlite assembly
             var sqliteAssembly = Assembly.Load("Microsoft.EntityFrameworkCore.Sqlite");
             var sqliteExtensionsType = sqliteAssembly.GetType(
                 "Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions"
@@ -106,6 +105,7 @@ public class DbContextAnalyzer(string entityFrameworkPath)
         return dbContextInstance?.Model;
     }
 
+
     /// <summary>
     /// 获取包含某个实体类型的DbContext
     /// </summary>
@@ -115,4 +115,5 @@ public class DbContextAnalyzer(string entityFrameworkPath)
     {
         return _helper.GetDbContextType(entityName);
     }
+
 }
