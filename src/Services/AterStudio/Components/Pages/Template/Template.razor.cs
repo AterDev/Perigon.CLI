@@ -124,7 +124,7 @@ public partial class Template
         };
         var dialog = await DialogService.ShowDialogAsync<UpsertFileDialog>(
             data,
-            new DialogParameters { Width = "auto", Modal = false }
+            new DialogParameters { Width = "500px", Modal = false }
         );
         var result = await dialog.Result;
         if (!result.Cancelled)

@@ -54,6 +54,7 @@
 <FluentDialogFooter>
   <FluentButton Appearance="Appearance.Accent"
                 Type="ButtonType.Button"
+                disabled="!formValid || running"
                 OnClick="SaveAsync">
     @Lang(Localizer.Confirm)
   </FluentButton>
@@ -76,12 +77,14 @@
   EditContext? editContext;
   RequestClientDto Model { get; set; } = default!;
   bool formValid { get; set; }
+  bool running = false;
 
   protected override void OnInitialized()
   {
     Model = new RequestClientDto()
     {
-      OpenApiEndpoint = Content.Path
+      OpenApiEndpoint = Content.Path,
+      OutputPath = Content.LocalPath
     };
     editContext = new EditContext(Model);
     editContext.OnFieldChanged += HandleFieldChanged;
@@ -111,6 +114,8 @@
       ToastService.ShowError(Lang(Localizer.FormValidFailed));
       return;
     }
+    await Task.Yield();
+    running = true;
 
     var res = await ApiDocInfoManager.GenerateRequestClientAsync(Content.Id, Model);
     if (res == null)
@@ -118,6 +123,7 @@
       ToastService.ShowError(ApiDocInfoManager.ErrorMsg);
       return;
     }
+    running = false;
     await Dialog.CloseAsync(res);
 
   }

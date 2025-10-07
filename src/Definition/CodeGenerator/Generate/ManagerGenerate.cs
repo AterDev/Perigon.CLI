@@ -71,10 +71,10 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
 
     private string GenValidateMethods()
     {
-        // 仅对非用户实体的导航生成校验方法，如 Blog 的 Catalog，校验 Catalog 是否属于指定用户
         var navigations = EntityInfo.Navigations.Where(n =>
-            !UserEntities.Contains(n.Type) && n.Type != EntityInfo.Name
+            !UserEntities.Contains(n.Type) && n.Type != EntityInfo.Name && !n.IsCollection
         );
+
         if (!navigations.Any())
         {
             return string.Empty;

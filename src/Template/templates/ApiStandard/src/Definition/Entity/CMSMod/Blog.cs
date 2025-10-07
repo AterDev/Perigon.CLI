@@ -1,5 +1,3 @@
-using Entity.UserMod;
-
 namespace Entity.CMSMod;
 
 /// <summary>
@@ -71,8 +69,6 @@ public class Blog : EntityBase
     /// </summary>
     public bool IsOriginal { get; set; }
 
-    [ForeignKey(nameof(UserId))]
-    public required User User { get; set; }
     public Guid UserId { get; set; }
 
     /// <summary>

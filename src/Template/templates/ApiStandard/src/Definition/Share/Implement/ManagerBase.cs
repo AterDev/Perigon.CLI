@@ -11,6 +11,13 @@ public abstract class ManagerBase(ILogger logger)
     protected ILogger _logger = logger;
 }
 
+public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logger)
+    : ManagerBase(logger)
+    where TDbContext : DbContext
+{
+    protected readonly TDbContext _dbContext = dbContext;
+}
+
 /// <summary>
 /// Generic manager base class for entity operations.
 /// </summary>
@@ -194,7 +201,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 : Queryable.OrderByDescending(t => t.CreatedTime);
 
         var count = Queryable.Count();
-        List<TItem> data = await _dbSet
+        List<TItem> data = await Queryable
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
@@ -215,14 +222,10 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="entity">Entity to add</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> AddAsync(TEntity entity)
+    public virtual async Task<bool> AddAsync(TEntity entity)
     {
         await _dbSet.AddAsync(entity);
-        if (AutoSave)
-        {
-            return await SaveChangesAsync() > 0;
-        }
-        return true;
+        return !AutoSave || await SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -230,14 +233,10 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="entity">Tracked entity to update</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> UpdateAsync(TEntity entity)
+    public virtual async Task<bool> UpdateAsync(TEntity entity)
     {
         _dbSet.Update(entity);
-        if (AutoSave)
-        {
-            return await SaveChangesAsync() > 0;
-        }
-        return true;
+        return !AutoSave || await SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -307,7 +306,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="ids">List of entity ids</param>
     /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public virtual async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         var res = softDelete
             ? await _dbSet

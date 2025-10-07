@@ -29,9 +29,7 @@
   <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
     @* monaco editor *@
 
-    <FluentTextArea @bind-Value="FileContent" Rows="20"></FluentTextArea>
-
-
+    <FluentTextArea @bind-Value="FileContent" Rows="20" Class="w-100"></FluentTextArea>
   </FluentStack>
 </FluentStack>
 <FluentDialogFooter>
@@ -84,7 +82,7 @@
     var filePath = Path.Combine(Content.RootPath, Content.DirectoryName, FileName + Content.Suffix);
     if (IsEdit)
     {
-                LocalFileHelper.UpdateFileContent(filePath, FileContent);
+      LocalFileHelper.UpdateFileContent(filePath, FileContent);
     }
     else
     {

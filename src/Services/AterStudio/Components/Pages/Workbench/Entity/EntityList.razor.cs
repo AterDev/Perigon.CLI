@@ -115,6 +115,10 @@ public partial class EntityList
         var parameters = new DialogParameters { Modal = true, Width = "560px" };
         var dialog = await DialogService.ShowDialogAsync<ServicesDialog>(parameters);
         var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            GetServices();
+        }
     }
 
     private async Task OpenGenerateDialog(CommandType commandType, EntityFile? entity = null)

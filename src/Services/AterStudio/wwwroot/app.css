@@ -173,6 +173,7 @@ fluent-card:hover .delete-action {
 
 .fluent-messagebar-notification-content {
     word-break: break-word;
+    white-space: break-spaces;
 }
 
 .upsert-file-dialog {

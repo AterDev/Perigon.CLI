@@ -176,7 +176,7 @@ public partial class EntityInfoManager(
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
-        SolutionService.BuildProject(projectContext.EntityPath!, false);
+        //SolutionService.BuildProject(projectContext.EntityPath!, false);
         SolutionService.BuildProject(projectContext.EntityFrameworkPath!, false);
 
         var dbContextHelper = new DbContextParseHelper(
@@ -220,6 +220,11 @@ public partial class EntityInfoManager(
                 break;
         }
         codeGenService.ClearCodeGenCache(entityInfo);
+        // 清理并释放资源
+        entityInfo = null;
+        dbContextHelper = null;
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
         codeGenService.GenerateFiles(files);
         return files;
     }

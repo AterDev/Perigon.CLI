@@ -1,3 +1,5 @@
+using Entity;
+
 namespace CodeGenerator.Generate;
 
 /// <summary>
@@ -150,7 +152,7 @@ public class TSModelGenerate : GenerateBase
         // 文件名及内容
         string fileName = schemaKey.ToHyphen() + ".model.ts";
         string tsContent;
-        string? path = GetDirName(schemaKey)?.ToHyphen();
+        string? path = "models";
         if (schema.Enum?.Count > 0)
         {
             tsContent = ToEnumString(schema, schemaKey);
@@ -199,34 +201,7 @@ public class TSModelGenerate : GenerateBase
         string propertyString = "";
         string extendString = "";
         string importString = ""; // 需要导入的关联接口
-        string relatePath = "../../";
 
-        // 不在控制器中的类型，则在根目录生成，相对目录也从根目录开始
-        if (string.IsNullOrEmpty(GetDirName(name)))
-        {
-            relatePath = "../";
-        }
-
-        if (
-            schema.AllOf?.Count > 0
-            && schema.AllOf.FirstOrDefault() is OpenApiSchemaReference reference
-        )
-        {
-            string? extend = reference.Reference.Id;
-            if (!string.IsNullOrEmpty(extend))
-            {
-                extendString = "extends " + extend + " ";
-                // 如果是自引用，不需要导入
-                if (extend != name)
-                {
-                    string? dirName = GetDirName(name);
-                    dirName = dirName.NotEmpty() ? dirName!.ToHyphen() + "/" : "";
-                    importString +=
-                        @$"import {{ {extend} }} from '{relatePath}models/{extend.ToHyphen()}.model';"
-                        + Environment.NewLine;
-                }
-            }
-        }
         if (!string.IsNullOrEmpty(schema.Description))
         {
             comment =
@@ -235,8 +210,12 @@ public class TSModelGenerate : GenerateBase
  */
 ";
         }
-        var props = OpenApiHelper.ParseProperties(schema, false);
-        bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
+        var props = OpenApiHelper.ParseProperties(schema, true);
+        if (props.Count == 0)
+        {
+            return string.Empty;
+        }
+
         var tsProps = new List<TsProperty>();
         foreach (var p in props)
         {
@@ -249,6 +228,14 @@ public class TSModelGenerate : GenerateBase
                 IsNullable = p.IsNullable,
                 Comments = $"/** {p.CommentSummary} */",
             };
+            // 特殊处理(openapi $ref没有可空说明)
+            if (
+                name.EndsWith(ConstVal.FilterDto, StringComparison.OrdinalIgnoreCase)
+                || name.EndsWith(ConstVal.UpdateDto, StringComparison.OrdinalIgnoreCase)
+            )
+            {
+                tsProperty.IsNullable = true;
+            }
             tsProps.Add(tsProperty);
             propertyString += tsProperty.ToProperty();
         }
@@ -257,23 +244,22 @@ public class TSModelGenerate : GenerateBase
         var importsProps = tsProps
             .Where(p => !string.IsNullOrEmpty(p.Reference))
             .DistinctBy(p => p.Reference)
-            //.GroupBy(p => p.Reference)
-            //.Select(g => new { g.First().IsEnum, g.First().Reference })
             .ToList();
         importsProps.ForEach(ip =>
         {
             // 引用的导入，自引用不需要导入
             if (ip.Reference != name)
             {
-                string? dirName = GetDirName(ip.Reference);
-                dirName = dirName.NotEmpty() ? dirName!.ToHyphen() + "/" : "";
+                string dirName = "";
+                string relatePath = "./";
                 if (ip.IsEnum)
                 {
+                    relatePath = "../";
                     dirName = "enum/";
                 }
 
                 importString +=
-                    @$"import {{ {ip.Reference} }} from '{relatePath}{dirName}models/{ip.Reference.ToHyphen()}.model';"
+                    @$"import {{ {ip.Reference} }} from '{relatePath}{dirName}{ip.Reference.ToHyphen()}.model';"
                     + Environment.NewLine;
             }
         });
@@ -344,12 +330,11 @@ public class TsProperty
     public string ToProperty()
     {
         string name = Name + (IsNullable ? "?: " : ": ");
-        // 引用的类型可空
-        if (!string.IsNullOrEmpty(Reference))
-        {
-            name = Name + "?: ";
-        }
 
+        if (IsNullable && Type != null && !Type.EndsWith("null"))
+        {
+            Type += " | null";
+        }
         return $"{Comments}  {name}{Type};" + Environment.NewLine;
     }
 }

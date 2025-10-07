@@ -111,7 +111,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
     /// </summary>
     /// <param name="tags"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GetServices(ISet<OpenApiTag> tags)
+    public List<GenFileInfo> GetServices(ISet<OpenApiTag> tags, string docName)
     {
         if (TsModelFiles.Count == 0)
         {
@@ -144,7 +144,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 _ => "",
             };
 
-            string path = currentTag.Name?.ToHyphen() ?? "";
+            string path = string.Empty;
             switch (LibType)
             {
                 // 同时生成基类和继承类，继承类可自定义
@@ -175,6 +175,24 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 default:
                     break;
             }
+        }
+        // api client
+        var serviceKeys = funcGroups.Where(g => g.Key != null).Select(g => g.Key).ToList();
+        var clientContent = LibType switch
+        {
+            RequestClientType.NgHttp => ToNgClient(docName, serviceKeys),
+            RequestClientType.Axios => "",
+            _ => "",
+        };
+        if (!string.IsNullOrWhiteSpace(clientContent))
+        {
+            var clientFile = new GenFileInfo($"{docName}-client.ts", clientContent)
+            {
+                FullName = string.Empty,
+                IsCover = true,
+                FileType = GenFileType.Global,
+            };
+            files.Add(clientFile);
         }
         return files;
     }
@@ -340,10 +358,12 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
 
             // 参数中的类型
             List<string?> paramsRefs = functions
+                .Where(f => f.Params != null)
                 .SelectMany(f => f.Params!)
                 .Where(p => !baseTypes.Contains(p.Type))
                 .Select(p => p.Type)
                 .ToList();
+
             if (requestRefs != null)
             {
                 refTypes.AddRange(requestRefs!);
@@ -368,13 +388,12 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         }
         string result =
             $@"import {{ Injectable }} from '@angular/core';
-import {{ BaseService }} from '../base.service';
+import {{ BaseService }} from './base.service';
 import {{ Observable }} from 'rxjs';
 {importModels}
 /**
  * {serviceFile.Description}
  */
-@Injectable({{ providedIn: 'root' }})
 export class {serviceFile.Name}BaseService extends BaseService {{
 {functionstr}
 }}
@@ -383,7 +402,7 @@ export class {serviceFile.Name}BaseService extends BaseService {{
     }
 
     /// <summary>
-    /// 生成ng 请求服务继承类,可自定义
+    /// 生成ng 请求服务继承类, 用来自定义
     /// </summary>
     /// <param name="serviceFile"></param>
     /// <returns></returns>
@@ -398,11 +417,40 @@ import { {{serviceFile.Name}}BaseService } from './{{serviceFile.Name.ToHyphen()
  */
 @Injectable({providedIn: 'root' })
 export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService {
-  id: string | null = null;
-  name: string | null = null;
 }
 """;
         return result;
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="docName"></param>
+    /// <param name="serviceNames"></param>
+    /// <returns></returns>
+    private string ToNgClient(string docName, List<string> serviceNames)
+    {
+        string imports = "";
+        string injects = "";
+        serviceNames.ForEach(s =>
+        {
+            string className = s + "Service";
+            imports +=
+                $"import {{ {className} }} from './{s.ToHyphen()}.service';{Environment.NewLine}";
+            injects += $"  public {s.ToCamelCase()} = inject({className});{Environment.NewLine}";
+        });
+
+        return $$"""
+            import { inject, Injectable } from "@angular/core";
+            {{imports}}
+
+            @Injectable({
+              providedIn: 'root'
+            })
+            export class AdminClient {
+            {{injects}}
+            }
+            """;
     }
 
     /// <summary>
@@ -410,7 +458,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// </summary>
     /// <param name="function"></param>
     /// <returns></returns>
-    protected string ToAxiosFunction(RequestServiceFunction function)
+    private string ToAxiosFunction(RequestServiceFunction function)
     {
         string Name = function.Name;
         List<FunctionParams>? Params = function.Params;
@@ -420,13 +468,6 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             : function.ResponseType!;
 
         string Path = function.Path;
-        if (Server != null)
-        {
-            if (!Server.StartsWith("http://") && Server.StartsWith("https://"))
-            {
-                Path = Server + Path;
-            }
-        }
 
         // 函数名处理，去除tag前缀，然后格式化
         Name = Name.Replace(function.Tag + "_", "");
@@ -532,7 +573,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         return functionString;
     }
 
-    public string ToNgRequestFunction(RequestServiceFunction function)
+    private string ToNgRequestFunction(RequestServiceFunction function)
     {
         string Name = function.Name;
         List<FunctionParams>? Params = function.Params;
@@ -542,10 +583,6 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             : function.ResponseType!;
 
         string Path = function.Path;
-        if (Server != null)
-        {
-            Path = Server + Path;
-        }
 
         // 函数名处理，去除tag前缀，然后格式化
         Name = Name.Replace(function.Tag + "_", "");
@@ -658,25 +695,12 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
         if (EnumModels.Contains(t))
         {
             importModels +=
-                $"import {{ {t} }} from '../enum/models/{t.ToHyphen()}.model';{Environment.NewLine}";
+                $"import {{ {t} }} from './enum/{t.ToHyphen()}.model';{Environment.NewLine}";
         }
         else
         {
-            string? dirName = TsModelFiles
-                .Where(f => f.ModelName == t)
-                .Select(f => f.DirName)
-                .FirstOrDefault();
-
-            if (dirName != serviceFile.Name.ToHyphen())
-            {
-                importModels +=
-                    $"import {{ {t} }} from '../{dirName}/models/{t.ToHyphen()}.model';{Environment.NewLine}";
-            }
-            else
-            {
-                importModels +=
-                    $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
-            }
+            importModels +=
+                $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
         }
         return importModels;
     }

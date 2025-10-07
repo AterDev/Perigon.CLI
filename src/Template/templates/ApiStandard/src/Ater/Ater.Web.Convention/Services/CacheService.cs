@@ -75,7 +75,7 @@ public class CacheService(
     {
         var cachedValue = await cache.GetOrCreateAsync<T?>(
             key,
-            cancel => default,
+            factory => default,
             cancellationToken: cancellation
         );
         return cachedValue;

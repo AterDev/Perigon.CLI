@@ -4,6 +4,8 @@
 @inject IDialogService DialogService
 @inject IJSRuntime JS
 @using AterStudio.Components.Shared
+@using AterStudio.Services
+
 <FluentLayout>
   <FluentHeader Class="header" Height="56" Style="background:var(--neutral-layer-2)">
     <ChildContent>
@@ -39,14 +41,37 @@
       <FluentSpacer />
       <FluentStack Orientation="Orientation.Horizontal"
                    VerticalAlignment="VerticalAlignment.Center"
-                   HorizontalAlignment="HorizontalAlignment.End">
-
-        <FluentButton BackgroundColor="var(--neutral-layer-2)">
-          <FluentIcon Value="@(new Icons.Regular.Size24.DocumentOnePageSparkle())" Color="Color.Neutral" />
+                   HorizontalAlignment="HorizontalAlignment.End"
+                   HorizontalGap="4">
+        <FluentButton BackgroundColor="var(--neutral-layer-2)"
+                      Id="languageSwitch"
+                      Title="Switch Language"
+                      @onclick="() => _visable = !_visable">
+          <FluentIcon Value="@(new Icons.Regular.Size24.LocalLanguage())" Color="Color.Neutral" />
         </FluentButton>
-
-
-        <a href="https://github.com/AterDev/ater.dry.cli" style="line-height:16px">
+        <FluentPopover AnchorId="languageSwitch" @bind-Open="_visable"
+                       HorizontalPosition="HorizontalPosition.End">
+          <Body>
+            <FluentStack Orientation="Orientation.Vertical">
+              <FluentLabel @onclick='() => SetLanguage("zh-CN")' Class="cursor">
+                中文
+              </FluentLabel>
+              <FluentLabel @onclick='() => SetLanguage("en-US")' Class="cursor">
+                English
+              </FluentLabel>
+            </FluentStack>
+          </Body>
+        </FluentPopover>
+        <a href="https://dusi.dev/docs/Ater.Dry" target="_blank">
+          <FluentButton BackgroundColor="var(--neutral-layer-2)"
+                        Title="Document">
+            <FluentIcon Value="@(new Icons.Regular.Size24.DocumentOnePageSparkle())" Color="Color.Neutral" />
+          </FluentButton>
+        </a>
+        <a href="https://github.com/AterDev/ater.dry.cli"
+           target="_blank"
+           title="GitHub"
+           style="line-height:16px;padding:0 8px">
           @if (isDarkMode)
           {
             <img src="assets/github-mark-white.svg" width="20" alt="github" />

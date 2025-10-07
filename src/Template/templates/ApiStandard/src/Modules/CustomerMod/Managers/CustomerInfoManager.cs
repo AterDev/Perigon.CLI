@@ -5,7 +5,9 @@ namespace CustomerMod.Managers;
 /// <summary>
 /// 客户信息
 /// </summary>
-public class CustomerInfoManager(DefaultDbContext dbContext, ILogger<CustomerInfoManager> logger)
+public class CustomerInfoManager(
+    DefaultDbContext dbContext,
+    ILogger<CustomerInfoManager> logger)
     : ManagerBase<DefaultDbContext, CustomerInfo>(dbContext, logger)
 {
     /// <summary>

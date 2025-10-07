@@ -210,7 +210,7 @@ public class CodeGenService(
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
-            FullName = Path.Combine(servicePath, ConstVal.GlobalUsingsFile),
+            FullName = globalFilePath,
             ModuleName = entityInfo.ModuleName,
         };
 
@@ -241,6 +241,20 @@ public class CodeGenService(
             return null;
         }
 
+        var title = apiDocument.Info.Title;
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            var matchName = title
+                .Split('|')
+                .Where(s => s.EndsWith("Service", StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+            matchName ??= title.Split('|').FirstOrDefault();
+
+            if (matchName != null)
+            {
+                docName = matchName.Trim().Replace("Service", "").ToHyphen();
+            }
+        }
         // base service
         string content = RequestGenerate.GetBaseService(type);
         string dir = Path.Combine(outputPath, "services", docName);
@@ -300,7 +314,7 @@ public class CodeGenService(
         var tsModels = ngGen.GetTSInterfaces();
         tsModels.ForEach(m =>
         {
-            dir = Path.Combine(outputPath, "services", docName, m.FullName, "models");
+            dir = Path.Combine(outputPath, "services", docName, m.FullName);
             m.FullName = Path.Combine(dir, m.Name);
             m.IsCover = true;
         });
@@ -308,7 +322,7 @@ public class CodeGenService(
         // 获取请求服务并生成文件
         if (apiDocument.Tags != null)
         {
-            var services = ngGen.GetServices(apiDocument.Tags);
+            var services = ngGen.GetServices(apiDocument.Tags, docName);
             services.ForEach(s =>
             {
                 dir = Path.Combine(outputPath, "services", docName, s.FullName);

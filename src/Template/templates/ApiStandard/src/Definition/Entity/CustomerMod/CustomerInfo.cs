@@ -1,7 +1,4 @@
-using Ater.Common.Models;
 using Ater.Common.Utils;
-using Entity.OrderMod;
-using Entity.SystemMod;
 
 namespace Entity.CustomerMod;
 /// <summary>
@@ -22,18 +19,8 @@ public class CustomerInfo : EntityBase
     /// </summary>
     public CustomerAccount? Account { get; set; }
 
-    /// <summary>
-    /// 添加人
-    /// </summary>
-    [ForeignKey(nameof(CreatedUserId))]
-    public SystemUser CreatedUser { get; set; } = null!;
     public Guid CreatedUserId { get; set; }
 
-    /// <summary>
-    /// 管理人
-    /// </summary>
-    [ForeignKey(nameof(ManagerId))]
-    public SystemUser Manager { get; set; } = null!;
     public Guid ManagerId { get; set; }
 
     #endregion

@@ -30,7 +30,7 @@ public partial class OpenApi
     string? SelectedNav { get; set; }
 
     bool IsLoading { get; set; } = true;
-    bool IsFreshing { get; set; }
+    bool Refreshing { get; set; }
 
     string ActiveId { get; set; } = "api";
 
@@ -61,7 +61,7 @@ public partial class OpenApi
     {
         if (CurrentDoc?.Id != null)
         {
-            IsFreshing = true;
+            Refreshing = true;
             await Task.Yield();
             var res = await _manager.GetContentAsync(CurrentDoc.Id, isFresh);
 
@@ -83,7 +83,7 @@ public partial class OpenApi
                     .SelectMany(g => g.ApiInfos ?? [])
                     .FirstOrDefault(a => a.Router == CurrentApi?.Router);
             }
-            IsFreshing = false;
+            Refreshing = false;
         }
     }
 
@@ -264,12 +264,16 @@ public partial class OpenApi
 
         if (result.Data is List<GenFileInfo> files)
         {
+            await GetApiDocsAsync();
             // 发送全局通知
             MessageService.ShowMessageBar(options =>
             {
                 options.Intent = MessageIntent.Success;
                 options.Title = Lang(Localizer.Generate, Localizer.RequestClient);
-                options.Body = string.Join("\n", files.Select(f => f.FullName));
+                options.Body = string.Join(
+                    "\n",
+                    files.Select(f => f.FullName.Replace(ProjectContext.SolutionPath ?? "", ""))
+                );
                 options.Timestamp = DateTime.Now;
                 options.Section = App.MESSAGES_NOTIFICATION_CENTER;
             });

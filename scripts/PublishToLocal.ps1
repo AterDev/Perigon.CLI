@@ -7,7 +7,7 @@ param (
 $location = Get-Location
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::UTF8
 
-$dotnetVersion = "net9.0"
+$dotnetVersion = "net10.0"
 $commandLinePath = Join-Path $location "../src/Command/CommandLine";
 $studioPath = Join-Path $location "../src/Services/AterStudio";
 $shareDllsFile = Join-Path $commandLinePath "ShareDlls.txt"

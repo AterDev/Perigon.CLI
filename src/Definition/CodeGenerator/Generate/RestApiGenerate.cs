@@ -31,6 +31,7 @@ public class RestApiGenerate(
             "global using Microsoft.AspNetCore.Authorization;",
             "global using System.Text.Json.Serialization;",
             "global using Microsoft.EntityFrameworkCore;",
+            "global using Share;",
             $"global using {ConstVal.CoreLibName}.Models;",
             $"global using {ConstVal.CoreLibName}.Utils;",
             $"global using {ConstVal.ConventionLibName};",
@@ -92,7 +93,7 @@ public class RestApiGenerate(
         {
             var userEntities = SolutionConfig.UserEntities;
             var navigations = EntityInfo.Navigations.Where(n =>
-                !userEntities.Contains(n.Type) && n.Type != EntityInfo.Name
+                !userEntities.Contains(n.Type) && n.Type != EntityInfo.Name && !n.IsCollection
             );
             if (!navigations.Any())
             {

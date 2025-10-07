@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -16,12 +16,18 @@
     <None Remove="Models\ToolsDtos\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+    <PackageReference
+      Include="Microsoft.EntityFrameworkCore.Design"
+      Version="10.0.0-rc.1.25451.107"
+    >
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Spectre.Console" Version="0.50.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
+    <PackageReference Include="Spectre.Console" Version="0.51.1" />
+    <PackageReference
+      Include="Microsoft.EntityFrameworkCore.Sqlite"
+      Version="10.0.0-rc.1.25451.107"
+    />
     <PackageReference Include="Ater.Web.SourceGeneration" Version="1.0.0-beta6" />
   </ItemGroup>
   <ItemGroup>

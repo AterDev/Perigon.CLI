@@ -6,6 +6,7 @@ param (
     $Name = $null
 )
 
+dotnet tool restore
 $location = Get-Location
 
 Set-Location ../src/Services/MigrationService
@@ -14,10 +15,10 @@ if ([string]::IsNullOrWhiteSpace($Name)) {
 }
 dotnet build
 if ($Name -eq "Remove") {
-    dotnet ef migrations remove -c DefaultDbContext --no-build --project ../../Definition/EntityFramework/EntityFramework.csproj    
+    dotnet ef migrations remove -c DefaultDbContext --no-build --project ../../Definition/EntityFramework
 }
 else {
-    dotnet ef migrations add $Name -c DefaultDbContext --no-build --project ../../Definition/EntityFramework/EntityFramework.csproj
+    dotnet ef migrations add $Name -c DefaultDbContext --no-build --project ../../Definition/EntityFramework 
 }
 
 Set-Location $location

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>Ater.Web.Extension</PackageId>
@@ -18,12 +18,12 @@
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="4.0.6.4" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.7.4" />
     <PackageReference Include="MailKit" Version="4.13.0" />
     <PackageReference Include="MiniExcel" Version="1.41.3" />
-    <PackageReference Include="EPPlus" Version="8.0.8" />
-    <PackageReference Include="SkiaSharp" Version="3.119.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
+    <PackageReference Include="EPPlus" Version="8.2.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ater.Web.Convention\Ater.Web.Convention.csproj" />

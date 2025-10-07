@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
 using Entity;
 using Humanizer;
+using System.Diagnostics;
 
 namespace Share.Services;
 
@@ -282,7 +282,7 @@ public class SolutionService(
     /// <param name="isRemove">remove</param>
     private void UpdateSolutionFile(string projectPath, bool isRemove = false)
     {
-        System.IO.FileInfo? slnFile = AssemblyHelper.GetSlnFile(
+        FileInfo? slnFile = AssemblyHelper.GetSlnFile(
             new DirectoryInfo(_projectContext.SolutionPath!)
         );
         if (slnFile != null)
@@ -487,6 +487,7 @@ public class SolutionService(
                 await AssemblyHelper.GenerateFileAsync(globalUsingsPath, globalUsingsContent);
                 await AssemblyHelper.GenerateFileAsync(launchSettingsPath, launchSettingsContent);
 
+                // copy settings from other service
                 if (existService != null)
                 {
                     var existAppSettingsPath = Path.Combine(
@@ -522,6 +523,13 @@ public class SolutionService(
                         appSettingsDevContent
                     );
                 }
+                // add project to solution
+                var projectPath = Path.Combine(
+                    serviceDir,
+                    $"{serviceName}{ConstVal.CSharpProjectExtension}"
+                );
+                UpdateSolutionFile(projectPath);
+
                 return (true, null);
             }
             catch (Exception ex)

@@ -1,0 +1,43 @@
+<mat-toolbar class="d-flex gap-1">
+  <!-- <mat-icon class="clickable" matTooltip="返回" (click)="back()">arrow_back</mat-icon> -->
+  <span>添加</span>
+</mat-toolbar>
+@if (!isLoading) {
+  <form class="d-flex p-2" [formGroup]="formGroup">
+    <div class="d-flex flex-column w-100">
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>角色显示名称</mat-label>
+        <input matInput formControlName="name" placeholder="" />
+        @if (name.value) {
+          <button matSuffix mat-icon-button aria-label="Clear" (click)="name.setValue(null)">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        @if (formGroup.get('name')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('name')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>角色名，系统标识</mat-label>
+        <input matInput formControlName="nameValue" placeholder="" />
+        @if (nameValue.value) {
+          <button matSuffix mat-icon-button aria-label="Clear" (click)="nameValue.setValue(null)">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        @if (formGroup.get('nameValue')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('nameValue')}}
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-slide-toggle formControlName="isSystem">是否系统内置,系统内置不可删除</mat-slide-toggle>
+      <div class="d-flex mt-1 justify-content-end">
+        <button class="d-flex flex-column" mat-flat-button color="primary" (click)="add()">添加</button>
+      </div>
+    </div>
+  </form>
+}

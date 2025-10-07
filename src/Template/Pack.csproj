@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>10.0.0-beta3</PackageVersion>
+    <PackageVersion>10.0.0-preview1</PackageVersion>
     <PackageId>ater.web.templates</PackageId>
     <Title>Ater Web Templates</Title>
     <Authors>ater.NilTor</Authors>
@@ -29,31 +29,19 @@
   </PropertyGroup>
   <PropertyGroup>
     <!-- 定义通用排除模式 -->
-    <CommonExcludes>**\bin\**;**\obj\**;**\.vs\**</CommonExcludes>
-    <NodeExcludes>**\node_modules\**;**\.angular\**;**\*.lock</NodeExcludes>
+    <StandardExcludes>**\bin\**;**\obj\**;**\.vs\**;**\node_modules\**;**\.angular\**;**\*.lock</StandardExcludes>
     <SpecialExcludes>
             templates\ApiStandard\src\Definition\EntityFramework\DBProvider\ModuleContextBase.cs</SpecialExcludes>
     <EntityExcludes>templates\ApiStandard\src\Definition\Entity\*\*</EntityExcludes>
   </PropertyGroup>
   <ItemGroup>
-    <!-- 定义排除模式数组 -->
-    <ExcludePatterns Include="$(CommonExcludes)" />
-    <ExcludePatterns Include="$(NodeExcludes)" />
-    <ExcludePatterns Include="$(SpecialExcludes)" />
-    <ExcludePatterns Include="$(EntityExcludes)" />
-    <ExcludePatterns Include="templates\**\src\Modules\**" />
-    <ExcludePatterns Include="templates\**\.tmp\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="templates\ApiStandard\**\*" Exclude="@(ExcludePatterns)" />
-    <Content Include="templates\ApiStandard\src\Modules\CommonMod\**" Exclude="**\bin\**;**\obj\**" />
-    <Content Include="templates\ApiStandard\src\Modules\SystemMod\**" Exclude="**\bin\**;**\obj\**" />
-    <Content Include="templates\ApiStandard\src\Modules\UserMod\**" Exclude="**\bin\**;**\obj\**" />
+    <Content Include="templates\ApiStandard\**\*" Exclude="$(StandardExcludes);$(SpecialExcludes);$(EntityExcludes);templates\**\src\Modules\**;templates\**\.tmp\**" />
+    <Content Include="templates\ApiStandard\src\Modules\CommonMod\**" Exclude="$(StandardExcludes)" />
+    <Content Include="templates\ApiStandard\src\Modules\SystemMod\**" Exclude="$(StandardExcludes)" />
+    <Content Include="templates\ApiStandard\src\Modules\UserMod\**" Exclude="$(StandardExcludes)" />
     <Content Include="templates\ApiStandard\src\Definition\Entity\SystemMod\**" />
     <Content Include="templates\ApiStandard\src\Definition\Entity\UserMod\**" />
     <Compile Remove="**\*" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="logo.jpg">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

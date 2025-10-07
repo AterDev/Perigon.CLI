@@ -81,7 +81,7 @@ public static class FrameworkExtensions
     )
     {
         builder.Services.AddSingleton<DbContextFactory>();
-        builder.Services.AddScoped<TenantDbContextFactory>();
+        //builder.Services.AddScoped<TenantDbContextFactory>();
         return builder;
     }
 
@@ -97,11 +97,11 @@ public static class FrameworkExtensions
         switch (components.Database)
         {
             case DatabaseType.SqlServer:
-                builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Database);
+                builder.AddSqlServerDbContext<DefaultDbContext>(AppConst.Default);
                 break;
 
             case DatabaseType.PostgreSql:
-                builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Database);
+                builder.AddNpgsqlDbContext<DefaultDbContext>(AppConst.Default);
                 break;
         }
         return builder;

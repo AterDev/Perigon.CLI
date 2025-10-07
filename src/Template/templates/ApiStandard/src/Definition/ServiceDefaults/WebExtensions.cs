@@ -67,7 +67,8 @@ public static class WebExtensions
             "v1",
             options =>
             {
-                options.AddSchemaTransformer<EnumOpenApiTransformer>();
+                options.AddSchemaTransformer<OpenApiSchemaTransformer>();
+                options.AddOperationTransformer<OpenApiOperationTransformer>();
             }
         );
 

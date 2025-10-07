@@ -1,0 +1,31 @@
+<mat-toolbar class="d-flex flex-row gap-1 header">
+  <div class="d-flex gap-1">
+    <button mat-button [routerLink]="['/index']" routerLinkActive="active">{{i18n.home | translate}}</button>
+  </div>
+  <span style="display:flex;flex:1 1 auto"></span>
+  <div class="d-flex align-items-center align-content-center">
+    <mat-button-toggle-group (change)="setLanguage($event.value)" value="zh" aria-label="Language" class="me-2">
+      <mat-button-toggle value="zh">中</mat-button-toggle>
+      <mat-button-toggle value="en">En</mat-button-toggle>
+    </mat-button-toggle-group>
+    @if (isLogin) {
+    <button [matMenuTriggerFor]="appMenu" mat-button style="flex-direction: row-reverse;">
+      {{username}}
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #appMenu="matMenu">
+      <span mat-menu-item>
+        {{i18n.hello| translate}},
+        {{username}}
+      </span>
+      <button mat-menu-item (click)="logout()">
+        <span>{{i18n.login.logout| translate}}</span>
+        <mat-icon>exit_to_app</mat-icon>
+      </button>
+    </mat-menu>
+    }@else {
+    <button mat-button (click)="login()">{{i18n.login.login| translate}}</button>
+    }
+  </div>
+</mat-toolbar>
+<app-navigation></app-navigation>

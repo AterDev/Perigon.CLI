@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Ater.Web.Convention.Abstraction;
 
 public interface IUserContext
@@ -38,6 +40,8 @@ public interface IUserContext
     /// 所有角色
     /// </summary>
     IReadOnlyList<string>? Roles { get; }
+
+    public HttpContext? HttpContext { get; set; }
 
     /// <summary>
     /// 判断当前用户是否属于指定角色

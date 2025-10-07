@@ -1,13 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 // import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BaseService {
-  public baseUrl: string | null;
+  protected baseUrl: string | null;
   public isMobile = false;
   constructor(
     protected http: HttpClient,
@@ -22,7 +23,7 @@ export class BaseService {
     }
   }
 
-  request<R>(method: string, path: string, body?: any): Observable<R> {
+  protected request<R>(method: string, path: string, body?: any): Observable<R> {
     const url = this.baseUrl + path;
     const options = {
       headers: this.getHeaders(),
@@ -31,7 +32,7 @@ export class BaseService {
     return this.http.request<R>(method, url, options);
   }
 
-  downloadFile(method: string, path: string, body?: any): Observable<Blob> {
+  protected downloadFile(method: string, path: string, body?: any): Observable<Blob> {
     const url = this.baseUrl + path;
     const options = {
       responseType: 'blob' as 'blob',
@@ -41,7 +42,7 @@ export class BaseService {
     return this.http.request(method, url, options);
   }
 
-  openFile(blob: Blob, filename: string) {
+  protected openFile(blob: Blob, filename: string) {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = filename;
@@ -49,13 +50,13 @@ export class BaseService {
     URL.revokeObjectURL(link.href);
   }
 
-  getHeaders(): HttpHeaders {
+  protected getHeaders(): HttpHeaders {
     return new HttpHeaders({
       Accept: 'application/json',
       Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
     });
   }
-  isMoblie(): boolean {
+  private isMoblie(): boolean {
     const ua = navigator.userAgent;
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
       return true;

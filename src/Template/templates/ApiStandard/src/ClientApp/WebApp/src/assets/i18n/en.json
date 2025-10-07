@@ -1,0 +1,28 @@
+{
+  "home": "Home",
+  "hello": "Hello",
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "language": "Language",
+  "validation": {
+    "required": "This field is required",
+    "minlength": "The minimum length is {{requiredLength}}",
+    "maxlength": "The maximum length is {{requiredLength}}"
+  },
+  "menu": {
+    "business": "Business",
+    "customer": "Customer",
+    "team": "Team",
+    "product": "Product",
+    "order": "Order",
+    "system": "System",
+    "systemRole": "Role",
+    "systemUser": "Account",
+    "systemLogs": "Logs",
+    "systemConfig": "Settings"
+  }
+}

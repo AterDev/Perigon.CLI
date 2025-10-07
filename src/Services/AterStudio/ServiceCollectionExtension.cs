@@ -1,4 +1,6 @@
 using AterStudio.Components;
+using AterStudio.Services;
+using Microsoft.AspNetCore.Localization;
 
 namespace AterStudio;
 
@@ -17,9 +19,14 @@ public static class ServiceCollectionExtension
 
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
+        app.UseRequestLocalization();
+        app.UseRouting();
         app.UseStaticFiles();
         app.UseAntiforgery();
         app.MapStaticAssets();
+
+
+
         app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
         return app;
@@ -58,9 +65,15 @@ public static class ServiceCollectionExtension
             options.FallBackToParentCultures = true;
             options.FallBackToParentUICultures = true;
             options.ApplyCurrentCultureToResponseHeaders = true;
+
+            // 配置文化提供程序 - Cookie 优先
+            options.RequestCultureProviders.Clear();
+            options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+            options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
         });
 
         services.AddSingleton<Localizer>();
+        services.AddScoped<CultureService>();
         return services;
     }
 

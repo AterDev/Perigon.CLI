@@ -84,7 +84,7 @@ public class TplContent
                     return await base.DeleteAsync(ids, softDelete);
                 }
 
-                @(Model.AdditionMethods)
+            @(Model.AdditionMethods)
             }
             """;
     }
@@ -308,7 +308,7 @@ export class EnumTextPipeModule { }
     public static string ServiceGlobalUsingsTpl(string namespaceName)
     {
         return $"""
-            global using {namespaceName}.Extension;
+            // global using {namespaceName}.Extension;
             global using Ater.Common.Utils;
             global using Ater.Web.Convention.Abstraction;
             global using Microsoft.AspNetCore.Mvc;
@@ -350,7 +350,7 @@ export class EnumTextPipeModule { }
                 <ImplicitUsings>enable</ImplicitUsings>
               </PropertyGroup>
               <ItemGroup>
-                <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+                
               </ItemGroup>
               <ItemGroup>
                 <ProjectReference

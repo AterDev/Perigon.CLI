@@ -32,7 +32,7 @@ public class OrderManager(DefaultDbContext dbContext, ILogger<OrderManager> logg
         Queryable = Queryable
             .WhereNotNull(filter.OrderNumber, q => q.OrderNumber == filter.OrderNumber)
             .WhereNotNull(filter.ProductId, q => q.Product.Id == filter.ProductId)
-            .WhereNotNull(filter.UserId, q => q.User!.Id == filter.UserId)
+            .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);
 
         return await ToPageAsync<OrderFilterDto, OrderItemDto>(filter);
