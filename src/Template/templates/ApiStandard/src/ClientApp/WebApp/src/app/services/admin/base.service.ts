@@ -1,21 +1,17 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-// import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BaseService {
   protected baseUrl: string | null;
-  public isMobile = false;
   constructor(
     protected http: HttpClient,
     @Inject('BASE_URL') baseUrl: string
     // private oidcSecurityService: OidcSecurityService
   ) {
-    this.isMobile = this.isMoblie();
     if (baseUrl.endsWith('/')) {
       this.baseUrl = baseUrl.slice(0, -1);
     } else {
@@ -56,7 +52,7 @@ export class BaseService {
       Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
     });
   }
-  private isMoblie(): boolean {
+  protected isMobile(): boolean {
     const ua = navigator.userAgent;
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
       return true;
