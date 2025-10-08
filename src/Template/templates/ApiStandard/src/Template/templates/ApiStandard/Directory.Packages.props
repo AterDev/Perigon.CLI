@@ -1,0 +1,61 @@
+<Project>
+  <ItemGroup>
+    <!-- ASP.NET Core 10.0 相关 -->
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107" />
+
+    <!-- Entity Framework Core 10.0 相关 -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.0-rc.1.25451.107" />
+
+    <!-- Aspire 相关 -->
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.Elasticsearch" Version="9.4.1" />
+    <PackageVersion Include="Aspire.Hosting.Kafka" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.Nats" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="9.5.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.5.0" />
+
+    <!-- OpenTelemetry 相关 -->
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+
+    <!-- Code Analysis 相关 -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.0.0-1.25277.114" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+
+    <!-- 其他依赖 -->
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.9.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0-rc.1" />
+    <PackageVersion Include="Mapster" Version="7.4.0" />
+    <PackageVersion Include="AWSSDK.S3" Version="4.0.7.4" />
+    <PackageVersion Include="MailKit" Version="4.13.0" />
+    <PackageVersion Include="MiniExcel" Version="1.41.3" />
+    <PackageVersion Include="EPPlus" Version="8.2.0" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.1" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
+  </ItemGroup>
+</Project>

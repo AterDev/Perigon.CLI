@@ -7,23 +7,23 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.0-rc.1.25451.107" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-rc.1.25451.107" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="10.0.0-rc.1.25451.107" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0-rc.1.25451.107" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.1.25451.107" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0" />
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.0" />
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.9.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0-rc.1.25451.107" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
   </ItemGroup>
   <ItemGroup>
     <!--<ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />-->
