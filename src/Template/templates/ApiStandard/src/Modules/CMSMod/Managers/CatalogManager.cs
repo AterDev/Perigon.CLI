@@ -17,7 +17,7 @@ public class CatalogManager(DefaultDbContext dbContext, ILogger<BlogManager> log
     /// <returns></returns>
     public async Task<Guid?> AddAsync(CatalogAddDto dto, Guid userId)
     {
-        Catalog entity = dto.MapTo<CatalogAddDto, Catalog>();
+        Catalog entity = dto.MapTo<Catalog>();
         entity.UserId = userId;
         if (dto.ParentId != null)
         {

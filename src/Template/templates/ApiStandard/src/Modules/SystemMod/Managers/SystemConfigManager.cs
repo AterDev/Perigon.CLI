@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Ater.Common.Options;
 using EntityFramework.DBProvider;
+using System.Text.Json;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
@@ -25,7 +25,7 @@ public class SystemConfigManager(
     /// <returns></returns>
     public async Task<Guid?> AddAsync(SystemConfigAddDto dto)
     {
-        SystemConfig entity = dto.MapTo<SystemConfigAddDto, SystemConfig>();
+        SystemConfig entity = dto.MapTo<SystemConfig>();
         // other required props
         return await AddAsync(entity) ? entity.Id : null;
     }

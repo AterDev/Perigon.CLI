@@ -16,7 +16,7 @@ public class OrderManager(DefaultDbContext dbContext, ILogger<OrderManager> logg
     public async Task<Guid?> AddAsync(OrderAddDto dto)
     {
         var product = await _dbContext.Products.FindAsync(dto.ProductId);
-        var order = dto.MapTo<OrderAddDto, Order>();
+        var order = dto.MapTo<Order>();
         // TODO: create order
         return null;
     }

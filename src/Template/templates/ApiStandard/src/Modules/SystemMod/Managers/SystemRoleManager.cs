@@ -13,7 +13,7 @@ public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleMan
     /// <returns></returns>
     public async Task<Guid?> AddAsync(SystemRoleAddDto dto)
     {
-        var entity = dto.MapTo<SystemRoleAddDto, SystemRole>();
+        var entity = dto.MapTo<SystemRole>();
         return await AddAsync(entity) ? entity.Id : null;
     }
 

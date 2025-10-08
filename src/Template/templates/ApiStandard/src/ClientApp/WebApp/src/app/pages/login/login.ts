@@ -28,7 +28,7 @@ export class Login implements OnInit {
     private router: Router
   ) {
     if (authService.isLogin) {
-      if (this.service.isMobile) {
+      if (this.service.isMobile()) {
         this.router.navigate(['/mobile']);
       } else {
         this.router.navigate(['/system-role']);
@@ -63,7 +63,7 @@ export class Login implements OnInit {
     const key = errorKeys[0];
     const params = errors[key];
     const translationKey = `validation.${key.toLowerCase()}`;
-    
+
     return await firstValueFrom(this.translate.get(translationKey, params));
   }
 

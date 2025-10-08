@@ -16,7 +16,7 @@ public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuMan
     /// <returns></returns>
     public async Task<Guid?> AddAsync(SystemMenuAddDto dto)
     {
-        SystemMenu entity = dto.MapTo<SystemMenuAddDto, SystemMenu>();
+        SystemMenu entity = dto.MapTo<SystemMenu>();
         if (dto.ParentId != null)
         {
             entity.ParentId = dto.ParentId.Value;

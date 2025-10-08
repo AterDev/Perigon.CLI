@@ -174,7 +174,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task<Guid?> AddAsync(SystemUserAddDto dto)
     {
-        SystemUser entity = dto.MapTo<SystemUserAddDto, SystemUser>();
+        SystemUser entity = dto.MapTo<SystemUser>();
         // 密码处理
         entity.PasswordSalt = HashCrypto.BuildSalt();
         entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);

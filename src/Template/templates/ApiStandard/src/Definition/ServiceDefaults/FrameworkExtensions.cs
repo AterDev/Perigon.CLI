@@ -2,6 +2,7 @@ using Ater.Common;
 using Ater.Web.Convention.Abstraction;
 using Ater.Web.Convention.Services;
 using Ater.Web.Extension.Services;
+using Mapster;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,8 @@ public static class FrameworkExtensions
 {
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
+        TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
+
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IUserContext, UserContext>();
         builder.Services.AddScoped<ITenantProvider, TenantProvider>();

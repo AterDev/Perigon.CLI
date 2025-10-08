@@ -1,8 +1,8 @@
-using System.Collections;
-using System.Data;
 using Ater.Common.Models;
 using Ater.Common.Utils;
 using Mapster;
+using System.Collections;
+using System.Data;
 
 namespace Ater.Common.Utils;
 
@@ -12,44 +12,23 @@ public static partial class Extensions
     /// 将被合并对象中非空属性值，合并到源对象
     /// </summary>
     /// <typeparam name="TSource">源对象</typeparam>
-    /// <typeparam name="TMerge">被合并对象</typeparam>
     /// <param name="source"></param>
     /// <param name="merge"></param>
-    /// <param name="ignoreNull">是否忽略 null</param>
     /// <returns></returns>
-    public static TSource Merge<TSource, TMerge>(
-        this TSource source,
-        TMerge merge,
-        bool ignoreNull = true
-    )
+    public static TSource Merge<TSource>(this TSource source, object merge)
     {
-        if (ignoreNull)
-        {
-            _ = TypeAdapterConfig<TMerge, TSource>.NewConfig().IgnoreNullValues(true);
-        }
         return merge.Adapt(source);
     }
 
     /// <summary>
-    /// 映射到新类型
+    /// convert to TDestination
     /// </summary>
-    /// <typeparam name="TSource">源类型</typeparam>
-    /// <typeparam name="TDestination">目标类型</typeparam>
+    /// <typeparam name="TDestination"></typeparam>
     /// <param name="source"></param>
     /// <returns></returns>
-    public static TDestination MapTo<TSource, TDestination>(this TSource source)
-        where TDestination : class
-    {
-        _ = TypeAdapterConfig<TSource, TDestination>.NewConfig().IgnoreNullValues(true);
-        return source.Adapt<TSource, TDestination>();
-    }
-
     public static TDestination MapTo<TDestination>(this object source)
         where TDestination : class
     {
-        _ = TypeAdapterConfig
-            .GlobalSettings.ForType(source.GetType(), typeof(TDestination))
-            .IgnoreNullValues(true);
         return source.Adapt<TDestination>();
     }
 

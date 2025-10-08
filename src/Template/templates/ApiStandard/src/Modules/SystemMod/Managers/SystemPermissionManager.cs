@@ -18,7 +18,7 @@ public class SystemPermissionManager(
     /// <returns></returns>
     public async Task<Guid?> AddAsync(SystemPermissionAddDto dto)
     {
-        SystemPermission entity = dto.MapTo<SystemPermissionAddDto, SystemPermission>();
+        SystemPermission entity = dto.MapTo<SystemPermission>();
         entity.GroupId = dto.SystemPermissionGroupId;
         return await AddAsync(entity) ? entity.Id : null;
     }

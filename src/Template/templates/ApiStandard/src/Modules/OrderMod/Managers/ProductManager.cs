@@ -16,7 +16,7 @@ public class ProductManager(DefaultDbContext dbContext, ILogger<ProductManager> 
     /// <returns></returns>
     public async Task<Guid?> AddAsync(ProductAddDto dto)
     {
-        Product entity = dto.MapTo<ProductAddDto, Product>();
+        Product entity = dto.MapTo<Product>();
         return await AddAsync(entity) ? entity.Id : null;
     }
 

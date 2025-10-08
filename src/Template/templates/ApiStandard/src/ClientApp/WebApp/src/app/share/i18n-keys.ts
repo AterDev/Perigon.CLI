@@ -15,5 +15,17 @@ export const I18N_KEYS = {
     "required": "validation.required",
     "minlength": "validation.minlength",
     "maxlength": "validation.maxlength"
+  },
+  "menu": {
+    "business": "menu.business",
+    "customer": "menu.customer",
+    "team": "menu.team",
+    "product": "menu.product",
+    "order": "menu.order",
+    "system": "menu.system",
+    "systemRole": "menu.systemRole",
+    "systemUser": "menu.systemUser",
+    "systemLogs": "menu.systemLogs",
+    "systemConfig": "menu.systemConfig"
   }
 };

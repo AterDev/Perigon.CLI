@@ -52,7 +52,7 @@ export class BaseService {
       Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
     });
   }
-  protected isMobile(): boolean {
+  public isMobile(): boolean {
     const ua = navigator.userAgent;
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
       return true;

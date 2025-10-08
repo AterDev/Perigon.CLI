@@ -18,7 +18,7 @@ public class CustomerInfoManager(
     /// <returns></returns>
     public async Task<Guid?> AddAsync(CustomerInfoAddDto dto, Guid userId)
     {
-        var entity = dto.MapTo<CustomerInfoAddDto, CustomerInfo>();
+        var entity = dto.MapTo<CustomerInfo>();
         entity.RealName = dto.Name;
 
         var consult = await _dbContext

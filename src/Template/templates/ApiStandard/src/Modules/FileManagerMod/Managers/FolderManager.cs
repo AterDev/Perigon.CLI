@@ -16,7 +16,7 @@ public class FolderManager(DefaultDbContext dbContext, ILogger<FolderManager> lo
     /// <returns></returns>
     public async Task<Guid?> AddAsync(FolderAddDto dto)
     {
-        Folder entity = dto.MapTo<FolderAddDto, Folder>();
+        Folder entity = dto.MapTo<Folder>();
         if (dto.ParentId != null)
         {
             Folder? parent = await FindAsync(dto.ParentId.Value);

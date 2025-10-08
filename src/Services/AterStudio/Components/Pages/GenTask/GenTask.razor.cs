@@ -6,7 +6,7 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using StudioMod.Models.GenActionDtos;
 using StudioMod.Models.GenStepDtos;
 
-public partial class GenTask
+public partial class GenTask : PageBase
 {
     [Inject]
     GenActionManager GenActionManager { get; set; } = default!;
