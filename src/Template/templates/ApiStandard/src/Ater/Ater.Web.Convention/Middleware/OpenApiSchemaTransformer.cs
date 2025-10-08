@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Writers;
 using System.ComponentModel;
 using System.Reflection;
 
