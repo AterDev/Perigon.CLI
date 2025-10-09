@@ -14,7 +14,6 @@ public class McpToolManager(
     /// <returns></returns>
     public async Task<List<McpTool>> ListAsync()
     {
-        Console.WriteLine(mcpServer.SessionId);
         var tools = await ToListAsync();
         return tools;
     }

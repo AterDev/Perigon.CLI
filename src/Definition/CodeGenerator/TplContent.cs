@@ -249,7 +249,7 @@ export class EnumTextPipeModule { }
         return $"""
             <Project Sdk="Microsoft.NET.Sdk">
                 <PropertyGroup>
-                <TargetFramework>{version}</TargetFramework>
+                    <TargetFramework>{version}</TargetFramework>
                     <ImplicitUsings>enable</ImplicitUsings>
                     <GenerateDocumentationFile>true</GenerateDocumentationFile>
                     <Nullable>enable</Nullable>
@@ -259,7 +259,29 @@ export class EnumTextPipeModule { }
                     <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
                     <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.Web.Extension.csproj" />
                 </ItemGroup>
+                <ItemGroup>
+                    <Folder Include="Managers\" />
+                    <Folder Include="Models\" />
+                </ItemGroup>
             </Project>
+            """;
+    }
+    public static string ModuleExtension(string moduleName)
+    {
+        return $$"""
+            using Microsoft.Extensions.Hosting;
+            namespace {{moduleName}}Mod;
+            
+            public static class ModuleExtensions
+            {
+                /// <summary>
+                /// module services or init task
+                /// </summary>
+                public static IHostApplicationBuilder Add{{moduleName}}Mod(this IHostApplicationBuilder builder)
+                {
+                    return builder;
+                }
+            }
             """;
     }
 

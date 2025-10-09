@@ -120,9 +120,7 @@ public class SolutionService(
         // create dirs
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ModelsDir));
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ManagersDir));
-        Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ControllersDir));
-
-        //await AssemblyHelper.GenerateFileAsync(projectPath, "InitModule.cs", GetInitModuleContent(moduleName));
+        await AssemblyHelper.GenerateFileAsync(projectPath, "ModuleExtensions.cs", TplContent.ModuleExtension(moduleName));
 
         await AddModuleConstFieldAsync(moduleName);
         // update solution file
