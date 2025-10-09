@@ -13,6 +13,7 @@
     <File Path=".github/copilot-instructions.md" />
     <File Path=".github/prompts/form.prompt.md" />
     <File Path=".mcp.json" />
+    <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/src/">
   </Folder>

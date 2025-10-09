@@ -10,11 +10,8 @@
     <None Remove="Services\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference
-      Include="Microsoft.EntityFrameworkCore.Abstractions"
-      Version="10.0.0-rc.1.25451.107"
-    />
-    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Definition\EntityFramework\EfCoreContext.csproj" />

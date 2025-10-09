@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Ater.Web.Convention" Version="1.0.0-beta3" />
+        <PackageReference Include="Ater.Web.Convention" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />

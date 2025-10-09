@@ -5,10 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ater.Common" Version="1.0.0-beta3" />
-    <PackageReference
-      Include="Microsoft.EntityFrameworkCore.Abstractions"
-      Version="10.0.0-rc.1.25451.107"
-    />
+    <PackageReference Include="Ater.Common" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" />
   </ItemGroup>
 </Project>
