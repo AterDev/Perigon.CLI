@@ -42,9 +42,8 @@
                   RowSize="DataGridRowSize.Medium"
                   MultiLine="true"
                   @bind-SelectedItem="SelectedMcpTool">
-    <PropertyColumn Property="@(t => t.Name)" Title="@Lang(Localizer.Name)" />
-    <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Name)" />
-
+    <PropertyColumn Property="@(t => t.Name)" Title="Must match [a-z0-9_-]" />
+    <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Description)" />
     <TemplateColumn Title="@Lang(Localizer.Prompt, Localizer.Path)">
       @context.PromptPath?.Replace(ProjectContext.SolutionPath ?? "", "")
     </TemplateColumn>

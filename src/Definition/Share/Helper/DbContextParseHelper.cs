@@ -1,23 +1,25 @@
-using System.Collections.Frozen;
-using System.Reflection;
-using System.Text.Json.Serialization;
 using CodeGenerator.Helper;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Spectre.Console;
+using System.Collections.Frozen;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Share.Helper;
 
 /// <summary>
 /// dbcontext parse service
 /// </summary>
-public class DbContextParseHelper
+public class DbContextParseHelper : IDisposable
 {
-    private readonly FrozenDictionary<string, IModel> _modelMap;
-    private readonly DbContextAnalyzer _analyzer;
+    private FrozenDictionary<string, IModel>? _modelMap;
+    private DbContextAnalyzer? _analyzer;
     private readonly XmlDocHelper _xmlHelper;
     private readonly CompilationHelper _compilation;
+    private readonly string _entityFrameworkPath;
+    private bool _disposed = false;
 
     public IModel CurrentModel { get; private set; }
     public INamedTypeSymbol? DbContextSymbol { get; private set; }
@@ -37,39 +39,75 @@ public class DbContextParseHelper
                 nameof(entityFrameworkPath)
             );
         }
-        _analyzer = new DbContextAnalyzer(entityFrameworkPath);
-        _modelMap = _analyzer.GetDbContextModels();
+        _entityFrameworkPath = entityFrameworkPath;
         _xmlHelper = new XmlDocHelper(entityFrameworkPath);
         _compilation = new CompilationHelper(entityPath);
-        CurrentModel = _modelMap.FirstOrDefault().Value;
+    }
+
+    private void EnsureAnalyzerInitialized()
+    {
+        if (_analyzer == null)
+        {
+            OutputHelper.Info("🚀 Initializing DbContextAnalyzer...");
+            _analyzer = new DbContextAnalyzer(_entityFrameworkPath);
+            _modelMap = _analyzer.GetDbContextModels();
+            CurrentModel = _modelMap.FirstOrDefault().Value;
+            OutputHelper.Info($"✅ DbContextAnalyzer initialized with {_modelMap.Count} models");
+        }
     }
 
     public async Task<IEntityType?> LoadEntityAsync(string entityFilePath)
     {
         EntityFilePath = entityFilePath ?? throw new ArgumentNullException(nameof(entityFilePath));
-        var fileContent = await File.ReadAllTextAsync(EntityFilePath);
-        _compilation.LoadContent(fileContent);
 
-        var entityName = Path.GetFileNameWithoutExtension(EntityFilePath);
-        DbContextSymbol = _analyzer.GetDbContextType(entityName);
-        if (DbContextSymbol != null)
+        try
         {
-            CurrentModel = _modelMap
-                .FirstOrDefault(kvp =>
-                    kvp.Key.Equals(DbContextSymbol.Name, StringComparison.OrdinalIgnoreCase)
-                )
-                .Value;
-            return CurrentModel
-                .GetEntityTypes()
-                .FirstOrDefault(e =>
-                    e.ClrType.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase)
-                );
+            OutputHelper.Info($"📂 Loading entity from: {entityFilePath}");
+            EnsureAnalyzerInitialized();
+            var fileContent = await File.ReadAllTextAsync(EntityFilePath);
+            _compilation.LoadContent(fileContent);
+
+            var entityName = Path.GetFileNameWithoutExtension(EntityFilePath);
+            OutputHelper.Info($"🔍 Looking for entity: {entityName}");
+
+            DbContextSymbol = _analyzer!.GetDbContextType(entityName);
+
+            if (DbContextSymbol != null)
+            {
+                OutputHelper.Info($"✅ Found DbContext for {entityName}: {DbContextSymbol.Name}");
+
+                CurrentModel = _modelMap!
+                    .FirstOrDefault(kvp =>
+                        kvp.Key.Equals(DbContextSymbol.Name, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .Value;
+
+                var entityType = CurrentModel
+                    .GetEntityTypes()
+                    .FirstOrDefault(e =>
+                        e.ClrType.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase)
+                    );
+
+                if (entityType != null)
+                {
+                    OutputHelper.Info($"Successfully loaded entity type: {entityName}");
+                }
+                else
+                {
+                    OutputHelper.Warning($"Entity type not found in model: {entityName}");
+                }
+
+                return entityType;
+            }
+            else
+            {
+                OutputHelper.Error($"{entityName} not found in any DbContext, please Add it to the DbContext.");
+                return null;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            OutputHelper.Error(
-                $"{entityName} not found in any DbContext, please Add it to the DbContext."
-            );
+            OutputHelper.Error($"Failed to load entity from {entityFilePath}: {ex.Message}");
             return null;
         }
     }
@@ -135,8 +173,8 @@ public class DbContextParseHelper
                 MaxLength = prop.GetMaxLength(),
                 IsList =
                     prop.ClrType.IsArray
-                    || prop.ClrType.IsGenericType
-                        && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.ClrType),
+                    || (prop.ClrType.IsGenericType
+                        && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.ClrType)),
                 IsDecimal = prop.ClrType == typeof(decimal),
                 IsShadow = prop.IsShadowProperty(),
                 IsIndex = prop.IsIndex(),
@@ -274,5 +312,53 @@ public class DbContextParseHelper
                 propertyInfo.IsRequired = true;
             }
         }
+    }
+
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed && disposing)
+        {
+            try
+            {
+                OutputHelper.Info("🧹 DbContextParseHelper disposing...");
+
+                // 释放 analyzer
+                if (_analyzer != null)
+                {
+                    _analyzer.Dispose();
+                    _analyzer = null;
+                    OutputHelper.Info("✅ DbContextAnalyzer disposed");
+                }
+
+                // 清理资源
+                RelationEntityTypes?.Clear();
+
+                // 正常垃圾回收
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                OutputHelper.Info("✅ DbContextParseHelper disposed successfully");
+            }
+            catch (Exception ex)
+            {
+                OutputHelper.Error($"❌ Error during DbContextParseHelper disposal: {ex.Message}");
+            }
+            finally
+            {
+                _disposed = true;
+            }
+        }
+    }
+
+    ~DbContextParseHelper()
+    {
+        Dispose(false);
     }
 }

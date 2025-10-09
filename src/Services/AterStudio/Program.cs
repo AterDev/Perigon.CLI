@@ -101,6 +101,23 @@ lifetime.ApplicationStarted.Register(() =>
     }
 });
 
+// 添加应用程序关闭时的清理处理
+lifetime.ApplicationStopping.Register(() =>
+{
+    try
+    {
+        OutputHelper.Info("🛑 Application stopping, cleaning up resources...");
+        // 正常垃圾回收以释放程序集引用
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        OutputHelper.Info("✅ Application resources cleaned up.");
+    }
+    catch (Exception ex)
+    {
+        OutputHelper.Warning($"⚠️ Warning during cleanup: {ex.Message}");
+    }
+});
+
 using (app)
 {
     IServiceScope scope = app.Services.CreateScope();

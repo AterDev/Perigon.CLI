@@ -7,6 +7,7 @@ public class McpTool : EntityBase
 {
     [Required]
     [MaxLength(40)]
+    [RegularExpression("^[a-z0-9_-]+$")]
     public required string Name { get; set; }
 
     [Required]

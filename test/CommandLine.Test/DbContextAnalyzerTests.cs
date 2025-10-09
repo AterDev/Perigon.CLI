@@ -14,7 +14,7 @@ public class DbContextAnalyzerTests
         var entityFrameworkPath =
             @"E:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework";
 
-        var analyzer = new DbContextAnalyzer(entityFrameworkPath);
+        using var analyzer = new DbContextAnalyzer(entityFrameworkPath);
         var models = analyzer.GetDbContextModels();
         Assert.NotNull(models);
         Assert.IsType<Dictionary<string, IModel>>(models);
@@ -27,7 +27,8 @@ public class DbContextAnalyzerTests
             @"D:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\EntityFramework";
         var entityPath =
             @"D:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\Entity";
-        var service = new DbContextParseHelper(entityPath, entityFrameworkPath);
+        
+        using var service = new DbContextParseHelper(entityPath, entityFrameworkPath);
 
         var entityType = await service.LoadEntityAsync(
             @"D:\codes\ater.dry.cli\src\Template\templates\ApiStandard\src\Definition\Entity\CMSMod\Blog.cs"

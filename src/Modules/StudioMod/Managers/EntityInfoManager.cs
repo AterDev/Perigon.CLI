@@ -176,56 +176,75 @@ public partial class EntityInfoManager(
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
-        //SolutionService.BuildProject(projectContext.EntityPath!, false);
+        OutputHelper.Info($"🚀 Starting code generation for: {dto.EntityPath}");
         SolutionService.BuildProject(projectContext.EntityFrameworkPath!, false);
-
-        var dbContextHelper = new DbContextParseHelper(
-            projectContext.EntityPath!,
-            projectContext.EntityFrameworkPath!
-        );
-        var entityType = await dbContextHelper.LoadEntityAsync(dto.EntityPath);
-        if (entityType == null)
+        List<GenFileInfo> files = [];
+        try
         {
-            throw new Exception($"Entity: {dto.EntityPath} Parse failed!");
-        }
-        var entityInfo = dbContextHelper.GetEntityInfo(entityType);
-        _ = entityInfo ?? throw new Exception("Parse entity failed!");
+            // TODO: 处理文件锁的问题
 
-        _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
-        if (string.IsNullOrWhiteSpace(entityInfo.ModuleName))
+            using var dbContextHelper = new DbContextParseHelper(
+                projectContext.EntityPath!,
+                projectContext.EntityFrameworkPath!
+            );
+
+            var entityType = await dbContextHelper.LoadEntityAsync(dto.EntityPath);
+            if (entityType == null)
+            {
+                var entityName = Path.GetFileNameWithoutExtension(dto.EntityPath);
+                OutputHelper.Error($"❌ Entity '{entityName}' not found in any DbContext. Please add it to a DbContext.");
+                return files; // 返回空列表而不是抛异常
+            }
+
+            var entityInfo = dbContextHelper.GetEntityInfo(entityType);
+            if (entityInfo == null)
+            {
+                OutputHelper.Error("❌ Failed to parse entity information.");
+                return files; // 返回空列表而不是抛异常
+            }
+
+            _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
+            if (string.IsNullOrWhiteSpace(entityInfo.ModuleName))
+            {
+                _logger.LogWarning("⚠️ Using default module when not found module");
+                entityInfo.ModuleName = ConstVal.CommonMod;
+            }
+            ModuleName = entityInfo.ModuleName;
+
+            string modulePath = projectContext.GetModulePath(entityInfo.ModuleName);
+
+            switch (dto.CommandType)
+            {
+                case CommandType.Dto:
+                    files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                    break;
+                case CommandType.Manager:
+                    files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                    files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
+                    break;
+                case CommandType.API:
+                    files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                    files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
+                    files.AddRange(await GenerateControllersAsync(entityInfo, dto));
+                    break;
+                default:
+                    break;
+            }
+
+            codeGenService.ClearCodeGenCache(entityInfo);
+            codeGenService.GenerateFiles(files);
+
+            OutputHelper.Info($"✅ Code generation completed. Generated {files.Count} files.");
+        }
+        catch (Exception ex)
         {
-            _logger.LogWarning("⚠️ Using default module when not found module");
-            entityInfo.ModuleName = ConstVal.CommonMod;
+            _logger.LogError(ex, "❌ Error during code generation");
+            OutputHelper.Error($"❌ Code generation failed: {ex.Message}");
+            // 确保返回空列表而不是抛异常
+            return files;
         }
-        ModuleName = entityInfo.ModuleName;
 
-        string modulePath = projectContext.GetModulePath(entityInfo.ModuleName);
-        var files = new List<GenFileInfo>();
-
-        switch (dto.CommandType)
-        {
-            case CommandType.Dto:
-                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
-                break;
-            case CommandType.Manager:
-                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
-                files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
-                break;
-            case CommandType.API:
-                files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
-                files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
-                files.AddRange(await GenerateControllersAsync(entityInfo, dto));
-                break;
-            default:
-                break;
-        }
-        codeGenService.ClearCodeGenCache(entityInfo);
-        // 清理并释放资源
-        entityInfo = null;
-        dbContextHelper = null;
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        codeGenService.GenerateFiles(files);
+        // DbContextParseHelper 会在 using 结束时自动释放
         return files;
     }
 

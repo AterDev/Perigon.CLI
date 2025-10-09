@@ -50,6 +50,10 @@ public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
         McpTool tool
     )
     {
+        if (collection.TryGetPrimitive(tool.Name, out var existingTool))
+        {
+            return;
+        }
         collection.Add(
             McpServerTool.Create(
                 () =>

@@ -1,5 +1,6 @@
 using Ater.Common.Utils;
 using ModelContextProtocol.Server;
+using Share.Helper;
 using Share.Services;
 using System.ComponentModel;
 using System.Text;
@@ -131,6 +132,7 @@ public class CodeTools(
                 EntityPath = entityPath,
                 CommandType = type,
                 Force = true,
+                OnlyContent = true
             };
 
             var res = await manager.GenerateAsync(dto);
@@ -157,7 +159,14 @@ public class CodeTools(
         catch (Exception ex)
         {
             logger.LogError("{ex}", ex);
-            return "工具出错：" + ex.Message;
+            return "generate error:：" + ex.Message;
+        }
+        finally
+        {
+            // 生成完成后简单的垃圾回收
+            OutputHelper.Info("🧹 Cleaning up after code generation...");
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 

@@ -12,6 +12,11 @@ public class GenerateDto
     /// 是否覆盖
     /// </summary>
     public bool Force { get; set; }
+
+    /// <summary>
+    /// not write to local file.
+    /// </summary>
+    public bool OnlyContent { get; set; }
 }
 
 /// <summary>
