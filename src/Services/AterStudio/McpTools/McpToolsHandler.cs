@@ -12,7 +12,7 @@ public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
     )
     {
         var result = new ListToolsResult();
-        var defaultTools = request.Server.ServerOptions.Capabilities?.Tools?.ToolCollection;
+        var defaultTools = request.Server.ServerOptions.ToolCollection ?? [];
         using var context = dbContext.CreateDbContext();
         var tools = await context.McpTools.ToListAsync();
 

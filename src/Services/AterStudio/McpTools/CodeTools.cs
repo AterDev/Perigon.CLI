@@ -1,8 +1,8 @@
-using System.ComponentModel;
-using System.Text;
 using Ater.Common.Utils;
 using ModelContextProtocol.Server;
 using Share.Services;
+using System.ComponentModel;
+using System.Text;
 
 namespace AterStudio.McpTools;
 
@@ -37,7 +37,7 @@ public class CodeTools(
 
     [McpServerTool, Description("根据实体模型生成Dto")]
     public async Task<string?> GenerateDtoAsync(
-        IMcpServer server,
+        McpServer server,
         [Description("实体模型文件的绝对路径")] string entityPath
     )
     {
@@ -47,7 +47,7 @@ public class CodeTools(
     [McpServerTool, Description("根据实体模型生成Manager")]
     public async Task<string?> GenerateManagerAsync(
         [Description("实体模型文件的绝对路径")] string entityPath,
-        IMcpServer server
+        McpServer server
     )
     {
         return await GenerateAsync(server, entityPath, CommandType.Manager);
@@ -56,7 +56,7 @@ public class CodeTools(
     [McpServerTool, Description("根据实体模型生成Controller/API接口")]
     public async Task<string?> GenerateControllerAsync(
         [Description("实体模型文件的绝对路径")] string entityPath,
-        IMcpServer server
+        McpServer server
     )
     {
         return await GenerateAsync(server, entityPath, CommandType.API);
@@ -65,7 +65,7 @@ public class CodeTools(
     [McpServerTool, Description("创建或添加新的模块")]
     public async Task<string> CreateModuleAsync(
         [Description("模块名称")] string moduleName,
-        IMcpServer server
+        McpServer server
     )
     {
         try
@@ -121,7 +121,7 @@ public class CodeTools(
     /// 生成服务
     /// </summary>
     /// <returns></returns>
-    private async Task<string> GenerateAsync(IMcpServer server, string entityPath, CommandType type)
+    private async Task<string> GenerateAsync(McpServer server, string entityPath, CommandType type)
     {
         await SetProjectContextAsync(server);
         try
@@ -161,7 +161,7 @@ public class CodeTools(
         }
     }
 
-    private async Task SetProjectContextAsync(IMcpServer server)
+    private async Task SetProjectContextAsync(McpServer server)
     {
         var roots = await server.RequestRootsAsync(
             new ModelContextProtocol.Protocol.ListRootsRequestParams

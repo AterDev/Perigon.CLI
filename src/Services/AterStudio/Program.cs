@@ -6,7 +6,6 @@ using AterStudio.Worker;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Localization;
-using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Share.Helper;
 using Share.Services;
@@ -44,13 +43,10 @@ builder
     .Configure<McpToolsHandler>(
         (opts, handler) =>
         {
-            opts.Capabilities = new ServerCapabilities
+            opts.Handlers = new McpServerHandlers
             {
-                Tools = new ToolsCapability
-                {
-                    ListToolsHandler = (req, ct) => handler.ListToolsHandler(req, ct),
-                    CallToolHandler = (req, ct) => handler.CallToolsHandler(req, ct),
-                },
+                ListToolsHandler = (req, ct) => handler.ListToolsHandler(req, ct),
+                CallToolHandler = (req, ct) => handler.CallToolsHandler(req, ct),
             };
         }
     );
