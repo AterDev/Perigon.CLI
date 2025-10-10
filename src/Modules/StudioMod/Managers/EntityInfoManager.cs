@@ -240,11 +240,11 @@ public partial class EntityInfoManager(
         {
             _logger.LogError(ex, "❌ Error during code generation");
             OutputHelper.Error($"❌ Code generation failed: {ex.Message}");
-            // 确保返回空列表而不是抛异常
             return files;
         }
 
-        // DbContextParseHelper 会在 using 结束时自动释放
+        // 额外执行一次资源清理，确保 shadow ALC 卸载
+        DbContextAnalyzer.ForceCleanup();
         return files;
     }
 

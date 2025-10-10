@@ -1,9 +1,9 @@
+using System.ComponentModel;
+using System.Text;
 using Ater.Common.Utils;
 using ModelContextProtocol.Server;
 using Share.Helper;
 using Share.Services;
-using System.ComponentModel;
-using System.Text;
 
 namespace AterStudio.McpTools;
 
@@ -75,7 +75,7 @@ public class CodeTools(
 
             moduleName = moduleName.EndsWith("Mod") ? moduleName : moduleName + "Mod";
             await solutionService.CreateModuleAsync(moduleName);
-            return "创建成功";
+            return "created success";
         }
         catch (Exception ex)
         {
@@ -115,6 +115,35 @@ public class CodeTools(
         catch (Exception ex)
         {
             return ex.Message + ex.StackTrace;
+        }
+    }
+
+
+    [McpServerTool, Description("根据指定DbContext生成数据库迁移")]
+
+    public async Task<string?> GenerateDBMigrationAsync(
+        McpServer server,
+        [Description("用户指定的DbContext文件路径")] string? dbContextFilePath = null,
+        [Description("迁移名称标识, 留空将自动生成")] string? migrationName = null
+    )
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(dbContextFilePath))
+            {
+                return NotSupportClient(server, "can't get dbContextFilePath param");
+            }
+
+            migrationName ??= "AutoMigrate" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            await SetProjectContextAsync(server);
+            string dbContextName = Path.GetFileNameWithoutExtension(dbContextFilePath);
+            var result = solutionService.GenerateMigrations(dbContextName, migrationName);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "GenerateDBMigrationAsync error");
+            return "生成迁移失败: " + ex.Message;
         }
     }
 
@@ -168,6 +197,21 @@ public class CodeTools(
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
+    }
+
+    private string NotSupportClient(McpServer server, string msg)
+    {
+        var result = string.Empty;
+        var client = server.ClientInfo;
+        if (client != null)
+        {
+            result = $"The {client.Name} {client.Version} may don't support this tool:{msg}";
+        }
+        else
+        {
+            result = $"The client can't support this tool:{msg}";
+        }
+        return result;
     }
 
     private async Task SetProjectContextAsync(McpServer server)

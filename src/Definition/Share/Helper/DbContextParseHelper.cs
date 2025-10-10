@@ -21,7 +21,8 @@ public class DbContextParseHelper : IDisposable
     private readonly string _entityFrameworkPath;
     private bool _disposed = false;
 
-    public IModel CurrentModel { get; private set; }
+    // nullable to allow releasing references for unloading shadow load context
+    public IModel? CurrentModel { get; private set; }
     public INamedTypeSymbol? DbContextSymbol { get; private set; }
     public string EntityPath { get; init; }
     private string EntityFilePath { get; set; } = string.Empty;
@@ -337,12 +338,15 @@ public class DbContextParseHelper : IDisposable
                     OutputHelper.Info("✅ DbContextAnalyzer disposed");
                 }
 
-                // 清理资源
+                // 释放模型引用，便于 ALC 卸载
+                _modelMap = null;
+                CurrentModel = null;
+                DbContextSymbol = null;
                 RelationEntityTypes?.Clear();
 
-                // 正常垃圾回收
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
+                GC.Collect();
 
                 OutputHelper.Info("✅ DbContextParseHelper disposed successfully");
             }

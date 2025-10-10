@@ -5,6 +5,8 @@ namespace EntityFramework.DBProvider;
 
 public abstract partial class ContextBase(DbContextOptions options) : DbContext(options)
 {
+    protected string CreatedFieldName { get; set; } = "CreatedTime";
+    protected string UpdatedFieldName { get; set; } = "UpdatedTime";
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -22,20 +24,20 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {
             Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
-                entityEntry.Metadata.FindProperty("CreatedTime");
+                entityEntry.Metadata.FindProperty(CreatedFieldName);
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
-                entityEntry.Property("CreatedTime").CurrentValue = DateTimeOffset.UtcNow;
+                entityEntry.Property(CreatedFieldName).CurrentValue = DateTimeOffset.UtcNow;
             }
         }
         entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList();
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {
             Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
-                entityEntry.Metadata.FindProperty("UpdatedTime");
+                entityEntry.Metadata.FindProperty(UpdatedFieldName);
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
-                entityEntry.Property("UpdatedTime").CurrentValue = DateTimeOffset.UtcNow;
+                entityEntry.Property(UpdatedFieldName).CurrentValue = DateTimeOffset.UtcNow;
             }
         }
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);

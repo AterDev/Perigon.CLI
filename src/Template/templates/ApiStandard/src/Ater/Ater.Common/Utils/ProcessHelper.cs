@@ -17,48 +17,78 @@ public static class ProcessHelper
     /// <param name="args">参数</param>
     /// <param name="output"></param>
     /// <returns></returns>
-    public static bool RunCommand(string command, string? args, out string output)
+    public static bool RunCommand(string command, string? args, out string output, int timeoutMilliseconds = 30000)
     {
-        var process = new Process();
-        process.StartInfo.FileName = command;
-        process.StartInfo.Arguments = args;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.RedirectStandardOutput = true;
+        output = string.Empty;
+        var error = string.Empty;
 
-        var outputBuilder = new StringBuilder();
-        var outputErrorBuilder = new StringBuilder();
-
-        process.OutputDataReceived += (sender, e) =>
+        try
         {
-            if (!string.IsNullOrEmpty(e.Data))
+            using var process = new Process
             {
-                outputBuilder.AppendLine(e.Data);
-            }
-        };
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = command,
+                    Arguments = args ?? string.Empty,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8,
+                    CreateNoWindow = true
+                }
+            };
 
-        process.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
+            var outputBuilder = new StringBuilder();
+            var errorBuilder = new StringBuilder();
+
+            process.OutputDataReceived += (sender, e) =>
             {
-                outputErrorBuilder.AppendLine(e.Data);
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    outputBuilder.AppendLine(e.Data);
+                }
+            };
+
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    errorBuilder.AppendLine(e.Data);
+                }
+            };
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            if (!process.WaitForExit(timeoutMilliseconds))
+            {
+                try
+                {
+                    process.Kill();
+                }
+                catch { }
+                error = "命令执行超时";
+                return false;
             }
-        };
 
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        process.WaitForExit();
-
-        var errorOutput = outputErrorBuilder.ToString();
-        output = outputBuilder.ToString();
-        if (!string.IsNullOrWhiteSpace(errorOutput))
-        {
-            return false;
+            output = outputBuilder.ToString();
+            error = errorBuilder.ToString();
+            if (string.IsNullOrWhiteSpace(error))
+            {
+                return true;
+            }
+            else
+            {
+                output += Environment.NewLine + "Error: " + error;
+                return false;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            return true;
+            error = $"Run command errors: {ex.Message}";
+            return false;
         }
     }
 
@@ -69,12 +99,17 @@ public static class ProcessHelper
     /// <returns></returns>
     public static string ExecuteCommands(params string[] commands)
     {
-        string shell,
-            argument;
+        if (commands == null || commands.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        string shell;
+        string argument;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             shell = "powershell";
-            argument = "/c";
+            argument = "-Command";
         }
         else
         {
@@ -83,51 +118,49 @@ public static class ProcessHelper
         }
 
         var commandString = string.Join(" && ", commands);
-        var process = new Process
+        using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = shell,
                 Arguments = $"{argument} \"{commandString}\"",
                 RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
             },
+            EnableRaisingEvents = false,
         };
 
         var outputBuilder = new StringBuilder();
-        var outputErrorBuilder = new StringBuilder();
+        var errorBuilder = new StringBuilder();
 
-        process.OutputDataReceived += (sender, e) =>
+        process.OutputDataReceived += (_, e) =>
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
                 outputBuilder.AppendLine(e.Data);
             }
         };
-
-        process.ErrorDataReceived += (sender, e) =>
+        process.ErrorDataReceived += (_, e) =>
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                outputErrorBuilder.AppendLine(e.Data);
+                errorBuilder.AppendLine(e.Data);
             }
         };
 
+        process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         process.WaitForExit();
 
-        var errorOutput = outputErrorBuilder.ToString();
-        var output = outputBuilder.ToString();
+        var errorOutput = errorBuilder.ToString();
         if (!string.IsNullOrWhiteSpace(errorOutput))
         {
             return errorOutput;
         }
-        else
-        {
-            return output;
-        }
+        return outputBuilder.ToString();
     }
 
     /// <summary>
@@ -146,7 +179,7 @@ public static class ProcessHelper
     )
     {
         var commandString = string.Join(" && ", commands);
-        var process = new Process
+        using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
@@ -157,6 +190,7 @@ public static class ProcessHelper
                 UseShellExecute = false,
                 CreateNoWindow = true,
             },
+            EnableRaisingEvents = false,
         };
 
         if (workingDirectory is not null)
@@ -193,6 +227,7 @@ public static class ProcessHelper
                 outputBuilder.AppendLine(e.Data);
             }
         };
+        process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         process.WaitForExit();

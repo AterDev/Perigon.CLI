@@ -1,8 +1,7 @@
-using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Reflection;
 using CodeGenerator.Helper;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Collections.Frozen;
+using System.Reflection;
 
 namespace Share.Helper;
 
@@ -14,6 +13,8 @@ public class DbContextAnalyzer : IDisposable
     private readonly DbContextAnalysisHelper _helper;
     private readonly string _entityFrameworkPath;
     private PluginLoadContext? _loadContext;
+    private WeakReference? _alcWeakRef;
+    private string? _shadowDir;
     private bool _disposed = false;
 
     public DbContextAnalyzer(string entityFrameworkPath)
@@ -25,23 +26,37 @@ public class DbContextAnalyzer : IDisposable
     public FrozenDictionary<string, IModel> GetDbContextModels()
     {
         var dict = new Dictionary<string, IModel>(StringComparer.Ordinal);
-        
+
         try
         {
             OutputHelper.Info($"🔍 Starting to analyze DbContext models from: {_helper.DllPath}");
-            
+
             var dbContextNames = _helper.DbContextNamedTypeSymbols.Select(s => s.ToDisplayString()).ToArray();
             OutputHelper.Info($"📋 Found {dbContextNames.Length} DbContext types: {string.Join(", ", dbContextNames)}");
 
-            _loadContext = new PluginLoadContext(_helper.DllPath);
-            OutputHelper.Info("🔧 PluginLoadContext created");
-            
+            // Shadow copy dlls to avoid locking original build output
+            var originalDll = _helper.DllPath;
+            var originalDir = Path.GetDirectoryName(originalDll)!;
+            _shadowDir = Path.Combine(Path.GetTempPath(), "AterStudio_Shadow", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(_shadowDir);
+            foreach (var f in Directory.EnumerateFiles(originalDir, "*.dll", SearchOption.TopDirectoryOnly))
+            {
+                var target = Path.Combine(_shadowDir, Path.GetFileName(f));
+                File.Copy(f, target, true);
+            }
+            var shadowDllPath = Path.Combine(_shadowDir, Path.GetFileName(originalDll));
+            OutputHelper.Info($"📁 Shadow copy created: {_shadowDir}");
+
+            _loadContext = new PluginLoadContext(shadowDllPath);
+            _alcWeakRef = new WeakReference(_loadContext, trackResurrection: false);
+            OutputHelper.Info("🔧 PluginLoadContext (shadow) created");
+
             Assembly assembly;
-            
+
             try
             {
                 assembly = _loadContext.LoadFromAssemblyName(
-                    new AssemblyName(Path.GetFileNameWithoutExtension(_helper.DllPath))
+                    new AssemblyName(Path.GetFileNameWithoutExtension(shadowDllPath))
                 );
                 OutputHelper.Info($"📦 Assembly loaded: {assembly.FullName}");
             }
@@ -62,10 +77,10 @@ public class DbContextAnalyzer : IDisposable
                 contextTypes = ex.Types.Where(t => t != null).ToArray()!;
                 OutputHelper.Warning($"⚠️ ReflectionTypeLoadException: {ex.Message}, got {contextTypes.Length} valid types");
             }
-            
+
             contextTypes = contextTypes?.Where(c => dbContextNames.Contains(c.FullName)).ToArray();
             OutputHelper.Info($"🎯 Filtered to {contextTypes?.Length ?? 0} DbContext types");
-            
+
             if (contextTypes != null)
             {
                 foreach (var contextType in contextTypes)
@@ -90,7 +105,7 @@ public class DbContextAnalyzer : IDisposable
                     }
                 }
             }
-            
+
             OutputHelper.Info($"✅ Completed analysis. Found {dict.Count} valid models");
             return dict.ToFrozenDictionary();
         }
@@ -105,11 +120,11 @@ public class DbContextAnalyzer : IDisposable
     {
         DbContext? dbContextInstance = null;
         IModel? model = null;
-        
+
         try
         {
             OutputHelper.Info($"🏗️ Creating DbContext instance for: {contextType.Name}");
-            
+
             // 1. create DbContextOptionsBuilder<TContext>
             var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(contextType);
             var optionsBuilder = Activator.CreateInstance(optionsBuilderType) as DbContextOptionsBuilder;
@@ -119,9 +134,9 @@ public class DbContextAnalyzer : IDisposable
                 OutputHelper.Error($"❌ Failed to create DbContextOptionsBuilder for {contextType.Name}");
                 return null;
             }
-            
+
             OutputHelper.Info($"🔧 Created DbContextOptionsBuilder for: {contextType.Name}");
-            
+
             // use tool sqlite assembly
             var sqliteAssembly = Assembly.Load("Microsoft.EntityFrameworkCore.Sqlite");
             var sqliteExtensionsType = sqliteAssembly.GetType(
@@ -141,7 +156,7 @@ public class DbContextAnalyzer : IDisposable
 
             var options = optionsBuilder.Options;
             dbContextInstance = Activator.CreateInstance(contextType, options) as DbContext;
-            
+
             if (dbContextInstance != null)
             {
                 OutputHelper.Info($"✅ DbContext instance created for: {contextType.Name}");
@@ -200,17 +215,36 @@ public class DbContextAnalyzer : IDisposable
         try
         {
             OutputHelper.Info("🧹 Starting force cleanup...");
-            
-            // 正常垃圾回收
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            
+
             OutputHelper.Info("✅ Force cleanup completed");
         }
         catch (Exception ex)
         {
             OutputHelper.Error($"❌ Error during force cleanup: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 检查文件是否被占用
+    /// </summary>
+    public static bool IsFileLocked(string path)
+    {
+        if (!File.Exists(path)) return false;
+        try
+        {
+            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None);
+            return false;
+        }
+        catch (IOException)
+        {
+            return true;
+        }
+        catch
+        {
+            return true;
         }
     }
 
@@ -227,7 +261,7 @@ public class DbContextAnalyzer : IDisposable
             try
             {
                 OutputHelper.Info("🧹 DbContextAnalyzer disposing...");
-                
+
                 if (_loadContext != null)
                 {
                     OutputHelper.Info("🔄 Unloading PluginLoadContext...");
@@ -235,11 +269,34 @@ public class DbContextAnalyzer : IDisposable
                     _loadContext = null;
                     OutputHelper.Info("✅ PluginLoadContext unloaded");
                 }
-                
-                // 正常垃圾回收
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                
+
+                // 尝试多轮 GC 以卸载 ALC
+                if (_alcWeakRef != null)
+                {
+                    for (int i = 0; i < 5 && _alcWeakRef.IsAlive; i++)
+                    {
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        GC.Collect();
+                        Thread.Sleep(50);
+                    }
+                }
+
+                // 删除 shadow 目录
+                if (_shadowDir != null)
+                {
+                    try
+                    {
+                        Directory.Delete(_shadowDir, true);
+                        OutputHelper.Info($"🗑️ Deleted shadow directory: {_shadowDir}");
+                    }
+                    catch (Exception ex)
+                    {
+                        OutputHelper.Warning($"⚠️ Failed to delete shadow directory {_shadowDir}: {ex.Message}");
+                    }
+                    _shadowDir = null;
+                }
+
                 OutputHelper.Info("✅ DbContextAnalyzer disposed successfully");
             }
             catch (Exception ex)
@@ -252,7 +309,6 @@ public class DbContextAnalyzer : IDisposable
             }
         }
     }
-
     ~DbContextAnalyzer()
     {
         Dispose(false);

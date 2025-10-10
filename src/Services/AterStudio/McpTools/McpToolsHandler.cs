@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace AterStudio.McpTools;
 
-public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
+public class McpToolsHandler(
+    IDbContextFactory<DefaultDbContext> dbContext,
+    ILogger<McpToolsHandler> logger
+)
 {
     public async ValueTask<ListToolsResult> ListToolsHandler(
         RequestContext<ListToolsRequestParams> request,
@@ -22,7 +27,6 @@ public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
         }
         foreach (var tool in defaultTools)
         {
-            Console.WriteLine(tool.ProtocolTool.Name);
             result.Tools.Add(
                 new Tool
                 {
@@ -41,7 +45,11 @@ public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
     )
     {
         var result = new CallToolResult();
-        // TODO: call tools
+        // 原始工具名
+        var name = request.Params?.Name;
+        var args = request.Params?.Arguments;
+        // 这里记录原始参数
+        Console.WriteLine($"ToolInvoke: {name}");
         return ValueTask.FromResult(result);
     }
 
