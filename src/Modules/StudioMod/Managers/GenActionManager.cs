@@ -26,7 +26,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<Guid?> CreateNewEntityAsync(GenActionAddDto dto)
     {
-        var entity = dto.MapTo<GenActionAddDto, GenAction>();
+        var entity = dto.MapTo<GenAction>();
         entity.ProjectId = _projectContext.SolutionId!.Value;
         return await AddAsync(entity) ? entity.Id : null;
     }

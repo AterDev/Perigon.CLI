@@ -92,7 +92,7 @@
               var active = string.IsNullOrWhiteSpace(SelectedModule) ? "selected" : "";
               <FluentNavLink Class="@("p-0 " + active)"
                              Style="margin-left:-8px"
-                             OnClick="() => SelectModel()">
+                             OnClick="() => SelectModule()">
                 <FluentStack>
                   <FluentLabel Typo="Typography.Subject">@Lang(Localizer.All)</FluentLabel>
                 </FluentStack>
@@ -104,7 +104,7 @@
               var _active = SelectedModule == item.Name ? "selected" : "";
               <FluentNavLink Class="@("p-0 " + _active)"
                              Style="margin-left:-8px"
-                             OnClick="() => SelectModel(item.Name)">
+                             OnClick="() => SelectModule(item.Name)">
                 <FluentStack>
                   <FluentLabel Typo="Typography.Subject">@item.Name</FluentLabel>
                 </FluentStack>

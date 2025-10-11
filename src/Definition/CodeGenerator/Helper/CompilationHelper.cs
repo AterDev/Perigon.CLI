@@ -30,7 +30,8 @@ public class CompilationHelper
 
     public void AddDllReferences(string path, string? dllFilter = null)
     {
-        List<string> dlls = Directory
+        // 获取所有匹配的dll
+        IEnumerable<string> allDlls = Directory
             .EnumerateFiles(path, "*.dll", SearchOption.AllDirectories)
             .Where(dll =>
             {
@@ -39,17 +40,20 @@ public class CompilationHelper
                     string fileName = Path.GetFileName(dll);
                     return fileName.StartsWith(dllFilter, StringComparison.OrdinalIgnoreCase);
                 }
-                else
-                {
-                    return true;
-                }
+                return true;
             })
-            .Where(dll => dll.Contains(Path.Combine("bin", "Debug")))
+            // 仅加载 Debug 输出目录的程序集，避免第三方缓存或发布目录
+            .Where(dll => dll.Contains(Path.Combine("bin", "Debug")));
+
+        // 当存在同名 dll 时，取最后修改时间最新的文件
+        List<string> dlls = allDlls
+            .GroupBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.OrderByDescending(f => File.GetLastWriteTimeUtc(f)).First())
             .ToList();
 
-        Compilation = Compilation
-            .AddReferences(dlls.Select(dll => MetadataReference.CreateFromFile(dll)))
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        Compilation = Compilation.AddReferences(
+            dlls.Select(dll => MetadataReference.CreateFromFile(dll))
+        ).WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
     }
 
     /// <summary>
@@ -563,6 +567,8 @@ public class CompilationHelper
 
             if (constClass != null)
             {
+                var moduleMembers = constClass.GetMembers();
+                Console.WriteLine(string.Join(",", moduleMembers.Select(m => m.Name)));
                 var field = constClass.GetMembers().Where(m => m.Name == varName).FirstOrDefault();
                 name = (field as IFieldSymbol)?.ConstantValue?.ToString();
             }

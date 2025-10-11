@@ -67,7 +67,7 @@ public class DtoInfo
             ModuleName = entityInfo.ModuleName,
             ProjectId = entityInfo.ProjectId,
             Comment = Comment,
-            PropertyInfos = Properties.MapTo<List<PropertyInfo>, List<ModelProperty>>(),
+            PropertyInfos = Properties.MapTo<List<ModelProperty>>(),
         };
         return res;
     }

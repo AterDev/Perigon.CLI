@@ -90,7 +90,7 @@
         {
             return;
         }
-        var entity = Model.MapTo<ApiDocInfoAddDto, ApiDocInfo>();
+        var entity = Model.MapTo<ApiDocInfo>();
         entity.ProjectId = ProjectContext.SolutionId!.Value;
         await _manager.AddAsync(entity);
         await Dialog.CloseAsync(Model);

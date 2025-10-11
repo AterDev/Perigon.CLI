@@ -54,6 +54,10 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
                         {
                             entityFile.ModuleName = compilation.GetArgumentValue(argument);
                         }
+                        else
+                        {
+                            Console.WriteLine(entityFile.Name);
+                        }
                     }
                     entityFiles.Add(entityFile);
                 }

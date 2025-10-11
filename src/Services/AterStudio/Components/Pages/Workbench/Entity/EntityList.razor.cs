@@ -75,7 +75,7 @@ public partial class EntityList
         IsCleaning = false;
     }
 
-    private void SelectModel(string? module = null)
+    private void SelectModule(string? module = null)
     {
         SelectedModule = module;
         FilterEntityFiles();
