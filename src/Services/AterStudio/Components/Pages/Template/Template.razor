@@ -135,6 +135,8 @@
     <FluentTextField @bind-Value="NewDirectoryName"
                      Class="w-100"
                      Required
+                     @ref="_addDirField"
+                     Placeholder="@Lang(Localizer.Directory, Localizer.Name)"
                      Label="@Lang(Localizer.Directory,Localizer.Name)"
                      Maxlength="50">
     </FluentTextField>
@@ -151,7 +153,5 @@
         @Lang(Localizer.Cancel)
       </FluentButton>
     </FluentStack>
-
-
   </FluentDialogFooter>
 </FluentDialog>

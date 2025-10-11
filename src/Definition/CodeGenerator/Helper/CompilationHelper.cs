@@ -568,7 +568,6 @@ public class CompilationHelper
             if (constClass != null)
             {
                 var moduleMembers = constClass.GetMembers();
-                Console.WriteLine(string.Join(",", moduleMembers.Select(m => m.Name)));
                 var field = constClass.GetMembers().Where(m => m.Name == varName).FirstOrDefault();
                 name = (field as IFieldSymbol)?.ConstantValue?.ToString();
             }

@@ -19,6 +19,8 @@ public partial class Template
     private string RootPath { get; set; } = string.Empty;
 
     private bool IsLoading { get; set; } = true;
+    private FluentTextField? _addDirField;
+
 
     protected override void OnInitialized()
     {
@@ -29,6 +31,13 @@ public partial class Template
         LoadDirectories();
 
         IsLoading = false;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!DialogHidden && _addDirField is not null)
+        {
+            _addDirField.FocusAsync();
+        }
     }
 
     private void LoadDirectories()

@@ -17,6 +17,7 @@ public partial class Prompt
     private string RelativePath { get; set; } = string.Empty;
     private string RootPath { get; set; } = string.Empty;
     private bool IsLoading { get; set; } = true;
+    private FluentTextField? _addDirField;
 
     protected override void OnInitialized()
     {
@@ -26,6 +27,13 @@ public partial class Prompt
         FileHelper = new(RootPath);
         LoadDirectories();
         IsLoading = false;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!DialogHidden && _addDirField is not null)
+        {
+            _addDirField.FocusAsync();
+        }
     }
 
     private void LoadDirectories()
