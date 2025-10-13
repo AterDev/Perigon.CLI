@@ -22,23 +22,23 @@ public class Worker(
         try
         {
             using var scope = serviceProvider.CreateScope();
+            _logger.LogInformation("migrations {db}", nameof(DefaultDbContext));
             var dbContext = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
-
             await RunMigrationAsync(dbContext, cancellationToken);
             await SeedDataAsync(dbContext, cancellationToken);
         }
         catch (Exception ex)
         {
             activity?.AddException(ex);
-            throw;
         }
-        hostApplicationLifetime.StopApplication();
+        finally
+        {
+            hostApplicationLifetime.StopApplication();
+        }
     }
 
-    private static async Task RunMigrationAsync(
-        DefaultDbContext dbContext,
-        CancellationToken cancellationToken
-    )
+    private static async Task RunMigrationAsync<T>(T dbContext, CancellationToken cancellationToken)
+        where T : DbContext
     {
         var strategy = dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
@@ -47,15 +47,12 @@ public class Worker(
         });
     }
 
-    private static async Task SeedDataAsync(
-        DefaultDbContext dbContext,
-        CancellationToken cancellationToken
-    )
+    private static async Task SeedDataAsync<T>(T dbContext, CancellationToken cancellationToken)
+        where T : DbContext
     {
         var strategy = dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(() =>
         {
-            // Seed data logic here
             return Task.CompletedTask;
         });
     }
