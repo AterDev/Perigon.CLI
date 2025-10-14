@@ -59,7 +59,7 @@ public class OpenApiService
                 {
                     Summary = operation.Value?.Summary,
                     HttpMethod = operation.Key,
-                    OperationId = operation.Value?.OperationId ?? operation.Key + path.Key,
+                    OperationId = operation.Value?.OperationId ?? (operation.Key + path.Key),
                     Router = path.Key,
                     Tag = operation.Value?.Tags?.FirstOrDefault()?.Name,
                 };
@@ -213,10 +213,7 @@ public class OpenApiService
                 .ForEach(required =>
                 {
                     var prop = props.FirstOrDefault(p => p.Name == required);
-                    if (prop != null)
-                    {
-                        prop.IsRequired = true;
-                    }
+                    prop?.IsRequired = true;
                 });
 
             var model = new TypeMeta()
@@ -227,7 +224,8 @@ public class OpenApiService
             };
             // 判断是否为枚举类
             var enumNode = schema.Value.Enum;
-            if (enumNode?.Count > 0)
+            var enumExtension = schema.Value.Extensions?.FirstOrDefault(e => e.Key == "x-enumData").Value;
+            if (enumNode?.Count > 0 || enumExtension != null)
             {
                 model.IsEnum = true;
                 model.PropertyInfos = OpenApiHelper.GetEnumProperties(schema.Value);

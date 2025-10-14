@@ -37,6 +37,10 @@
     {
       <span>maxLength: @context.MaxLength </span>
     }
+    @if (context.IsEnum)
+    {
+      <span>@context.DefaultValue</span>
+    }
 
   </TemplateColumn>
 </FluentDataGrid>

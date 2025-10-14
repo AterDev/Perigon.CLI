@@ -8,7 +8,7 @@ namespace AterStudio.Components.Pages.Workbench.OpenApi;
 public partial class OpenApi
 {
     [Inject]
-    ApiDocInfoManager _manager { get; set; } = default!;
+    ApiDocInfoManager Manager { get; set; } = default!;
 
     List<ApiDocInfoItemDto> Docs { get; set; } = [];
     ApiDocInfoItemDto? CurrentDoc { get; set; }
@@ -51,7 +51,7 @@ public partial class OpenApi
 
     private async Task GetApiDocsAsync()
     {
-        var res = await _manager.FilterAsync(
+        var res = await Manager.FilterAsync(
             new ApiDocInfoFilterDto { PageSize = 999, ProjectId = ProjectContext.SolutionId }
         );
         Docs = res.Data;
@@ -63,7 +63,7 @@ public partial class OpenApi
         {
             Refreshing = true;
             await Task.Yield();
-            var res = await _manager.GetContentAsync(CurrentDoc.Id, isFresh);
+            var res = await Manager.GetContentAsync(CurrentDoc.Id, isFresh);
 
             if (res is not null)
             {
@@ -75,7 +75,7 @@ public partial class OpenApi
             }
             else
             {
-                ToastService.ShowError(_manager.ErrorMsg);
+                ToastService.ShowError(Manager.ErrorMsg);
             }
             if (CurrentApi is not null)
             {
@@ -298,7 +298,7 @@ public partial class OpenApi
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            var res = await _manager.DeleteAsync([CurrentDoc.Id], false);
+            var res = await Manager.DeleteAsync([CurrentDoc.Id], false);
             if (res)
             {
                 ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
