@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 // import { OAuthService, OAuthErrorEvent, UserInfo } from 'angular-oauth2-oidc';
@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
-import { firstValueFrom } from 'rxjs';
+import { initStarfield } from './starfield';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,13 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
-export class Login implements OnInit {
+export class Login implements OnInit, AfterViewInit {
+  ngAfterViewInit(): void {
+    const canvas = document.getElementById('starfield') as HTMLCanvasElement | null;
+    if (canvas) {
+      initStarfield(canvas);
+    }
+  }
   public loginForm!: FormGroup;
   i18nKeys = I18N_KEYS;
   private adminClient = inject(AdminClient);
@@ -28,29 +34,25 @@ export class Login implements OnInit {
     private router: Router
   ) {
     if (authService.isLogin) {
-      if (this.service.isMobile()) {
-        this.router.navigate(['/mobile']);
-      } else {
-        this.router.navigate(['/system-role']);
-      }
+      this.router.navigate(['/system-role']);
     }
   }
 
   get username() {
-    return this.loginForm.get('username');
+    return this.loginForm.get('username') as FormControl;
   }
   get password() {
-    return this.loginForm.get('password');
+    return this.loginForm.get('password') as FormControl;
   }
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
-      username: new FormControl('', [Validators.required, Validators.minLength(3)]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(50)])
+      username: new FormControl('', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(60)])
     });
   }
 
-  async getValidatorMessage(control: AbstractControl | null): Promise<string> {
+  getValidatorMessage(control: AbstractControl | null): string {
     if (!control || !control.errors) {
       return '';
     }
@@ -63,8 +65,7 @@ export class Login implements OnInit {
     const key = errorKeys[0];
     const params = errors[key];
     const translationKey = `validation.${key.toLowerCase()}`;
-
-    return await firstValueFrom(this.translate.get(translationKey, params));
+    return this.translate.instant(translationKey, params);
   }
 
   doLogin(): void {

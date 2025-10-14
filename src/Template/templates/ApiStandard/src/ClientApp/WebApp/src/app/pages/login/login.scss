@@ -1,0 +1,179 @@
+.login-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  background: radial-gradient(circle at 50% 20%, #15161a 0%, #0d0e11 45%, #050507 85%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Starfield layers */
+.login-container::before,
+
+.login-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+
+
+/* Mixed stars (tiny dots) */
+.login-container::after {
+
+  background-image:
+    radial-gradient(1px 1px at 8% 18%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(2px 2px at 18% 82%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 28% 54%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 38% 32%, rgba(255, 255, 255, 0.42), transparent),
+    radial-gradient(2.5px 2.5px at 48% 70%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 58% 44%, rgba(255, 255, 255, 0.40), transparent),
+    radial-gradient(2px 2px at 68% 26%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 78% 68%, rgba(230, 240, 255, 0.45), transparent),
+    radial-gradient(2px 2px at 88% 38%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 92% 76%, rgba(255, 255, 255, 0.38), transparent),
+    radial-gradient(1.5px 1.5px at 22% 40%, rgba(255, 255, 255, 0.40), transparent),
+    radial-gradient(2px 2px at 54% 84%, rgba(255, 255, 255, 0.42), transparent),
+    radial-gradient(1px 1px at 12% 52%, rgba(255, 255, 255, 0.32), transparent),
+    radial-gradient(1.5px 1.5px at 32% 12%, rgba(255, 255, 255, 0.36), transparent),
+    radial-gradient(2px 2px at 62% 12%, rgba(255, 255, 255, 0.50), transparent),
+    radial-gradient(1px 1px at 72% 82%, rgba(255, 255, 255, 0.34), transparent),
+    radial-gradient(2px 2px at 52% 24%, rgba(255, 255, 255, 0.48), transparent),
+    radial-gradient(1.5px 1.5px at 15% 25%, rgba(255, 220, 120, 0.55), transparent),
+    /* yellow */
+    radial-gradient(2px 2px at 35% 80%, rgba(120, 180, 255, 0.45), transparent),
+    /* blue */
+    radial-gradient(2px 2px at 80% 30%, rgba(255, 220, 120, 0.38), transparent),
+    /* yellow */
+    radial-gradient(1px 1px at 70% 55%, rgba(120, 180, 255, 0.32), transparent),
+    /* blue */
+    radial-gradient(1.5px 1.5px at 55% 75%, rgba(255, 220, 120, 0.36), transparent),
+    /* yellow */
+    radial-gradient(2px 2px at 85% 60%, rgba(120, 180, 255, 0.38), transparent);
+  /* blue */
+  animation: starTwinkle 18s linear infinite, starDrift 60s linear infinite;
+  opacity: 0.8;
+  z-index: 1;
+
+}
+
+
+@keyframes starTwinkle {
+
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes starDrift {
+  0% {
+    background-position: 0px 0px;
+  }
+
+  100% {
+    background-position: 20px 30px;
+  }
+}
+
+/* Meteors removed */
+
+/* removed old purple glow blocks */
+
+mat-card {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(120deg, rgba(60, 30, 120, 0.18) 0%, rgba(30, 38, 55, 0.45) 60%, rgba(60, 30, 120, 0.12) 100%);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  color: #e3eafc;
+  min-width: 340px;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+mat-card-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #4fc3f7;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+mat-form-field {
+  width: 100%;
+
+  .mat-form-field-outline {
+    border-radius: 8px;
+  }
+}
+
+input[matInput] {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e3eafc;
+  border-radius: 8px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+mat-error {
+  color: #ff5370;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+}
+
+.login-btn-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+button[mat-flat-button] {
+  background: linear-gradient(90deg, #2196f3 0%, #21cbf3 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(33, 203, 243, 0.15);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+button[mat-flat-button]:hover {
+  background: linear-gradient(90deg, #21cbf3 0%, #2196f3 100%);
+  box-shadow: 0 4px 16px rgba(33, 203, 243, 0.25);
+}
+
+.mat-card-content {
+  padding-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  mat-card {
+    min-width: 90vw;
+    padding: 1.5rem 0.5rem;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(30, 38, 55, 0.65);
+  }
+
+  .login-container::after {
+    animation: none !important;
+  }
+}
