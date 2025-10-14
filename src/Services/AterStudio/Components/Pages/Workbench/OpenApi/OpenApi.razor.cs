@@ -175,13 +175,13 @@ public partial class OpenApi
                         model.Name?.Contains(ModelSearchKeyword, StringComparison.OrdinalIgnoreCase)
                         ?? false
                     )
-                    || (
+                    || ((
                         model.Comment?.Contains(
                             ModelSearchKeyword,
                             StringComparison.OrdinalIgnoreCase
                         ) ?? false
                     )
-                        && model.IsEnum == false
+                        && model.IsEnum == false)
                 )
                 .ToList()
             : ModelList;
@@ -215,6 +215,7 @@ public partial class OpenApi
             return;
 
         await GetApiDocsAsync();
+        CurrentDoc = Docs.FirstOrDefault();
         StateHasChanged();
     }
 

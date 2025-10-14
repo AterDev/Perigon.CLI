@@ -372,7 +372,7 @@ export class EnumTextPipeModule { }
                 <ImplicitUsings>enable</ImplicitUsings>
               </PropertyGroup>
               <ItemGroup>
-                
+                <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
               </ItemGroup>
               <ItemGroup>
                 <ProjectReference
