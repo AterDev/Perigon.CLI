@@ -139,7 +139,6 @@ public class TSModelGenerate : GenerateBase
                 }
             }
         }
-
         return dic;
     }
 
@@ -153,7 +152,7 @@ public class TSModelGenerate : GenerateBase
         string fileName = schemaKey.ToHyphen() + ".model.ts";
         string tsContent;
         string? path = "models";
-        if (schema.Enum?.Count > 0)
+        if (schema.Enum?.Count > 0 || (schema.Extensions != null && schema.Extensions.ContainsKey("x-enumData")))
         {
             tsContent = ToEnumString(schema, schemaKey);
             path = "enum";
@@ -226,7 +225,7 @@ public class TSModelGenerate : GenerateBase
                 IsEnum = p.IsEnum,
                 Reference = p.NavigationName ?? string.Empty,
                 IsNullable = p.IsNullable,
-                Comments = $"/** {p.CommentSummary} */",
+                Comments = $"/** {p.CommentSummary ?? p.Name} */",
             };
             // 特殊处理(openapi $ref没有可空说明)
             if (
@@ -335,6 +334,10 @@ public class TsProperty
         {
             Type += " | null";
         }
-        return $"{Comments}  {name}{Type};" + Environment.NewLine;
+        return $"""
+              {Comments}
+              {name}{Type};
+
+            """;
     }
 }

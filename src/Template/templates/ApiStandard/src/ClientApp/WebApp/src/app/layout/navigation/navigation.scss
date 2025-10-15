@@ -39,3 +39,7 @@ mat-panel-title {
 mat-nav-list {
   padding: 1px 0;
 }
+
+.active {
+  background: theme.$dark-primary-color;
+}

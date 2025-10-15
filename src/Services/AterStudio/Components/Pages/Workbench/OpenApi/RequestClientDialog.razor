@@ -88,6 +88,7 @@
     };
     editContext = new EditContext(Model);
     editContext.OnFieldChanged += HandleFieldChanged;
+    formValid = editContext.Validate();
   }
 
   private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
@@ -114,8 +115,8 @@
       ToastService.ShowError(Lang(Localizer.FormValidFailed));
       return;
     }
-    await Task.Yield();
     running = true;
+    await Task.Yield();
 
     var res = await ApiDocInfoManager.GenerateRequestClientAsync(Content.Id, Model);
     if (res == null)

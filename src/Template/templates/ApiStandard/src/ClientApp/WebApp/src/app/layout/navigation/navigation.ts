@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BaseMatModules, CommonModules } from 'src/app/share/shared-modules';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -15,7 +15,7 @@ export class NavigationComponent {
   events: string[] = [];
   opened = true;
   expanded = true;
-  menus: Menu[] = [];
+  menus = signal<Menu[]>([]);
   constructor(
     private http: HttpClient,
   ) {
@@ -32,7 +32,8 @@ export class NavigationComponent {
     this.http.get<Menu[]>('/assets/menus.json?_t=' + Date.now(), { responseType: 'json' })
       .subscribe({
         next: (res) => {
-          this.menus = res.sort((a, b) => a.sort - b.sort);
+          this.menus.set(res.sort((a, b) => a.sort - b.sort));
+
           // const userMenus = JSON.parse(localStorage.getItem('menus') ?? 'null') ?? [];
           // const userMenuCodes = userMenus.map((item: any) => item.accessCode);
           // this.menus = this.mergeMenu(userMenuCodes, this.menus);

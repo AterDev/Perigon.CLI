@@ -250,7 +250,8 @@ public class OpenApiHelper
                 string name = prop.Key;
                 string? desc = prop.Value.Description;
                 var schemaType = prop.Value.Type;
-                bool isEnum = prop.Value.Enum?.Count > 0;
+                bool isEnum = prop.Value.Enum?.Count > 0
+                    || prop.Value.Extensions?.ContainsKey("x-enumData") == true;
                 bool isList = schemaType == JsonSchemaType.Array;
 
                 var isNavigation = false;

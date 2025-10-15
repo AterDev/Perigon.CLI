@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Writers;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
+
 
 namespace Ater.Web.Convention.Middleware;
 
@@ -30,8 +29,11 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
         {
             return;
         }
+        if (schema.Extensions is null)
+        {
+            schema.Extensions = new Dictionary<string, IOpenApiExtension>();
+        }
 
-        var extensions = new Dictionary<string, IOpenApiExtension>();
         var enumItems = new List<EnumItem>();
         foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
         {
@@ -40,6 +42,7 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
             {
                 continue;
             }
+
             var value = Convert.ToInt32(raw);
             string? description = null;
             var desAttr = field.GetCustomAttribute<DescriptionAttribute>();
@@ -50,8 +53,17 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
 
             enumItems.Add(new EnumItem(field.Name, value, description));
         }
-        extensions.Add("x-enumData", new EnumDataExtension(enumItems));
-        schema.Extensions = extensions;
+
+        if (schema.Enum is null || schema.Enum.Count == 0)
+        {
+            schema.Enum = [];
+            foreach (var item in enumItems)
+            {
+                schema.Enum.Add(JsonValue.Create(item.Value));
+            }
+        }
+
+        schema.Extensions["x-enumData"] = new EnumDataExtension(enumItems);
     }
 
     private sealed record EnumItem(string Name, int Value, string? Description);

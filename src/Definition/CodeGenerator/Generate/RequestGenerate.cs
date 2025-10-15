@@ -66,7 +66,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 {
                     Description = operation.Value?.Summary,
                     Method = operation.Key.ToString(),
-                    Name = operation.Value?.OperationId ?? operation.Key.ToString() + path.Key,
+                    Name = operation.Value?.OperationId ?? (operation.Key.ToString() + path.Key),
                     Path = path.Key,
                     Tag = operation.Value?.Tags?.FirstOrDefault()?.Name,
                 };
@@ -149,29 +149,29 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
             {
                 // 同时生成基类和继承类，继承类可自定义
                 case RequestClientType.NgHttp:
-                {
-                    string baseFileName = currentTag.Name?.ToHyphen() + "-base.service.ts";
-
-                    GenFileInfo file = new(baseFileName, content)
                     {
-                        FullName = path,
-                        IsCover = true,
-                    };
-                    files.Add(file);
+                        string baseFileName = currentTag.Name?.ToHyphen() + "-base.service.ts";
 
-                    string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
-                    content = ToNgRequestService(serviceFile);
-                    file = new(fileName, content) { FullName = path, IsCover = false };
-                    files.Add(file);
-                    break;
-                }
+                        GenFileInfo file = new(baseFileName, content)
+                        {
+                            FullName = path,
+                            IsCover = true,
+                        };
+                        files.Add(file);
+
+                        string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
+                        content = ToNgRequestService(serviceFile);
+                        file = new(fileName, content) { FullName = path, IsCover = false };
+                        files.Add(file);
+                        break;
+                    }
                 case RequestClientType.Axios:
-                {
-                    string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
-                    GenFileInfo file = new(fileName, content) { FullName = path };
-                    files.Add(file);
-                    break;
-                }
+                    {
+                        string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
+                        GenFileInfo file = new(fileName, content) { FullName = path };
+                        files.Add(file);
+                        break;
+                    }
                 default:
                     break;
             }
@@ -336,49 +336,10 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         string functionstr = "";
         // import引用的models
         string importModels = "";
-        List<string> refTypes = [];
         if (functions != null)
         {
             functionstr = string.Join("\n", functions.Select(ToNgRequestFunction).ToArray());
-            string[] baseTypes = ["string", "string[]", "number", "number[]", "boolean", "integer"];
-            // 获取请求和响应的类型，以便导入
-            List<string?> requestRefs = functions
-                .Where(f =>
-                    !string.IsNullOrEmpty(f.RequestRefType) && !baseTypes.Contains(f.RequestRefType)
-                )
-                .Select(f => f.RequestRefType)
-                .ToList();
-            List<string?> responseRefs = functions
-                .Where(f =>
-                    !string.IsNullOrEmpty(f.ResponseRefType)
-                    && !baseTypes.Contains(f.ResponseRefType)
-                )
-                .Select(f => f.ResponseRefType)
-                .ToList();
-
-            // 参数中的类型
-            List<string?> paramsRefs = functions
-                .Where(f => f.Params != null)
-                .SelectMany(f => f.Params!)
-                .Where(p => !baseTypes.Contains(p.Type))
-                .Select(p => p.Type)
-                .ToList();
-
-            if (requestRefs != null)
-            {
-                refTypes.AddRange(requestRefs!);
-            }
-
-            if (responseRefs != null)
-            {
-                refTypes.AddRange(responseRefs!);
-            }
-
-            if (paramsRefs != null)
-            {
-                refTypes.AddRange(paramsRefs!);
-            }
-
+            var refTypes = GetRefTyeps(functions);
             refTypes = refTypes.GroupBy(t => t).Select(g => g.FirstOrDefault()!).ToList();
 
             refTypes.ForEach(t =>
@@ -710,48 +671,35 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// </summary>
     /// <param name="functions"></param>
     /// <returns></returns>
-    protected static List<string> GetRefTyeps(List<RequestServiceFunction> functions)
+    protected List<string> GetRefTyeps(List<RequestServiceFunction> functions)
     {
-        List<string> refTypes = [];
 
-        string[] baseTypes = ["string", "string[]", "number", "number[]", "boolean", "integer"];
-        // 获取请求和响应的类型，以便导入
-        List<string?> requestRefs = functions
-            .Where(f =>
-                !string.IsNullOrEmpty(f.RequestRefType) && !baseTypes.Contains(f.RequestRefType)
-            )
-            .Select(f => f.RequestRefType)
-            .ToList();
-        List<string?> responseRefs = functions
-            .Where(f =>
-                !string.IsNullOrEmpty(f.ResponseRefType) && !baseTypes.Contains(f.ResponseRefType)
-            )
-            .Select(f => f.ResponseRefType)
-            .ToList();
+        // 已生成模型的名称集合（包含枚举）
+        var modelNameSet = TsModelFiles
+            .Where(f => !string.IsNullOrWhiteSpace(f.ModelName))
+            .Select(f => f.ModelName!)
+            .ToHashSet();
 
-        // 参数中的类型
-        List<string?> paramsRefs = functions
-            .SelectMany(f => f.Params!)
-            .Where(p => !baseTypes.Contains(p.Type))
-            .Select(p => p.Type)
-            .ToList();
-        if (requestRefs != null)
+        HashSet<string> refTypes = [];
+
+        foreach (var f in functions)
         {
-            refTypes.AddRange(requestRefs!);
-        }
+            if (!string.IsNullOrWhiteSpace(f.RequestRefType) && modelNameSet.Contains(f.RequestRefType, StringComparer.OrdinalIgnoreCase))
+                refTypes.Add(f.RequestRefType);
 
-        if (responseRefs != null)
-        {
-            refTypes.AddRange(responseRefs!);
-        }
+            if (!string.IsNullOrWhiteSpace(f.ResponseRefType) && modelNameSet.Contains(f.ResponseRefType, StringComparer.OrdinalIgnoreCase))
+                refTypes.Add(f.ResponseRefType);
 
-        if (paramsRefs != null)
-        {
-            refTypes.AddRange(paramsRefs!);
+            if (f.Params != null)
+            {
+                foreach (var p in f.Params)
+                {
+                    if (!string.IsNullOrWhiteSpace(p.Type) && modelNameSet.Contains(p.Type, StringComparer.OrdinalIgnoreCase))
+                        refTypes.Add(p.Type);
+                }
+            }
         }
-
-        refTypes = refTypes.GroupBy(t => t).Select(g => g.FirstOrDefault()!).ToList();
-        return refTypes;
+        return refTypes.ToList();
     }
 }
 
