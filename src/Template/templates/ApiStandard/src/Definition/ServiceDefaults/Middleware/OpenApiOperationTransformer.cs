@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
-namespace Ater.Web.Convention.Middleware;
-
+namespace ServiceDefaults.Middleware;
+/// <summary>
+/// Transformer for Microsoft.AspNetCore.OpenApi operations.
+/// </summary>
 public class OpenApiOperationTransformer : IOpenApiOperationTransformer
 {
     public Task TransformAsync(

@@ -4,7 +4,7 @@ using Ater.Web.Convention.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace Ater.Web.Convention.Middleware;
+namespace ServiceDefaults.Middleware;
 
 /// <summary>
 /// 在进入验证前，对token进行额外验证

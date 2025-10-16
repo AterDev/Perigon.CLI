@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 
-namespace Ater.Web.Convention.Middleware;
+namespace ServiceDefaults.Middleware;
 
 /// <summary>
-/// 对微软官方 OpenApi 的特殊处理
+/// Transformer for Microsoft.AspNetCore.OpenApi Schema
 /// </summary>
 public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
 {
@@ -29,10 +29,7 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
         {
             return;
         }
-        if (schema.Extensions is null)
-        {
-            schema.Extensions = new Dictionary<string, IOpenApiExtension>();
-        }
+        schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
 
         var enumItems = new List<EnumItem>();
         foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
@@ -50,7 +47,6 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
             {
                 description = desAttr.Description;
             }
-
             enumItems.Add(new EnumItem(field.Name, value, description));
         }
 
@@ -62,21 +58,16 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
                 schema.Enum.Add(JsonValue.Create(item.Value));
             }
         }
-
         schema.Extensions["x-enumData"] = new EnumDataExtension(enumItems);
     }
 
     private sealed record EnumItem(string Name, int Value, string? Description);
 
     /// <summary>
-    /// 自定义扩展写出器，序列化为数组: [{ name, value, description? }]
+    /// 自定义扩展写出器
     /// </summary>
-    private sealed class EnumDataExtension : IOpenApiExtension
+    private sealed class EnumDataExtension(IReadOnlyList<EnumItem> items) : IOpenApiExtension
     {
-        private readonly IReadOnlyList<EnumItem> _items;
-        public EnumDataExtension(IReadOnlyList<EnumItem> items) => _items = items;
-
-        // New 2.x interface method signature
         public void Write(IOpenApiWriter writer, OpenApiSpecVersion specVersion)
         {
             WriteInternal(writer);
@@ -85,7 +76,7 @@ public sealed class OpenApiSchemaTransformer : IOpenApiSchemaTransformer
         private void WriteInternal(IOpenApiWriter writer)
         {
             writer.WriteStartArray();
-            foreach (var item in _items)
+            foreach (var item in items)
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("name");
