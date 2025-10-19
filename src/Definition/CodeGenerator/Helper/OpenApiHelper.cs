@@ -105,7 +105,7 @@ public class OpenApiHelper
                         schema.AdditionalProperties
                     );
                     refType = inRefType;
-                    type = $"Map<string, {inType}>";
+                    type = $"Map<string, {FormatSchemaKey(inType)}>";
                 }
                 break;
             default:
@@ -207,7 +207,7 @@ public class OpenApiHelper
                         schema.AdditionalProperties
                     );
                     refType = inRefType ?? refType;
-                    type = $"Dictionary<string, {inType}>";
+                    type = $"Dictionary<string, {FormatSchemaKey(inType)}>";
                 }
                 break;
             default:
@@ -325,7 +325,7 @@ public class OpenApiHelper
                         new PropertyInfo
                         {
                             Name = name,
-                            Type = "Enum:int",
+                            Type = "Enum(int)",
                             IsNullable = false,
                             CommentSummary = desc,
                             DefaultValue = value.ToString(),
@@ -337,5 +337,32 @@ public class OpenApiHelper
             }
         }
         return result;
+    }
+
+    /// <summary>
+    /// format components schema key
+    /// </summary>
+    /// <param name="key"></param>
+    public static string FormatSchemaKey(string schemaKey)
+    {
+        string type = schemaKey;
+        if (type.Trim().StartsWith("Map<"))
+        {
+            return type;
+        }
+
+        // remove generic
+        int backtickIndex = type.IndexOf('`');
+        if (backtickIndex > 0)
+        {
+            type = type[..backtickIndex];
+        }
+        // remove namespace
+        int lastDotIndex = type.LastIndexOf('.');
+        if (lastDotIndex >= 0)
+        {
+            type = type[(lastDotIndex + 1)..];
+        }
+        return type;
     }
 }

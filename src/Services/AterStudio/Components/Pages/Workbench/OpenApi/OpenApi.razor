@@ -167,15 +167,13 @@
                   <FluentStack Orientation="Orientation.Vertical" Class="mt-2">
                     <FluentLabel Typo="Typography.H4" Color="Color.Accent">
                       @Lang(Localizer.RequestBody)
-
                     </FluentLabel>
                     <FluentStack>
                       <FluentBadge Appearance="Appearance.Neutral">
                         application/json
                       </FluentBadge>
-
                       <FluentBadge Appearance="Appearance.Accent">
-                        @CurrentApi.RequestInfo.Name
+                        @CurrentApi.RequestInfo.FormatTypeName
                       </FluentBadge>
                     </FluentStack>
 
@@ -198,7 +196,7 @@
                         application/json
                       </FluentBadge>
                       <FluentBadge Appearance="Appearance.Accent">
-                        @CurrentApi.ResponseInfo.Name@(CurrentApi.ResponseInfo.IsList ? "[]" : "")
+                        @CurrentApi.ResponseInfo.FormatTypeName@(CurrentApi.ResponseInfo.IsList ? "[]" : "")
                       </FluentBadge>
                     </FluentStack>
                     <PropTableView Items="@CurrentApi.ResponseInfo.PropertyInfos.AsQueryable()"
@@ -213,7 +211,7 @@
                         application/json
                       </FluentBadge>
                       <FluentLabel Typo="Typography.Subject">
-                        @CurrentApi.ResponseInfo?.Name
+                        @CurrentApi.ResponseInfo?.FormatTypeName
                       </FluentLabel>
                     </FluentStack>
                   </FluentStack>
@@ -301,7 +299,7 @@
                 Modal="true">
     <FluentDialogHeader ShowDismiss="false">
       <FluentLabel Typo="Typography.PaneHeader">
-        @SelectedModel?.Name
+        @SelectedModel?.FormatTypeName
       </FluentLabel>
     </FluentDialogHeader>
     <FluentDialogBody>

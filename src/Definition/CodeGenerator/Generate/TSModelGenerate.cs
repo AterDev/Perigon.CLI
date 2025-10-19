@@ -148,18 +148,19 @@ public class TSModelGenerate : GenerateBase
     /// <returns></returns>
     public GenFileInfo GenerateInterfaceFile(string schemaKey, IOpenApiSchema schema)
     {
+        var formatName = OpenApiHelper.FormatSchemaKey(schemaKey);
         // 文件名及内容
-        string fileName = schemaKey.ToHyphen() + ".model.ts";
+        string fileName = formatName.ToHyphen() + ".model.ts";
         string tsContent;
         string? path = "models";
         if (schema.Enum?.Count > 0 || (schema.Extensions != null && schema.Extensions.ContainsKey("x-enumData")))
         {
-            tsContent = ToEnumString(schema, schemaKey);
+            tsContent = ToEnumString(schema, formatName);
             path = "enum";
         }
         else
         {
-            tsContent = ToInterfaceString(schema, schemaKey);
+            tsContent = ToInterfaceString(schema, formatName);
         }
         GenFileInfo file = new(fileName, tsContent)
         {
@@ -170,20 +171,6 @@ public class TSModelGenerate : GenerateBase
         };
 
         return file;
-    }
-
-    /// <summary>
-    /// 根据类型schema，找到对应所属的目录
-    /// </summary>
-    /// <param name="searchKey"></param>
-    /// <returns></returns>
-    private string? GetDirName(string searchKey)
-    {
-        string? dirName = ModelDictionary
-            .Where(m => m.Key.StartsWith(searchKey))
-            .Select(m => m.Value)
-            .FirstOrDefault();
-        return dirName;
     }
 
     /// <summary>
@@ -247,7 +234,8 @@ public class TSModelGenerate : GenerateBase
         importsProps.ForEach(ip =>
         {
             // 引用的导入，自引用不需要导入
-            if (ip.Reference != name)
+            var refType = OpenApiHelper.FormatSchemaKey(ip.Reference);
+            if (refType != name)
             {
                 string dirName = "";
                 string relatePath = "./";
@@ -258,7 +246,7 @@ public class TSModelGenerate : GenerateBase
                 }
 
                 importString +=
-                    @$"import {{ {ip.Reference} }} from '{relatePath}{dirName}{ip.Reference.ToHyphen()}.model';"
+                    @$"import {{ {refType} }} from '{relatePath}{dirName}{refType.ToHyphen()}.model';"
                     + Environment.NewLine;
             }
         });
@@ -336,7 +324,7 @@ public class TsProperty
         }
         return $"""
               {Comments}
-              {name}{Type};
+              {name}{OpenApiHelper.FormatSchemaKey(Type)};
 
             """;
     }

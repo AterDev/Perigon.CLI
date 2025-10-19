@@ -1,3 +1,5 @@
+using CodeGenerator.Helper;
+
 namespace Share.Models;
 /// <summary>
 /// 模型信息
@@ -32,4 +34,10 @@ public class TypeMeta
     /// 属性
     /// </summary>
     public List<PropertyInfo> PropertyInfos { get; set; } = [];
+
+    /// <summary>
+    /// 标准化名称
+    /// </summary>
+    /// <returns></returns>
+    public string FormatTypeName => OpenApiHelper.FormatSchemaKey(Name);
 }

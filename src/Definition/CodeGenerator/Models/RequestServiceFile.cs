@@ -1,4 +1,4 @@
-﻿namespace CodeGenerator.Models;
+namespace CodeGenerator.Models;
 /// <summary>
 /// 服务文件
 /// </summary>

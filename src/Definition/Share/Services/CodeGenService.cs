@@ -1,9 +1,9 @@
-using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Models;
 using Entity;
 using Microsoft.OpenApi;
+using System.Collections.ObjectModel;
 
 namespace Share.Services;
 
@@ -308,6 +308,20 @@ public class CodeGenService(
                 );
             }
         }
+        // delete old files
+        var oldPath = Path.Combine(outputPath, "services", docName);
+        try
+        {
+            if (Directory.Exists(oldPath))
+            {
+                Directory.Delete(oldPath, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            OutputHelper.Error($"⚠️ Delete old files failed: {ex.Message}");
+        }
+
         // request services
         var ngGen = new RequestGenerate(apiDocument!) { LibType = type };
         // 获取对应的ts模型类，生成文件

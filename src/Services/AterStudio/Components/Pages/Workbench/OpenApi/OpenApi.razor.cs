@@ -215,7 +215,8 @@ public partial class OpenApi
             return;
 
         await GetApiDocsAsync();
-        CurrentDoc = Docs.FirstOrDefault();
+        CurrentDoc = Docs.FirstOrDefault(d => d.Name == (result.Data as ApiDocInfoAddDto)?.Name);
+        await GetDocContentAsync(false);
         StateHasChanged();
     }
 

@@ -139,6 +139,7 @@ public class CsharpModelGenerate : GenerateBase
     /// </summary>
     public GenFileInfo GenerateModelFile(string schemaKey, IOpenApiSchema schema, string nspName)
     {
+        schemaKey = OpenApiHelper.FormatSchemaKey(schemaKey);
         string fileName = schemaKey.ToPascalCase() + ".cs";
         string modelContent;
         string? dirName = GetDirName(schemaKey);

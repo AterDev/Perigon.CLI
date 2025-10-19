@@ -421,114 +421,18 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// <returns></returns>
     private string ToAxiosFunction(RequestServiceFunction function)
     {
-        string Name = function.Name;
-        List<FunctionParams>? Params = function.Params;
-        string RequestType = function.RequestType;
-        string ResponseType = string.IsNullOrWhiteSpace(function.ResponseType)
+        var result = BuildFunctionCommon(function, true);
+
+        string responseType = string.IsNullOrWhiteSpace(function.ResponseType)
             ? "any"
             : function.ResponseType!;
+        responseType = OpenApiHelper.FormatSchemaKey(responseType);
 
-        string Path = function.Path;
-
-        // 函数名处理，去除tag前缀，然后格式化
-        Name = Name.Replace(function.Tag + "_", "");
-        Name = Name.ToCamelCase();
-        // 处理参数
-        string paramsString = "";
-        string paramsComments = "";
-        string dataString = "";
-        if (Params?.Count > 0)
-        {
-            paramsString = string.Join(
-                ", ",
-                Params
-                    .OrderByDescending(p => p.IsRequired)
-                    .Select(p =>
-                        p.IsRequired ? p.Name + ": " + p.Type : p.Name + ": " + p.Type + " | null"
-                    )
-                    .ToArray()
-            );
-            Params.ForEach(p =>
-            {
-                paramsComments += $"   * @param {p.Name} {p.Description ?? p.Type}\n";
-            });
-        }
-        if (!string.IsNullOrEmpty(RequestType))
-        {
-            if (Params?.Count > 0)
-            {
-                paramsString += $", data: {RequestType}";
-            }
-            else
-            {
-                paramsString = $"data: {RequestType}";
-            }
-
-            dataString = ", data";
-            paramsComments += $"   * @param data {RequestType}\n";
-        }
-        // 添加extOptions
-        if (!string.IsNullOrWhiteSpace(paramsComments))
-        {
-            paramsString += ", ";
-        }
-        paramsString += "extOptions?: ExtOptions";
-        // 注释生成
-        string comments =
-            $@"  /**
-   * {function.Description ?? Name}
-{paramsComments}   */";
-
-        // 构造请求url
-        List<string?>? paths = Params?.Where(p => p.InPath).Select(p => p.Name)?.ToList();
-        paths?.ForEach(p =>
-        {
-            string origin = $"{{{p}}}";
-            Path = Path.Replace(origin, "$" + origin);
-        });
-        // 需要拼接的参数,特殊处理文件上传
-        List<string?>? reqParams = Params
-            ?.Where(p => !p.InPath && p.Type != "FormData")
-            .Select(p => p.Name)
-            ?.ToList();
-        if (reqParams != null)
-        {
-            string queryParams = "";
-            queryParams = string.Join(
-                "&",
-                reqParams
-                    .Select(p =>
-                    {
-                        return $"{p}=${{{p} ?? ''}}";
-                    })
-                    .ToArray()
-            );
-            if (!string.IsNullOrEmpty(queryParams))
-            {
-                Path += "?" + queryParams;
-            }
-        }
-        // 上传文件时的名称
-        FunctionParams? file = Params?.Where(p => p.Type!.Equals("FormData")).FirstOrDefault();
-        if (file != null)
-        {
-            dataString = $", {file.Name}";
-        }
-
-        // 默认添加ext
-        if (string.IsNullOrEmpty(dataString))
-        {
-            dataString = ", null, extOptions";
-        }
-        else
-        {
-            dataString += ", extOptions";
-        }
         string functionString =
-            @$"{comments}
-  {Name}({paramsString}): Promise<{ResponseType}> {{
-    const _url = `{Path}`;
-    return this.request<{ResponseType}>('{function.Method.ToLower()}', _url{dataString});
+            @$"{result.Comments}
+  {result.Name}({result.ParamsString}): Promise<{responseType}> {{
+    const _url = `{result.Path}`;
+    return this.request<{responseType}>('{function.Method.ToLower()}', _url{result.DataString});
   }}
 ";
         return functionString;
@@ -536,69 +440,107 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
 
     private string ToNgRequestFunction(RequestServiceFunction function)
     {
-        string Name = function.Name;
-        List<FunctionParams>? Params = function.Params;
-        string RequestType = function.RequestType;
-        string ResponseType = string.IsNullOrWhiteSpace(function.ResponseType)
+        var result = BuildFunctionCommon(function, false);
+
+        string responseType = string.IsNullOrWhiteSpace(function.ResponseType)
             ? "any"
             : function.ResponseType!;
 
-        string Path = function.Path;
+        responseType = OpenApiHelper.FormatSchemaKey(responseType);
+        string method = "request";
+        string generics = $"<{responseType}>";
+        if (responseType.Equals("FormData"))
+        {
+            responseType = "Blob";
+            method = "downloadFile";
+            generics = "";
+        }
+
+        string functionString =
+            @$"{result.Comments}
+  {result.Name}({result.ParamsString}): Observable<{responseType}> {{
+    const _url = `{result.Path}`;
+    return this.{method}{generics}('{function.Method.ToLower()}', _url{result.DataString});
+  }}
+";
+        return functionString;
+    }
+
+    /// <summary>
+    /// 构建函数公共部分
+    /// </summary>
+    /// <param name="function"></param>
+    /// <param name="addExtOptions"></param>
+    /// <returns></returns>
+    private FunctionBuildResult BuildFunctionCommon(RequestServiceFunction function, bool addExtOptions)
+    {
+        string name = function.Name;
+        List<FunctionParams>? @params = function.Params;
+        string requestType = OpenApiHelper.FormatSchemaKey(function.RequestType);
+        string path = function.Path;
 
         // 函数名处理，去除tag前缀，然后格式化
-        Name = Name.Replace(function.Tag + "_", "");
-        Name = Name.ToCamelCase();
+        name = name.Replace(function.Tag + "_", "");
+        name = name.ToCamelCase();
 
         // 处理参数
         string paramsString = "";
         string paramsComments = "";
         string dataString = "";
-        if (Params?.Count > 0)
+        if (@params?.Count > 0)
         {
             paramsString = string.Join(
                 ", ",
-                Params
+                @params
                     .OrderByDescending(p => p.IsRequired)
                     .Select(p =>
                         p.IsRequired ? p.Name + ": " + p.Type : p.Name + ": " + p.Type + " | null"
                     )
                     .ToArray()
             );
-            Params.ForEach(p =>
+            @params.ForEach(p =>
             {
                 paramsComments += $"   * @param {p.Name} {p.Description ?? p.Type}\n";
             });
         }
-
-        if (!string.IsNullOrEmpty(RequestType))
+        if (!string.IsNullOrEmpty(requestType))
         {
-            if (Params?.Count > 0)
+            if (@params?.Count > 0)
             {
-                paramsString += $", data: {RequestType}";
+                paramsString += $", data: {requestType}";
             }
             else
             {
-                paramsString = $"data: {RequestType}";
+                paramsString = $"data: {requestType}";
             }
 
             dataString = ", data";
-            paramsComments += $"   * @param data {RequestType}\n";
+            paramsComments += $"   * @param data {requestType}\n";
+        }
+        // 添加extOptions
+        if (addExtOptions)
+        {
+            if (!string.IsNullOrWhiteSpace(paramsComments))
+            {
+                paramsString += ", ";
+            }
+            paramsString += "extOptions?: ExtOptions";
         }
         // 注释生成
         string comments =
             $@"  /**
-   * {function.Description ?? Name}
+   * {function.Description ?? name}
 {paramsComments}   */";
 
         // 构造请求url
-        List<string?>? paths = Params?.Where(p => p.InPath).Select(p => p.Name)?.ToList();
+        List<string?>? paths = @params?.Where(p => p.InPath).Select(p => p.Name)?.ToList();
         paths?.ForEach(p =>
         {
             string origin = $"{{{p}}}";
-            Path = Path.Replace(origin, "$" + origin);
+            path = path.Replace(origin, "$" + origin);
         });
         // 需要拼接的参数,特殊处理文件上传
-        List<string?>? reqParams = Params
+        List<string?>? reqParams = @params
             ?.Where(p => !p.InPath && p.Type != "FormData")
             .Select(p => p.Name)
             ?.ToList();
@@ -616,32 +558,30 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             );
             if (!string.IsNullOrEmpty(queryParams))
             {
-                Path += "?" + queryParams;
+                path += "?" + queryParams;
             }
         }
-        FunctionParams? file = Params?.Where(p => p.Type!.Equals("FormData")).FirstOrDefault();
+        // 上传文件时的名称
+        FunctionParams? file = @params?.Where(p => p.Type!.Equals("FormData")).FirstOrDefault();
         if (file != null)
         {
             dataString = $", {file.Name}";
         }
 
-        string method = "request";
-        string generics = $"<{ResponseType}>";
-        if (ResponseType.Equals("FormData"))
+        // 默认添加ext
+        if (addExtOptions)
         {
-            ResponseType = "Blob";
-            method = "downloadFile";
-            generics = "";
+            if (string.IsNullOrEmpty(dataString))
+            {
+                dataString = ", null, extOptions";
+            }
+            else
+            {
+                dataString += ", extOptions";
+            }
         }
 
-        string functionString =
-            @$"{comments}
-  {Name}({paramsString}): Observable<{ResponseType}> {{
-    const _url = `{Path}`;
-    return this.{method}{generics}('{function.Method.ToLower()}', _url{dataString});
-  }}
-";
-        return functionString;
+        return new FunctionBuildResult(name, paramsString, comments, dataString, path);
     }
 
     /// <summary>
@@ -653,6 +593,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// <returns></returns>
     private string InsertImportModel(RequestServiceFile serviceFile, string t, string importModels)
     {
+        t = OpenApiHelper.FormatSchemaKey(t);
         if (EnumModels.Contains(t))
         {
             importModels +=
@@ -673,7 +614,6 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// <returns></returns>
     protected List<string> GetRefTyeps(List<RequestServiceFunction> functions)
     {
-
         // 已生成模型的名称集合（包含枚举）
         var modelNameSet = TsModelFiles
             .Where(f => !string.IsNullOrWhiteSpace(f.ModelName))
@@ -714,3 +654,5 @@ public enum RequestClientType
     [Description("csharp")]
     Csharp,
 }
+
+public record FunctionBuildResult(string Name, string ParamsString, string Comments, string DataString, string Path);
