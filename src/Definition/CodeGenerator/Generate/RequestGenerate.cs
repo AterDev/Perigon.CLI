@@ -231,7 +231,7 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         {
             if (item.Value.Enum?.Count > 0)
             {
-                codeBlocks += ToEnumSwitchString(item.Key, item.Value);
+                codeBlocks += ToEnumSwitchString(OpenApiHelper.FormatSchemaKey(item.Key), item.Value);
             }
         }
         var genContext = new RazorGenContext();
@@ -593,16 +593,17 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
     /// <returns></returns>
     private string InsertImportModel(RequestServiceFile serviceFile, string t, string importModels)
     {
-        t = OpenApiHelper.FormatSchemaKey(t);
+
+        var formatType = OpenApiHelper.FormatSchemaKey(t);
         if (EnumModels.Contains(t))
         {
             importModels +=
-                $"import {{ {t} }} from './enum/{t.ToHyphen()}.model';{Environment.NewLine}";
+                $"import {{ {formatType} }} from './enum/{formatType.ToHyphen()}.model';{Environment.NewLine}";
         }
         else
         {
             importModels +=
-                $"import {{ {t} }} from './models/{t.ToHyphen()}.model';{Environment.NewLine}";
+                $"import {{ {formatType} }} from './models/{formatType.ToHyphen()}.model';{Environment.NewLine}";
         }
         return importModels;
     }
