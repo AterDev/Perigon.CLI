@@ -103,7 +103,7 @@
             return;
         }
         var res = await _manager.UpdateAsync(entity, Model);
-        await Dialog.CloseAsync(res);
+        await Dialog.CloseAsync(Model);
     }
     private async Task CancelAsync()
     {

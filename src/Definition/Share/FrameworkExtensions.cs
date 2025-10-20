@@ -1,5 +1,6 @@
 using CodeGenerator.Helper;
 using Entity;
+using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Share.Services;
@@ -18,6 +19,8 @@ public static partial class FrameworkExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
     {
+        TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
+
         builder.AddDbContext();
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton<CacheService>();

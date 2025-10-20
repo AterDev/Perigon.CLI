@@ -1,8 +1,8 @@
+using System.Collections;
+using System.Data;
 using Ater.Common.Models;
 using Ater.Common.Utils;
 using Mapster;
-using System.Collections;
-using System.Data;
 
 namespace Ater.Common.Utils;
 
@@ -15,7 +15,7 @@ public static partial class Extensions
     /// <param name="source"></param>
     /// <param name="merge"></param>
     /// <returns></returns>
-    public static TSource Merge<TSource>(this TSource source, object merge)
+    public static TSource Merge<TSource, TMerge>(this TSource source, TMerge merge)
     {
         return merge.Adapt(source);
     }

@@ -343,8 +343,9 @@ public class OpenApiHelper
     /// format components schema key
     /// </summary>
     /// <param name="key"></param>
-    public static string FormatSchemaKey(string schemaKey)
+    public static string FormatSchemaKey(string? schemaKey)
     {
+        if (schemaKey == null) return string.Empty;
         string type = schemaKey;
         if (type.Trim().StartsWith("Map<"))
         {

@@ -15,9 +15,9 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.0-rc.2.25502.107" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0-rc.2.25502.107" />
     <!-- Ater infra / templates -->
-    <PackageVersion Include="Ater.Common" Version="1.0.0-beta6" />
-    <PackageVersion Include="Ater.Web.Convention" Version="1.0.0-beta3" />
-    <PackageVersion Include="Ater.Web.SourceGeneration" Version="1.0.0-beta6" />
+    <PackageVersion Include="Ater.Common" Version="1.0.0-beta7" />
+    <PackageVersion Include="Ater.Web.Convention" Version="1.0.0-beta7" />
+    <PackageVersion Include="Ater.Web.SourceGeneration" Version="1.0.0-beta7" />
     <!-- UI / Blazor -->
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.13.0" />
     <!-- Tooling / Roslyn / build helpers -->

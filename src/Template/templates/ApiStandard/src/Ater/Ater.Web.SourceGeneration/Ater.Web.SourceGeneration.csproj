@@ -8,7 +8,7 @@
     <PackageId>Ater.Web.SourceGeneration</PackageId>
     <Title>Ater.Web.SourceGeneration</Title>
     <Authors>niltor</Authors>
-    <Version>1.0.0-beta6</Version>
+    <Version>1.0.0-beta7</Version>
     <PackageTags>analyzer;web framework;ater;webapi;source generator</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>

@@ -494,13 +494,14 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
                 @params
                     .OrderByDescending(p => p.IsRequired)
                     .Select(p =>
-                        p.IsRequired ? p.Name + ": " + p.Type : p.Name + ": " + p.Type + " | null"
+                        p.IsRequired ? p.Name + ": " + OpenApiHelper.FormatSchemaKey(p.Type)
+                        : p.Name + ": " + OpenApiHelper.FormatSchemaKey(p.Type) + " | null"
                     )
                     .ToArray()
             );
             @params.ForEach(p =>
             {
-                paramsComments += $"   * @param {p.Name} {p.Description ?? p.Type}\n";
+                paramsComments += $"   * @param {p.Name} {p.Description ?? OpenApiHelper.FormatSchemaKey(p.Type)}\n";
             });
         }
         if (!string.IsNullOrEmpty(requestType))
