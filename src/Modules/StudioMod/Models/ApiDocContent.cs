@@ -1,3 +1,5 @@
+using CodeGenerator.Models;
+
 namespace StudioMod.Models;
 
 /// <summary>

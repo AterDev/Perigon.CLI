@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Text;
+using CodeGenerator.Helper;
 
 namespace CodeGenerator.Generate;
 
@@ -74,21 +76,22 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
                 {
                     function.Name = operation.Key + "_" + path.Key.Split("/").LastOrDefault();
                 }
-                (function.RequestType, function.RequestRefType) = OpenApiHelper.ParseParamTSType(
-                    operation.Value?.RequestBody?.Content?.Values.FirstOrDefault()?.Schema
-                );
-                (function.ResponseType, function.ResponseRefType) = OpenApiHelper.ParseParamTSType(
-                    operation
-                        .Value?.Responses?.FirstOrDefault()
-                        .Value?.Content?.FirstOrDefault()
-                        .Value?.Schema
-                );
+                var reqSchema = operation.Value?.RequestBody?.Content?.Values.FirstOrDefault()?.Schema;
+                var respSchema = operation
+                    .Value?.Responses?.FirstOrDefault()
+                    .Value?.Content?.FirstOrDefault()
+                    .Value?.Schema;
+
+                function.RequestRefType = OpenApiHelper.GetRootRef(reqSchema);
+                function.ResponseRefType = OpenApiHelper.GetRootRef(respSchema);
+                function.RequestType = GetTsType(reqSchema);
+                function.ResponseType = GetTsType(respSchema);
                 function.Params = operation
                     .Value?.Parameters?.Select(p =>
                     {
                         string? location = p.In?.GetDisplayName();
                         bool? inpath = location?.ToLower()?.Equals("path");
-                        (string type, string? _) = OpenApiHelper.ParseParamTSType(p.Schema);
+                        string type = GetTsType(p.Schema);
                         return new FunctionParams
                         {
                             Description = p.Description,
@@ -105,6 +108,27 @@ public class RequestGenerate(OpenApiDocument openApi) : GenerateBase
         }
         return functions;
     }
+
+    private static readonly ITypeNameFormatter _tsFormatter = new TypeScriptTypeNameFormatter();
+
+    /// <summary>
+    /// 使用标准 C# 映射与 TypeScript 格式化器生成前端类型
+    /// </summary>
+    private static string GetTsType(IOpenApiSchema? schema)
+    {
+        if (schema == null) return "any";
+        bool isEnum = (schema.Enum?.Count ?? 0) > 0 || schema.Extensions?.ContainsKey("x-enumData") == true;
+        bool isList = schema.Type == JsonSchemaType.Array;
+        bool isNullable = schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null);
+
+        string csharpType = OpenApiHelper.MapToCSharpType(schema);
+        if (schema is OpenApiSchemaReference r && r.Reference.Id is not null)
+        {
+            csharpType = r.Reference.Id;
+        }
+        return _tsFormatter.Format(csharpType, isEnum, isList, isNullable);
+    }
+    
 
     /// <summary>
     /// 根据tag生成多个请求服务文件
@@ -656,5 +680,12 @@ public enum RequestClientType
     [Description("csharp")]
     Csharp,
 }
+
+public enum CodeLanguage
+{
+    Csharp,
+    Typescript
+}
+
 
 public record FunctionBuildResult(string Name, string ParamsString, string Comments, string DataString, string Path);

@@ -1,4 +1,5 @@
 using System.Data;
+using CodeGenerator.Helper;
 
 namespace CodeGenerator.Generate;
 
@@ -311,22 +312,19 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     Path = path.Key,
                     Tag = operation.Value.Tags?.FirstOrDefault()?.Name,
                 };
-                (function.RequestType, function.RequestRefType) = OpenApiHelper.ParseParamAsCSharp(
-                    operation.Value.RequestBody?.Content?.Values.FirstOrDefault()?.Schema
-                );
-                (function.ResponseType, function.ResponseRefType) =
-                    OpenApiHelper.ParseParamAsCSharp(
-                        operation
-                            .Value.Responses?.FirstOrDefault()
-                            .Value?.Content?.FirstOrDefault()
-                            .Value?.Schema
-                    );
+                var reqSchema = operation.Value.RequestBody?.Content?.Values.FirstOrDefault()?.Schema;
+                var respSchema = operation.Value.Responses?.FirstOrDefault().Value?.Content?.FirstOrDefault().Value?.Schema;
+
+                function.RequestRefType = OpenApiHelper.GetRootRef(reqSchema);
+                function.ResponseRefType = OpenApiHelper.GetRootRef(respSchema);
+                function.RequestType = GetCSharpType(reqSchema);
+                function.ResponseType = GetCSharpType(respSchema);
                 function.Params = operation
                     .Value.Parameters?.Select(p =>
                     {
                         string? location = p.In?.GetDisplayName();
                         bool? inpath = location?.ToLower()?.Equals("path");
-                        (string type, string? _) = OpenApiHelper.ParseParamAsCSharp(p.Schema);
+                        string type = GetCSharpType(p.Schema);
                         return new FunctionParams
                         {
                             Description = p.Description,
@@ -342,5 +340,35 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
             }
         }
         return functions;
+    }
+
+    // 统一 schema -> C# 类型解析 (参考 OpenApiHelper.MapToCSharpType 结果 + 枚举/数组/可空处理)
+    private static string GetCSharpType(IOpenApiSchema? schema)
+    {
+        if (schema == null) return "object";
+
+        bool isEnum = (schema.Enum?.Count ?? 0) > 0 || schema.Extensions?.ContainsKey("x-enumData") == true;
+        bool isList = schema.Type == JsonSchemaType.Array;
+        bool isNullable = schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null);
+
+        string baseType = OpenApiHelper.MapToCSharpType(schema);
+        if (schema is OpenApiSchemaReference r && r.Reference.Id is not null)
+        {
+            baseType = OpenApiHelper.FormatSchemaKey(r.Reference.Id);
+        }
+
+        // 枚举直接用名称
+        if (isEnum && schema is OpenApiSchemaReference er && er.Reference.Id is not null)
+        {
+            baseType = OpenApiHelper.FormatSchemaKey(er.Reference.Id);
+        }
+
+        // 列表类型已由 MapToCSharpType 生成 List<...>，只处理可空情况（List 不加 ?）
+        if (isNullable && !isList && !baseType.EndsWith("?"))
+        {
+            // 基本值类型 / 引用类型均加 ? 让生成的 dto 参数可空
+            baseType += "?";
+        }
+        return baseType;
     }
 }

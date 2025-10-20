@@ -1,4 +1,6 @@
 using Entity;
+using CodeGenerator.Models;
+using CodeGenerator.Helper;
 
 namespace CodeGenerator.Generate;
 
@@ -10,6 +12,8 @@ public class TSModelGenerate : GenerateBase
     public Dictionary<string, string?> ModelDictionary { get; set; } = [];
 
     public OpenApiDocument OpenApi { get; set; }
+
+    private readonly ITypeNameFormatter _typeFormatter = new TypeScriptTypeNameFormatter();
 
     public TSModelGenerate(OpenApiDocument openApi)
     {
@@ -31,21 +35,13 @@ public class TSModelGenerate : GenerateBase
                     .Value?.Responses?.FirstOrDefault()
                     .Value?.Content?.FirstOrDefault()
                     .Value?.Schema;
-                (string? RequestType, string? requestRefType) = OpenApiHelper.ParseParamTSType(
-                    requestSchema
-                );
-                (string? ResponseType, string? responseRefType) = OpenApiHelper.ParseParamTSType(
-                    responseSchema
-                );
-
-                // 存储对应的Tag
-                // 请求dto
-                if (requestRefType != null && !string.IsNullOrEmpty(requestRefType))
+                var requestRefType = OpenApiHelper.GetRootRef(requestSchema);
+                var responseRefType = OpenApiHelper.GetRootRef(responseSchema);
+                if (!string.IsNullOrWhiteSpace(requestRefType))
                 {
                     _ = ModelDictionary.TryAdd(requestRefType, tag);
                 }
-                // 返回dto
-                if (responseRefType != null && !string.IsNullOrEmpty(responseRefType))
+                if (!string.IsNullOrWhiteSpace(responseRefType))
                 {
                     _ = ModelDictionary.TryAdd(responseRefType, tag);
                 }
@@ -155,12 +151,12 @@ public class TSModelGenerate : GenerateBase
         string? path = "models";
         if (schema.Enum?.Count > 0 || (schema.Extensions != null && schema.Extensions.ContainsKey("x-enumData")))
         {
-            tsContent = ToEnumString(schema, formatName);
+            tsContent = ToEnumString(schema, schemaKey);
             path = "enum";
         }
         else
         {
-            tsContent = ToInterfaceString(schema, formatName);
+            tsContent = ToInterfaceString(schema, schemaKey);
         }
         GenFileInfo file = new(fileName, tsContent)
         {
@@ -176,11 +172,11 @@ public class TSModelGenerate : GenerateBase
     /// <summary>
     /// 将 Schemas 转换成 ts 接口
     /// </summary>
-    /// <param name="schema"></param>
-    /// <param name="name"></param>
-    /// <param name="onlyProps"></param>
+    /// <param schemaKey="schema"></param>
+    /// <param schemaKey="schemaKey"></param>
+    /// <param schemaKey="onlyProps"></param>
     /// <returns></returns>
-    public string ToInterfaceString(IOpenApiSchema schema, string name = "", bool onlyProps = false)
+    public string ToInterfaceString(IOpenApiSchema schema, string schemaKey = "", bool onlyProps = false)
     {
         string res = "";
         string comment = "";
@@ -196,7 +192,7 @@ public class TSModelGenerate : GenerateBase
  */
 ";
         }
-        var props = OpenApiHelper.ParseProperties(schema, true);
+        var props = OpenApiHelper.ParseProperties(schema);
         if (props.Count == 0)
         {
             return string.Empty;
@@ -205,9 +201,11 @@ public class TSModelGenerate : GenerateBase
         var tsProps = new List<TsProperty>();
         foreach (var p in props)
         {
+            // 使用 TypeScript 格式化器
+            var formattedType = _typeFormatter.Format(p.Type ?? "any", p.IsEnum, p.IsList, p.IsNullable);
             var tsProperty = new TsProperty
             {
-                Type = p.Type,
+                Type = formattedType,
                 Name = p.Name,
                 IsEnum = p.IsEnum,
                 Reference = p.NavigationName ?? string.Empty,
@@ -216,8 +214,8 @@ public class TSModelGenerate : GenerateBase
             };
             // 特殊处理(openapi $ref没有可空说明)
             if (
-                name.EndsWith(ConstVal.FilterDto, StringComparison.OrdinalIgnoreCase)
-                || name.EndsWith(ConstVal.UpdateDto, StringComparison.OrdinalIgnoreCase)
+                schemaKey.EndsWith(ConstVal.FilterDto, StringComparison.OrdinalIgnoreCase)
+                || schemaKey.EndsWith(ConstVal.UpdateDto, StringComparison.OrdinalIgnoreCase)
             )
             {
                 tsProperty.IsNullable = true;
@@ -235,7 +233,7 @@ public class TSModelGenerate : GenerateBase
         {
             // 引用的导入，自引用不需要导入
             var refType = OpenApiHelper.FormatSchemaKey(ip.Reference);
-            if (refType != name)
+            if (ip.Reference != schemaKey)
             {
                 string dirName = "";
                 string relatePath = "./";
@@ -252,7 +250,7 @@ public class TSModelGenerate : GenerateBase
         });
 
         res =
-            @$"{importString}{comment}export interface {name} {extendString}{{
+            @$"{importString}{comment}export interface {OpenApiHelper.FormatSchemaKey(schemaKey)} {extendString}{{
 {propertyString}
 }}
 ";
@@ -262,14 +260,15 @@ public class TSModelGenerate : GenerateBase
     /// <summary>
     /// 生成enum
     /// </summary>
-    /// <param name="schema"></param>
-    /// <param name="name"></param>
+    /// <param schemaKey="schema"></param>
+    /// <param schemaKey="schemaKey"></param>
     /// <returns></returns>
-    public static string ToEnumString(IOpenApiSchema schema, string name = "")
+    public static string ToEnumString(IOpenApiSchema schema, string schemaKey = "")
     {
         string res = "";
         string comment = "";
         string propertyString = "";
+        schemaKey = OpenApiHelper.FormatSchemaKey(schemaKey);
         if (!string.IsNullOrEmpty(schema.Description))
         {
             comment =
@@ -283,7 +282,7 @@ public class TSModelGenerate : GenerateBase
 
         if (enumData == null)
         {
-            return $"{comment}export enum {name} {{}}";
+            return $"{comment}export enum {schemaKey} {{}}";
         }
 
         var enumProps = OpenApiHelper.GetEnumProperties(schema);
@@ -297,7 +296,7 @@ public class TSModelGenerate : GenerateBase
         }
 
         res =
-            @$"{comment}export enum {name} {{
+            @$"{comment}export enum {schemaKey} {{
 {propertyString}
 }}
 ";
@@ -317,14 +316,15 @@ public class TsProperty
     public string ToProperty()
     {
         string name = Name + (IsNullable ? "?: " : ": ");
-
-        if (IsNullable && Type != null && !Type.EndsWith("null"))
+        string renderType = Type ?? "any";
+        // 已包含 null 则不重复添加
+        if (IsNullable && !renderType.Contains("| null"))
         {
-            Type += " | null";
+            renderType += " | null";
         }
         return $"""
               {Comments}
-              {name}{OpenApiHelper.FormatSchemaKey(Type)};
+              {name}{renderType};
 
             """;
     }

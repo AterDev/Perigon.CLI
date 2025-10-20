@@ -182,7 +182,7 @@ public class GenActionManager(
             {
                 actionRunModel.ModelName = dto.ModelInfo.Name;
                 actionRunModel.PropertyInfos = dto.ModelInfo.PropertyInfos;
-                actionRunModel.Description = dto.ModelInfo.Summary ?? dto.ModelInfo.Comment;
+                actionRunModel.Description = dto.ModelInfo.CommentSummary ?? dto.ModelInfo.Comment;
 
                 // 添加变量
                 actionRunModel.Variables.Add(

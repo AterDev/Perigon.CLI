@@ -1,288 +1,52 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using CodeGenerator.Models;
 
 namespace CodeGenerator.Helper;
 
 public class OpenApiHelper
 {
-    /// <summary>
-    /// parse params type
-    /// </summary>
-    /// <param name="schema"></param>
-    /// <returns>
-    /// <![CDATA[type is full type name,like: List<Type>,Map<string, Type>]]>,
-    /// refType is the reference type name,like: Type
-    /// </returns>
-    public static (string type, string? refType) ParseParamTSType(IOpenApiSchema? schema)
-    {
-        if (schema == null)
-        {
-            return (string.Empty, string.Empty);
-        }
-        string type = "any";
-        string? refType = "any";
-        if (schema is OpenApiSchemaReference reference)
-        {
-            return (reference.Reference.Id ?? "any", reference.Reference.Id);
-        }
-        if (schema.Type == JsonSchemaType.Null)
-        {
-            return (type, refType);
-        }
-        var removeNullType = schema.Type.GetValueOrDefault();
-        if (removeNullType.HasFlag(JsonSchemaType.Null))
-        {
-            // remove null type
-            removeNullType &= ~JsonSchemaType.Null;
-        }
-        switch (removeNullType)
-        {
-            case JsonSchemaType.Boolean:
-                refType = type = "boolean";
-                break;
-            case JsonSchemaType.Integer:
-                if (schema.Enum?.Count > 0)
-                {
-                    if (schema.DynamicRef != null)
-                    {
-                        type = schema.DynamicRef;
-                        refType = schema.DynamicRef;
-                    }
-                }
-                else
-                {
-                    refType = type = "number";
-                }
-                break;
-            case JsonSchemaType.Number:
-                refType = type = "number";
-                break;
-            case JsonSchemaType.String:
-                type = refType = "string";
-                if (!string.IsNullOrWhiteSpace(schema.Format))
-                {
-                    refType = type = schema.Format switch
-                    {
-                        "binary" => "FormData",
-                        "date-time" => "string",
-                        _ => "string",
-                    };
-                }
-                break;
-            case JsonSchemaType.Array:
-                if (schema.Items is OpenApiSchemaReference enumReference)
-                {
-                    refType = enumReference.Reference.Id ?? "any";
-                    type = refType + "[]";
-                }
-                else if (schema.Items?.Type != null)
-                {
-                    var itemType = schema.Items.Type;
-                    refType = itemType switch
-                    {
-                        JsonSchemaType.Integer => "number",
-                        _ => itemType.Value.ToString(),
-                    };
-                    type = refType + "[]";
-                }
-                else if (schema.Items?.OneOf?.FirstOrDefault()?.DynamicRef != null)
-                {
-                    refType = schema.Items.OneOf?.FirstOrDefault()!.DynamicRef;
-                    type = refType + "[]";
-                }
-                break;
-            case JsonSchemaType.Object:
-                if (schema.Properties?.Count > 0)
-                {
-                    var obj = schema.Properties.FirstOrDefault().Value;
-                    if (obj != null && obj.Format == "binary")
-                    {
-                        type = refType = "FormData";
-                    }
-                }
-                if (schema.AdditionalProperties != null)
-                {
-                    (string inType, string? inRefType) = ParseParamTSType(
-                        schema.AdditionalProperties
-                    );
-                    refType = inRefType;
-                    type = $"Map<string, {FormatSchemaKey(inType)}>";
-                }
-                break;
-            default:
-                break;
-        }
-        if (schema.OneOf?.Count > 0)
-        {
-            type = schema.OneOf.First()?.DynamicRef ?? type;
-            refType = schema.OneOf.First()?.DynamicRef;
-        }
-        return (type, refType);
-    }
-
-    /// <summary>
-    /// parse params type
-    /// </summary>
-    /// <param name="schema"></param>
-    /// <returns>
-    /// <![CDATA[type is full type name,like: List<Type>,Map<string, Type>]]>,
-    /// refType is the reference type name,like: Type
-    /// </returns>
-    public static (string type, string? refType) ParseParamAsCSharp(IOpenApiSchema? schema)
-    {
-        if (schema == null)
-        {
-            return ("object", null);
-        }
-        string type = "object";
-        string refType = "object";
-        if (schema is OpenApiSchemaReference reference)
-        {
-            return (reference.Reference.Id ?? "object", reference.Reference.Id);
-        }
-        if (schema.Type == JsonSchemaType.Null)
-        {
-            return (type, refType);
-        }
-        var removeNullType = schema.Type.GetValueOrDefault();
-        if (removeNullType.HasFlag(JsonSchemaType.Null))
-        {
-            // remove null type
-            removeNullType &= ~JsonSchemaType.Null;
-        }
-        switch (removeNullType)
-        {
-            case JsonSchemaType.Boolean:
-                type = refType = "bool";
-                break;
-            case JsonSchemaType.Integer:
-                type = refType = "int";
-                break;
-            case JsonSchemaType.Number:
-                type = refType = "double";
-                break;
-            case JsonSchemaType.String:
-                type = refType = "string";
-                if (!string.IsNullOrWhiteSpace(schema.Format))
-                {
-                    refType = type = schema.Format switch
-                    {
-                        "binary" => "IFile",
-                        "date-time" => "DateTimeOffset",
-                        _ => "string",
-                    };
-                }
-                break;
-            case JsonSchemaType.Array:
-                if (schema.Items is OpenApiSchemaReference enumReference)
-                {
-                    refType = enumReference.Reference.Id ?? "object";
-                    type = $"List<{refType}>";
-                }
-                else if (schema.Items?.Type != null)
-                {
-                    var itemType = schema.Items.Type;
-                    refType = itemType switch
-                    {
-                        JsonSchemaType.Integer => "int",
-                        JsonSchemaType.Number => "double",
-                        JsonSchemaType.Boolean => "bool",
-                        JsonSchemaType.String => "string",
-                        _ => "object",
-                    };
-                    type = $"List<{refType}>";
-                }
-                break;
-            case JsonSchemaType.Object:
-                if (schema.Properties?.Count > 0)
-                {
-                    var obj = schema.Properties.FirstOrDefault().Value;
-                    if (obj != null && obj.Format == "binary")
-                    {
-                        type = "IFile";
-                    }
-                }
-                if (schema.AdditionalProperties != null)
-                {
-                    (string inType, string? inRefType) = ParseParamTSType(
-                        schema.AdditionalProperties
-                    );
-                    refType = inRefType ?? refType;
-                    type = $"Dictionary<string, {FormatSchemaKey(inType)}>";
-                }
-                break;
-            default:
-                break;
-        }
-        if (
-            schema.OneOf != null
-            && schema.OneOf.FirstOrDefault() is OpenApiSchemaReference reference1
-        )
-        {
-            type = reference1.Reference.Id ?? type;
-            refType = reference1.Reference.Id ?? refType;
-        }
-        return (type, refType);
-    }
-
-    /// <summary>
-    /// parse properties from OpenAPI schema
-    /// default use C# types, set useTypescript to true for TypeScript types
-    /// </summary>
-    public static List<PropertyInfo> ParseProperties(
-        IOpenApiSchema schema,
-        bool useTypescript = false
-    )
+    public static List<PropertyInfo> ParseProperties(IOpenApiSchema schema)
     {
         var properties = new List<PropertyInfo>();
         if (schema.AllOf?.Count > 1)
         {
-            properties.AddRange(ParseProperties(schema.AllOf[1], useTypescript));
+            properties.AddRange(ParseProperties(schema.AllOf[1]));
         }
         if (schema.Properties?.Count > 0)
         {
             var requiredList = schema.Required ?? new HashSet<string>();
-
             foreach (var prop in schema.Properties)
             {
-                var (type, refType) = useTypescript
-                    ? ParseParamTSType(prop.Value)
-                    : ParseParamAsCSharp(prop.Value);
+                string type = MapToCSharpType(prop.Value);
                 string name = prop.Key;
                 string? desc = prop.Value.Description;
                 var schemaType = prop.Value.Type;
-                bool isEnum = prop.Value.Enum?.Count > 0
-                    || prop.Value.Extensions?.ContainsKey("x-enumData") == true;
+                bool isEnum = prop.Value.Enum?.Count > 0 || prop.Value.Extensions?.ContainsKey("x-enumData") == true;
                 bool isList = schemaType == JsonSchemaType.Array;
 
                 var isNavigation = false;
                 var navigationName = string.Empty;
 
-                var isRequired = true;
+                bool isRequired = requiredList.Contains(name);
                 bool isNullable = false;
-                if (requiredList.Contains(name))
-                {
-                    isRequired = true;
-                    isNullable = false;
-                }
-
                 if (schemaType.HasValue && schemaType.Value.HasFlag(JsonSchemaType.Null))
                 {
                     isRequired = false;
                     isNullable = true;
                 }
-
                 if (prop.Value is OpenApiSchemaReference reference)
                 {
                     isNavigation = true;
                     navigationName = reference.Reference.Id ?? type;
                 }
-                if (prop.Value.Items is not null and OpenApiSchemaReference reference1)
+                if (prop.Value.Items is not null and OpenApiSchemaReference itemsRef)
                 {
                     isNavigation = true;
-                    navigationName = reference1.Reference.Id ?? refType;
+                    navigationName = itemsRef.Reference.Id ?? MapToCSharpType(prop.Value.Items);
                 }
 
-                var propertyInfo = new PropertyInfo
+                properties.Add(new PropertyInfo
                 {
                     Name = name,
                     Type = type,
@@ -293,16 +57,12 @@ public class OpenApiHelper
                     IsNavigation = isNavigation,
                     NavigationName = navigationName,
                     IsRequired = isRequired,
-                };
-                properties.Add(propertyInfo);
+                });
             }
         }
         return properties;
     }
 
-    /// <summary>
-    /// 统一枚举属性提取
-    /// </summary>
     public static List<PropertyInfo> GetEnumProperties(IOpenApiSchema schema)
     {
         var result = new List<PropertyInfo>();
@@ -314,56 +74,180 @@ public class OpenApiHelper
             {
                 foreach (var item in array)
                 {
-                    if (item is not JsonObject itemObj)
+                    if (item is not JsonObject obj) continue;
+                    var name = obj["name"]?.GetValue<string>() ?? string.Empty;
+                    var value = obj["value"]?.GetValue<int>() ?? 0;
+                    var desc = obj["description"]?.GetValue<string>();
+                    result.Add(new PropertyInfo
                     {
-                        continue;
-                    }
-                    var name = item["name"]?.GetValue<string>() ?? string.Empty;
-                    var value = item["value"]?.GetValue<int>() ?? 0;
-                    var desc = item["description"]?.GetValue<string>();
-                    result.Add(
-                        new PropertyInfo
-                        {
-                            Name = name,
-                            Type = "Enum(int)",
-                            IsNullable = false,
-                            CommentSummary = desc,
-                            DefaultValue = value.ToString(),
-                            IsEnum = true,
-                            IsList = false,
-                        }
-                    );
+                        Name = name,
+                        Type = "Enum(int)",
+                        IsNullable = false,
+                        CommentSummary = desc,
+                        DefaultValue = value.ToString(),
+                        IsEnum = true,
+                        IsList = false,
+                    });
                 }
             }
         }
         return result;
     }
 
-    /// <summary>
-    /// format components schema key
-    /// </summary>
-    /// <param name="key"></param>
     public static string FormatSchemaKey(string? schemaKey)
     {
         if (schemaKey == null) return string.Empty;
         string type = schemaKey;
-        if (type.Trim().StartsWith("Map<"))
+        if (type.Trim().StartsWith("Map<")) return type;
+        int backtickIndex = type.IndexOf('`');
+        if (backtickIndex > 0) type = type[..backtickIndex];
+        int lastDotIndex = type.LastIndexOf('.');
+        if (lastDotIndex >= 0) type = type[(lastDotIndex + 1)..];
+        return type;
+    }
+
+    public static string ParseGenericFullName(string fullName)
+    {
+        if (string.IsNullOrEmpty(fullName)) return fullName;
+        var mainTypeMatch = Regex.Match(fullName, @"([^\.]+)`(\d+)");
+        if (!mainTypeMatch.Success) return fullName;
+        string typeName = mainTypeMatch.Groups[1].Value;
+        int genericCount = int.Parse(mainTypeMatch.Groups[2].Value);
+        string[] genericParams = genericCount == 1
+            ? new[] { "T" }
+            : Enumerable.Range(1, genericCount).Select(i => $"T{i}").ToArray();
+        return $"{typeName}<{string.Join(",", genericParams)}>";
+    }
+
+    public static TypeMeta ParseSchemaToTypeMeta(string name, IOpenApiSchema schema)
+    {
+        var meta = new TypeMeta
         {
-            return type;
+            Name = FormatSchemaKey(name),
+            FullName = name,
+            Comment = schema.Description ?? schema.AllOf?.LastOrDefault()?.Description,
+        };
+
+        var enumExt = schema.Extensions?.FirstOrDefault(e => e.Key == "x-enumData").Value;
+        if ((schema.Enum?.Count ?? 0) > 0 || enumExt is not null)
+        {
+            meta.IsEnum = true;
+            meta.PropertyInfos = GetEnumProperties(schema);
+            return meta;
         }
 
-        // remove generic
-        int backtickIndex = type.IndexOf('`');
-        if (backtickIndex > 0)
+        // 统一根引用提取（自身引用 / 数组元素引用 / oneOf 首引用）
+        var rootRef = GetRootRef(schema);
+        if (!string.IsNullOrWhiteSpace(rootRef))
         {
-            type = type[..backtickIndex];
+            meta.IsReference = true;
+            meta.ReferenceName = rootRef;
         }
-        // remove namespace
-        int lastDotIndex = type.LastIndexOf('.');
-        if (lastDotIndex >= 0)
+
+        if (schema.Type == JsonSchemaType.Array)
         {
-            type = type[(lastDotIndex + 1)..];
+            meta.IsList = true;
         }
-        return type;
+
+        if (schema.AdditionalProperties is not null)
+        {
+            var valType = MapToCSharpType(schema.AdditionalProperties);
+            meta.FullName = $"Dictionary<string,{FormatSchemaKey(valType)}>";
+            if (schema.AdditionalProperties is OpenApiSchemaReference valRef && valRef.Reference.Id is not null)
+            {
+                meta.IsReference = true;
+                meta.ReferenceName = valRef.Reference.Id;
+            }
+        }
+
+        if (schema.Properties?.Count > 0)
+        {
+            meta.PropertyInfos = ParseProperties(schema);
+            if (schema.Required?.Count > 0)
+            {
+                foreach (var r in schema.Required)
+                {
+                    var p = meta.PropertyInfos.FirstOrDefault(p => p.Name == r);
+                    if (p is not null) p.IsRequired = true;
+                }
+            }
+        }
+
+        if (schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null))
+        {
+            meta.IsNullable = true;
+        }
+
+        // 已通过 GetRootRef 处理自身引用，无需重复
+
+        if (name.Contains('`'))
+        {
+            var match = Regex.Match(name, @"([^\.]+)`(\d+)");
+            if (match.Success)
+            {
+                int count = int.Parse(match.Groups[2].Value);
+                for (int i = 0; i < count; i++)
+                {
+                    meta.GenericParams.Add(new TypeMeta { Name = count == 1 ? "T" : $"T{i + 1}" });
+                }
+                meta.FullName = ParseGenericFullName(name);
+            }
+        }
+        return meta;
+    }
+
+    public static string MapToCSharpType(IOpenApiSchema? schema)
+    {
+        if (schema == null) return "object";
+        if (schema is OpenApiSchemaReference reference)
+        {
+            return reference.Reference.Id ?? "object";
+        }
+        var removeNullType = schema.Type.GetValueOrDefault();
+        if (removeNullType.HasFlag(JsonSchemaType.Null))
+        {
+            removeNullType &= ~JsonSchemaType.Null;
+        }
+        switch (removeNullType)
+        {
+            case JsonSchemaType.Boolean:
+                return "bool";
+            case JsonSchemaType.Integer:
+                return "int";
+            case JsonSchemaType.Number:
+                return "double";
+            case JsonSchemaType.String:
+                return schema.Format switch
+                {
+                    "binary" => "IFile",
+                    "date-time" => "DateTimeOffset",
+                    _ => "string",
+                };
+            case JsonSchemaType.Array:
+                var itemType = MapToCSharpType(schema.Items);
+                return $"List<{FormatSchemaKey(itemType)}>";
+            case JsonSchemaType.Object:
+                if (schema.AdditionalProperties != null)
+                {
+                    var valType = MapToCSharpType(schema.AdditionalProperties);
+                    return $"Dictionary<string,{FormatSchemaKey(valType)}>";
+                }
+                return "object";
+            default:
+                return "object";
+        }
+    }
+
+    /// <summary>
+    /// 提取 schema 的根引用类型(用于请求/响应模型快速关联).
+    /// 优先次序: 自身引用 -> 数组元素引用 -> oneOf 首引用
+    /// </summary>
+    public static string? GetRootRef(IOpenApiSchema? schema)
+    {
+        if (schema == null) return null;
+        if (schema is OpenApiSchemaReference r && r.Reference.Id is not null) return r.Reference.Id;
+        if (schema.Items is OpenApiSchemaReference ar && ar.Reference.Id is not null) return ar.Reference.Id;
+        if (schema.OneOf?.FirstOrDefault() is OpenApiSchemaReference one && one.Reference.Id is not null) return one.Reference.Id;
+        return null;
     }
 }

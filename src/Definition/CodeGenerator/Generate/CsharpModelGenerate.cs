@@ -1,3 +1,4 @@
+using CodeGenerator.Helper;
 namespace CodeGenerator.Generate;
 
 /// <summary>
@@ -25,23 +26,15 @@ public class CsharpModelGenerate : GenerateBase
                     .Value.Responses?.FirstOrDefault()
                     .Value?.Content?.FirstOrDefault()
                     .Value?.Schema;
-                (string? RequestType, string? requestRefType) = OpenApiHelper.ParseParamAsCSharp(
-                    requestSchema
-                );
-                (string? ResponseType, string? responseRefType) = OpenApiHelper.ParseParamAsCSharp(
-                    responseSchema
-                );
-
-                // 存储对应的Tag
-                // 请求dto
-                if (requestRefType != null && !string.IsNullOrEmpty(requestRefType))
+                var requestRefType = OpenApiHelper.GetRootRef(requestSchema);
+                var responseRefType = OpenApiHelper.GetRootRef(responseSchema);
+                if (!string.IsNullOrWhiteSpace(requestRefType))
                 {
-                    _ = ModelDictionary.TryAdd(requestRefType, tag);
+                    _ = ModelDictionary.TryAdd(requestRefType!, tag);
                 }
-                // 返回dto
-                if (responseRefType != null && !string.IsNullOrEmpty(responseRefType))
+                if (!string.IsNullOrWhiteSpace(responseRefType))
                 {
-                    _ = ModelDictionary.TryAdd(responseRefType, tag);
+                    _ = ModelDictionary.TryAdd(responseRefType!, tag);
                 }
 
                 Dictionary<string, string?>? relationModels = GetRelationModels(requestSchema, tag);
@@ -207,7 +200,7 @@ public class CsharpModelGenerate : GenerateBase
                     /// </summary>
                     """ + Environment.NewLine;
         }
-        var props = OpenApiHelper.ParseProperties(schema, false);
+        var props = OpenApiHelper.ParseProperties(schema);
         bool preferenceNull = name.EndsWith("FilterDto") || name.EndsWith("UpdateDto");
         foreach (var p in props)
         {
