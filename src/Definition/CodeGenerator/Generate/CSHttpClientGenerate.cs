@@ -1,5 +1,4 @@
 using System.Data;
-using CodeGenerator.Helper;
 
 namespace CodeGenerator.Generate;
 
@@ -66,19 +65,19 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     /// 项目文件
     /// </summary>
     /// <returns></returns>
-    public static string GetCsprojContent()
+    public static string GetCsprojContent(string dotnetVersion)
     {
-        string content = """
+        string content = $"""
             <Project Sdk="Microsoft.NET.Sdk">
               <PropertyGroup>
-                <TargetFramework>net8.0</TargetFramework>
+                <TargetFramework>{dotnetVersion}</TargetFramework>
                 <ImplicitUsings>enable</ImplicitUsings>
                 <Nullable>enable</Nullable>
               </PropertyGroup>
               <ItemGroup>
-                <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
-                <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.0" />
-                <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+                <PackageReference Include="Microsoft.Extensions.Http"/>
+                <PackageReference Include="Microsoft.Extensions.Http.Polly"/>
+                <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
               </ItemGroup>
             </Project>
             """;
@@ -308,7 +307,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                 {
                     Description = operation.Value.Summary,
                     Method = operation.Key.ToString(),
-                    Name = operation.Value.OperationId ?? operation.Key.ToString() + path.Key,
+                    Name = operation.Value.OperationId ?? (operation.Key.ToString() + path.Key),
                     Path = path.Key,
                     Tag = operation.Value.Tags?.FirstOrDefault()?.Name,
                 };

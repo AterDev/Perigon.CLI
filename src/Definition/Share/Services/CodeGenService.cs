@@ -1,9 +1,8 @@
+using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
-using CodeGenerator.Models;
 using Entity;
 using Microsoft.OpenApi;
-using System.Collections.ObjectModel;
 
 namespace Share.Services;
 
@@ -474,7 +473,7 @@ public class CodeGenService(
             s.IsCover = true;
         });
         // csproj
-        var csprojContent = CSHttpClientGenerate.GetCsprojContent();
+        var csprojContent = CSHttpClientGenerate.GetCsprojContent(ConstVal.NetVersion);
         files.Add(
             new GenFileInfo(projectName, csprojContent)
             {
