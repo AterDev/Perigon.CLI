@@ -221,7 +221,7 @@ public class ApiDocInfoManager(
             default:
                 break;
         }
-        _codeGenService.GenerateFiles(files);
+        _codeGenService.GenerateFiles(files, false);
         return files;
     }
 }

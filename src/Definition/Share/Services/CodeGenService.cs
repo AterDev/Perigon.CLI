@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
+using CodeGenerator.Generate.ClientRequest;
 using Entity;
 using Microsoft.OpenApi;
 
@@ -255,7 +256,7 @@ public class CodeGenService(
             }
         }
         // base service
-        string content = RequestGenerate.GetBaseService(type);
+        string content = RequestClientHelper.GetBaseService(type);
         string dir = Path.Combine(outputPath, "services", docName);
         Directory.CreateDirectory(dir);
         files.Add(
@@ -296,7 +297,7 @@ public class CodeGenService(
                         }
                     }
                 }
-                string pipeContent = RequestGenerate.GetEnumPipeContent(schemas, isNgModule);
+                string pipeContent = RequestClientHelper.GetEnumPipeContent(schemas, isNgModule);
 
                 files.Add(
                     new GenFileInfo("enum-text.pipe.ts", pipeContent)
@@ -321,10 +322,17 @@ public class CodeGenService(
             OutputHelper.Error($"⚠️ Delete old files failed: {ex.Message}");
         }
 
-        // request services
-        var ngGen = new RequestGenerate(apiDocument!) { LibType = type };
-        // 获取对应的ts模型类，生成文件
-        var tsModels = ngGen.GetTSInterfaces();
+        // request services (使用拆分后的客户端生成器)
+        ClientRequestBase client = type switch
+        {
+            RequestClientType.NgHttp => new AngularClient(apiDocument!),
+            RequestClientType.Axios => new AxiosClient(apiDocument!),
+            _ => new AngularClient(apiDocument!) // 默认
+        };
+        // 解析 Schemas (仅元信息)
+        client.ParseSchemas();
+        // 生成 TS 模型文件
+        var tsModels = client.GenerateModelFiles();
         tsModels.ForEach(m =>
         {
             dir = Path.Combine(outputPath, "services", docName, m.FullName);
@@ -335,7 +343,8 @@ public class CodeGenService(
         // 获取请求服务并生成文件
         if (apiDocument.Tags != null)
         {
-            var services = ngGen.GetServices(apiDocument.Tags, docName);
+            // 生成服务文件 (新方法 GenerateServices)
+            var services = client.GenerateServices(apiDocument.Tags, docName);
             services.ForEach(s =>
             {
                 dir = Path.Combine(outputPath, "services", docName, s.FullName);
@@ -369,8 +378,9 @@ public class CodeGenService(
     /// <summary>
     /// 生成文件
     /// </summary>
-    /// <param name="files"></param>
-    public void GenerateFiles(List<GenFileInfo>? files)
+    /// <param name="files">待生成的文件列表</param>
+    /// <param name="output">是否写入到磁盘</param>
+    public void GenerateFiles(List<GenFileInfo>? files, bool output = true)
     {
         if (files == null || files.Count == 0)
         {
@@ -416,7 +426,10 @@ public class CodeGenService(
                 sb.AppendLine(file.FullName);
             }
         }
-        _logger.LogInformation("🆕[files]: {path}", sb.ToString());
+        if (output)
+        {
+            _logger.LogInformation("🆕[files]: {path}", sb.ToString());
+        }
     }
 
     /// <summary>

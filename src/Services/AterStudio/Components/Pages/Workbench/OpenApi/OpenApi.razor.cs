@@ -40,6 +40,7 @@ public partial class OpenApi
 
     protected override async Task OnInitializedAsync()
     {
+        CheckProject();
         await GetApiDocsAsync();
         if (Docs != null && Docs.Count > 0)
         {

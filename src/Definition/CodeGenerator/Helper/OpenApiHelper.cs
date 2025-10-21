@@ -6,6 +6,138 @@ namespace CodeGenerator.Helper;
 
 public class OpenApiHelper
 {
+    /// <summary>
+    /// 提取类型名及所有泛型参数类型名（原始 C# 类型全名），如 PageList`1[[A.B.C, ...]] -> PageList`1, A.B.C
+    /// </summary>
+    public static IEnumerable<string> ExtractAllTypeNames(string type)
+    {
+        if (string.IsNullOrWhiteSpace(type)) yield break;
+        int genericTick = type.IndexOf('`');
+        if (genericTick > 0)
+        {
+            yield return type.Split('[')[0];
+            int start = type.IndexOf("[[");
+            int end = type.LastIndexOf("]]");
+            if (start > 0 && end > start)
+            {
+                var inner = type.Substring(start + 2, end - start - 2);
+                var args = inner.Split(new[] { "],[" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var arg in args)
+                {
+                    var argType = arg.Split(',')[0].Trim();
+                    foreach (var sub in ExtractAllTypeNames(argType))
+                        yield return sub;
+                }
+            }
+            yield break;
+        }
+        yield return type.Trim();
+    }
+    public static TypeMeta ParseSchemaToTypeMeta(string schemaKey, IOpenApiSchema schema)
+    {
+        var meta = new TypeMeta
+        {
+            Name = FormatSchemaKey(schemaKey),
+            FullName = schemaKey,
+            Comment = schema.Description ?? schema.AllOf?.LastOrDefault()?.Description,
+        };
+
+        var enumExt = schema.Extensions?.FirstOrDefault(e => e.Key == "x-enumData").Value;
+        if ((schema.Enum?.Count ?? 0) > 0 || enumExt is not null)
+        {
+            meta.IsEnum = true;
+            meta.PropertyInfos = GetEnumProperties(schema);
+            return meta;
+        }
+
+        var rootRef = GetRootRef(schema);
+        if (!string.IsNullOrWhiteSpace(rootRef))
+        {
+            meta.IsReference = true;
+            meta.ReferenceName = rootRef;
+        }
+
+        if (schema.Type == JsonSchemaType.Array)
+        {
+            meta.IsList = true;
+        }
+
+        if (schema.AdditionalProperties is not null)
+        {
+            var valType = MapToCSharpType(schema.AdditionalProperties);
+            meta.FullName = $"Dictionary<string,{FormatSchemaKey(valType)}>";
+            if (schema.AdditionalProperties is OpenApiSchemaReference valRef && valRef.Reference.Id is not null)
+            {
+                meta.IsReference = true;
+                meta.ReferenceName = valRef.Reference.Id;
+            }
+        }
+
+        if (schema.Properties?.Count > 0)
+        {
+            meta.PropertyInfos = ParseProperties(schema);
+            if (schema.Required?.Count > 0)
+            {
+                foreach (var r in schema.Required)
+                {
+                    var p = meta.PropertyInfos.FirstOrDefault(p => p.Name == r);
+                    if (p is not null) p.IsRequired = true;
+                }
+            }
+        }
+
+        if (schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null))
+        {
+            meta.IsNullable = true;
+        }
+
+        if (schemaKey.Contains('`'))
+        {
+            var match = Regex.Match(schemaKey, @"([^\.]+)`(\d+)");
+            if (match.Success)
+            {
+                int count = int.Parse(match.Groups[2].Value);
+                for (int i = 0; i < count; i++)
+                {
+                    meta.GenericParams.Add(new TypeMeta { Name = count == 1 ? "T" : $"T{i + 1}" });
+                }
+                meta.FullName = ParseGenericFullName(schemaKey);
+            }
+        }
+        return meta;
+    }
+
+    public static List<PropertyInfo> GetEnumProperties(IOpenApiSchema schema)
+    {
+        var result = new List<PropertyInfo>();
+        var extEnumData = schema.Extensions?.FirstOrDefault(e => e.Key == "x-enumData");
+        if (extEnumData.HasValue)
+        {
+            var data = extEnumData.Value.Value as JsonNodeExtension;
+            if (data?.Node is JsonArray array)
+            {
+                foreach (var item in array)
+                {
+                    if (item is not JsonObject obj) continue;
+                    var name = obj["name"]?.GetValue<string>() ?? string.Empty;
+                    var value = obj["value"]?.GetValue<int>() ?? 0;
+                    var desc = obj["description"]?.GetValue<string>();
+                    result.Add(new PropertyInfo
+                    {
+                        Name = name,
+                        Type = "Enum(int)",
+                        IsNullable = false,
+                        CommentSummary = desc,
+                        DefaultValue = value.ToString(),
+                        IsEnum = true,
+                        IsList = false,
+                    });
+                }
+            }
+        }
+        return result;
+    }
+
     public static List<PropertyInfo> ParseProperties(IOpenApiSchema schema)
     {
         var properties = new List<PropertyInfo>();
@@ -63,42 +195,10 @@ public class OpenApiHelper
         return properties;
     }
 
-    public static List<PropertyInfo> GetEnumProperties(IOpenApiSchema schema)
-    {
-        var result = new List<PropertyInfo>();
-        var extEnumData = schema.Extensions?.FirstOrDefault(e => e.Key == "x-enumData");
-        if (extEnumData.HasValue)
-        {
-            var data = extEnumData.Value.Value as JsonNodeExtension;
-            if (data?.Node is JsonArray array)
-            {
-                foreach (var item in array)
-                {
-                    if (item is not JsonObject obj) continue;
-                    var name = obj["name"]?.GetValue<string>() ?? string.Empty;
-                    var value = obj["value"]?.GetValue<int>() ?? 0;
-                    var desc = obj["description"]?.GetValue<string>();
-                    result.Add(new PropertyInfo
-                    {
-                        Name = name,
-                        Type = "Enum(int)",
-                        IsNullable = false,
-                        CommentSummary = desc,
-                        DefaultValue = value.ToString(),
-                        IsEnum = true,
-                        IsList = false,
-                    });
-                }
-            }
-        }
-        return result;
-    }
-
     public static string FormatSchemaKey(string? schemaKey)
     {
         if (schemaKey == null) return string.Empty;
         string type = schemaKey;
-        if (type.Trim().StartsWith("Map<")) return type;
         int backtickIndex = type.IndexOf('`');
         if (backtickIndex > 0) type = type[..backtickIndex];
         int lastDotIndex = type.LastIndexOf('.');
@@ -117,83 +217,6 @@ public class OpenApiHelper
             ? new[] { "T" }
             : Enumerable.Range(1, genericCount).Select(i => $"T{i}").ToArray();
         return $"{typeName}<{string.Join(",", genericParams)}>";
-    }
-
-    public static TypeMeta ParseSchemaToTypeMeta(string name, IOpenApiSchema schema)
-    {
-        var meta = new TypeMeta
-        {
-            Name = FormatSchemaKey(name),
-            FullName = name,
-            Comment = schema.Description ?? schema.AllOf?.LastOrDefault()?.Description,
-        };
-
-        var enumExt = schema.Extensions?.FirstOrDefault(e => e.Key == "x-enumData").Value;
-        if ((schema.Enum?.Count ?? 0) > 0 || enumExt is not null)
-        {
-            meta.IsEnum = true;
-            meta.PropertyInfos = GetEnumProperties(schema);
-            return meta;
-        }
-
-        // 统一根引用提取（自身引用 / 数组元素引用 / oneOf 首引用）
-        var rootRef = GetRootRef(schema);
-        if (!string.IsNullOrWhiteSpace(rootRef))
-        {
-            meta.IsReference = true;
-            meta.ReferenceName = rootRef;
-        }
-
-        if (schema.Type == JsonSchemaType.Array)
-        {
-            meta.IsList = true;
-        }
-
-        if (schema.AdditionalProperties is not null)
-        {
-            var valType = MapToCSharpType(schema.AdditionalProperties);
-            meta.FullName = $"Dictionary<string,{FormatSchemaKey(valType)}>";
-            if (schema.AdditionalProperties is OpenApiSchemaReference valRef && valRef.Reference.Id is not null)
-            {
-                meta.IsReference = true;
-                meta.ReferenceName = valRef.Reference.Id;
-            }
-        }
-
-        if (schema.Properties?.Count > 0)
-        {
-            meta.PropertyInfos = ParseProperties(schema);
-            if (schema.Required?.Count > 0)
-            {
-                foreach (var r in schema.Required)
-                {
-                    var p = meta.PropertyInfos.FirstOrDefault(p => p.Name == r);
-                    if (p is not null) p.IsRequired = true;
-                }
-            }
-        }
-
-        if (schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null))
-        {
-            meta.IsNullable = true;
-        }
-
-        // 已通过 GetRootRef 处理自身引用，无需重复
-
-        if (name.Contains('`'))
-        {
-            var match = Regex.Match(name, @"([^\.]+)`(\d+)");
-            if (match.Success)
-            {
-                int count = int.Parse(match.Groups[2].Value);
-                for (int i = 0; i < count; i++)
-                {
-                    meta.GenericParams.Add(new TypeMeta { Name = count == 1 ? "T" : $"T{i + 1}" });
-                }
-                meta.FullName = ParseGenericFullName(name);
-            }
-        }
-        return meta;
     }
 
     public static string MapToCSharpType(IOpenApiSchema? schema)

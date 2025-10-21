@@ -49,6 +49,10 @@ public class FunctionParams
 {
     public string? Name { get; set; }
     public string? Type { get; set; }
+    /// <summary>
+    /// 参数的根引用类型（如果是引用 schema），用于后续导入时精准判断。
+    /// </summary>
+    public string? RefType { get; set; }
     public string? Description { get; set; }
     public bool IsRequired { get; set; } = true;
     /// <summary>
