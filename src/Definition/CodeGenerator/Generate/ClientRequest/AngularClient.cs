@@ -56,7 +56,7 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
             var refTypes = GetRefTyeps(functions).GroupBy(t => t).Select(g => g.First()).ToList();
             refTypes.ForEach(t => importModels += InsertImportModel(t));
         }
-        var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
+        var cw = new Helper.TsCodeWriter();
         cw.AppendLine("import { Injectable } from '@angular/core';")
             .AppendLine("import { BaseService } from './base.service';")
             .AppendLine("import { Observable } from 'rxjs';");
@@ -94,7 +94,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
 
     private string ToNgClient(string docName, List<string> serviceNames)
     {
-        var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
+        var cw = new Helper.TsCodeWriter();
         cw.AppendLine("import { inject, Injectable } from '@angular/core';");
         foreach (var s in serviceNames)
         {
@@ -126,7 +126,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             method = "downloadFile";
             generics = "";
         }
-        var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
+        var cw = new Helper.TsCodeWriter();
         // 对齐注释块：在方法起始缩进级别输出注释
         if (!string.IsNullOrWhiteSpace(result.Comments))
         {

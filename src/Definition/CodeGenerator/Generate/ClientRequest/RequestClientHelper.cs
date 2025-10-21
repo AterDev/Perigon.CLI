@@ -43,36 +43,11 @@ public static class RequestClientHelper
         return genContext.GenCode(tplContent, model);
     }
 
-    public static string GetEnumFunctionContent(IDictionary<string, IOpenApiSchema> schemas)
-    {
-        var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
-        cw.AppendLine("export default function enumToString(value: number, type: string): string {").Indent();
-        cw.AppendLine("let result = \"\";");
-        cw.AppendLine("switch (type) {").Indent();
-        foreach (var item in schemas)
-        {
-            if (item.Value.Enum?.Count > 0)
-            {
-                foreach (var line in ToEnumSwitchString(item.Key, item.Value).Split('\n'))
-                {
-                    if (!string.IsNullOrWhiteSpace(line)) cw.AppendLine(line);
-                }
-            }
-        }
-        cw.AppendLine("default:").Indent();
-        cw.AppendLine("break;");
-        cw.Unindent(); // default block end
-        cw.Unindent().AppendLine("}"); // switch end
-        cw.AppendLine("return result;");
-        cw.Unindent().AppendLine("}");
-        return cw.ToString();
-    }
-
     public static string ToEnumSwitchString(string enumType, IOpenApiSchema schema)
     {
         var enumProps = OpenApiHelper.GetEnumProperties(schema);
         if (enumProps == null || enumProps.Count == 0) return string.Empty;
-                var sb = new System.Text.StringBuilder();
+                var sb = new StringBuilder();
                 foreach (var prop in enumProps)
                 {
                         sb.AppendLine($"case {prop.DefaultValue}: result = '{prop.CommentSummary}'; break;");

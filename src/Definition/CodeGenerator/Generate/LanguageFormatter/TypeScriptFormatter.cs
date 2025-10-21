@@ -68,7 +68,7 @@ public class TypeScriptFormatter : LanguageFormatter
 
     private string GenerateEnum(TypeMeta meta)
     {
-        var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
+        var cw = new Helper.TsCodeWriter();
         if (!string.IsNullOrWhiteSpace(meta.Comment))
         {
             cw.AppendLine("/**")
@@ -147,11 +147,17 @@ public class TypeScriptFormatter : LanguageFormatter
             }
         }
 
-        var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
-        // imports
-        foreach (var (Ref, IsEnum) in importRefs)
+        var cw = new Helper.TsCodeWriter();
+        // imports - 排除自身引用 (如属性 children: SystemOrganization[] 不应 import 自己)
+        var selfName = FormatSchemaKey(meta.Name);
+        var distinctImports = importRefs
+            .Where(r => !string.Equals(FormatSchemaKey(r.Ref), selfName, StringComparison.Ordinal))
+            .Distinct()
+            .ToList();
+        foreach (var (Ref, IsEnum) in distinctImports)
         {
             var refType = FormatSchemaKey(Ref);
+            if (string.Equals(refType, selfName, StringComparison.Ordinal)) continue; // 双重保险
             string dirName = string.Empty;
             string relatePath = "./";
             if (IsEnum)
@@ -161,7 +167,7 @@ public class TypeScriptFormatter : LanguageFormatter
             }
             cw.AppendLine($"import {{ {refType} }} from '{relatePath}{dirName}{refType.ToHyphen()}.model';");
         }
-        if (importRefs.Count > 0) cw.AppendLine();
+        if (distinctImports.Count > 0) cw.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(meta.Comment))
         {

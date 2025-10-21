@@ -77,7 +77,6 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
                 enumCount++;
             }
         }
-        Console.WriteLine($"[GenerateModelFiles] Files: {TsModelFiles.Count}, Enum: {enumCount}");
         return TsModelFiles;
     }
 
@@ -153,7 +152,7 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
     /// </summary>
     protected static string GetTsType(IOpenApiSchema? schema)
     {
-        if (schema == null) return "any";
+        if (schema == null) return string.Empty;
         bool isEnum = (schema.Enum?.Count ?? 0) > 0 || schema.Extensions?.ContainsKey("x-enumData") == true;
         bool isList = schema.Type == JsonSchemaType.Array;
         bool isNullable = schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null);
@@ -274,7 +273,7 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
             }
 
             dataString = ", data";
-            paramsComments += $"   * @param data {requestType}\n";
+            paramsComments += $" * @param data {requestType}\n";
         }
         if (addExtOptions)
         {

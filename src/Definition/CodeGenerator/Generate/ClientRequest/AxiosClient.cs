@@ -54,14 +54,14 @@ public class AxiosClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
 
     private string ToAxiosFunction(RequestServiceFunction function)
     {
-                var result = BuildFunctionCommon(function, true);
-                string responseType = string.IsNullOrWhiteSpace(result.ResponseType) ? "any" : OpenApiHelper.FormatSchemaKey(result.ResponseType);
-                var cw = new CodeGenerator.Generate.Helper.TsCodeWriter();
-                foreach (var line in result.Comments.Split('\n')) cw.AppendLine(line);
-                cw.AppendLine($"{result.Name}({result.ParamsString}): Promise<{responseType}> {{").Indent();
-                cw.AppendLine($"const _url = `{result.Path}`;");
-                cw.AppendLine($"return this.request<{responseType}>('{function.Method.ToLower()}', _url{result.DataString});");
-                cw.Unindent().AppendLine("}");
-                return cw.ToString().TrimEnd();
+        var result = BuildFunctionCommon(function, true);
+        string responseType = string.IsNullOrWhiteSpace(result.ResponseType) ? "any" : OpenApiHelper.FormatSchemaKey(result.ResponseType);
+        var cw = new Helper.TsCodeWriter();
+        foreach (var line in result.Comments.Split('\n')) cw.AppendLine(line);
+        cw.AppendLine($"{result.Name}({result.ParamsString}): Promise<{responseType}> {{").Indent();
+        cw.AppendLine($"const _url = `{result.Path}`;");
+        cw.AppendLine($"return this.request<{responseType}>('{function.Method.ToLower()}', _url{result.DataString});");
+        cw.Unindent().AppendLine("}");
+        return cw.ToString().TrimEnd();
     }
 }
