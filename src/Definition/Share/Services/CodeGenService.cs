@@ -322,20 +322,18 @@ public class CodeGenService(
             OutputHelper.Error($"⚠️ Delete old files failed: {ex.Message}");
         }
 
-        // request services (使用拆分后的客户端生成器)
         ClientRequestBase client = type switch
         {
             RequestClientType.NgHttp => new AngularClient(apiDocument!),
             RequestClientType.Axios => new AxiosClient(apiDocument!),
             _ => new AngularClient(apiDocument!) // 默认
         };
-        // 解析 Schemas (仅元信息)
         client.ParseSchemas();
         // 生成 TS 模型文件
         var tsModels = client.GenerateModelFiles();
         tsModels.ForEach(m =>
         {
-            dir = Path.Combine(outputPath, "services", docName, m.FullName);
+            dir = Path.Combine(outputPath, "services", docName, m.DirName);
             m.FullName = Path.Combine(dir, m.Name);
             m.IsCover = true;
         });
@@ -343,11 +341,10 @@ public class CodeGenService(
         // 获取请求服务并生成文件
         if (apiDocument.Tags != null)
         {
-            // 生成服务文件 (新方法 GenerateServices)
             var services = client.GenerateServices(apiDocument.Tags, docName);
             services.ForEach(s =>
             {
-                dir = Path.Combine(outputPath, "services", docName, s.FullName);
+                dir = Path.Combine(outputPath, "services", docName, s.DirName);
                 s.FullName = Path.Combine(dir, s.Name);
             });
             files.AddRange(services);

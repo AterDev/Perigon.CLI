@@ -9,7 +9,19 @@ public class GenFileInfo(string name, string content)
     /// 文件名
     /// </summary>
     public string Name { get; set; } = name;
+
+    public string DirName { get; init; } = string.Empty;
+
     public string Content { get; set; } = content;
+
+    /// <summary>
+    /// 模块名称
+    /// </summary>
+    public string? ModuleName { get; set; }
+    /// <summary>
+    /// 模型名称
+    /// </summary>
+    public string? ModelName { get; set; }
 
     /// <summary>
     /// 是否覆盖
@@ -23,16 +35,8 @@ public class GenFileInfo(string name, string content)
     /// </summary>
     public string FullName { get; set; } = string.Empty;
 
-    public string DirName { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 模块名称
-    /// </summary>
-    public string? ModuleName { get; set; }
-    /// <summary>
-    /// 模型名称
-    /// </summary>
-    public string? ModelName { get; set; }
+
 }
 
 public enum GenFileType

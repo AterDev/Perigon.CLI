@@ -41,8 +41,8 @@ public class AxiosClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         if (functions != null)
         {
             functionString = string.Join(Environment.NewLine, functions.Select(ToAxiosFunction).ToArray());
-            List<string> refTypes = GetRefTyeps(functions);
-            refTypes.ForEach(t => importModels += InsertImportModel(t));
+            var refMetas = GetRefTypes(functions);
+            refMetas.ForEach(m => importModels += InsertImportModel(m));
         }
         // 保持模板与统一缩进: 函数字符串已经由 TsCodeWriter 缩进，直接插入
         tplContent = tplContent
@@ -56,7 +56,7 @@ public class AxiosClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
     {
         var result = BuildFunctionCommon(function, true);
         string responseType = string.IsNullOrWhiteSpace(result.ResponseType) ? "any" : OpenApiHelper.FormatSchemaKey(result.ResponseType);
-        var cw = new Helper.TsCodeWriter();
+        var cw = new Helper.CodeWriter();
         foreach (var line in result.Comments.Split('\n')) cw.AppendLine(line);
         cw.AppendLine($"{result.Name}({result.ParamsString}): Promise<{responseType}> {{").Indent();
         cw.AppendLine($"const _url = `{result.Path}`;");

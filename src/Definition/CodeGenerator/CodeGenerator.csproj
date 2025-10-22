@@ -26,4 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Generate\Helper\" />
+  </ItemGroup>
 </Project>

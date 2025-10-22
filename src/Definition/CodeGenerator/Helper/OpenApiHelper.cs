@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using CodeGenerator.Models;
 
 namespace CodeGenerator.Helper;
 
@@ -38,6 +37,7 @@ public class OpenApiHelper
         var meta = new TypeMeta
         {
             Name = FormatSchemaKey(schemaKey),
+            Namespace = GetNamespace(schemaKey),
             FullName = schemaKey,
             Comment = schema.Description ?? schema.AllOf?.LastOrDefault()?.Description,
         };
@@ -81,7 +81,7 @@ public class OpenApiHelper
                 foreach (var r in schema.Required)
                 {
                     var p = meta.PropertyInfos.FirstOrDefault(p => p.Name == r);
-                    if (p is not null) p.IsRequired = true;
+                    p?.IsRequired = true;
                 }
             }
         }
@@ -93,13 +93,21 @@ public class OpenApiHelper
 
         if (schemaKey.Contains('`'))
         {
-            var match = Regex.Match(schemaKey, @"([^\.]+)`(\d+)");
-            if (match.Success)
+            int start = schemaKey.IndexOf("[[");
+            int end = schemaKey.LastIndexOf("]]");
+            if (start > 0 && end > start)
             {
-                int count = int.Parse(match.Groups[2].Value);
-                for (int i = 0; i < count; i++)
+                var inner = schemaKey.Substring(start + 2, end - start - 2);
+                var args = inner.Split(new[] { "],[" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var arg in args)
                 {
-                    meta.GenericParams.Add(new TypeMeta { Name = count == 1 ? "T" : $"T{i + 1}" });
+                    var argType = arg.Split(',')[0].Trim();
+                    meta.GenericParams.Add(new TypeMeta
+                    {
+                        Name = FormatSchemaKey(argType),
+                        Namespace = GetNamespace(argType),
+                        FullName = argType
+                    });
                 }
                 meta.FullName = ParseGenericFullName(schemaKey);
             }
@@ -195,6 +203,13 @@ public class OpenApiHelper
         return properties;
     }
 
+
+    /// <summary>
+    /// fullname to model Name
+    /// remove generic and namespace
+    /// </summary>
+    /// <param name="schemaKey"></param>
+    /// <returns></returns>
     public static string FormatSchemaKey(string? schemaKey)
     {
         if (schemaKey == null) return string.Empty;
@@ -204,6 +219,28 @@ public class OpenApiHelper
         int lastDotIndex = type.LastIndexOf('.');
         if (lastDotIndex >= 0) type = type[(lastDotIndex + 1)..];
         return type;
+    }
+
+    public static string GetNamespace(string fullName)
+    {
+        if (string.IsNullOrEmpty(fullName)) return string.Empty;
+        int genericTick = fullName.IndexOf('`');
+        if (genericTick > 0)
+        {
+            fullName = fullName[..genericTick];
+        }
+        int lastDotIndex = fullName.LastIndexOf('.');
+        if (lastDotIndex > 0)
+        {
+            return fullName[..lastDotIndex];
+        }
+        return string.Empty;
+    }
+    
+    public static string GetNamespaceFirstPart(string ns)
+    {
+        var res = ns.Split('.', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        return res ?? ns;
     }
 
     public static string ParseGenericFullName(string fullName)

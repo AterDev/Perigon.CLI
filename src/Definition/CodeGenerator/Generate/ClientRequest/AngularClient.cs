@@ -5,6 +5,9 @@ namespace CodeGenerator.Generate.ClientRequest;
 /// </summary>
 public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
 {
+    // the rquest service file path
+    private readonly string servicePath = "services";
+
     protected override List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string docName, List<RequestServiceFunction> functions)
     {
         List<GenFileInfo> files = [];
@@ -12,22 +15,35 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         foreach (var group in funcGroups)
         {
             var tagFunctions = group.ToList();
-            OpenApiTag? currentTag = tags.FirstOrDefault(t => t.Name == group.Key) ?? new OpenApiTag { Name = group.Key, Description = group.Key };
+            var currentTag = tags.FirstOrDefault(t => t.Name == group.Key)
+                ?? new OpenApiTag
+                {
+                    Name = group.Key ?? "",
+                    Description = group.Key
+                };
             RequestServiceFile serviceFile = new()
             {
                 Description = currentTag.Description,
                 Name = currentTag.Name!,
                 Functions = tagFunctions,
             };
+
             string content = ToNgRequestBaseService(serviceFile);
-            string path = string.Empty;
 
             string baseFileName = currentTag.Name?.ToHyphen() + "-base.service.ts";
-            GenFileInfo baseFile = new(baseFileName, content) { FullName = path, IsCover = true };
+            GenFileInfo baseFile = new(baseFileName, content)
+            {
+                DirName = servicePath,
+                IsCover = true
+            };
             files.Add(baseFile);
             string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
             var implContent = ToNgRequestService(serviceFile);
-            GenFileInfo implFile = new(fileName, implContent) { FullName = path, IsCover = false };
+            GenFileInfo implFile = new(fileName, implContent)
+            {
+                DirName = servicePath,
+                IsCover = false
+            };
             files.Add(implFile);
         }
         var serviceKeys = functions.Where(f => !string.IsNullOrWhiteSpace(f.Tag)).Select(f => f.Tag!).Distinct().ToList();
@@ -36,7 +52,7 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         {
             var clientFile = new GenFileInfo($"{docName}-client.ts", clientContent)
             {
-                FullName = string.Empty,
+                DirName = string.Empty,
                 IsCover = true,
                 FileType = GenFileType.Global,
             };
@@ -53,12 +69,13 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         if (functions != null)
         {
             functionstr = string.Join(Environment.NewLine, functions.Select(ToNgRequestFunction).ToArray());
-            var refTypes = GetRefTyeps(functions).GroupBy(t => t).Select(g => g.First()).ToList();
-            refTypes.ForEach(t => importModels += InsertImportModel(t));
+            var refMetas = GetRefTypes(functions).GroupBy(m => m.Name)
+                .Select(g => g.First())
+                .ToList();
+            refMetas.ForEach(m => importModels += InsertImportModel(m));
         }
-        var cw = new Helper.TsCodeWriter();
-        cw.AppendLine("import { Injectable } from '@angular/core';")
-            .AppendLine("import { BaseService } from './base.service';")
+        var cw = new Helper.CodeWriter();
+        cw.AppendLine("import { BaseService } from '../base.service';")
             .AppendLine("import { Observable } from 'rxjs';");
         if (!string.IsNullOrWhiteSpace(importModels)) cw.AppendLine(importModels.TrimEnd());
         cw.AppendLine("/**")
@@ -94,12 +111,12 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
 
     private string ToNgClient(string docName, List<string> serviceNames)
     {
-        var cw = new Helper.TsCodeWriter();
+        var cw = new CodeWriter();
         cw.AppendLine("import { inject, Injectable } from '@angular/core';");
         foreach (var s in serviceNames)
         {
             string className = s + "Service";
-            cw.AppendLine($"import {{ {className} }} from './{s.ToHyphen()}.service';");
+            cw.AppendLine($"import {{ {className} }} from './{servicePath}/{s.ToHyphen()}.service';");
         }
         cw.AppendLine().AppendLine("@Injectable({").Indent();
         cw.AppendLine("providedIn: 'root'");
@@ -126,8 +143,7 @@ export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService
             method = "downloadFile";
             generics = "";
         }
-        var cw = new Helper.TsCodeWriter();
-        // 对齐注释块：在方法起始缩进级别输出注释
+        var cw = new Helper.CodeWriter();
         if (!string.IsNullOrWhiteSpace(result.Comments))
         {
             var commentLines = result.Comments.Split('\n');

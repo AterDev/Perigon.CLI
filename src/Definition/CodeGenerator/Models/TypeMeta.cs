@@ -11,7 +11,7 @@ public class TypeMeta
     public string FullName { get; set; } = string.Empty;
 
     [MaxLength(200)]
-    public string? Namespace { get; set; }
+    public string Namespace { get; set; } = string.Empty;
 
     [MaxLength(500)]
     public string? Comment { get; set; }

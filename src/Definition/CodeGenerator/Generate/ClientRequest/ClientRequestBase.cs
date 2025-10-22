@@ -27,6 +27,8 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
     /// <summary>枚举类型集合 (名称)</summary>
     public List<string> EnumModels { get; } = [];
 
+    protected abstract List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string docName, List<RequestServiceFunction> functions);
+
     /// <summary>
     /// 解析全部 Schemas 并返回元信息集合 (不生成文件)。
     /// </summary>
@@ -35,7 +37,6 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
         SchemaMetas.Clear();
         if (Schemas == null)
         {
-            Console.WriteLine("[ParseSchemas] Schemas is null, nothing to parse.");
             return SchemaMetas;
         }
         int enumCount = 0;
@@ -58,15 +59,15 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
         EnumModels.Clear();
         if (SchemaMetas.Count == 0) ParseSchemas();
         int enumCount = 0;
+        var tags = ApiTags!.Where(t => t.Name != null);
         foreach (var meta in SchemaMetas)
         {
             string content = TsFormatter.GenerateModel(meta);
-            string dir = meta.IsEnum == true ? "enum" : "models";
-            string fileName = OpenApiHelper.FormatSchemaKey(meta.Name).ToHyphen() + ".model.ts";
+            string dir = "models/" + OpenApiHelper.GetNamespaceFirstPart(meta.Namespace).ToHyphen();
+            string fileName = meta.Name.ToHyphen() + $".model.ts";
             var file = new GenFileInfo(fileName, content)
             {
                 DirName = dir,
-                FullName = dir,
                 Content = content,
                 ModelName = meta.Name,
             };
@@ -145,8 +146,6 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
         return InternalBuildServices(tags, docName, RequestFunctions);
     }
 
-    protected abstract List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string docName, List<RequestServiceFunction> functions);
-
     /// <summary>
     /// 使用标准 C# 映射与 TypeScript 格式化器生成前端类型
     /// </summary>
@@ -173,61 +172,69 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
     /// <summary>
     /// 获取要导入的依赖
     /// </summary>
-    protected List<string> GetRefTyeps(List<RequestServiceFunction> functions)
+    protected List<TypeMeta> GetRefTypes(List<RequestServiceFunction> functions)
     {
-        // 使用规范化名称集合 (去命名空间与泛型 arity) 用于匹配导入
-        var normalizedModelNames = new HashSet<string>(SchemaMetas.Select(m => OpenApiHelper.FormatSchemaKey(m.Name)), StringComparer.OrdinalIgnoreCase);
+        // 使用 TypeMeta.FullName 作为唯一键；Name 已是格式化后的短类名，不能再二次格式化作为唯一标识。
+        var metaMap = SchemaMetas
+            .Where(m => !string.IsNullOrWhiteSpace(m.FullName))
+            .GroupBy(m => m.FullName)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
 
-        HashSet<string> importTypes = [];
+        HashSet<string> importFullNames = [];
         foreach (var f in functions)
         {
-            AddTypeAndGenerics(f.RequestRefType);
-            AddTypeAndGenerics(f.ResponseRefType);
+            CollectFullNames(f.RequestRefType);
+            CollectFullNames(f.ResponseRefType);
             if (f.Params != null)
             {
                 foreach (var p in f.Params)
                 {
-                    AddTypeAndGenerics(p.RefType);
+                    CollectFullNames(p.RefType);
                 }
             }
-            // 若响应是泛型 PageList<T> 额外尝试解析实际后端引用类型集合
-            if (!string.IsNullOrWhiteSpace(f.ResponseRefType) && f.ResponseRefType.Contains("`"))
+            // 处理泛型响应类型：提取根类型与所有子类型的 FullName
+            if (!string.IsNullOrWhiteSpace(f.ResponseRefType) && f.ResponseRefType.Contains('`'))
             {
                 var all = OpenApiHelper.ExtractAllTypeNames(f.ResponseRefType).ToList();
-                // 添加根泛型容器本身 (如 PageList`1 -> PageList)
                 var root = all.FirstOrDefault();
-                if (!string.IsNullOrWhiteSpace(root)) AddTypeAndGenerics(root);
-                foreach (var t in all.Skip(1))
-                {
-                    AddTypeAndGenerics(t);
-                }
+                if (!string.IsNullOrWhiteSpace(root)) CollectFullNames(root);
+                foreach (var t in all.Skip(1)) CollectFullNames(t);
             }
         }
-        var formatted = importTypes.Select(TsFormatter.FormatSchemaKey).Distinct().ToList();
-        return formatted;
 
-        void AddTypeAndGenerics(string? type)
+        // 根据 FullName 匹配 TypeMeta
+        List<TypeMeta> metas = [];
+        foreach (var fullName in importFullNames)
         {
-            if (string.IsNullOrWhiteSpace(type)) return;
-            foreach (var raw in OpenApiHelper.ExtractAllTypeNames(type))
+            if (metaMap.TryGetValue(fullName, out var meta)) metas.Add(meta);
+        }
+        // 去重（FullName 唯一）
+        metas = metas.GroupBy(m => m.FullName).Select(g => g.First()).ToList();
+        return metas;
+
+        void CollectFullNames(string? refType)
+        {
+            if (string.IsNullOrWhiteSpace(refType)) return;
+            foreach (var raw in OpenApiHelper.ExtractAllTypeNames(refType))
             {
-                var norm = OpenApiHelper.FormatSchemaKey(raw);
-                if (normalizedModelNames.Contains(norm) && !importTypes.Contains(norm))
+                // raw 应当为 FullName；不再调用格式化名称方法，直接使用。
+                if (!string.IsNullOrWhiteSpace(raw) && metaMap.ContainsKey(raw) && !importFullNames.Contains(raw))
                 {
-                    importTypes.Add(norm);
+                    importFullNames.Add(raw);
                 }
             }
         }
     }
 
-    protected string InsertImportModel(string t)
+    protected string InsertImportModel(TypeMeta typeMeta)
     {
-        var formatType = TsFormatter.FormatSchemaKey(t);
-        if (EnumModels.Contains(t))
+        var dirPath = OpenApiHelper.GetNamespaceFirstPart(typeMeta.Namespace).ToHyphen();
+        string baseName = typeMeta.IsGeneric ? typeMeta.Name.Split('<')[0] : typeMeta.Name;
+        if (EnumModels.Contains(typeMeta.Name))
         {
-            return $"import {{ {formatType} }} from './enum/{formatType.ToHyphen()}.model';{Environment.NewLine}";
+            return $"import {{ {baseName} }} from '../enum/{dirPath}/{baseName.ToHyphen()}.model';{Environment.NewLine}";
         }
-        return $"import {{ {formatType} }} from './models/{formatType.ToHyphen()}.model';{Environment.NewLine}";
+        return $"import {{ {baseName} }} from '../models/{dirPath}/{baseName.ToHyphen()}.model';{Environment.NewLine}";
     }
 
     protected FunctionBuildResult BuildFunctionCommon(RequestServiceFunction function, bool addExtOptions)

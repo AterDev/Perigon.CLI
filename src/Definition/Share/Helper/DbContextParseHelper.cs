@@ -19,7 +19,7 @@ public class DbContextParseHelper : IDisposable
     private readonly XmlDocHelper _xmlHelper;
     private readonly CompilationHelper _compilation;
     private readonly string _entityFrameworkPath;
-    private bool _disposed = false;
+    private bool _disposed;
 
     // nullable to allow releasing references for unloading shadow load context
     public IModel? CurrentModel { get; private set; }

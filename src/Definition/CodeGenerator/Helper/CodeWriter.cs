@@ -1,36 +1,34 @@
-using System.Text;
-
-namespace CodeGenerator.Generate.Helper;
+namespace CodeGenerator.Helper;
 
 /// <summary>
 /// 简单的 TypeScript 代码写入器，统一缩进和换行，避免到处手写空格与 \n。
 /// 默认使用 2 空格缩进。
 /// </summary>
-public class TsCodeWriter
+public class CodeWriter
 {
     private readonly StringBuilder _sb = new();
-    private int _indentLevel = 0;
+    private int _indentLevel;
     private readonly string _indentUnit;
-    private bool _lastWasBlank = false;
+    private bool _lastWasBlank;
 
-    public TsCodeWriter(int indentSpaces = 2)
+    public CodeWriter(int indentSpaces = 2)
     {
         _indentUnit = new string(' ', indentSpaces);
     }
 
-    public TsCodeWriter Indent()
+    public CodeWriter Indent()
     {
         _indentLevel++;
         return this;
     }
 
-    public TsCodeWriter Unindent()
+    public CodeWriter Unindent()
     {
         if (_indentLevel > 0) _indentLevel--;
         return this;
     }
 
-    public TsCodeWriter AppendLine(string line = "")
+    public CodeWriter AppendLine(string line = "")
     {
         if (line.Length > 0)
         {
@@ -49,7 +47,7 @@ public class TsCodeWriter
     /// <summary>
     /// 如果上一行不是空行则添加一个空行，避免连续空行
     /// </summary>
-    public TsCodeWriter AppendBlankIfPreviousNotBlank()
+    public CodeWriter AppendBlankIfPreviousNotBlank()
     {
         if (!_lastWasBlank)
         {
@@ -58,14 +56,14 @@ public class TsCodeWriter
         return this;
     }
 
-    public TsCodeWriter OpenBlock(string header)
+    public CodeWriter OpenBlock(string header)
     {
         AppendLine(header + " {");
         Indent();
         return this;
     }
 
-    public TsCodeWriter CloseBlock()
+    public CodeWriter CloseBlock()
     {
         Unindent();
         AppendLine("}");
@@ -75,7 +73,7 @@ public class TsCodeWriter
     /// <summary>
     /// 追加注释。multiline=true 时按行分割，每行前加 *。
     /// </summary>
-    public TsCodeWriter AppendComment(string summary, bool multiline = false)
+    public CodeWriter AppendComment(string summary, bool multiline = false)
     {
         if (string.IsNullOrWhiteSpace(summary)) return this;
         AppendLine("/**");
@@ -97,9 +95,11 @@ public class TsCodeWriter
     /// <summary>
     /// 批量导入。自动去重与排序。
     /// </summary>
-    public TsCodeWriter AppendImports(IEnumerable<string> imports)
+    public CodeWriter AppendImports(IEnumerable<string> imports)
     {
-        var distinct = imports.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).Distinct().OrderBy(s => s);
+        var distinct = imports.Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s.Trim())
+            .Distinct().OrderBy(s => s);
         foreach (var line in distinct)
         {
             AppendLine(line);

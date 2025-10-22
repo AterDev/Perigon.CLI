@@ -15,7 +15,7 @@ public class DbContextAnalyzer : IDisposable
     private PluginLoadContext? _loadContext;
     private WeakReference? _alcWeakRef;
     private string? _shadowDir;
-    private bool _disposed = false;
+    private bool _disposed;
 
     public DbContextAnalyzer(string entityFrameworkPath)
     {

@@ -68,7 +68,7 @@ public class TypeScriptFormatter : LanguageFormatter
 
     private string GenerateEnum(TypeMeta meta)
     {
-        var cw = new Helper.TsCodeWriter();
+        var cw = new Helper.CodeWriter();
         if (!string.IsNullOrWhiteSpace(meta.Comment))
         {
             cw.AppendLine("/**")
@@ -89,83 +89,50 @@ public class TypeScriptFormatter : LanguageFormatter
         var importRefs = new HashSet<(string Ref, bool IsEnum)>();
         var sbProps = new StringBuilder();
 
-        // 根据属性的类型与泛型占位符进行匹配，不再固定字段名。
-        // 规则：
-        // 1. 仅在 meta.IsGeneric 时尝试替换。
-        // 2. 找出所有引用其他模型(非原始/非枚举)的属性，按出现顺序与 GenericParams 对应。
-        // 3. 若属性是列表，替换为 T[] / T1[]...
-        // 4. 若属性是单值，替换为 T / T1 ...
-        // 5. 被替换的属性不再加入 importRefs。
-        var genericReplacementTargets = new List<(PropertyInfo Prop, string Placeholder)>();
+        // 泛型参数实际类型 -> 占位符 映射
+        var genericMap = new Dictionary<string, string>();
         if (meta.IsGeneric && meta.GenericParams.Count > 0)
         {
-            var gpList = meta.GenericParams.ToList();
-            int gpIndex = 0;
-            foreach (var prop in meta.PropertyInfos)
+            for (int i = 0; i < meta.GenericParams.Count; i++)
             {
-                if (gpIndex >= gpList.Count) break;
-                if (prop.IsEnum) continue; // 枚举不参与泛型替换
-                var baseType = prop.Type.TrimEnd();
-                bool isPrimitive = PrimitiveMap.ContainsKey(baseType) || baseType.Equals("Enum(int)");
-                if (isPrimitive) continue;
-                if (OpenApiHelper.FormatSchemaKey(baseType) == FormatSchemaKey(meta.Name)) continue;
-                // 将该属性映射到对应泛型参数
-                genericReplacementTargets.Add((prop, gpList[gpIndex].Name));
-                gpIndex++;
+                var gp = meta.GenericParams.ElementAt(i);
+                string placeholder = i == 0 ? "T1" : $"T{i + 1}";
+                genericMap[OpenApiHelper.FormatSchemaKey(gp.Name)] = placeholder;
             }
         }
 
         foreach (var p in meta.PropertyInfos)
         {
             bool isNullable = p.IsNullable;
-            // FilterDto / UpdateDto 特殊可空规则
             if (meta.Name.EndsWith(Entity.ConstVal.FilterDto, StringComparison.OrdinalIgnoreCase) ||
                 meta.Name.EndsWith(Entity.ConstVal.UpdateDto, StringComparison.OrdinalIgnoreCase))
             {
                 isNullable = true;
             }
-            var tsPropType = p.Type;
-            var replacement = genericReplacementTargets.FirstOrDefault(t => t.Prop == p);
-            if (!string.IsNullOrEmpty(replacement.Placeholder))
+            string tsPropType = p.Type;
+            string formattedPropType = OpenApiHelper.FormatSchemaKey(tsPropType);
+            bool replacedByGeneric = false;
+            if (genericMap.TryGetValue(formattedPropType, out var placeholder))
             {
-                if (p.IsList || tsPropType.EndsWith("[]"))
-                {
-                    tsPropType = replacement.Placeholder + "[]";
-                }
-                else
-                {
-                    tsPropType = replacement.Placeholder;
-                }
+                tsPropType = (p.IsList || tsPropType.EndsWith("[]")) ? placeholder + "[]" : placeholder;
+                replacedByGeneric = true;
             }
             sbProps.Append(FormatProperty(p.Name, tsPropType, p.IsEnum, p.IsList, isNullable, p.CommentSummary));
             var reference = p.NavigationName ?? string.Empty;
-            // 若已替换为泛型占位，则不导入原始引用类型
-            bool replaced = !string.IsNullOrEmpty(replacement.Placeholder);
-            if (!replaced && !string.IsNullOrWhiteSpace(reference) && reference != meta.Name)
+            if (!replacedByGeneric && !string.IsNullOrWhiteSpace(reference) && reference != meta.FullName)
             {
                 importRefs.Add((reference, p.IsEnum));
             }
         }
 
-        var cw = new Helper.TsCodeWriter();
-        // imports - 排除自身引用 (如属性 children: SystemOrganization[] 不应 import 自己)
-        var selfName = FormatSchemaKey(meta.Name);
-        var distinctImports = importRefs
-            .Where(r => !string.Equals(FormatSchemaKey(r.Ref), selfName, StringComparison.Ordinal))
-            .Distinct()
-            .ToList();
-        foreach (var (Ref, IsEnum) in distinctImports)
+        var cw = new Helper.CodeWriter();
+        var distinctImports = importRefs.Distinct().ToList();
+        foreach (var (refTypeFullName, isEnum) in distinctImports)
         {
-            var refType = FormatSchemaKey(Ref);
-            if (string.Equals(refType, selfName, StringComparison.Ordinal)) continue; // 双重保险
-            string dirName = string.Empty;
-            string relatePath = "./";
-            if (IsEnum)
-            {
-                relatePath = "../";
-                dirName = "enum/";
-            }
-            cw.AppendLine($"import {{ {refType} }} from '{relatePath}{dirName}{refType.ToHyphen()}.model';");
+            var refType = FormatSchemaKey(refTypeFullName);
+            var nsName = OpenApiHelper.GetNamespace(refTypeFullName);
+            var nsParts = OpenApiHelper.GetNamespaceFirstPart(nsName);
+            cw.AppendLine($"import {{ {refType} }} from '../{nsParts.ToHyphen()}/{refType.ToHyphen()}.model';");
         }
         if (distinctImports.Count > 0) cw.AppendLine();
 
@@ -175,17 +142,13 @@ public class TypeScriptFormatter : LanguageFormatter
               .AppendLine(" * " + meta.Comment)
               .AppendLine(" */");
         }
-        var ifaceName = FormatSchemaKey(meta.Name);
-        if (meta.IsGeneric)
+
+        var baseName = FormatSchemaKey(meta.Name.Split('<')[0]);
+        if (meta.IsGeneric && genericMap.Count > 0)
         {
-            // 使用占位泛型参数 (T, T1, T2...) 与 TypeMeta.GenericParams 顺序对应
-            var gpList = meta.GenericParams.Select(g => g.Name).ToList();
-            if (gpList.Count > 0)
-            {
-                ifaceName += "<" + string.Join(",", gpList) + ">";
-            }
+            baseName += "<" + string.Join(",", genericMap.Values) + ">";
         }
-        cw.OpenBlock($"export interface {ifaceName}");
+        cw.OpenBlock($"export interface {baseName}");
         foreach (var line in sbProps.ToString().Split('\n'))
         {
             if (!string.IsNullOrWhiteSpace(line)) cw.AppendLine(line);
