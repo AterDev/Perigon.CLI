@@ -28,23 +28,15 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
                 Functions = tagFunctions,
             };
 
-            string content = ToNgRequestBaseService(serviceFile);
+            string content = ToNgRequestService(serviceFile);
 
-            string baseFileName = currentTag.Name?.ToHyphen() + "-base.service.ts";
+            string baseFileName = currentTag.Name?.ToHyphen() + ".service.ts";
             GenFileInfo baseFile = new(baseFileName, content)
             {
                 DirName = servicePath,
                 IsCover = true
             };
             files.Add(baseFile);
-            string fileName = currentTag.Name?.ToHyphen() + ".service.ts";
-            var implContent = ToNgRequestService(serviceFile);
-            GenFileInfo implFile = new(fileName, implContent)
-            {
-                DirName = servicePath,
-                IsCover = false
-            };
-            files.Add(implFile);
         }
         var serviceKeys = functions.Where(f => !string.IsNullOrWhiteSpace(f.Tag)).Select(f => f.Tag!).Distinct().ToList();
         var clientContent = ToNgClient(docName, serviceKeys);
@@ -61,7 +53,7 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         return files;
     }
 
-    private string ToNgRequestBaseService(RequestServiceFile serviceFile)
+    private string ToNgRequestService(RequestServiceFile serviceFile)
     {
         List<RequestServiceFunction>? functions = serviceFile.Functions;
         string functionstr = "";
@@ -74,14 +66,16 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
                 .ToList();
             refMetas.ForEach(m => importModels += InsertImportModel(m));
         }
-        var cw = new Helper.CodeWriter();
+        var cw = new CodeWriter();
         cw.AppendLine("import { BaseService } from '../base.service';")
+            .AppendLine("import { Injectable } from '@angular/core';")
             .AppendLine("import { Observable } from 'rxjs';");
         if (!string.IsNullOrWhiteSpace(importModels)) cw.AppendLine(importModels.TrimEnd());
         cw.AppendLine("/**")
             .AppendLine($" * {serviceFile.Description}")
             .AppendLine(" */")
-            .OpenBlock($"export class {serviceFile.Name}BaseService extends BaseService");
+            .AppendLine("@Injectable({ providedIn: 'root' })")
+            .OpenBlock($"export class {serviceFile.Name}Service extends BaseService");
         if (!string.IsNullOrWhiteSpace(functionstr))
         {
             foreach (var line in functionstr.Split(Environment.NewLine))
@@ -91,22 +85,6 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         }
         cw.CloseBlock();
         return cw.ToString().TrimEnd();
-    }
-
-    private static string ToNgRequestService(RequestServiceFile serviceFile)
-    {
-        string result = $$"""
-import { Injectable } from '@angular/core';
-import { {{serviceFile.Name}}BaseService } from './{{serviceFile.Name.ToHyphen()}}-base.service';
-
-/**
- * {{serviceFile.Description}}
- */
-@Injectable({providedIn: 'root' })
-export class {{serviceFile.Name}}Service extends {{serviceFile.Name}}BaseService {
-}
-""";
-        return result;
     }
 
     private string ToNgClient(string docName, List<string> serviceNames)
