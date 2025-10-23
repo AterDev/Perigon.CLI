@@ -96,7 +96,8 @@ public class TypeScriptFormatter : LanguageFormatter
             for (int i = 0; i < meta.GenericParams.Count; i++)
             {
                 var gp = meta.GenericParams.ElementAt(i);
-                string placeholder = i == 0 ? "T1" : $"T{i + 1}";
+                // 使用统一的占位符命名: T1, T2, ... 以便与前端预期一致
+                string placeholder = $"T{i + 1}";
                 genericMap[OpenApiHelper.FormatSchemaKey(gp.Name)] = placeholder;
             }
         }
@@ -110,12 +111,32 @@ public class TypeScriptFormatter : LanguageFormatter
                 isNullable = true;
             }
             string tsPropType = p.Type;
-            string formattedPropType = OpenApiHelper.FormatSchemaKey(tsPropType);
             bool replacedByGeneric = false;
-            if (genericMap.TryGetValue(formattedPropType, out var placeholder))
+            if (!string.IsNullOrWhiteSpace(tsPropType) && genericMap.Count > 0)
             {
-                tsPropType = (p.IsList || tsPropType.EndsWith("[]")) ? placeholder + "[]" : placeholder;
-                replacedByGeneric = true;
+                // 提取元素类型 (处理 数组 / List<> / IEnumerable<>)
+                string rawType = tsPropType;
+                bool isArray = rawType.EndsWith("[]");
+                string elementType;
+                if (isArray)
+                {
+                    elementType = rawType[..^2];
+                }
+                else if (p.IsList || rawType.StartsWith("List<") || rawType.StartsWith("IEnumerable<") || rawType.StartsWith("ICollection<") || rawType.StartsWith("IList<"))
+                {
+                    elementType = ExtractGenericArgument(rawType) ?? rawType;
+                }
+                else
+                {
+                    elementType = rawType;
+                }
+
+                var formattedElementType = OpenApiHelper.FormatSchemaKey(elementType);
+                if (genericMap.TryGetValue(formattedElementType, out var placeholder))
+                {
+                    tsPropType = placeholder + ((isArray || p.IsList) ? "[]" : string.Empty);
+                    replacedByGeneric = true;
+                }
             }
             sbProps.Append(FormatProperty(p.Name, tsPropType, p.IsEnum, p.IsList, isNullable, p.CommentSummary));
             var reference = p.NavigationName ?? string.Empty;

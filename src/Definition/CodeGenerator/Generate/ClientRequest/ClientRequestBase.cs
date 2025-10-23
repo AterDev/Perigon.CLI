@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CodeGenerator.Generate.LanguageFormatter;
 
 namespace CodeGenerator.Generate.ClientRequest;
@@ -174,54 +175,63 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
     /// </summary>
     protected List<TypeMeta> GetRefTypes(List<RequestServiceFunction> functions)
     {
-        // 使用 TypeMeta.FullName 作为唯一键；Name 已是格式化后的短类名，不能再二次格式化作为唯一标识。
         var metaMap = SchemaMetas
             .Where(m => !string.IsNullOrWhiteSpace(m.FullName))
             .GroupBy(m => m.FullName)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
 
-        HashSet<string> importFullNames = [];
+        HashSet<string> wanted = [];
+
         foreach (var f in functions)
         {
-            CollectFullNames(f.RequestRefType);
-            CollectFullNames(f.ResponseRefType);
-            if (f.Params != null)
+            AddIfMatch(f.RequestRefType);
+            AddIfMatch(f.ResponseRefType);
+
+            if (f.Params is not null)
             {
                 foreach (var p in f.Params)
                 {
-                    CollectFullNames(p.RefType);
+                    AddIfMatch(p.RefType);
                 }
             }
-            // 处理泛型响应类型：提取根类型与所有子类型的 FullName
+
+            // 如果响应为泛型，提取其泛型参数的 FullName
             if (!string.IsNullOrWhiteSpace(f.ResponseRefType) && f.ResponseRefType.Contains('`'))
             {
-                var all = OpenApiHelper.ExtractAllTypeNames(f.ResponseRefType).ToList();
-                var root = all.FirstOrDefault();
-                if (!string.IsNullOrWhiteSpace(root)) CollectFullNames(root);
-                foreach (var t in all.Skip(1)) CollectFullNames(t);
+                foreach (var argFullName in ExtractGenericArgumentFullNames(f.ResponseRefType))
+                {
+                    AddIfMatch(argFullName);
+                }
             }
         }
 
-        // 根据 FullName 匹配 TypeMeta
-        List<TypeMeta> metas = [];
-        foreach (var fullName in importFullNames)
-        {
-            if (metaMap.TryGetValue(fullName, out var meta)) metas.Add(meta);
-        }
-        // 去重（FullName 唯一）
-        metas = metas.GroupBy(m => m.FullName).Select(g => g.First()).ToList();
-        return metas;
+        var result = wanted
+            .Where(metaMap.ContainsKey)
+            .Select(k => metaMap[k])
+            .GroupBy(m => m.FullName)
+            .Select(g => g.First())
+            .ToList();
+        return result;
 
-        void CollectFullNames(string? refType)
+        void AddIfMatch(string? fullName)
         {
-            if (string.IsNullOrWhiteSpace(refType)) return;
-            foreach (var raw in OpenApiHelper.ExtractAllTypeNames(refType))
+            if (string.IsNullOrWhiteSpace(fullName)) return;
+            // 兼容转义的反引号 \u0060 情况
+            fullName = fullName.Replace("\u0060", "`");
+            if (metaMap.ContainsKey(fullName)) wanted.Add(fullName);
+        }
+
+        IEnumerable<string> ExtractGenericArgumentFullNames(string genericFullName)
+        {
+            int start = genericFullName.IndexOf("[[");
+            int end = genericFullName.LastIndexOf("]]");
+            if (start < 0 || end <= start) yield break;
+            var inner = genericFullName.Substring(start + 2, end - start - 2);
+            var args = inner.Split(new[] { "],[" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var arg in args)
             {
-                // raw 应当为 FullName；不再调用格式化名称方法，直接使用。
-                if (!string.IsNullOrWhiteSpace(raw) && metaMap.ContainsKey(raw) && !importFullNames.Contains(raw))
-                {
-                    importFullNames.Add(raw);
-                }
+                var argType = arg.Split(',')[0].Trim();
+                yield return argType;
             }
         }
     }
@@ -229,12 +239,7 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
     protected string InsertImportModel(TypeMeta typeMeta)
     {
         var dirPath = OpenApiHelper.GetNamespaceFirstPart(typeMeta.Namespace).ToHyphen();
-        string baseName = typeMeta.IsGeneric ? typeMeta.Name.Split('<')[0] : typeMeta.Name;
-        if (EnumModels.Contains(typeMeta.Name))
-        {
-            return $"import {{ {baseName} }} from '../enum/{dirPath}/{baseName.ToHyphen()}.model';{Environment.NewLine}";
-        }
-        return $"import {{ {baseName} }} from '../models/{dirPath}/{baseName.ToHyphen()}.model';{Environment.NewLine}";
+        return $"import {{ {typeMeta.Name} }} from '../models/{dirPath}/{typeMeta.Name.ToHyphen()}.model';{Environment.NewLine}";
     }
 
     protected FunctionBuildResult BuildFunctionCommon(RequestServiceFunction function, bool addExtOptions)

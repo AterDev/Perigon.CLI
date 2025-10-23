@@ -109,7 +109,6 @@ public class OpenApiHelper
                         FullName = argType
                     });
                 }
-                meta.FullName = ParseGenericFullName(schemaKey);
             }
         }
         return meta;
