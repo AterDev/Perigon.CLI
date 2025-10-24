@@ -257,6 +257,7 @@ public class CodeGenService(
         }
         // base service
         string content = RequestClientHelper.GetBaseService(type);
+        content = content.Replace("BASE_URL", docName.ToUpper() + "_BASE_URL");
         string dir = Path.Combine(outputPath, "services", docName);
         Directory.CreateDirectory(dir);
         files.Add(

@@ -118,7 +118,6 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         if (responseType.Equals("FormData"))
         {
             responseType = "Blob";
-            method = "downloadFile";
             generics = "";
         }
         var cw = new Helper.CodeWriter();

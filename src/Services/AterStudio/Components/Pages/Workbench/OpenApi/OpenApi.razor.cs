@@ -190,7 +190,10 @@ public partial class OpenApi
 
     private void OpenModelInfoDialog(string modelName)
     {
-        var model = ModelList.Where(m => m.Name == modelName).FirstOrDefault();
+        Console.WriteLine("modelName:" + modelName);
+        var model = ModelList.Where(m => m.FullName == modelName).FirstOrDefault();
+
+        Console.WriteLine(model?.Name);
         if (model != null)
         {
             SelectedModel = model;
@@ -269,7 +272,6 @@ public partial class OpenApi
 
         if (result.Data is List<GenFileInfo> files)
         {
-            await GetApiDocsAsync();
             // 发送全局通知
             MessageService.ShowMessageBar(options =>
             {
@@ -282,6 +284,9 @@ public partial class OpenApi
                 options.Timestamp = DateTime.Now;
                 options.Section = App.MESSAGES_NOTIFICATION_CENTER;
             });
+
+            await GetApiDocsAsync();
+            CurrentDoc = Docs.FirstOrDefault(d => d.Name == CurrentDoc.Name);
         }
         ToastService.ShowSuccess(Lang(Localizer.Generate, Localizer.Success), timeout: 3000);
     }
@@ -318,11 +323,6 @@ public partial class OpenApi
                 ToastService.ShowError(Lang(Localizer.Delete, Localizer.Failed));
             }
         }
-    }
-
-    private static String GetApiTip(RestApiInfo api)
-    {
-        return $"{nameof(api.HttpMethod).ToUpper()} {api.Router}";
     }
 
     private static string GetApiTypeColor(HttpMethod type)

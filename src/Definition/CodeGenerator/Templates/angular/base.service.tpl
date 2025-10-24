@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { from, map, Observable, switchMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,23 +18,54 @@ export class BaseService {
     }
   }
 
-  protected request<R>(method: string, path: string, body?: any): Observable<R> {
+  protected request<T = any>(method: string, path: string, body?: any): Observable<T> {
     const url = this.baseUrl + path;
-    const options = {
-      headers: this.getHeaders(),
-      body
-    };
-    return this.http.request<R>(method, url, options);
-  }
-
-  protected downloadFile(method: string, path: string, body?: any): Observable<Blob> {
-    const url = this.baseUrl + path;
-    const options = {
-      responseType: 'blob' as 'blob',
+    return this.http.request(method, url, {
       headers: this.getHeaders(),
       body,
-    };
-    return this.http.request(method, url, options);
+      responseType: 'blob',
+      observe: 'response'
+    }).pipe(
+      switchMap((resp: HttpResponse<Blob>) => {
+        const contentType = (resp.headers.get('Content-Type') || '').toLowerCase();
+        const disposition = resp.headers.get('Content-Disposition') || '';
+        const blob = resp.body as Blob;
+
+        const isAttachment = /attachment/i.test(disposition);
+        const isBinaryType = this.isBinaryContentType(contentType);
+        const treatAsFile = isAttachment || isBinaryType;
+
+        if (treatAsFile) {
+          return from(Promise.resolve(blob as unknown as T));
+        }
+        return from(blob.text()).pipe(
+          map(text => this.parseAuto<T>(text, contentType))
+        );
+      })
+    );
+  }
+
+  private parseAuto<T>(text: string, contentType: string): T {
+    if (contentType.includes('application/json') || contentType.includes('text/json')) {
+      return JSON.parse(text) as T;
+    }
+    return text as unknown as T;
+  }
+
+  private isBinaryContentType(ct: string): boolean {
+    if (!ct) return false;
+    return (
+      ct.startsWith('application/octet-stream') ||
+      ct.startsWith('application/pdf') ||
+      ct.startsWith('application/zip') ||
+      ct.startsWith('application/vnd') ||
+      ct.startsWith('image/') ||
+      ct.startsWith('video/') ||
+      ct.startsWith('audio/') ||
+      ct.startsWith('font/') ||
+      ct.includes('application/msword') ||
+      ct.includes('application/excel')
+    );
   }
 
   protected openFile(blob: Blob, filename: string) {
@@ -47,8 +78,8 @@ export class BaseService {
 
   protected getHeaders(): HttpHeaders {
     return new HttpHeaders({
-      Accept: 'application/json',
-      Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+      Accept: 'application/json, text/plain, */*',
+      Authorization: 'Bearer ' + localStorage.getItem('accessToken')
     });
   }
   public isMobile(): boolean {

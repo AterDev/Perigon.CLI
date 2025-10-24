@@ -30,16 +30,19 @@ public static class RequestClientHelper
     public static string GetEnumPipeContent(IDictionary<string, IOpenApiSchema> schemas, bool isNgModule = false)
     {
         string tplContent = TplContent.EnumPipeTpl(isNgModule);
-        StringBuilder codeBlocks = new();
+        var codeWriter = new CodeWriter();
+
         foreach (var item in schemas)
         {
             if (item.Value.Enum?.Count > 0)
             {
-                codeBlocks.Append(ToEnumSwitchString(OpenApiHelper.FormatSchemaKey(item.Key), item.Value));
+                var switchCode = ToEnumSwitchString(OpenApiHelper.FormatSchemaKey(item.Key), item.Value);
+                codeWriter.AppendLine(switchCode);
             }
         }
+
         var genContext = new RazorGenContext();
-        var model = new CommonViewModel { Content = codeBlocks.ToString() };
+        var model = new CommonViewModel { Content = codeWriter.ToString() };
         return genContext.GenCode(tplContent, model);
     }
 
@@ -47,12 +50,24 @@ public static class RequestClientHelper
     {
         var enumProps = OpenApiHelper.GetEnumProperties(schema);
         if (enumProps == null || enumProps.Count == 0) return string.Empty;
-                var sb = new StringBuilder();
-                foreach (var prop in enumProps)
-                {
-                        sb.AppendLine($"case {prop.DefaultValue}: result = '{prop.CommentSummary}'; break;");
-                }
-                sb.AppendLine("default: result = '默认'; break;");
-                return $"case '{enumType}':\n  switch (value) {{\n{sb}  }}\n  break;";
+
+        var codeWriter = new CodeWriter();
+        codeWriter.Indent().Indent().Indent();
+        codeWriter.AppendLine($"case '{enumType}':");
+        codeWriter.Indent();
+        codeWriter.AppendLine("switch (value) {");
+        codeWriter.Indent();
+
+        foreach (var prop in enumProps)
+        {
+            codeWriter.AppendLine($"case {prop.DefaultValue}: result = '{prop.CommentSummary}'; break;");
+        }
+
+        codeWriter.AppendLine("default: result = '默认'; break;");
+        codeWriter.Unindent();
+        codeWriter.AppendLine("}");
+        codeWriter.AppendLine("break;");
+
+        return codeWriter.ToString();
     }
 }
