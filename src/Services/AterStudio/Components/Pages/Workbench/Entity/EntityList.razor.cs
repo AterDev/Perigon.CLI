@@ -1,5 +1,6 @@
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace AterStudio.Components.Pages.Workbench.Entity;
 
@@ -32,13 +33,34 @@ public partial class EntityList
 
     private IEnumerable<EntityFile> SelectedEntity { get; set; } = [];
 
+    [CascadingParameter]
+    public CancellationToken ComponentCancellationToken { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         CheckProject();
-        await GetEntityListAsync();
-        GetModules();
-        GetServices();
-        isLoading = false;
+        try
+        {
+            await GetEntityListAsync();
+            GetModules();
+            GetServices();
+        }
+        catch (OperationCanceledException)
+        {
+            // 组件已卸载，忽略错误
+        }
+        catch (ObjectDisposedException)
+        {
+            // DbContext 已释放，忽略错误
+        }
+        catch (JSDisconnectedException)
+        {
+            // JavaScript interop 连接已断开
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void GetServices()
@@ -48,15 +70,35 @@ public partial class EntityList
 
     private async Task GetEntityListAsync(bool forceRefresh = false)
     {
+        if (ComponentCancellationToken.IsCancellationRequested)
+            return;
+
         IsRefreshing = true;
         await Task.Yield();
-        var entityFiles = EntityInfoManager.GetEntityFiles(
-            ProjectContext.EntityPath!,
-            forceRefresh
-        );
-        EntityFiles = entityFiles.AsQueryable();
-        FilteredEntityFiles = EntityFiles;
-        IsRefreshing = false;
+        try
+        {
+            if (ComponentCancellationToken.IsCancellationRequested)
+                return;
+
+            var entityFiles = EntityInfoManager.GetEntityFiles(
+                ProjectContext.EntityPath!,
+                forceRefresh
+            );
+            EntityFiles = entityFiles.AsQueryable();
+            FilteredEntityFiles = EntityFiles;
+        }
+        catch (OperationCanceledException)
+        {
+            // 操作被取消
+        }
+        catch (ObjectDisposedException)
+        {
+            // DbContext 已释放
+        }
+        finally
+        {
+            IsRefreshing = false;
+        }
     }
 
     private async Task CleanSolutionAsync()

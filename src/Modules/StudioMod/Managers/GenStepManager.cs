@@ -6,10 +6,10 @@ namespace StudioMod.Managers;
 /// task step
 /// </summary>
 public class GenStepManager(
-    DefaultDbContext dbContext,
+    IDbContextFactory<DefaultDbContext> dbContextFactory,
     ILogger<GenStepManager> logger,
     IProjectContext projectContext
-) : ManagerBase<DefaultDbContext, GenStep>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, GenStep>(dbContextFactory, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
 
@@ -72,7 +72,9 @@ public class GenStepManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        return await _dbSet
+        using var context = dbContextFactory.CreateDbContext();
+        return await context
+            .Set<GenStep>()
             .Where(q => q.Id.ToString() == unique)
             .WhereNotNull(id, q => q.Id != id)
             .AnyAsync();
@@ -96,7 +98,8 @@ public class GenStepManager(
     /// <returns></returns>
     public async Task<GenStep?> GetOwnedAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id);
+        using var context = dbContextFactory.CreateDbContext();
+        var query = context.Set<GenStep>().Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

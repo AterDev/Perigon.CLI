@@ -7,17 +7,17 @@ namespace StudioMod.Managers;
 /// <summary>
 /// 接口文档
 /// </summary>
+/// <remarks>
+/// Constructor for DbContextFactory pattern
+/// </remarks>
 public class ApiDocInfoManager(
-    DefaultDbContext dbContext,
+    IDbContextFactory<DefaultDbContext> dbContextFactory,
     IProjectContext project,
     ILogger<ApiDocInfoManager> logger,
     CodeGenService codeGenService,
     Localizer localizer
-) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContextFactory, logger)
 {
-    private readonly IProjectContext _project = project;
-    private readonly CodeGenService _codeGenService = codeGenService;
-
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -26,7 +26,7 @@ public class ApiDocInfoManager(
     public async Task<ApiDocInfo> CreateNewEntityAsync(ApiDocInfoAddDto dto)
     {
         ApiDocInfo entity = dto.MapTo<ApiDocInfo>();
-        entity.ProjectId = _project.SolutionId!.Value;
+        entity.ProjectId = project.SolutionId!.Value;
         return await Task.FromResult(entity);
     }
 
@@ -165,7 +165,8 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<bool> IsConflictAsync(string unique)
     {
-        return await _dbSet.AnyAsync(q => q.Id == new Guid(unique));
+        using var context = dbContextFactory.CreateDbContext();
+        return await context.Set<ApiDocInfo>().AnyAsync(q => q.Id == new Guid(unique));
     }
 
     /// <summary>
@@ -175,10 +176,11 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<ApiDocInfo?> GetOwnedAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id);
+        using var context = dbContextFactory.CreateDbContext();
+        var query2 = context.Set<ApiDocInfo>().Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
-        return await query.FirstOrDefaultAsync();
+        // query2 = query2.Where(q => q.User.Id == _userContext.UserId);
+        return await query2.FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -191,21 +193,25 @@ public class ApiDocInfoManager(
         RequestClientDto dto
     )
     {
-        var doc = await GetCurrentAsync(openApiDocId);
+        using var context = dbContextFactory.CreateDbContext();
+        var doc = await context
+            .Set<ApiDocInfo>()
+            .Where(d => d.Id == openApiDocId)
+            .FirstOrDefaultAsync();
         if (doc == null)
         {
             ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId);
             return null;
         }
         doc.LocalPath = dto.OutputPath;
-        await SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         var files = new List<GenFileInfo>();
         switch (dto.ClientType)
         {
             case RequestClientType.NgHttp:
             case RequestClientType.Axios:
-                files = await _codeGenService.GenerateWebRequestAsync(
+                files = await codeGenService.GenerateWebRequestAsync(
                     dto.OpenApiEndpoint!,
                     dto.OutputPath!,
                     dto.ClientType
@@ -221,7 +227,7 @@ public class ApiDocInfoManager(
             default:
                 break;
         }
-        _codeGenService.GenerateFiles(files, false);
+        codeGenService.GenerateFiles(files, false);
         return files;
     }
 }

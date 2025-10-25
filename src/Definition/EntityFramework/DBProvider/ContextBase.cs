@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace EntityFramework.DBProvider;
+namespace EfCoreContext.DBProvider;
 
 public class ContextBase(DbContextOptions options) : DbContext(options)
 {
