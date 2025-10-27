@@ -8,55 +8,22 @@
 - scripts： 项目脚本文件目录
 - src：项目代码目录
 - test：测试项目目录
-- runtime：基于`.NETAspire`的开发环境集成
 - .config：配置文件目录
-- .dry-config.json 项目配置信息，当使用`dry cli`时需要该文件。
 
 ## 代码目录src
 
-- Infrastructure 框架的基础定义，通常不需要关心，也不应该修改。
-- Definition 定义层，先定义后实施，该目录主要是定义实体和DTO，以及ORM关系等。
-  - Entity 基础核心类库，**`实体模型`** 定义所在项目，包括基础库的扩展，辅助类等。
-  - Share 共享类库，**`DTO`** 定义所在项目，可在多个应用间共用的内容，如各类模型定义、通用配置、数据处理转换等，依赖 `Entity`。
-  - EntityFramework `Entity Framework` 定义项目，依赖`Entity`。
-- Application **`Manager`** 业务实现所在项目，包括各类服务。依赖 `Share`,`EntityFramework`。
-- Http.API **`WebAPI`** 接口项目，定义和实现控制器逻辑，对外开放和运行的主程序，依赖`Application`。
-- Microservice 拆分可单独部署的应用，如微服务项目，通常依赖`Application`项目，以复用相关逻辑代码。
-- Modules 模块目录。不同于拆分成单独的服务，模块的作用主要是实现关注点分离，它仍属于主服务的一部分。模块通常包括：
-  - Models 接口所需要的DTO模型
-  - Manager 该模块的业务实现逻辑
-  - Controller 该模块定义或公开的接口
+* `src/Ater/Ater.Common`: 基础类库，提供基础帮助类。
+* `src/Definition/ServiceDefaults`: 是提供基础的服务注入的项目。
+* `src/Definition/Entity`: 包含所有的实体模型，按模块目录组织。
+* `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文
+* `src/Modules/`: 包含各个模块的程序集，主要用于业务逻辑实现
+* `src/Modules/XXXMod/Managers`: 各模块下，实际实现业务逻辑的目录
+* `src/Modules/XXXMod/Models`: 各模块下，Dto模型定义，按实体目录组织
+* `src/Services/ApiService`: 是接口服务项目，基于ASP.NET Core Web API。
+* `src/Services/AdminService`: 后台管理服务接口项目
 
 > [!NOTE]
 > 这里不存在基于`模块`的开发，也没有这个概念。这里的模块是基于业务上的划分，将相应的业务实现在代码上进行拆分，实现关注点分离。
->
-> 模块拥有自己的业务实现逻辑和API接口定义。它引用`Application`项目，以实现业务逻辑复用，并被`Http.API`主项目引用，统一公开接口访问。
->
-> 模块的实体模型仍然在 Entity 项目中进行定义和管理
-
-# 开始使用
-
-## 数据库配置
-
-模板默认使用`PostgreSQL`，如果您使用其他数据库，你需要进行的操作：
-
-- 修改`appsettings.json`等配置文件中的**数据库连接字符串**
-- 在`Application`项目中添加相应的数据库驱动包
-- 在`Http.API`项目`Program.cs`中，修改数据库上下文的注入。
-
-## 数据迁移
-
-移除了`EntityFramework.Migrator`，迁移代码将直接生成在`Http.API`项目中。
-可直接运行`scripts\EFMigrations.ps1`脚本生成迁移内容，程序在启动时会执行迁移。
-
-## 运行项目
-
-```pwsh
-cd src\Http.API
-dotnet watch run 
-```
-
-默认会创建`TestUser/Hello.Net`初始用户账号。
 
 # 规范及约定
 
@@ -64,19 +31,9 @@ dotnet watch run
 
 遵循`Entity Framework Core`的官方文档，对模型及关联关系进行定义。
 
-通过`dotnet ef`命令进行数据库结构的迁移。
-
-## CQRS仓储模式
-
-模板提供了两个默认实现的仓储基类`CommandSet`和`QuerySet`，在`Ater.Web.Abstraction`项目的`EntityFramework`目录中.分别代表命令(可读写)仓储和查询仓储(只读仓储)。
-
 ## 业务Manager
 
 通过`Manager`来定义和管理业务方法，模板中提供`ManagerBase`类作为默认实现。
-
-通过`dry`命令会根据您的实体模型，自动生成对应的业务实现类。在生成的业务实现类中，你可以自由实现自己的业务逻辑。
-
->使用`dry`生成会自动注入业务实现服务，无需手动注入。
 
 ## 接口请求与返回
 
@@ -171,33 +128,26 @@ return NotFound("用户名密码不存在");
 >public bool AutoSave { get; set; } = true;
 >```
 
-> **所有通过仓储调用的方法，并不会直接提交到数据库更改，你需要在恰当的时机，手动调用`SaveChangesAsync()`方法。**
-
 在`Manager`中实现自定义业务，通常包括 `筛选查询`,`添加实体`,`更新实体`.
 
 ### 筛选查询
 
 构建自定义查询条件的步骤：
 
-1. 构造自己的查询条件`Queryable`
-2. 调用`FilterAsync<T>`方法获取结果
+1. 构造自定义查询条件`Queryable`，可使用`WhereNotNull`扩展方法.
+2. 调用`ToPageAsync<TFilter,TItem>`方法获取结果.
 
 代码示例：
 
 ```csharp
 
-public override async Task<PageList<DiscussItemDto>> FilterAsync(DiscussFilterDto filter)
+public async Task<PageList<FolderItemDto>> ToPageAsync(FolderFilterDto filter)
 {
-    // 根据实际业务构建筛选条件
-    if (filter.IsTop != null)
-    {
-        Queryable = Queryable.Where(q => q.IsTop == filter.IsTop);
-    }
-    if (filter.MemberId != null)
-    {
-        Queryable = Queryable.Where(q => q.Member.Id == filter.MemberId);
-    }
-    return await Query.FilterAsync<DiscussItemDto>(Queryable, filter.PageIndex, filter.PageSize);
+    Queryable = Queryable
+        .WhereNotNull(filter.Name, q => q.Name == filter.Name)
+        .WhereNotNull(filter.ParentId, q => q.ParentId == filter.ParentId);
+
+    return await ToPageAsync<FolderFilterDto, FolderItemDto>(filter);
 }
 ```
 
@@ -205,48 +155,60 @@ public override async Task<PageList<DiscussItemDto>> FilterAsync(DiscussFilterDt
 
 代码示例:
 
+Manager:
+
 ```csharp
-public override async Task<Discuss> AddAsync(Discuss entity)
+public async Task<Guid?> AddAsync(FolderAddDto dto)
 {
-    var res = await Command.CreateAsync(entity);
-    // TODO: do something
-    // 提交更新
-    await Command.SaveChangeAsync();
-    return res;
+    Folder entity = dto.MapTo<Folder>();
+    return await AddAsync(entity) ? entity.Id : null;
+}
+```
+
+Controller:
+```csharp
+[HttpPost]
+public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
+{
+    var id = await _manager.AddAsync(dto);
+    return id == null ? base.Problem(Localizer.AddFailed) : id;
 }
 ```
 
 ### 更新实体
 
-`Manager`提供了`GetCurrentAsync`方法来获取当前(`可写数据库上下文`)的实体。
+`Manager`提供了`GetCurrentAsync`方法来获取当前实体。
 
 在控制器中，会先获取实体，如果不存在，则直接返回`404`。
 
-实体更新的方法传递两个参数，一个是实体本身，一个是提交的`DTO`对象,
-实体本身是在控制器当中使用`GetCurrentAsync`方法获取到的，直接作为参数传递过去即可。
-
 代码示例:
 
-以下方面演示如何更新关联的内容。
+Manager:
+```csharp
+public async Task<bool> UpdateAsync(Folder entity, FolderUpdateDto dto)
+{
+    entity.Merge(dto);
+    return await UpdateAsync(entity);
+}
+```
+
+Controller:
 
 ```csharp
-public override async Task<ResourceTypeDefinition> UpdateAsync(ResourceTypeDefinition entity, ResourceTypeDefinitionUpdateDto dto)
-    {
-        // 更新关联的内容
-        entity!.AttributeDefines = null;
-        if (dto.AttributeDefineIds != null)
-        {
-            // 通过父类的 Stores 查询其他实体的内容
-            var attributeDefines = await Stores.ResourceAttributeDefineCommand.Db.Where(a => dto.AttributeDefineIds.Contains(a.Id)).ToListAsync();
-            entity.AttributeDefines = attributeDefines;
-        }
-        return await base.UpdateAsync(entity, dto);
-    }
+[HttpPatch("{id}")]
+public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
+{
+    SystemUser? current = await _manager.GetCurrentAsync(id);
+    return current == null
+        ? base.NotFound(Localizer.NotFoundResource)
+        : await base._manager.UpdateAsync(current, dto);
+}
 ```
 
 ### 详情查询
 
-`Manager`提供了默认的详情查询方法，可直接传递查询条件.
+`Manager`提供了默认的详情查询方法，可直接传递查询条件:
+`public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null){}`
 
 若自定义查询，如查询关联的内容，需要添加新的方法来实现.
 
@@ -255,35 +217,29 @@ public override async Task<ResourceTypeDefinition> UpdateAsync(ResourceTypeDefin
 代码示例:
 
 ```csharp
-public async Task<ResourceGroup?> FindAsync(Guid id)
+[HttpGet("{id}")]
+public async Task<ActionResult<SystemUserDetailDto?>> GetDetailAsync([FromRoute] Guid id)
 {
-    return await Query.Db
-        .Include(g => g.Environment)
-        .FirstOrDefaultAsync(g => g.Id == id);
+    var res =  await _manager.FindAsync<SystemUserDetailDto>(u => u.Id == id)
+    return res == null ? NotFound() : res;
 }
 ```
 
 ### 删除处理
 
-删除默认为软删除，如果想修改该行为，可在`CommandStoreBase`类中将`EnableSoftDelete`设置为false.
+删除默认为软删除，如果想修改该行为.
 
-如果只想针对某个实体取消，可在实体对应的`XXXCommandStore`类中，覆盖`EnableSoftDelete`，将其设置为false.
+Manager会封装获取要被删除的实体对象的逻辑(仅能删除拥有的实体，如用户或应用权限范围)，通常命名为`GetOwnedAsync`.
 
-删除有时会涉及到**关联删除**，示例代码:
+删除默认支持批量删除.
 
 ```csharp
-public override async Task<Resource?> DeleteAsync(Guid id)
+ [HttpDelete("{id}")]
+public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
 {
-    var resource = entity;
-    if (resource!.Attributes != null)
-    {
-        Stores.CommandContext.RemoveRange(resource.Attributes);
-    }
-    return await DeleteAsync(resource);
+    // 注意删除权限
+    SystemUser? entity = await _manager.GetOwnedAsync(id);
+    return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
 }
 
 ```
-
-# 文档
-
-更多文档说明，请查阅[使用文档](https://docs.dusi.dev/zh/ater.web/%E6%A6%82%E8%BF%B0.html)。
