@@ -5,8 +5,6 @@ namespace EntityFramework.DBProvider;
 
 public abstract partial class ContextBase(DbContextOptions options) : DbContext(options)
 {
-    protected string CreatedFieldName { get; set; } = "CreatedTime";
-    protected string UpdatedFieldName { get; set; } = "UpdatedTime";
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -24,20 +22,20 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {
             Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
-                entityEntry.Metadata.FindProperty(CreatedFieldName);
+                entityEntry.Metadata.FindProperty(nameof(EntityBase.CreatedTime));
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
-                entityEntry.Property(CreatedFieldName).CurrentValue = DateTimeOffset.UtcNow;
+                entityEntry.Property(nameof(EntityBase.CreatedTime)).CurrentValue = DateTimeOffset.UtcNow;
             }
         }
         entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList();
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
         {
             Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
-                entityEntry.Metadata.FindProperty(UpdatedFieldName);
+                entityEntry.Metadata.FindProperty(nameof(EntityBase.UpdatedTime));
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
-                entityEntry.Property(UpdatedFieldName).CurrentValue = DateTimeOffset.UtcNow;
+                entityEntry.Property(nameof(EntityBase.UpdatedTime)).CurrentValue = DateTimeOffset.UtcNow;
             }
         }
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -47,7 +45,7 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
     /// 设置主键Id和软删除过滤
     /// </summary>
     /// <param name="modelBuilder"></param>
-    private static void OnModelExtendCreating(ModelBuilder modelBuilder)
+    private void OnModelExtendCreating(ModelBuilder modelBuilder)
     {
         IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType> entityTypes =
             modelBuilder.Model.GetEntityTypes();
@@ -55,13 +53,13 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
             Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType in entityTypes
         )
         {
-            if (typeof(IEntityBase).IsAssignableFrom(entityType.ClrType))
+            if (typeof(EntityBase).IsAssignableFrom(entityType.ClrType))
             {
-                modelBuilder.Entity(entityType.Name).HasKey("Id");
+                modelBuilder.Entity(entityType.Name).HasKey(nameof(EntityBase.Id));
                 modelBuilder
                     .Entity(entityType.ClrType)
                     .HasQueryFilter(
-                        ConvertFilterExpression<IEntityBase>(e => !e.IsDeleted, entityType.ClrType)
+                        ConvertFilterExpression<EntityBase>(e => !e.IsDeleted, entityType.ClrType)
                     );
             }
         }

@@ -5,7 +5,7 @@ namespace AterStudio.Components.Pages.Home;
 
 public partial class Home
 {
-    List<Solution> projects = [];
+    List<Solution> solutions = [];
 
     private async Task AddLocalProject(MouseEventArgs arg)
     {
@@ -30,9 +30,15 @@ public partial class Home
         await GetProjectListAsync();
     }
 
+    private void OpenSolution(Solution solution)
+    {
+        var path = Path.Combine(solution.Path, solution.Name);
+        SolutionManager.OpenSolution(path);
+    }
+
     private async Task GetProjectListAsync()
     {
-        projects = await SolutionManager.ListAsync();
+        solutions = await SolutionManager.ListAsync();
     }
 
     private async Task OpenConfigDialogAsync(Solution project)
@@ -40,7 +46,6 @@ public partial class Home
         DialogParameters parameters = new()
         {
             Width = "400px",
-
             Modal = true,
         };
         var dialog = await DialogService.ShowDialogAsync<ConfigProjectDialog>(project, parameters);

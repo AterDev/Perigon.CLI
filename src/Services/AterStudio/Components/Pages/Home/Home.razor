@@ -20,7 +20,7 @@
     </FluentButton>
   </FluentToolbar>
 
-  @if (projects.Count == 0)
+  @if (solutions.Count == 0)
   {
     <FluentStack HorizontalAlignment="HorizontalAlignment.Center"
                  Orientation="Orientation.Vertical">
@@ -37,32 +37,35 @@
                  Wrap="true"
                  Class="px-2"
                  VerticalGap="8">
-      @foreach (var project in projects)
+      @foreach (var solution in solutions)
       {
         <FluentCard Style="min-width:300px;" Class="col">
           <FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
             <FluentStack Orientation="Orientation.Horizontal"
                          VerticalAlignment="VerticalAlignment.Center">
-              @if (project.SolutionType == SolutionType.DotNet)
+              @if (solution.SolutionType == SolutionType.DotNet)
               {
                 <img src="assets/logo_net.svg" height="30" width="30">
               }
-              @if (project.SolutionType == SolutionType.Node)
+              @if (solution.SolutionType == SolutionType.Node)
               {
                 <img src="assets/nodejs.svg" height="30" width="30">
               }
-              <FluentLabel Typo="Typography.H3">@project.DisplayName</FluentLabel>
+              <FluentLabel Typo="Typography.H3">@solution.DisplayName</FluentLabel>
 
               <FluentButton Id="setting_btn"
                             Title="@Lang(Localizer.Project, Localizer.Setting)"
-                            OnClick="()=>OpenConfigDialogAsync(project)"
+                            OnClick="()=>OpenConfigDialogAsync(solution)"
                             IconStart="@(new Icons.Regular.Size24.Settings())"
                             Appearance="Appearance.Stealth">
               </FluentButton>
             </FluentStack>
 
-            <FluentLabel Typo="Typography.Subject" Color="Color.Accent">@project.Name</FluentLabel>
-            <FluentLabel Typo="Typography.Body">@project.Path</FluentLabel>
+            <FluentLabel Typo="Typography.Subject" Color="Color.Accent"
+                         Class="cursor"
+                         title="Open solution"
+                         @onclick="() => OpenSolution(solution)">@solution.Name</FluentLabel>
+            <FluentLabel Typo="Typography.Body">@solution.Path</FluentLabel>
             <FluentStack Orientation="Orientation.Horizontal"
                          VerticalAlignment="VerticalAlignment.Center"
                          HorizontalAlignment="HorizontalAlignment.End">
@@ -70,10 +73,10 @@
               <FluentButton Class="delete-action"
                             IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
                             Appearance="Appearance.Stealth"
-                            OnClick="()=>DeleteProject(project)" />
+                            OnClick="()=>DeleteProject(solution)" />
 
               <FluentButton Appearance="Appearance.Lightweight"
-                            OnClick='()=>ToSolution(project.Id)'>
+                            OnClick='()=>ToSolution(solution.Id)'>
                 @Lang(Localizer.Enter, Localizer.Workbench)
               </FluentButton>
             </FluentStack>

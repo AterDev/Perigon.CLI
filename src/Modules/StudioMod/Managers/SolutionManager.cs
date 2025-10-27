@@ -159,6 +159,7 @@ public class SolutionManager(
         }
     }
 
+
     /// <summary>
     /// 清理解决方案
     /// </summary>
@@ -196,5 +197,17 @@ public class SolutionManager(
             ErrorMsg = error ?? string.Empty;
             return false;
         }
+    }
+
+
+    /// <summary>
+    /// open solution
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static string OpenSolution(string path)
+    {
+        string res = ProcessHelper.ExecuteCommands($"start {path}");
+        return res;
     }
 }

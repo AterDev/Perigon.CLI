@@ -1,6 +1,6 @@
 namespace Entity;
 /// <summary>
-/// 定义模块名称
+/// define modules name
 /// </summary>
 public class Modules
 {
@@ -32,5 +32,4 @@ public class Modules
     /// 用户模块
     /// </summary>
     public const string User = "UserMod";
-    public const string Test = "TestMod";
 }

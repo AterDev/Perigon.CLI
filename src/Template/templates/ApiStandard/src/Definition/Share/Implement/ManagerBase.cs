@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Entity;
 
 namespace Share.Implement;
 
@@ -25,7 +26,7 @@ public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logg
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : DbContext
-    where TEntity : class, IEntityBase
+    where TEntity : EntityBase
 {
     #region Properties and Fields
 
