@@ -6,21 +6,16 @@ namespace StudioMod.Managers;
 /// Solution manager
 /// </summary>
 public class SolutionManager(
-    DefaultDbContext dbContext,
+    IDbContextFactory<DefaultDbContext> dbContextFactory,
     IProjectContext projectContext,
     ILogger<SolutionManager> logger,
     CommandService commandService,
     SolutionService solution
-) : ManagerBase<DefaultDbContext, Solution>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, Solution>(dbContextFactory, logger)
 {
-    /// <summary>
-    /// 获取默认模块
-    /// </summary>
-    /// <returns></returns>
-    public static List<ModuleInfo> GetDefaultModules()
-    {
-        return ModuleInfo.GetModules();
-    }
+    private readonly IProjectContext _projectContext = projectContext;
+    private readonly CommandService _commandService = commandService;
+    private readonly SolutionService _solution = solution;
 
     /// <summary>
     /// 创建新解决方案
@@ -28,7 +23,7 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<bool> CreateNewSolutionAsync(CreateSolutionDto dto)
     {
-        return await commandService.CreateSolutionAsync(dto);
+        return await _commandService.CreateSolutionAsync(dto);
     }
 
     /// <summary>
@@ -37,17 +32,19 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<List<Solution>> ListAsync()
     {
-        var projects = await _dbSet.ToListAsync();
+        using var context = dbContextFactory.CreateDbContext();
+        var dbSet = context.Set<Solution>();
+        var projects = await dbSet.ToListAsync();
         for (int i = 0; i < projects.Count; i++)
         {
             var p = projects[i];
             // 移除不存在的项目
             if (!Directory.Exists(p.Path))
             {
-                _dbSet.Remove(p);
+                dbSet.Remove(p);
                 projects.Remove(p);
             }
-            await SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
         return projects;
     }
@@ -65,7 +62,7 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<Guid?> AddProjectAsync(string name, string projectPath)
     {
-        return await commandService.AddProjectAsync(name, projectPath);
+        return await _commandService.AddProjectAsync(name, projectPath);
     }
 
     /// <summary>
@@ -86,18 +83,19 @@ public class SolutionManager(
     public List<SubProjectInfo> GetModules()
     {
         List<SubProjectInfo> res = [];
-        if (!Directory.Exists(projectContext.ModulesPath!))
+        if (!Directory.Exists(_projectContext.ModulesPath!))
         {
             return [];
         }
         var projectFiles =
             Directory
                 .GetFiles(
-                    projectContext.ModulesPath!,
+                    _projectContext.ModulesPath!,
                     $"*{ConstVal.CSharpProjectExtension}",
                     SearchOption.AllDirectories
                 )
-                .ToList() ?? [];
+                .ToList()
+            ?? [];
 
         projectFiles.ForEach(path =>
         {
@@ -118,7 +116,7 @@ public class SolutionManager(
     /// <returns></returns>
     public List<SubProjectInfo> GetServices(bool onlyWeb = true)
     {
-        return solution.GetServices(onlyWeb);
+        return _solution.GetServices(onlyWeb);
     }
 
     /// <summary>
@@ -130,7 +128,7 @@ public class SolutionManager(
         moduleName = moduleName.EndsWith("Mod") ? moduleName : moduleName + "Mod";
         try
         {
-            await solution.CreateModuleAsync(moduleName);
+            await _solution.CreateModuleAsync(moduleName);
             return true;
         }
         catch (Exception ex)
@@ -149,7 +147,7 @@ public class SolutionManager(
     {
         try
         {
-            solution.DeleteModule(moduleName);
+            _solution.DeleteModule(moduleName);
             return true;
         }
         catch (Exception ex)
@@ -168,7 +166,7 @@ public class SolutionManager(
     {
         try
         {
-            if (solution.CleanSolution(out string error))
+            if (_solution.CleanSolution(out string error))
             {
                 return true;
             }
@@ -187,7 +185,7 @@ public class SolutionManager(
 
     public async Task<bool> CreateServiceAsync(string serviceName)
     {
-        var (res, error) = await solution.CreateServiceAsync(serviceName);
+        var (res, error) = await _solution.CreateServiceAsync(serviceName);
         if (res)
         {
             return true;

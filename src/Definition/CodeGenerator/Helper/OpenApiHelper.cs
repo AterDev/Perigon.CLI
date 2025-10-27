@@ -217,6 +217,8 @@ public class OpenApiHelper
         if (backtickIndex > 0) type = type[..backtickIndex];
         int lastDotIndex = type.LastIndexOf('.');
         if (lastDotIndex >= 0) type = type[(lastDotIndex + 1)..];
+        int plusIndex = type.IndexOf('+');
+        if (plusIndex >= 0) type = type[(plusIndex + 1)..];
         return type;
     }
 
@@ -229,13 +231,9 @@ public class OpenApiHelper
             fullName = fullName[..genericTick];
         }
         int lastDotIndex = fullName.LastIndexOf('.');
-        if (lastDotIndex > 0)
-        {
-            return fullName[..lastDotIndex];
-        }
-        return string.Empty;
+        return lastDotIndex > 0 ? fullName[..lastDotIndex] : string.Empty;
     }
-    
+
     public static string GetNamespaceFirstPart(string ns)
     {
         var res = ns.Split('.', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
@@ -306,7 +304,6 @@ public class OpenApiHelper
         if (schema == null) return null;
         if (schema is OpenApiSchemaReference r && r.Reference.Id is not null) return r.Reference.Id;
         if (schema.Items is OpenApiSchemaReference ar && ar.Reference.Id is not null) return ar.Reference.Id;
-        if (schema.OneOf?.FirstOrDefault() is OpenApiSchemaReference one && one.Reference.Id is not null) return one.Reference.Id;
-        return null;
+        return schema.OneOf?.FirstOrDefault() is OpenApiSchemaReference one && one.Reference.Id is not null ? one.Reference.Id : null;
     }
 }

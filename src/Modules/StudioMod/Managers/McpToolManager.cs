@@ -3,11 +3,13 @@ using Ater.Web.Convention.Abstraction;
 namespace StudioMod.Managers;
 
 public class McpToolManager(
-    DefaultDbContext dbContext,
+    IDbContextFactory<DefaultDbContext> dbContextFactory,
     EntityTaskQueue<EventQueueModel<McpTool>> taskQueue,
     ILogger<McpToolManager> logger
-) : ManagerBase<DefaultDbContext, McpTool>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, McpTool>(dbContextFactory, logger)
 {
+    private readonly EntityTaskQueue<EventQueueModel<McpTool>> _taskQueue = taskQueue;
+
     /// <summary>
     /// 获取工具列表
     /// </summary>
@@ -33,7 +35,7 @@ public class McpToolManager(
         var res = await base.AddAsync(entity);
         if (res)
         {
-            await taskQueue.AddItemAsync(
+            await _taskQueue.AddItemAsync(
                 new EventQueueModel<McpTool> { Name = "add", Data = entity }
             );
         }
@@ -51,7 +53,7 @@ public class McpToolManager(
 
         if (res)
         {
-            await taskQueue.AddItemAsync(
+            await _taskQueue.AddItemAsync(
                 new EventQueueModel<McpTool> { Name = "update", Data = entity }
             );
         }
@@ -69,7 +71,7 @@ public class McpToolManager(
         var res = await base.DeleteAsync([id]);
         if (res)
         {
-            await taskQueue.AddItemAsync(
+            await _taskQueue.AddItemAsync(
                 new EventQueueModel<McpTool> { Name = "delete", Data = entity }
             );
         }

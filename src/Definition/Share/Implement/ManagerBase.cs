@@ -14,7 +14,15 @@ public abstract class ManagerBase(ILogger logger)
 /// </summary>
 /// <typeparam name="TDbContext">Database context type</typeparam>
 /// <typeparam name="TEntity">Entity type</typeparam>
-public abstract class ManagerBase<TDbContext, TEntity>
+/// <remarks>
+/// Initializes a new instance of the ManagerBase class with DbContextFactory.
+/// </remarks>
+/// <param name="dbContextFactory">Database context factory</param>
+/// <param name="logger">Logger instance</param>
+public abstract class ManagerBase<TDbContext, TEntity>(
+    IDbContextFactory<TDbContext> dbContextFactory,
+    ILogger logger
+)
     where TDbContext : DbContext
     where TEntity : class, IEntityBase
 {
@@ -26,11 +34,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public bool EnableGlobalQuery { get; set; } = true;
 
     /// <summary>
-    /// Indicates whether to automatically call SaveChanges after operations.
-    /// </summary>
-    protected bool AutoSave { get; set; } = true;
-
-    /// <summary>
     /// Error message for the last operation.
     /// </summary>
     public string ErrorMsg { get; set; } = string.Empty;
@@ -40,27 +43,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     public int ErrorStatus { get; set; }
     #endregion
-    protected IQueryable<TEntity> Queryable { get; set; }
-    protected readonly ILogger _logger;
-    protected readonly TDbContext _dbContext;
-    protected readonly DbSet<TEntity> _dbSet;
-
-    /// <summary>
-    /// Initializes a new instance of the ManagerBase class.
-    /// </summary>
-    /// <param name="dbContext">Database context</param>
-    /// <param name="logger">Logger instance</param>
-    public ManagerBase(TDbContext dbContext, ILogger logger)
-    {
-        _logger = logger;
-        _dbContext = dbContext;
-        _dbSet = _dbContext.Set<TEntity>();
-        Queryable = _dbSet.AsNoTracking().AsQueryable();
-        if (!EnableGlobalQuery)
-        {
-            Queryable = Queryable.IgnoreQueryFilters();
-        }
-    }
+    protected IQueryable<TEntity> Queryable { get; set; } =
+        dbContextFactory.CreateDbContext().Set<TEntity>().AsNoTracking();
+    protected readonly ILogger _logger = logger;
 
     /// <summary>
     /// Gets the current entity by id without tracking.
@@ -69,7 +54,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> GetCurrentAsync(Guid id)
     {
-        return await _dbSet.FindAsync(id);
+        using var context = dbContextFactory.CreateDbContext();
+        return await context.Set<TEntity>().FindAsync(id);
     }
 
     /// <summary>
@@ -81,14 +67,16 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
+        using var context = dbContextFactory.CreateDbContext();
+        var dbSet = context.Set<TEntity>();
         if (typeof(TDto) == typeof(TEntity))
         {
-            var model = await _dbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
+            var model = await dbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
             return model as TDto;
         }
         else
         {
-            return await _dbSet
+            return await dbSet
                 .Where(whereExp ?? (e => true))
                 .ProjectTo<TDto>()
                 .FirstOrDefaultAsync();
@@ -102,7 +90,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> FindAsync(Guid id)
     {
-        return await _dbSet.FindAsync(id);
+        using var context = dbContextFactory.CreateDbContext();
+        return await context.Set<TEntity>().FindAsync(id);
     }
 
     /// <summary>
@@ -114,7 +103,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        var model = await _dbSet
+        using var context = dbContextFactory.CreateDbContext();
+        var dbSet = context.Set<TEntity>();
+        var model = await dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
@@ -122,7 +113,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
 
         if (typeof(TDto) is TEntity && model != null)
         {
-            _dbSet.Attach((model as TEntity)!);
+            dbSet.Attach((model as TEntity)!);
         }
         return model;
     }
@@ -134,7 +125,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if exists; otherwise, false.</returns>
     public virtual async Task<bool> ExistAsync(Guid id)
     {
-        return await _dbSet.AnyAsync(q => q.Id == id);
+        using var context = dbContextFactory.CreateDbContext();
+        return await context.Set<TEntity>().AnyAsync(q => q.Id == id);
     }
 
     /// <summary>
@@ -144,7 +136,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if any entity matches; otherwise, false.</returns>
     public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
     {
-        return await _dbSet.AnyAsync(whereExp);
+        using var context = dbContextFactory.CreateDbContext();
+        return await context.Set<TEntity>().AnyAsync(whereExp);
     }
 
     /// <summary>
@@ -158,7 +151,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
         where TDto : class
     {
-        return await _dbSet
+        using var context = dbContextFactory.CreateDbContext();
+        var dbSet = context.Set<TEntity>();
+        return await dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
@@ -172,7 +167,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>List of entities.</returns>
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
-        return await _dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+        using var context = dbContextFactory.CreateDbContext();
+        var dbSet = context.Set<TEntity>();
+        return await dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
     }
 
     /// <summary>
@@ -186,20 +183,23 @@ public abstract class ManagerBase<TDbContext, TEntity>
         where TFilter : FilterBase
         where TItem : class
     {
-        Queryable =
-            filter.OrderBy != null
-                ? Queryable.OrderBy(filter.OrderBy)
-                : Queryable.OrderByDescending(t => t.CreatedTime);
+        using var context = dbContextFactory.CreateDbContext();
+        var dbSet = context.Set<TEntity>();
+        var queryable = Queryable ?? dbSet.AsNoTracking().AsQueryable();
 
-        var count = Queryable.Count();
-        List<TItem> data = await Queryable
+        queryable =
+            filter.OrderBy != null
+                ? queryable.OrderBy(filter.OrderBy)
+                : queryable.OrderByDescending(t => t.CreatedTime);
+
+        var count = queryable.Count();
+        List<TItem> data = await queryable
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ProjectTo<TItem>()
             .ToListAsync();
 
-        ResetQuery();
         return new PageList<TItem>
         {
             Count = count,
@@ -215,12 +215,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> AddAsync(TEntity entity)
     {
-        await _dbSet.AddAsync(entity);
-        if (AutoSave)
-        {
-            return await SaveChangesAsync() > 0;
-        }
-        return true;
+        using var context = dbContextFactory.CreateDbContext();
+        await context.Set<TEntity>().AddAsync(entity);
+        return await context.SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -230,73 +227,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-        _dbSet.Update(entity);
-        if (AutoSave)
-        {
-            return await SaveChangesAsync() > 0;
-        }
-        return true;
-    }
+        using var context = dbContextFactory.CreateDbContext();
+        var _dbSet = context.Set<TEntity>();
 
-    /// <summary>
-    /// Updates related collection data for an entity.
-    /// </summary>
-    /// <typeparam name="TProperty">Related entity type</typeparam>
-    /// <param name="entity">Current entity</param>
-    /// <param name="propertyExpression">Navigation property expression</param>
-    /// <param name="data">New related data</param>
-    public void UpdateRelation<TProperty>(
-        TEntity entity,
-        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression,
-        List<TProperty> data
-    )
-        where TProperty : class
-    {
-        var currentValue = _dbContext.Entry(entity).Collection(propertyExpression).CurrentValue;
-        if (currentValue != null && currentValue.Any())
-        {
-            _dbContext.RemoveRange(currentValue);
-            _dbContext.Entry(entity).Collection(propertyExpression).CurrentValue = null;
-        }
-        _dbContext.AddRange(data);
-    }
-
-    /// <summary>
-    /// Saves a list of entities, updating, adding, or removing as needed by id.
-    /// </summary>
-    /// <param name="entityList">New full list of entities</param>
-    /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> SaveAsync(List<TEntity> entityList)
-    {
-        var Ids = await _dbSet.Select(e => e.Id).ToListAsync();
-        // new entity by id
-        var newEntities = entityList.Where(d => !Ids.Contains(d.Id)).ToList();
-
-        var updateEntities = entityList.Where(d => Ids.Contains(d.Id)).ToList();
-        var removeEntities = Ids.Where(d => !entityList.Select(e => e.Id).Contains(d)).ToList();
-
-        if (newEntities.Count != 0)
-        {
-            await _dbSet.AddRangeAsync(newEntities);
-        }
-        if (updateEntities.Count != 0)
-        {
-            _dbSet.UpdateRange(updateEntities);
-        }
-        try
-        {
-            if (removeEntities.Count != 0)
-            {
-                await _dbSet.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
-            }
-            _ = await SaveChangesAsync();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "AddOrUpdateAsync");
-            return false;
-        }
+        _dbSet!.Update(entity);
+        return await context.SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -307,8 +242,10 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
+        using var context = dbContextFactory.CreateDbContext();
+        var _dbSet = context.Set<TEntity>();
         var res = softDelete
-            ? await _dbSet
+            ? await _dbSet!
                 .Where(d => ids.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
             : await _dbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
@@ -323,91 +260,17 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
     {
+        using var context = dbContextFactory.CreateDbContext();
+        var _dbSet = context.Set<TEntity>();
+
         if (softDelete)
         {
             entity.IsDeleted = true;
         }
         else
         {
-            _dbSet.Remove(entity);
+            _dbSet!.Remove(entity);
         }
-        return await SaveChangesAsync() > 0;
-    }
-
-    /// <summary>
-    /// Loads a reference navigation property for the entity.
-    /// </summary>
-    /// <typeparam name="TProperty">Navigation property type</typeparam>
-    /// <param name="entity">Entity instance</param>
-    /// <param name="propertyExpression">Navigation property expression</param>
-    /// <returns>Task representing the asynchronous operation.</returns>
-    public async Task LoadAsync<TProperty>(
-        TEntity entity,
-        Expression<Func<TEntity, TProperty?>> propertyExpression
-    )
-        where TProperty : class
-    {
-        var entry = _dbContext.Entry(entity);
-        if (entry.State != EntityState.Detached)
-        {
-            await _dbContext.Entry(entity).Reference(propertyExpression).LoadAsync();
-        }
-        else
-        {
-            await _dbContext
-                .Entry(entity)
-                .Reference(propertyExpression)
-                .Query()
-                .AsNoTracking()
-                .LoadAsync();
-        }
-    }
-
-    /// <summary>
-    /// Loads a collection navigation property for the entity.
-    /// </summary>
-    /// <typeparam name="TProperty">Collection property type</typeparam>
-    /// <param name="entity">Entity instance</param>
-    /// <param name="propertyExpression">Collection property expression</param>
-    /// <returns>Task representing the asynchronous operation.</returns>
-    public async Task LoadManyAsync<TProperty>(
-        TEntity entity,
-        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression
-    )
-        where TProperty : class
-    {
-        var entry = _dbContext.Entry(entity);
-        if (entry.State != EntityState.Detached)
-        {
-            await _dbContext.Entry(entity).Collection(propertyExpression).LoadAsync();
-        }
-        else
-        {
-            await _dbContext
-                .Entry(entity)
-                .Collection(propertyExpression)
-                .Query()
-                .AsNoTracking()
-                .LoadAsync();
-        }
-    }
-
-    /// <summary>
-    /// Saves changes to the database asynchronously.
-    /// </summary>
-    /// <returns>The number of state entries written to the database.</returns>
-    protected async Task<int> SaveChangesAsync()
-    {
-        return await _dbContext.SaveChangesAsync();
-    }
-
-    /// <summary>
-    /// Resets the queryable to its default state, applying or ignoring global query filters.
-    /// </summary>
-    protected void ResetQuery()
-    {
-        Queryable = EnableGlobalQuery
-            ? _dbSet.AsQueryable()
-            : Queryable.IgnoreQueryFilters().AsQueryable();
+        return await context.SaveChangesAsync() > 0;
     }
 }

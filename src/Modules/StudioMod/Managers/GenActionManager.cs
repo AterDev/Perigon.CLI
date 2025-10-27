@@ -8,12 +8,12 @@ namespace StudioMod.Managers;
 /// The project's generate action
 /// </summary>
 public class GenActionManager(
-    DefaultDbContext dbContext,
+    IDbContextFactory<DefaultDbContext> dbContextFactory,
     CodeGenService codeGenService,
     ILogger<GenActionManager> logger,
     IProjectContext projectContext,
     CodeAnalysisService codeAnalysis
-) : ManagerBase<DefaultDbContext, GenAction>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, GenAction>(dbContextFactory, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeGenService _codeGen = codeGenService;
@@ -90,8 +90,12 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> IsUniqueAsync(string name, Guid? id = null)
     {
-        // 自定义唯一性验证参数和逻辑
-        return await _dbSet.Where(q => q.Name == name).WhereNotNull(id, q => q.Id != id).AnyAsync();
+        using var context = dbContextFactory.CreateDbContext();
+        return await context
+            .Set<GenAction>()
+            .Where(q => q.Name == name)
+            .WhereNotNull(id, q => q.Id != id)
+            .AnyAsync();
     }
 
     /// <summary>
@@ -112,7 +116,8 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<GenAction?> GetOwnedAsync(Guid id)
     {
-        var query = _dbSet.Where(q => q.Id == id);
+        using var context = dbContextFactory.CreateDbContext();
+        var query = context.Set<GenAction>().Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();
@@ -126,27 +131,26 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> AddStepsAsync(Guid id, List<Guid> stepIds)
     {
-        await _dbContext.Database.BeginTransactionAsync();
+        using var context = dbContextFactory.CreateDbContext();
+        await context.Database.BeginTransactionAsync();
         try
         {
-            await _dbContext
-                .GenActionGenSteps.Where(q => q.GenActionsId == id)
-                .ExecuteDeleteAsync();
+            await context.GenActionGenSteps.Where(q => q.GenActionsId == id).ExecuteDeleteAsync();
 
             var actionSteps = stepIds.Select(q => new GenActionGenStep
             {
                 GenActionsId = id,
                 GenStepsId = q,
             });
-            await _dbContext.GenActionGenSteps.AddRangeAsync(actionSteps);
-            await SaveChangesAsync();
-            await _dbContext.Database.CommitTransactionAsync();
+            await context.GenActionGenSteps.AddRangeAsync(actionSteps);
+            await context.SaveChangesAsync();
+            await context.Database.CommitTransactionAsync();
             return true;
         }
         catch (Exception ex)
         {
-            await _dbContext.Database.RollbackTransactionAsync();
-            _logger.LogError(ex, "Add steps failed");
+            await context.Database.RollbackTransactionAsync();
+            logger.LogError(ex, "Add steps failed");
             return false;
         }
     }
@@ -154,14 +158,19 @@ public class GenActionManager(
     /// <summary>
     /// 执行任务
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
     public async Task<GenActionResultDto> ExecuteActionAsync(GenActionRunDto dto)
     {
         var res = new GenActionResultDto();
-        var action = await _dbSet.Where(a => a.Id == dto.Id).Include(a => a.GenSteps).SingleAsync();
+        using var context = dbContextFactory.CreateDbContext();
+        var action = await context
+            .Set<GenAction>()
+            .Where(a => a.Id == dto.Id)
+            .Include(a => a.GenSteps)
+            .SingleAsync();
         action.ActionStatus = ActionStatus.InProgress;
-        await SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         // 构建任务执行需要的内容
         var variables = action.Variables;
@@ -313,20 +322,20 @@ public class GenActionManager(
             {
                 action.ActionStatus = ActionStatus.Failed;
                 // TODO: 记录执行情况
-                _logger.LogError(ex, "Execute action failed");
+                logger.LogError(ex, "Execute action failed");
                 res.ErrorMsg = ex.Message;
-                await SaveChangesAsync();
+                await context.SaveChangesAsync();
                 res.IsSuccess = false;
             }
         }
         else
         {
             action.ActionStatus = ActionStatus.Failed;
-            await SaveChangesAsync();
+            await context.SaveChangesAsync();
             res.IsSuccess = false;
             res.Equals("未找到任务步骤");
         }
-        await SaveChangesAsync();
+        await context.SaveChangesAsync();
         return res;
     }
 

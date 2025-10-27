@@ -56,7 +56,7 @@ public static class WebExtensions
         services.AddThirdAuthentication(configuration);
 
         services.AddAuthorize();
-        services.AddCors();
+        services.AddCors(configuration);
         services.AddRateLimiter();
 
         services.AddOutputCache(options =>
@@ -123,9 +123,8 @@ public static class WebExtensions
                 context =>
                 {
                     var remoteIpAddress = context.Connection.RemoteIpAddress;
-                    if (!IPAddress.IsLoopback(remoteIpAddress!))
-                    {
-                        return RateLimitPartition.GetFixedWindowLimiter(
+                    return !IPAddress.IsLoopback(remoteIpAddress!)
+                        ? RateLimitPartition.GetFixedWindowLimiter(
                             remoteIpAddress!.ToString(),
                             _ => new FixedWindowRateLimiterOptions
                             {
@@ -134,12 +133,8 @@ public static class WebExtensions
                                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                                 QueueLimit = 3,
                             }
-                        );
-                    }
-                    else
-                    {
-                        return RateLimitPartition.GetNoLimiter(remoteIpAddress!.ToString());
-                    }
+                        )
+                        : RateLimitPartition.GetNoLimiter(remoteIpAddress!.ToString());
                 }
             );
 
@@ -148,9 +143,8 @@ public static class WebExtensions
             {
                 IPAddress? remoteIpAddress = context.Connection.RemoteIpAddress;
 
-                if (!IPAddress.IsLoopback(remoteIpAddress!))
-                {
-                    return RateLimitPartition.GetFixedWindowLimiter(
+                return !IPAddress.IsLoopback(remoteIpAddress!)
+                    ? RateLimitPartition.GetFixedWindowLimiter(
                         remoteIpAddress!,
                         _ => new FixedWindowRateLimiterOptions
                         {
@@ -159,10 +153,8 @@ public static class WebExtensions
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                             QueueLimit = 3,
                         }
-                    );
-                }
-
-                return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
+                    )
+                    : RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
             });
         });
         return services;

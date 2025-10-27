@@ -25,10 +25,7 @@ public static class ServiceCollectionExtension
         app.UseAntiforgery();
         app.MapStaticAssets();
 
-
-
         app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
-
         return app;
     }
 

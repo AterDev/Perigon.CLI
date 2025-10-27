@@ -1,6 +1,3 @@
-using System.Text;
-using CodeGenerator.Models;
-
 namespace CodeGenerator.Generate.LanguageFormatter;
 
 /// <summary>
@@ -20,11 +17,11 @@ public class TypeScriptFormatter : LanguageFormatter
         ["decimal"] = "number",
         ["bool"] = "boolean",
         ["Guid"] = "string",
-        ["DateTime"] = "string",
-        ["DateTimeOffset"] = "string",
-        ["DateOnly"] = "string",
-        ["TimeOnly"] = "string",
-        ["TimeSpan"] = "string",
+        ["DateTime"] = "Date",
+        ["DateTimeOffset"] = "Date",
+        ["DateOnly"] = "Date",
+        ["TimeOnly"] = "Date",
+        ["TimeSpan"] = "number",
         ["object"] = "any",
         ["IFile"] = "FormData",
     };
@@ -33,6 +30,7 @@ public class TypeScriptFormatter : LanguageFormatter
     {
         if (string.IsNullOrWhiteSpace(csharpType)) return "any";
         var tsType = Normalize(csharpType);
+
         if (isEnum)
         {
             tsType = StripGenericArity(tsType);
@@ -58,11 +56,7 @@ public class TypeScriptFormatter : LanguageFormatter
 
     public override string GenerateModel(TypeMeta meta)
     {
-        if (meta.IsEnum == true)
-        {
-            return GenerateEnum(meta);
-        }
-        return GenerateInterface(meta);
+        return meta.IsEnum == true ? GenerateEnum(meta) : GenerateInterface(meta);
     }
 
 
@@ -102,47 +96,39 @@ public class TypeScriptFormatter : LanguageFormatter
             }
         }
 
-        foreach (var p in meta.PropertyInfos)
+        foreach (var property in meta.PropertyInfos)
         {
-            bool isNullable = p.IsNullable;
+            bool isNullable = property.IsNullable;
             if (meta.Name.EndsWith(Entity.ConstVal.FilterDto, StringComparison.OrdinalIgnoreCase) ||
                 meta.Name.EndsWith(Entity.ConstVal.UpdateDto, StringComparison.OrdinalIgnoreCase))
             {
                 isNullable = true;
             }
-            string tsPropType = p.Type;
+            string tsPropType = property.Type;
             bool replacedByGeneric = false;
+
+            // 泛型处理
             if (!string.IsNullOrWhiteSpace(tsPropType) && genericMap.Count > 0)
             {
-                // 提取元素类型 (处理 数组 / List<> / IEnumerable<>)
                 string rawType = tsPropType;
                 bool isArray = rawType.EndsWith("[]");
-                string elementType;
-                if (isArray)
-                {
-                    elementType = rawType[..^2];
-                }
-                else if (p.IsList || rawType.StartsWith("List<") || rawType.StartsWith("IEnumerable<") || rawType.StartsWith("ICollection<") || rawType.StartsWith("IList<"))
-                {
-                    elementType = ExtractGenericArgument(rawType) ?? rawType;
-                }
-                else
-                {
-                    elementType = rawType;
-                }
-
+                string elementType = isArray
+                    ? rawType[..^2]
+                    : property.IsList || rawType.StartsWith("List<") || rawType.StartsWith("IEnumerable<") || rawType.StartsWith("ICollection<") || rawType.StartsWith("IList<")
+                        ? ExtractGenericArgument(rawType) ?? rawType
+                        : rawType;
                 var formattedElementType = OpenApiHelper.FormatSchemaKey(elementType);
                 if (genericMap.TryGetValue(formattedElementType, out var placeholder))
                 {
-                    tsPropType = placeholder + ((isArray || p.IsList) ? "[]" : string.Empty);
+                    tsPropType = placeholder + ((isArray || property.IsList) ? "[]" : string.Empty);
                     replacedByGeneric = true;
                 }
             }
-            sbProps.Append(FormatProperty(p.Name, tsPropType, p.IsEnum, p.IsList, isNullable, p.CommentSummary));
-            var reference = p.NavigationName ?? string.Empty;
+            sbProps.Append(FormatProperty(property.Name, tsPropType, property.IsEnum, property.IsList, isNullable, property.CommentSummary));
+            var reference = property.NavigationName ?? string.Empty;
             if (!replacedByGeneric && !string.IsNullOrWhiteSpace(reference) && reference != meta.FullName)
             {
-                importRefs.Add((reference, p.IsEnum));
+                importRefs.Add((reference, property.IsEnum));
             }
         }
 
@@ -197,7 +183,11 @@ public class TypeScriptFormatter : LanguageFormatter
             cleaned = cleaned.Split('.').Last();
         }
 
-        if (PrimitiveMap.TryGetValue(cleaned, out var mapped)) return mapped;
+        if (PrimitiveMap.TryGetValue(cleaned, out var mapped))
+        {
+            return mapped;
+        }
+
         if (cleaned.StartsWith("List<"))
         {
             var elem = ExtractGenericArgument(cleaned) ?? "any";
@@ -208,11 +198,7 @@ public class TypeScriptFormatter : LanguageFormatter
             var val = ExtractDictionaryValueType(cleaned) ?? "any";
             return $"Record<string, {Normalize(val)}>{string.Empty}";
         }
-        if (cleaned.EndsWith("[]"))
-        {
-            return Normalize(cleaned[..^2]) + "[]";
-        }
-        return cleaned;
+        return cleaned.EndsWith("[]") ? Normalize(cleaned[..^2]) + "[]" : cleaned;
     }
     #endregion
 }
