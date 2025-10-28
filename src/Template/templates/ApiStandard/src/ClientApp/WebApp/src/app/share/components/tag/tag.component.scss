@@ -1,4 +1,6 @@
-@import 'src/vars.scss';
+@use 'vars' as vars;
+@use 'theme' as theme;
+@use 'sass:color' as color;
 
 .tag {
   display: inline-block;
@@ -12,76 +14,76 @@
 
 @media (prefers-color-scheme: dark) {
   .primary {
-    background-color: darken($color: $dark-primary-color, $amount: 5%);
+  background-color: color.adjust(vars.$dark-primary-color, $lightness: -5%);
 
     &:hover {
-      background-color: darken($color: $dark-primary-color, $amount: 10%);
+      background-color: color.adjust(vars.$dark-primary-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: lighten($color: $dark-primary-color, $amount: 0);
+      background-color: color.adjust(vars.$dark-primary-color, $lightness: 0%);
     }
   }
 
   .accent {
-    background-color: darken($color: $accent-color, $amount: 5%);
+  background-color: color.adjust(theme.$dark-accent-color, $lightness: -5%);
 
     &:hover {
-      background-color: darken($color: $accent-color, $amount: 10%);
+      background-color: color.adjust(theme.$dark-accent-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: lighten($color: $accent-color, $amount: 0);
+      background-color: color.adjust(theme.$dark-accent-color, $lightness: 0%);
     }
   }
 
   .warn {
-    background-color: darken($color: $error-color, $amount: 5%);
+  background-color: color.adjust(theme.$dark-error-color, $lightness: -5%);
 
     &:hover {
-      background-color: darken($color: $error-color, $amount: 10%);
+      background-color: color.adjust(theme.$dark-error-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: lighten($color: $error-color, $amount: 0);
+      background-color: color.adjust(theme.$dark-error-color, $lightness: 0%);
     }
   }
 }
 
 @media (prefers-color-scheme: light) {
   .primary {
-    background-color: darken($color: $light-primary-color, $amount: 5%);
+  background-color: color.adjust(vars.$light-primary-color, $lightness: -5%);
 
     &:hover {
-      background-color: darken($color: $light-primary-color, $amount: 10%);
+      background-color: color.adjust(vars.$light-primary-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: lighten($color: $light-primary-color, $amount: 0);
+      background-color: color.adjust(vars.$light-primary-color, $lightness: 0%);
     }
   }
 
   .accent {
-    background-color: darken($color: $accent-color, $amount: 5%);
+  background-color: color.adjust(theme.$light-accent-color, $lightness: -5%);
 
     &:hover {
-      background-color: darken($color: $accent-color, $amount: 10%);
+      background-color: color.adjust(theme.$light-accent-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: lighten($color: $accent-color, $amount: 0);
+      background-color: color.adjust(theme.$light-accent-color, $lightness: 0%);
     }
   }
 
   .warn {
-    background-color: darken($color: $error-color, $amount: 5%);
+  background-color: color.adjust(theme.$light-error-color, $lightness: -5%);
 
     &:hover {
-      background-color: darken($color: $error-color, $amount: 10%);
+      background-color: color.adjust(theme.$light-error-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: lighten($color: $error-color, $amount: 0);
+      background-color: color.adjust(theme.$light-error-color, $lightness: 0%);
     }
   }
 }

@@ -22,7 +22,6 @@ public class ComponentOption
     public bool UseSMS { get; set; }
     public bool UseSmtp { get; set; }
     public bool UseAWSS3 { get; set; }
-    public bool UseOpenAPI { get; set; } = true;
 }
 
 public enum AuthType

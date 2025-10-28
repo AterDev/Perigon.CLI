@@ -30,7 +30,6 @@ export class Login implements OnInit, AfterViewInit {
   private translate = inject(TranslateService);
   constructor(
     private authService: AuthService,
-    private service: SystemUserService,
     private router: Router
   ) {
     if (authService.isLogin) {
