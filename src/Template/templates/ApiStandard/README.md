@@ -19,7 +19,7 @@
 * `src/Modules/`: 包含各个模块的程序集，主要用于业务逻辑实现
 * `src/Modules/XXXMod/Managers`: 各模块下，实际实现业务逻辑的目录
 * `src/Modules/XXXMod/Models`: 各模块下，Dto模型定义，按实体目录组织
-* `src/Services/ApiService`: 是接口服务项目，基于ASP.NET Core Web API。
+* `src/Services/ApiService`: 是接口服务项目，基于ASP.NET Core Web API
 * `src/Services/AdminService`: 后台管理服务接口项目
 
 > [!NOTE]
@@ -31,13 +31,26 @@
 
 遵循`Entity Framework Core`的官方文档，对模型及关联关系进行定义。
 
+- 不同模块的实体要以模块名称(XXXMod)分文件夹，且命名空间要对应。
+- 所有模型属性需要注释，所有枚举都要添加[Description]特性说明
+- 实体模型类需要继承自`EntityBase`
+- 对于只关联于实体自身的属性，优先考虑使用ToJson映射，而不是单独建表，包括简单数组属性。
+
 ## 业务Manager
 
 通过`Manager`来定义和管理业务方法，模板中提供`ManagerBase`类作为默认实现。
 
 ## 接口请求与返回
 
-整体以RESTful风格为标准，进行一定的简化。
+整体以RESTful风格为标准。
+
+控制器方法命名简单一致，如添加用户，直接使用AddAsync，而不是AddUserAsync，如:
+
+- 添加/创建: AddAsync
+- 修改/更新: UpdateAsync
+- 删除: DeleteAsync
+- 查询详情: GetDetailAsync
+- 筛选查询: FilterAsync
 
 ### 请求方式
 
@@ -211,8 +224,6 @@ public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUs
 `public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null){}`
 
 若自定义查询，如查询关联的内容，需要添加新的方法来实现.
-
-`Manager`提供了`Query.Db`成员，可直接对当前模型进行查询。
 
 代码示例:
 

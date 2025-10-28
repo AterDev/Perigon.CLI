@@ -3,12 +3,13 @@ using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Ater.Common;
 using Ater.Common.Converters;
-using Ater.Common.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using ServiceDefaults.Middleware;
 
 namespace ServiceDefaults;
@@ -64,15 +65,7 @@ public static class WebExtensions
             options.AddPolicy("openapi", policy => policy.Expire(TimeSpan.FromMinutes(10)));
         });
 
-        services.AddOpenApi(
-            "v1",
-            options =>
-            {
-                options.AddSchemaTransformer<OpenApiSchemaTransformer>();
-                options.AddOperationTransformer<OpenApiOperationTransformer>();
-            }
-        );
-
+        services.AddSwagger();
         services.AddLocalizer();
         return services;
     }
@@ -91,7 +84,6 @@ public static class WebExtensions
         else
         {
             app.UseCors(AppConst.Default);
-            app.MapOpenApi().CacheOutput("openapi");
         }
 
         app.UseRateLimiter();
@@ -99,12 +91,74 @@ public static class WebExtensions
         app.UseRequestLocalization();
         app.UseRouting();
         app.UseOutputCache();
+        app.MapSwagger().CacheOutput("openapi");
+
         //app.UseMiddleware<JwtMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
         app.MapFallbackToFile("index.html");
         return app;
+    }
+    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(c =>
+        {
+            c.AddSecurityDefinition(
+                "Bearer",
+                new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer",
+                }
+            );
+            // Microsoft.OpenApi 2.0: requirement uses OpenApiSecuritySchemeReference keys
+            c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+            {
+                { new OpenApiSecuritySchemeReference("Bearer"), new List<string>() },
+            });
+
+            c.SwaggerDoc(
+                "v1",
+                new OpenApiInfo
+                {
+                    Title = AppDomain.CurrentDomain.FriendlyName,
+                    Description =
+                        "Admin API 文档. 更新时间:" + DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"),
+                    Version = "v1",
+                }
+            );
+
+            var xmlFiles = Directory.GetFiles(
+                AppContext.BaseDirectory,
+                "*.xml",
+                SearchOption.TopDirectoryOnly
+            );
+            foreach (var item in xmlFiles)
+            {
+                try
+                {
+                    c.IncludeXmlComments(item, includeControllerXmlComments: true);
+                }
+                catch (Exception) { }
+            }
+            c.SupportNonNullableReferenceTypes();
+            c.DescribeAllParametersInCamelCase();
+            c.CustomOperationIds(
+                (z) =>
+                {
+                    var descriptor = (ControllerActionDescriptor)z.ActionDescriptor;
+                    return $"{descriptor.ControllerName}_{descriptor.ActionName}";
+                }
+            );
+            c.CustomSchemaIds(type => type.FullName ?? type.Name);
+            c.SchemaFilter<SwaggerSchemaFilter>();
+        });
+        return services;
     }
 
     /// <summary>
