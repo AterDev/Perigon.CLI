@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using CodeGenerator.Generate.LanguageFormatter;
 
 namespace CodeGenerator.Generate.ClientRequest;
@@ -106,7 +105,28 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
                     function.Name = operation.Key + "_" + path.Key.Split('/').LastOrDefault();
                 }
                 var reqSchema = operation.Value?.RequestBody?.Content?.Values.FirstOrDefault()?.Schema;
-                var respSchema = operation.Value?.Responses?.FirstOrDefault().Value?.Content?.FirstOrDefault().Value?.Schema;
+                IOpenApiSchema? respSchema = null;
+                var responses = operation.Value?.Responses;
+                if (responses != null && responses.Count > 0)
+                {
+                    IOpenApiResponse? selectedResponse = null;
+                    if (responses.Count == 1)
+                    {
+                        selectedResponse = responses.Values.First();
+                    }
+                    else
+                    {
+                        if (responses.ContainsKey("200"))
+                        {
+                            selectedResponse = responses["200"];
+                        }
+                        else
+                        {
+                            selectedResponse = responses.Values.First();
+                        }
+                    }
+                    respSchema = selectedResponse?.Content?.FirstOrDefault().Value?.Schema;
+                }
                 function.RequestRefType = OpenApiHelper.GetRootRef(reqSchema);
                 function.ResponseRefType = OpenApiHelper.GetRootRef(respSchema);
                 function.RequestType = GetTsType(reqSchema);
@@ -127,6 +147,12 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
                         Type = type,
                     };
                 }).ToList();
+                // 处理相同方法，不同请求谓词的情况
+                if (RequestFunctions.Any(f => f.Name == function.Name))
+                {
+                    function.Name = function.Name + operation.Key.ToString();
+                }
+
                 RequestFunctions.Add(function);
             }
         }
@@ -296,9 +322,11 @@ public abstract class ClientRequestBase(OpenApiDocument openApi)
             paramsString += "extOptions?: ExtOptions";
         }
         // 泛型占位替换：请求类型、响应类型、参数列表
-        paramsString = ReplaceGenericPlaceholders(paramsString, function);
+        //paramsString = ReplaceGenericPlaceholders(paramsString, function);
         requestType = ReplaceGenericPlaceholders(requestType, function);
         responseType = ReplaceGenericPlaceholders(responseType, function);
+
+
         string comments =
             $"/**\n * {function.Description ?? name}\n{paramsComments} */";
 

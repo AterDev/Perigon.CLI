@@ -69,6 +69,7 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
                 Environment.NewLine,
                 functions.Select(ToNgRequestFunction).ToArray()
             );
+
             var refMetas = GetRefTypes(functions)
                 .GroupBy(m => m.Name)
                 .Select(g => g.First())
@@ -134,7 +135,7 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
             responseType = "Blob";
             generics = "";
         }
-        var cw = new Helper.CodeWriter();
+        var cw = new CodeWriter();
         if (!string.IsNullOrWhiteSpace(result.Comments))
         {
             var commentLines = result.Comments.Split('\n');
