@@ -44,6 +44,7 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
             .Select(f => f.Tag!)
             .Distinct()
             .ToList();
+
         var clientContent = ToNgClient(docName, serviceKeys);
         if (!string.IsNullOrWhiteSpace(clientContent))
         {
@@ -116,6 +117,8 @@ public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
         foreach (var s in serviceNames)
         {
             string className = s + "Service";
+            var tag = ApiTags?.FirstOrDefault(t => t.Name == s);
+            cw.AppendLine($"/** {tag?.Description ?? s} */");
             cw.AppendLine($"public {s.ToCamelCase()} = inject({className});");
         }
         cw.CloseBlock();
