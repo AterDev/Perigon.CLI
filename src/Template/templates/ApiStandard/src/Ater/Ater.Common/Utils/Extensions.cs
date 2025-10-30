@@ -110,7 +110,7 @@ public static partial class Extensions
         Dictionary<string, bool> dic
     )
     {
-        IOrderedQueryable<T> orderQuery = default!;
+        IOrderedQueryable<T> orderQuery = (IOrderedQueryable<T>)query;
         ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
         var count = 0;
         foreach (KeyValuePair<string, bool> item in dic)
@@ -162,7 +162,7 @@ public static partial class Extensions
         Dictionary<string, bool> dic
     )
     {
-        IOrderedQueryable<T> orderQuery = default!;
+        IOrderedQueryable<T> orderQuery = (IOrderedQueryable<T>)query;
         ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
         foreach (KeyValuePair<string, bool> item in dic)
         {

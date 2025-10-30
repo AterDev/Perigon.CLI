@@ -197,7 +197,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         where TItem : class
     {
         Queryable =
-            filter.OrderBy != null
+            filter.OrderBy != null && filter.OrderBy.Count > 0
                 ? Queryable.OrderBy(filter.OrderBy)
                 : Queryable.OrderByDescending(t => t.CreatedTime);
 
