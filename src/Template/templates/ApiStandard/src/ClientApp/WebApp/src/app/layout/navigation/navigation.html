@@ -18,7 +18,7 @@
       @if(menu.menuType==0){
       <mat-expansion-panel hideToggle [expanded]="expanded">
         <mat-expansion-panel-header>
-          <mat-panel-title>
+          <mat-panel-title [style.justify-content]="opened ? 'start' : 'center'">
             <a class="nav-title">
               <mat-icon>{{menu.icon}}</mat-icon>
               @if(opened){

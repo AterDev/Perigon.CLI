@@ -1,5 +1,5 @@
 using System.Reflection;
-using Ater.Common.Attributes;
+using Ater.AspNetCore.Attributes;
 using EntityFramework.DBProvider;
 using Microsoft.Extensions.Hosting;
 

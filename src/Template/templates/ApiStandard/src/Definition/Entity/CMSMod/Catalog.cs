@@ -1,7 +1,5 @@
-using Ater.Common.Models;
-using Entity.UserMod;
-
 namespace Entity.CMSMod;
+
 /// <summary>
 /// 目录
 /// </summary>
@@ -20,6 +18,7 @@ public class Catalog : EntityBase, ITreeNode<Catalog>
     /// 层级
     /// </summary>
     public short Level { get; set; }
+
     /// <summary>
     /// 子目录
     /// </summary>
@@ -33,7 +32,5 @@ public class Catalog : EntityBase, ITreeNode<Catalog>
     public Guid? ParentId { get; set; }
     public ICollection<Blog> Blogs { get; set; } = [];
 
-    [ForeignKey(nameof(UserId))]
-    public User User { get; set; } = null!;
     public Guid UserId { get; set; }
 }

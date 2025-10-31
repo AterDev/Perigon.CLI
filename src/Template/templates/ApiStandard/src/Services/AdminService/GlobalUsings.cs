@@ -1,8 +1,8 @@
 //global using AdminService.Extension;
 global using AdminService.Extension;
-global using Ater.Common.Utils;
-global using Ater.Web.Convention;
-global using Ater.Web.Convention.Abstraction;
+global using Ater.AspNetCore.Abstraction;
+global using Ater.AspNetCore.Constants;
+global using Ater.AspNetCore.Utils;
 global using Entity.SystemMod;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;

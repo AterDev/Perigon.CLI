@@ -1,9 +1,9 @@
 global using System.Net;
 global using System.Text;
 global using System.Text.Json.Serialization;
-global using Ater.Common.Options;
-global using Ater.Common.Utils;
-global using Ater.Web.Convention;
+global using Ater.AspNetCore.Constants;
+global using Ater.AspNetCore.Options;
+global using Ater.AspNetCore.Utils;
 global using EntityFramework.DBProvider;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.Configuration;

@@ -1,6 +1,6 @@
 global using System.Linq.Expressions;
-global using Ater.Web.Convention.Abstraction;
-global using Ater.Common.Models;
-global using Ater.Common.Options;
+global using Ater.AspNetCore.Abstraction;
+global using Ater.AspNetCore.Models;
+global using Ater.AspNetCore.Options;
 global using Entity;
 global using Microsoft.EntityFrameworkCore;

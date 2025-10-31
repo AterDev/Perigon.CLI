@@ -21,7 +21,6 @@ public partial class Template
     private bool IsLoading { get; set; } = true;
     private FluentTextField? _addDirField;
 
-
     protected override void OnInitialized()
     {
         CheckProject();
@@ -32,6 +31,7 @@ public partial class Template
 
         IsLoading = false;
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!DialogHidden && _addDirField is not null)
@@ -174,7 +174,7 @@ public partial class Template
         };
         var dialog = await DialogService.ShowDialogAsync<UpsertFileDialog>(
             data,
-            new DialogParameters { Width = "auto", Modal = false }
+            new DialogParameters { Width = "800px", Modal = false }
         );
         var result = await dialog.Result;
         if (!result.Cancelled)

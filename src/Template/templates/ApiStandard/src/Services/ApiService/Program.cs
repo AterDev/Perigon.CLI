@@ -1,4 +1,4 @@
-using Ater.Web.Convention;
+using Ater.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

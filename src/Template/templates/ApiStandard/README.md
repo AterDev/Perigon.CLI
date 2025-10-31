@@ -12,7 +12,7 @@
 
 ## 代码目录src
 
-* `src/Ater/Ater.Common`: 基础类库，提供基础帮助类。
+* `src/Ater/Ater.AspNetCore`: 基础类库，提供基础帮助类。
 * `src/Definition/ServiceDefaults`: 是提供基础的服务注入的项目。
 * `src/Definition/Entity`: 包含所有的实体模型，按模块目录组织。
 * `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文

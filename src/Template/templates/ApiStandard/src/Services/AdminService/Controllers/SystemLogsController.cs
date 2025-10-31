@@ -1,4 +1,4 @@
-using Ater.Common.Models;
+using Ater.AspNetCore.Models;
 using SystemMod.Models.SystemLogsDtos;
 
 namespace AdminService.Controllers;

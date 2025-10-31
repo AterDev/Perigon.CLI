@@ -1,6 +1,7 @@
-using Ater.Web.Extension.Services;
+using Ater.AspNetCore.Toolkit.Services;
 
 namespace CommonMod.Managers;
+
 public class EmailManager(ILogger<EmailManager> logger, SmtpService smtp) : ManagerBase(logger)
 {
     /// <summary>
@@ -10,7 +11,8 @@ public class EmailManager(ILogger<EmailManager> logger, SmtpService smtp) : Mana
     /// <param name="verifyCode"></param>
     public async Task SendRegisterVerifyAsync(string email, string verifyCode)
     {
-        var html = @$"<p>欢迎您注册成为MyProjectName网站的会员！</p>
+        var html =
+            @$"<p>欢迎您注册成为MyProjectName网站的会员！</p>
 <p>您的验证码为：</p>
 <h3>
     <span style='padding:8px;color:white;background-color: rgb(0, 90, 226); border-radius: 5px;'>
@@ -29,7 +31,8 @@ public class EmailManager(ILogger<EmailManager> logger, SmtpService smtp) : Mana
     /// <returns></returns>
     public async Task SendRegResultAsync(string email, string content)
     {
-        var html = @$"<p>感谢您注册成为MyProjectName网站的会员！</p>
+        var html =
+            @$"<p>感谢您注册成为MyProjectName网站的会员！</p>
 <p>您的注册结果为：</p>
 <h3>
     <span style='padding:8px;color:white;background-color: rgb(0, 90, 226); border-radius: 5px;'>
@@ -47,7 +50,8 @@ public class EmailManager(ILogger<EmailManager> logger, SmtpService smtp) : Mana
     /// <returns></returns>
     public async Task SendLoginVerifyAsync(string email, string verifyCode)
     {
-        var html = @$"<p>您正在登录 MyProjectName网站!</p>
+        var html =
+            @$"<p>您正在登录 MyProjectName网站!</p>
 <p>您的验证码为：</p>
 <h3>
     <span style='padding:8px;color:white;background-color: rgb(0, 90, 226); border-radius: 5px;'>

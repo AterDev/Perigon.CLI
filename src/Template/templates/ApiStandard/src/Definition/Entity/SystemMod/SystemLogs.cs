@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Ater.Common.Models;
+using Ater.AspNetCore.Models;
 
 namespace Entity.SystemMod;
 /// <summary>

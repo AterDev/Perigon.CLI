@@ -1,4 +1,4 @@
-using Ater.Common.Models;
+using Ater.AspNetCore.Models;
 
 namespace CMSMod.Models.BlogDtos;
 /// <summary>

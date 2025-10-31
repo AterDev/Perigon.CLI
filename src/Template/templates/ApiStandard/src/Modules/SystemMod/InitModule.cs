@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Ater.Common.Options;
+using Ater.AspNetCore.Options;
 using EntityFramework.DBProvider;
 
 namespace SystemMod;

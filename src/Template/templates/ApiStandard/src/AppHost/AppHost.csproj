@@ -19,7 +19,7 @@
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ater\Ater.Common\Ater.Common.csproj" IsAspireProjectResource="false" />
+    <ProjectReference Include="..\Ater\Ater.AspNetCore\Ater.AspNetCore.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
     <ProjectReference Include="..\Services\ApiService\ApiService.csproj" />
     <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />

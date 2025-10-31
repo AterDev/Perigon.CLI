@@ -1,6 +1,6 @@
 global using EntityFramework;
-global using Ater.Common.Models;
-global using Ater.Common.Utils;
+global using Ater.AspNetCore.Models;
+global using Ater.AspNetCore.Utils;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Logging;
 global using Share;

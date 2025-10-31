@@ -85,7 +85,7 @@ public class CatalogManager(DefaultDbContext dbContext, ILogger<BlogManager> log
     {
         IQueryable<Catalog> query = _dbSet.Where(q => q.Id == id);
         // 属于当前角色的对象
-        query = query.Where(q => q.User.Id == userId);
+        query = query.Where(q => q.UserId == userId);
         return await query.FirstOrDefaultAsync();
     }
 }

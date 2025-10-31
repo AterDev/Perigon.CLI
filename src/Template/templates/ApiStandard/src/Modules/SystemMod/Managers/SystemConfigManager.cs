@@ -1,4 +1,4 @@
-using Ater.Common.Options;
+using Ater.AspNetCore.Options;
 using EntityFramework.DBProvider;
 using System.Text.Json;
 using SystemMod.Models.SystemConfigDtos;

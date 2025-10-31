@@ -13,7 +13,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-        <ProjectReference Include="..\..\Modules\UserMod\UserMod.csproj" />
+        <ProjectReference Include="..\..\Modules\CommonMod\CommonMod.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Middleware\" />

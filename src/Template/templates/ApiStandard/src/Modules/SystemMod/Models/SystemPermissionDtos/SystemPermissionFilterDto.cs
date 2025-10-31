@@ -1,4 +1,4 @@
-using Ater.Common.Models;
+using Ater.AspNetCore.Models;
 using Entity.SystemMod;
 
 namespace SystemMod.Models.SystemPermissionDtos;

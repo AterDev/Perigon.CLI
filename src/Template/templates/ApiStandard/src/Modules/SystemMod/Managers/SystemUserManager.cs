@@ -1,9 +1,9 @@
-using Ater.Common.Options;
-using Ater.Web.Extension.Helpers;
-using EntityFramework.DBProvider;
-using Share.Models.Auth;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Ater.AspNetCore.Toolkit.Helpers;
+using Ater.AspNetCore.Options;
+using EntityFramework.DBProvider;
+using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 

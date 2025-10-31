@@ -1,2 +1,2 @@
-global using Ater.Web.Convention;
+global using Ater.AspNetCore.Constants;
 global using EntityFramework.DBProvider;

@@ -17,6 +17,6 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
         <ProjectReference Include="..\..\Definition\EntityFramework\EntityFramework.csproj" />
-        <ProjectReference Include="..\..\Ater\Ater.Web.Convention\Ater.Web.Convention.csproj" />
+        <ProjectReference Include="..\..\Ater\Ater.AspNetCore\Ater.AspNetCore.csproj" />
     </ItemGroup>
 </Project>

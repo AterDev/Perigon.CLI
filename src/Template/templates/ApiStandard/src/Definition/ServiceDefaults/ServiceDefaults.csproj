@@ -23,11 +23,11 @@
         <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
         <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
     </ItemGroup>
     <ItemGroup>
         <!--<ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />-->
-        <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+        <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.AspNetCore.Toolkit.csproj" />
         <ProjectReference Include="..\Share\Share.csproj" />
     </ItemGroup>
 </Project>

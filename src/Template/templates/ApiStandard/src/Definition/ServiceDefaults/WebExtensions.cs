@@ -1,8 +1,9 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Ater.Common;
-using Ater.Common.Converters;
+using Ater.AspNetCore;
+using Ater.AspNetCore.Converters;
+using Ater.AspNetCore.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -100,6 +101,7 @@ public static class WebExtensions
         app.MapFallbackToFile("index.html");
         return app;
     }
+
     public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(c =>

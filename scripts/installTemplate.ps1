@@ -5,7 +5,7 @@ $templatePath = Join-Path $location "../src/Template/"
 $solutionPath = Join-Path $location "../src/Template/templates/ApiStandard"
 $modulePath = Join-Path $solutionPath "src/Modules"
 $packPath = Join-Path $templatePath "nupkg"
-$requiredModules = @("SystemMod", "CommonMod", "UserMod");
+$requiredModules = @("SystemMod", "CommonMod");
 
 $removeModules = Get-ChildItem -Path $modulePath -Directory | Where-Object { $_.Name -notin $requiredModules }
 
