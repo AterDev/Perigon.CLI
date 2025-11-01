@@ -192,7 +192,9 @@ public partial class EntityInfoManager(
             if (entityType == null)
             {
                 var entityName = Path.GetFileNameWithoutExtension(dto.EntityPath);
-                OutputHelper.Error($"❌ Entity '{entityName}' not found in any DbContext. Please add it to a DbContext.");
+                OutputHelper.Error(
+                    $"❌ Entity '{entityName}' not found in any DbContext. Please add it to a DbContext."
+                );
                 return files; // 返回空列表而不是抛异常
             }
 
@@ -202,15 +204,10 @@ public partial class EntityInfoManager(
                 OutputHelper.Error("❌ Failed to parse entity information.");
                 return files; // 返回空列表而不是抛异常
             }
+            entityInfo.ModuleName = EntityParseHelper.GetEntityModuleName(dto.EntityPath);
 
             _logger.LogInformation("✨ entity module：{moduleName}", entityInfo.ModuleName);
-            if (string.IsNullOrWhiteSpace(entityInfo.ModuleName))
-            {
-                _logger.LogWarning("⚠️ Using default module when not found module");
-                entityInfo.ModuleName = ConstVal.CommonMod;
-            }
             ModuleName = entityInfo.ModuleName;
-
             string modulePath = projectContext.GetModulePath(entityInfo.ModuleName);
 
             switch (dto.CommandType)

@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using CodeGenerator.Helper;
-using CodeGenerator.Models;
 using Entity;
 
 namespace Share.Services;
@@ -43,22 +42,9 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
                         FullName = path,
                         Content = content,
                         Comment = comment,
+                        ModuleName = EntityParseHelper.GetEntityModuleName(path),
                     };
-                    var moduleAttribution = compilation.GetClassAttribution("Module");
-                    if (moduleAttribution != null && moduleAttribution.Count != 0)
-                    {
-                        var argument = moduleAttribution
-                            .Last()
-                            .ArgumentList?.Arguments.FirstOrDefault();
-                        if (argument != null)
-                        {
-                            entityFile.ModuleName = compilation.GetArgumentValue(argument);
-                        }
-                        else
-                        {
-                            Console.WriteLine(entityFile.Name);
-                        }
-                    }
+
                     entityFiles.Add(entityFile);
                 }
             }
@@ -110,7 +96,6 @@ public class CodeAnalysisService(ILogger<CodeAnalysisService> logger)
                     || f.EndsWith(".AssemblyInfo.cs")
                     || f.EndsWith(ConstVal.GlobalUsingsFile)
                     || f.EndsWith("EntityBase.cs")
-                    || f.EndsWith("Modules.cs")
                 )
             )
             .ToList();

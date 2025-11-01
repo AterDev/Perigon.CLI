@@ -280,7 +280,7 @@
     <value>文件夹不存在，请检查！</value>
   </data>
   <data name="SolutionTypeStandard" xml:space="preserve">
-    <value>标准解决方案</value>
+    <value>WebApi</value>
   </data>
   <data name="SolutionTypeMini" xml:space="preserve">
     <value>轻量解决方案</value>

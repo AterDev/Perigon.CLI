@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Entity;
 using Entity.StudioMod;
 
 namespace CodeGenerator.Helper;
@@ -165,7 +166,7 @@ public class EntityParseHelper
                 Summary = GetCommentFromXmlDoc(),
                 PropertyInfos = GetPropertiesInfo(),
                 KeyType = KeyType,
-                ModuleName = GetModuleName(),
+                ModuleName = GetEntityModuleName(filePath),
             };
         }
         return null;
@@ -673,6 +674,27 @@ public class EntityParseHelper
         var classSymbol = SemanticModel.GetDeclaredSymbol(classDeclarationSyntax!);
 
         return classSymbol?.BaseType?.Name;
+    }
+
+    /// <summary>
+    /// Retrieves the module name associated with an entity based on the specified file path.
+    /// </summary>
+    /// <remarks>If the directory name of the provided file path ends with the expected module suffix and is
+    /// not equal to the common entity directory, the module name is derived from the directory name. Otherwise, a
+    /// default module name is returned.</remarks>
+    /// <param name="filePath">The full path to the entity file. This value is used to determine the module name by analyzing its directory
+    /// structure.</param>
+    /// <returns>The name of the module corresponding to the entity. Returns a default module name if the directory does not
+    /// match expected patterns.</returns>
+    public static string GetEntityModuleName(string filePath)
+    {
+        string moduleName = ConstVal.CommonMod; // default
+        var dirName = Path.GetDirectoryName(filePath);
+        if (dirName != ConstVal.EntityName && dirName!.EndsWith(ConstVal.ModSuffix))
+        {
+            moduleName = new DirectoryInfo(dirName).Name;
+        }
+        return moduleName;
     }
 
     /// <summary>

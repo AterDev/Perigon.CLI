@@ -1,11 +1,11 @@
+using System.Collections.Frozen;
+using System.Reflection;
+using System.Text.Json.Serialization;
 using CodeGenerator.Helper;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Spectre.Console;
-using System.Collections.Frozen;
-using System.Reflection;
-using System.Text.Json.Serialization;
 
 namespace Share.Helper;
 
@@ -102,7 +102,9 @@ public class DbContextParseHelper : IDisposable
             }
             else
             {
-                OutputHelper.Error($"{entityName} not found in any DbContext, please Add it to the DbContext.");
+                OutputHelper.Error(
+                    $"{entityName} not found in any DbContext, please Add it to the DbContext."
+                );
                 return null;
             }
         }
@@ -134,16 +136,7 @@ public class DbContextParseHelper : IDisposable
                 _xmlHelper.GetClassSummary(entityType.ClrType.FullName ?? namespaceName)
                 ?? string.Empty,
         };
-        // module attribution
-        var moduleAttribution = _compilation.GetClassAttribution("Module");
-        if (moduleAttribution != null && moduleAttribution.Count != 0)
-        {
-            var argument = moduleAttribution.Last().ArgumentList?.Arguments.FirstOrDefault();
-            if (argument != null)
-            {
-                entityInfo.ModuleName = _compilation.GetArgumentValue(argument);
-            }
-        }
+
         // class xml comment
         entityInfo.Comment = EntityParseHelper.GetClassComment(_compilation.ClassNode);
         RelationEntityTypes.Add(entityType);
@@ -174,8 +167,10 @@ public class DbContextParseHelper : IDisposable
                 MaxLength = prop.GetMaxLength(),
                 IsList =
                     prop.ClrType.IsArray
-                    || (prop.ClrType.IsGenericType
-                        && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.ClrType)),
+                    || (
+                        prop.ClrType.IsGenericType
+                        && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.ClrType)
+                    ),
                 IsDecimal = prop.ClrType == typeof(decimal),
                 IsShadow = prop.IsShadowProperty(),
                 IsIndex = prop.IsIndex(),
@@ -314,7 +309,6 @@ public class DbContextParseHelper : IDisposable
             }
         }
     }
-
 
     public void Dispose()
     {

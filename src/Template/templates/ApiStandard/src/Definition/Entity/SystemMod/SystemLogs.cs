@@ -1,14 +1,13 @@
 using System.Text.Json.Serialization;
-using Ater.AspNetCore.Models;
 
 namespace Entity.SystemMod;
+
 /// <summary>
 /// 系统日志
 /// </summary>
 [Index(nameof(ActionType))]
 [Index(nameof(ActionUserName))]
 [Index(nameof(CreatedTime))]
-[Module(Modules.System)]
 public class SystemLogs : EntityBase
 {
     /// <summary>
@@ -49,7 +48,14 @@ public class SystemLogs : EntityBase
 
     public Guid SystemUserId { get; set; } = default!;
 
-    public static SystemLogs NewLog(string userName, Guid userId, object entity, UserActionType actionType, string? route = null, string? description = null)
+    public static SystemLogs NewLog(
+        string userName,
+        Guid userId,
+        object entity,
+        UserActionType actionType,
+        string? route = null,
+        string? description = null
+    )
     {
         return new SystemLogs
         {

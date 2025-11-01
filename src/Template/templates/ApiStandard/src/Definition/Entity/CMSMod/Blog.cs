@@ -4,8 +4,6 @@ namespace Entity.CMSMod;
 /// 博客
 /// </summary>
 [Index(nameof(Title))]
-[Module(Modules.CMS)]
-[LogDescription("博客", nameof(Title), Modules.CMS)]
 public class Blog : EntityBase
 {
     /// <summary>

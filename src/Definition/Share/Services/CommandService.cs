@@ -61,7 +61,7 @@ public class CommandService(
     {
         // 生成项目
         string solutionPath = Path.Combine(dto.Path, dto.Name);
-        string templateType = dto.IsLight ? ConstVal.Mini : ConstVal.Standard;
+        string templateType = dto.IsLight ? ConstVal.Mini : ConstVal.WebApi;
 
         string version = AssemblyHelper.GetCurrentToolVersion();
 

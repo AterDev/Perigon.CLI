@@ -1,10 +1,8 @@
-using Ater.AspNetCore.Models;
-
 namespace Entity.SystemMod;
+
 /// <summary>
 /// 组织结构
 /// </summary>
-[Module(Modules.System)]
 [Index(nameof(Name))]
 public class SystemOrganization : EntityBase, ITreeNode<SystemOrganization>
 {
@@ -26,5 +24,4 @@ public class SystemOrganization : EntityBase, ITreeNode<SystemOrganization>
     public SystemOrganization? Parent { get; set; }
     public Guid? ParentId { get; set; }
     public ICollection<SystemUser> Users { get; set; } = [];
-
 }

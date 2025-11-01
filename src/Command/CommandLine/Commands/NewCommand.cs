@@ -109,9 +109,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
         OutputHelper.ClearLine();
 
         AnsiConsole.Write(
-            new Spectre.Console.Rule(localizer.Get(Localizer.SolutionSummary))
-                .RuleStyle("yellow")
-                .Centered()
+            new Rule(localizer.Get(Localizer.SolutionSummary)).RuleStyle("yellow").Centered()
         ); // 打印一个规则线作为分隔和标题
 
         var summaryTable = new Table()

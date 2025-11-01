@@ -11,7 +11,7 @@
   ],
   "identity": "Ater.Web.Standard",
   "name": "Ater Web API Standard",
-  "shortName": "ater-standard",
+  "shortName": "ater-webapi",
   "tags": {
     "language": "C#",
     "type": "project"

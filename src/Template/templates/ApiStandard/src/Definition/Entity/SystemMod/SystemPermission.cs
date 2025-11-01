@@ -1,10 +1,10 @@
-﻿namespace Entity.SystemMod;
+namespace Entity.SystemMod;
+
 /// <summary>
 /// 权限
 /// </summary>
 [Index(nameof(Name))]
 [Index(nameof(PermissionType))]
-[Module(Modules.System)]
 public class SystemPermission : EntityBase
 {
     /// <summary>
@@ -12,6 +12,7 @@ public class SystemPermission : EntityBase
     /// </summary>
     [MaxLength(60)]
     public required string Name { get; set; }
+
     /// <summary>
     /// 权限说明
     /// </summary>
@@ -35,7 +36,6 @@ public class SystemPermission : EntityBase
     public SystemPermissionGroup Group { get; set; } = null!;
 
     public Guid GroupId { get; set; } = default!;
-
 }
 
 /// <summary>
@@ -46,31 +46,37 @@ public enum PermissionType
 {
     [Description("无权限")]
     None = 0,
+
     [Description("可读")]
     Read = 1,
+
     /// <summary>
     /// 审核
     /// </summary>
     [Description("可审核")]
     Audit = 2,
+
     /// <summary>
     /// 仅添加
     /// </summary>
     [Description("仅添加")]
     Add = 4,
+
     /// <summary>
     /// 仅编辑
     /// </summary>
     [Description("仅编辑")]
     Edit = 16,
+
     /// <summary>
     /// 可读写
     /// </summary>
     [Description("可读写")]
     Write = Read | Add | Edit,
+
     /// <summary>
     /// 读写且可审核
     /// </summary>
     [Description("读写且可审核")]
-    AuditWrite = Write | Audit
+    AuditWrite = Write | Audit,
 }

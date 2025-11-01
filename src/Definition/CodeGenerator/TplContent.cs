@@ -223,7 +223,7 @@ export class EnumTextPipeModule { }
             global using System.Diagnostics;
             global using System.Linq.Expressions;
             // global using ${Module}.Managers;
-            global using {{ConstVal.ConventionLibName}};
+            global using {{ConstVal.CoreLibName}};
             global using {{ConstVal.CoreLibName}}.Models;
             global using {{ConstVal.CoreLibName}}.Utils;
             global using {{ConstVal.ExtensionLibName}};
@@ -257,7 +257,7 @@ export class EnumTextPipeModule { }
                 </PropertyGroup>
                 <ItemGroup>
                     <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
-                    <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.Web.Extension.csproj" />
+                    <ProjectReference Include="..\..\Ater\{ConstVal.ExtensionLibName}\{ConstVal.ExtensionLibName}.csproj" />
                 </ItemGroup>
                 <ItemGroup>
                     <Folder Include="Managers\" />
@@ -266,12 +266,13 @@ export class EnumTextPipeModule { }
             </Project>
             """;
     }
+
     public static string ModuleExtension(string moduleName)
     {
         return $$"""
             using Microsoft.Extensions.Hosting;
             namespace {{moduleName}}Mod;
-            
+
             public static class ModuleExtensions
             {
                 /// <summary>
@@ -331,8 +332,8 @@ export class EnumTextPipeModule { }
     {
         return $"""
             // global using {namespaceName}.Extension;
-            global using Ater.Common.Utils;
-            global using Ater.Web.Convention.Abstraction;
+            global using {ConstVal.CoreLibName}.Utils;
+            global using {ConstVal.CoreLibName}.Abstraction;
             global using Microsoft.AspNetCore.Mvc;
             global using Microsoft.EntityFrameworkCore;
             global using ServiceDefaults;
@@ -376,7 +377,7 @@ export class EnumTextPipeModule { }
               </ItemGroup>
               <ItemGroup>
                 <ProjectReference
-                  Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj"
+                  Include="..\..\Ater\{ConstVal.SourceGenerationLibName}\{ConstVal.SourceGenerationLibName}.csproj"
                   OutputItemType="Analyzer"
                   ReferenceOutputAssembly="false"
                 />

@@ -1,9 +1,8 @@
-﻿namespace Entity.SystemMod;
+namespace Entity.SystemMod;
 
 /// <summary>
 /// 系统权限组
 /// </summary>
-[Module(Modules.System)]
 [Index(nameof(Name))]
 public class SystemPermissionGroup : EntityBase
 {
@@ -12,6 +11,7 @@ public class SystemPermissionGroup : EntityBase
     /// </summary>
     [MaxLength(30)]
     public required string Name { get; set; }
+
     /// <summary>
     /// 权限说明
     /// </summary>
@@ -21,5 +21,4 @@ public class SystemPermissionGroup : EntityBase
     public ICollection<SystemPermission> Permissions { get; set; } = [];
 
     public ICollection<SystemRole> Roles { get; set; } = [];
-
 }

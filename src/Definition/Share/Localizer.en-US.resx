@@ -280,7 +280,7 @@
     <value>directory not found,please check！</value>
   </data>
   <data name="SolutionTypeStandard" xml:space="preserve">
-    <value>Standard</value>
+    <value>WebApi</value>
   </data>
   <data name="SolutionTypeMini" xml:space="preserve">
     <value>Light Solution</value>

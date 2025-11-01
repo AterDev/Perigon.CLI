@@ -6,7 +6,6 @@
     <File Path="scripts/PackTemplate.ps1" />
     <File Path="scripts/PublishToLocal.ps1" />
     <File Path="scripts/SetVersion.ps1" />
-    <File Path="scripts/SyncInfrastructure.ps1" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

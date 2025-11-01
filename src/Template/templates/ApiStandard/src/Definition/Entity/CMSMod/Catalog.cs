@@ -5,7 +5,6 @@ namespace Entity.CMSMod;
 /// </summary>
 [Index(nameof(Name))]
 [Index(nameof(Level))]
-[Module(Modules.CMS)]
 public class Catalog : EntityBase, ITreeNode<Catalog>
 {
     /// <summary>

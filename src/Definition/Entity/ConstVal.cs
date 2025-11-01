@@ -11,7 +11,7 @@ public static class ConstVal
     public const string PackageId = "ater.dry.copilot";
 
     public const string Mini = "mini";
-    public const string Standard = "standard";
+    public const string WebApi = "webapi";
 
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
@@ -77,12 +77,12 @@ public static class ConstVal
     public const string SolutionXMLExtension = ".slnx";
     public const string CSharpProjectExtension = ".csproj";
     public const string NodeProjectFile = "package.json";
-    public const string CoreLibName = "Ater.Common";
-    public const string ConventionLibName = "Ater.Web.Convention";
-    public const string ExtensionLibName = "Ater.Web.Extension";
-    public const string SourceGenerationLibName = "Ater.Web.SourceGeneration";
 
+    public const string CoreLibName = "Ater.AspNetCore";
+    public const string ExtensionLibName = "Ater.AspNetCore.Toolkit";
+    public const string SourceGenerationLibName = "Ater.AspNetCore.SourceGeneration";
     public const string GlobalUsingsFile = "GlobalUsings.cs";
+    public const string ModSuffix = "Mod";
 }
 
 /// <summary>

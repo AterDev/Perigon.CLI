@@ -1,4 +1,5 @@
-﻿namespace Entity.SystemMod;
+namespace Entity.SystemMod;
+
 /// <summary>
 /// 系统配置
 /// </summary>
@@ -6,16 +7,17 @@
 [Index(nameof(IsSystem))]
 [Index(nameof(Valid))]
 [Index(nameof(GroupName))]
-[Module(Modules.System)]
 public class SystemConfig : EntityBase
 {
     [MaxLength(100)]
     public required string Key { get; set; }
+
     /// <summary>
     /// 以json字符串形式存储
     /// </summary>
     [MaxLength(2000)]
     public string Value { get; set; } = string.Empty;
+
     [MaxLength(500)]
     public string? Description { get; set; }
     public bool Valid { get; set; } = true;
@@ -40,6 +42,12 @@ public class SystemConfig : EntityBase
     /// <returns></returns>
     public static SystemConfig NewSystemConfig(string groupName, string key, string value)
     {
-        return new SystemConfig { Key = key, Value = value, GroupName = groupName, IsSystem = true };
+        return new SystemConfig
+        {
+            Key = key,
+            Value = value,
+            GroupName = groupName,
+            IsSystem = true,
+        };
     }
 }
