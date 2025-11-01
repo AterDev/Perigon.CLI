@@ -10,7 +10,11 @@
     <NoWarn>1701;1702;1591;1587</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Ater\Ater.Web.SourceGeneration\Ater.Web.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference
+      Include="..\..\Ater\Ater.AspNetCore.SourceGeneration\Ater.AspNetCore.SourceGeneration.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
     <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
-    <ProjectReference Include="..\..\Ater\Ater.Web.Extension\Ater.AspNetCore.Toolkit.csproj" />
+    <ProjectReference Include="..\..\Ater\Ater.AspNetCore.Toolkit\Ater.AspNetCore.Toolkit.csproj" />
   </ItemGroup>
 </Project>

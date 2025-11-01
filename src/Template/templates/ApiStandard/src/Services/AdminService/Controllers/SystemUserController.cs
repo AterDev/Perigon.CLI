@@ -1,7 +1,6 @@
 using Ater.AspNetCore.Models;
 using Ater.AspNetCore.Options;
 using Ater.AspNetCore.Services;
-using CommonMod.Managers;
 using Microsoft.AspNetCore.RateLimiting;
 using Share.Models.Auth;
 using SystemMod.Models.SystemUserDtos;
@@ -19,7 +18,6 @@ public class SystemUserController(
     SystemConfigManager systemConfig,
     CacheService cache,
     IConfiguration config,
-    EmailManager emailManager,
     SystemLogService logService,
     SystemRoleManager roleManager
 ) : RestControllerBase<SystemUserManager>(localizer, manager, user, logger)
@@ -27,7 +25,6 @@ public class SystemUserController(
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
     private readonly IConfiguration _config = config;
-    private readonly EmailManager _emailManager = emailManager;
     private readonly SystemLogService _logService = logService;
     private readonly SystemRoleManager _roleManager = roleManager;
 
@@ -51,8 +48,6 @@ public class SystemUserController(
             return Conflict("验证码已发送!");
         }
 
-        // 使用 smtp，可替换成其他
-        await _emailManager.SendLoginVerifyAsync(email, captcha);
         // 缓存，默认5分钟过期
         await _cache.SetValueAsync(key, captcha, 60 * 5);
         return Ok();
