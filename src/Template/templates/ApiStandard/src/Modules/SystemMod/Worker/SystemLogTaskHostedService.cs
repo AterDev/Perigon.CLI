@@ -18,6 +18,8 @@ public class SystemLogTaskHostedService(
     private readonly ILogger<SystemLogTaskHostedService> _logger = logger;
     private readonly IEntityTaskQueue<SystemLogs> _taskQueue = queue;
 
+    private readonly int MaxWaitMilliseconds = 10_000;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation($"🚀 System Log Hosted Service is running.");
@@ -26,12 +28,39 @@ public class SystemLogTaskHostedService(
 
     private async Task BackgroundProcessing(CancellationToken stoppingToken)
     {
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+        List<SystemLogs> logs = [];
+        DateTime? batchStart = null;
 
         while (!stoppingToken.IsCancellationRequested)
         {
             var log = await _taskQueue.DequeueAsync(stoppingToken);
+            batchStart ??= DateTime.Now;
+            logs.Add(log);
+            if (
+                logs.Count >= 10
+                || (DateTime.Now - batchStart.Value).TotalMilliseconds > MaxWaitMilliseconds
+            )
+            {
+                await InsertLogsAsync(logs, stoppingToken);
+                logs.Clear();
+                batchStart = null;
+            }
+        }
+
+        // 插入剩余的日志
+        if (logs.Count > 0)
+        {
+            await InsertLogsAsync(logs, stoppingToken);
+        }
+    }
+
+    private async Task InsertLogsAsync(List<SystemLogs> logs, CancellationToken stoppingToken)
+    {
+        using IServiceScope scope = _serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DefaultDbContext>();
+
+        foreach (var log in logs)
+        {
             var entity = log.Data;
             if (entity is string)
             {
@@ -55,10 +84,14 @@ public class SystemLogTaskHostedService(
                     }
                 }
             }
-            try
+        }
+
+        try
+        {
+            context.AddRange(logs);
+            await context.SaveChangesAsync(stoppingToken);
+            foreach (var log in logs)
             {
-                context.Add(log);
-                await context.SaveChangesAsync(stoppingToken);
                 _logger.LogInformation(
                     "✍️ New Log:[{object}] {actionUser} {action} {name}",
                     log.Description,
@@ -67,18 +100,10 @@ public class SystemLogTaskHostedService(
                     log.TargetName
                 );
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error occurred executing {name},{userId},{route},{actionType},{acitonUserName}.",
-                    log.TargetName,
-                    log.SystemUserId,
-                    log.Route,
-                    log.ActionType,
-                    log.ActionUserName
-                );
-            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred executing batch logs. Count: {count}", logs.Count);
         }
     }
 

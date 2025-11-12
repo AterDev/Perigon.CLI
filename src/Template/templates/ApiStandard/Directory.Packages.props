@@ -32,7 +32,6 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
     <!-- Microsoft Extensions Packages -->
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.10.0" />
