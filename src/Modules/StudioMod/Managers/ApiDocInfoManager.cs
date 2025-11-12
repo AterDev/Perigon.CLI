@@ -165,7 +165,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<bool> IsConflictAsync(string unique)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context.Set<ApiDocInfo>().AnyAsync(q => q.Id == new Guid(unique));
     }
 
@@ -176,7 +176,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<ApiDocInfo?> GetOwnedAsync(Guid id)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var query2 = context.Set<ApiDocInfo>().Where(q => q.Id == id);
         // 获取用户所属的对象
         // query2 = query2.Where(q => q.User.Id == _userContext.UserId);
@@ -193,7 +193,7 @@ public class ApiDocInfoManager(
         RequestClientDto dto
     )
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var doc = await context
             .Set<ApiDocInfo>()
             .Where(d => d.Id == openApiDocId)

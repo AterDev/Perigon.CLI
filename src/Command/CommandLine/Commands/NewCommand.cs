@@ -16,7 +16,11 @@ public class NewCommand(Localizer localizer, CommandService commandService)
         public required string Name { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(
+        CommandContext context,
+        Settings settings,
+        CancellationToken cancellationToken
+    )
     {
         AnsiConsole.WriteLine();
         // 1. 选择项目类型

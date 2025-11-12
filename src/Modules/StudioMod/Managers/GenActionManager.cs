@@ -90,7 +90,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> IsUniqueAsync(string name, Guid? id = null)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context
             .Set<GenAction>()
             .Where(q => q.Name == name)
@@ -116,7 +116,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<GenAction?> GetOwnedAsync(Guid id)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var query = context.Set<GenAction>().Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);
@@ -131,7 +131,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> AddStepsAsync(Guid id, List<Guid> stepIds)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         await context.Database.BeginTransactionAsync();
         try
         {
@@ -163,7 +163,7 @@ public class GenActionManager(
     public async Task<GenActionResultDto> ExecuteActionAsync(GenActionRunDto dto)
     {
         var res = new GenActionResultDto();
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var action = await context
             .Set<GenAction>()
             .Where(a => a.Id == dto.Id)

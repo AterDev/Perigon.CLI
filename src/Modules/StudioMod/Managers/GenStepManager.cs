@@ -72,7 +72,7 @@ public class GenStepManager(
     public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context
             .Set<GenStep>()
             .Where(q => q.Id.ToString() == unique)
@@ -98,7 +98,7 @@ public class GenStepManager(
     /// <returns></returns>
     public async Task<GenStep?> GetOwnedAsync(Guid id)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var query = context.Set<GenStep>().Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserId);

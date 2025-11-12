@@ -1,6 +1,7 @@
 using Share.Services;
 
 namespace CommandLine.Commands;
+
 /// <summary>
 /// add command
 /// </summary>
@@ -11,11 +12,16 @@ public class AddCommand(CommandService commandService) : AsyncCommand<AddCommand
     {
         [CommandArgument(0, "[name]")]
         public string Name { get; set; } = string.Empty;
+
         [CommandOption("--path")]
         public string Path { get; set; } = string.Empty;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(
+        CommandContext context,
+        Settings settings,
+        CancellationToken cancellationToken
+    )
     {
         var path = settings.Path;
         var name = settings.Name;

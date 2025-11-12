@@ -8,7 +8,11 @@ namespace CommandLine.Commands;
 /// </summary>
 public class RequestCommand : AsyncCommand<RequestSettings>
 {
-    public override Task<int> ExecuteAsync(CommandContext context, RequestSettings settings)
+    public override Task<int> ExecuteAsync(
+        CommandContext context,
+        RequestSettings settings,
+        CancellationToken cancellationToken
+    )
     {
         if (Enum.TryParse<RequestType>(settings.Type, true, out RequestType type))
         {

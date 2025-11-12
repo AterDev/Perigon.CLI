@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Components;
 using System.Globalization;
+using Microsoft.AspNetCore.Components;
 
 namespace AterStudio.Services;
 
 public class CultureService
 {
     private readonly NavigationManager _navigationManager;
-
-    public event Action? CultureChanged;
 
     private readonly string[] SupportedCultures = { "zh-CN", "en-US" };
 
@@ -18,7 +16,11 @@ public class CultureService
 
     public string CurrentCulture => CultureInfo.CurrentUICulture.Name;
 
-    public bool IsChineseCulture => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase);
+    public bool IsChineseCulture =>
+        CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals(
+            "zh",
+            StringComparison.OrdinalIgnoreCase
+        );
 
     public string GetNextLanguage()
     {
@@ -32,9 +34,12 @@ public class CultureService
         if (Array.IndexOf(SupportedCultures, culture) == -1)
             return;
 
-        var uri = new Uri(_navigationManager.Uri)
-            .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
-        var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
+        var uri = new Uri(_navigationManager.Uri).GetComponents(
+            UriComponents.PathAndQuery,
+            UriFormat.Unescaped
+        );
+        var query =
+            $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
 
         // 导航到 Culture 控制器设置文化并重定向回当前页面
         _navigationManager.NavigateTo($"/Culture/SetCulture{query}", forceLoad: true);

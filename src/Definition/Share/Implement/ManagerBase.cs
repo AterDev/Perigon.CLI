@@ -28,6 +28,8 @@ public abstract class ManagerBase<TDbContext, TEntity>(
 {
     #region Properties and Fields
 
+    protected readonly IDbContextFactory<TDbContext> _dbContextFactory = dbContextFactory;
+
     /// <summary>
     /// Enable or disable global query filters.
     /// </summary>
@@ -54,7 +56,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> GetCurrentAsync(Guid id)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context.Set<TEntity>().FindAsync(id);
     }
 
@@ -67,7 +69,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var dbSet = context.Set<TEntity>();
         if (typeof(TDto) == typeof(TEntity))
         {
@@ -90,7 +92,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> FindAsync(Guid id)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context.Set<TEntity>().FindAsync(id);
     }
 
@@ -103,7 +105,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var dbSet = context.Set<TEntity>();
         var model = await dbSet
             .AsNoTracking()
@@ -125,7 +127,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>True if exists; otherwise, false.</returns>
     public virtual async Task<bool> ExistAsync(Guid id)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context.Set<TEntity>().AnyAsync(q => q.Id == id);
     }
 
@@ -136,7 +138,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>True if any entity matches; otherwise, false.</returns>
     public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         return await context.Set<TEntity>().AnyAsync(whereExp);
     }
 
@@ -151,7 +153,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     )
         where TDto : class
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var dbSet = context.Set<TEntity>();
         return await dbSet
             .AsNoTracking()
@@ -167,7 +169,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>List of entities.</returns>
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var dbSet = context.Set<TEntity>();
         return await dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
     }
@@ -183,7 +185,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
         where TFilter : FilterBase
         where TItem : class
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var dbSet = context.Set<TEntity>();
         var queryable = Queryable ?? dbSet.AsNoTracking().AsQueryable();
 
@@ -215,7 +217,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> AddAsync(TEntity entity)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         await context.Set<TEntity>().AddAsync(entity);
         return await context.SaveChangesAsync() > 0;
     }
@@ -227,7 +229,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var _dbSet = context.Set<TEntity>();
 
         _dbSet!.Update(entity);
@@ -242,7 +244,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var _dbSet = context.Set<TEntity>();
         var res = softDelete
             ? await _dbSet!
@@ -260,7 +262,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var _dbSet = context.Set<TEntity>();
 
         if (softDelete)

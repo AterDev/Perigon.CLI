@@ -32,7 +32,7 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<List<Solution>> ListAsync()
     {
-        using var context = dbContextFactory.CreateDbContext();
+        using var context = _dbContextFactory.CreateDbContext();
         var dbSet = context.Set<Solution>();
         var projects = await dbSet.ToListAsync();
         for (int i = 0; i < projects.Count; i++)
@@ -94,8 +94,7 @@ public class SolutionManager(
                     $"*{ConstVal.CSharpProjectExtension}",
                     SearchOption.AllDirectories
                 )
-                .ToList()
-            ?? [];
+                .ToList() ?? [];
 
         projectFiles.ForEach(path =>
         {
@@ -157,7 +156,6 @@ public class SolutionManager(
         }
     }
 
-
     /// <summary>
     /// 清理解决方案
     /// </summary>
@@ -196,7 +194,6 @@ public class SolutionManager(
             return false;
         }
     }
-
 
     /// <summary>
     /// open solution
