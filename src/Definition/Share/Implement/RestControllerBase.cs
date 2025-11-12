@@ -147,7 +147,7 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
 
         if (detail != null)
         {
-            error = _localizer?.Get(detail, arguments) ?? detail;
+            error = _localizer?.Get(detail, arguments as string[]) ?? detail;
         }
         else if (errorCode != 0)
         {

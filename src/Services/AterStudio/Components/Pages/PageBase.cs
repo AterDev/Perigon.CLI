@@ -67,6 +67,11 @@ public class PageBase : ComponentBase
         return isEn ? $"{value1} {value2}" : $"{value1}{value2}";
     }
 
+    public string LangWithArguments(string key, params object[] arguments)
+    {
+        return Localizer.Get(key, arguments);
+    }
+
     public string Lang(string key)
     {
         return Localizer.Get(key);

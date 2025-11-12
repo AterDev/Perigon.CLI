@@ -229,7 +229,7 @@
     <value>Close</value>
   </data>
   <data name="ConfirmDeleteMessage" xml:space="preserve">
-    <value>Do you confirm to delete the object?</value>
+    <value>Do you confirm to delete the {0}?</value>
   </data>
   <data name="Copy" xml:space="preserve">
     <value>Copy</value>

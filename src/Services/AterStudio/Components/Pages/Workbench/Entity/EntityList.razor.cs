@@ -213,7 +213,7 @@ public partial class EntityList
                 Lang(Localizer.Delete, Localizer.Modules),
                 Lang(Localizer.Confirm),
                 Lang(Localizer.Cancel),
-                Lang(Localizer.ConfirmDeleteMessage)
+                LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Modules))
             );
 
             var result = await dialog.Result;

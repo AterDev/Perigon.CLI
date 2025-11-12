@@ -229,7 +229,7 @@
     <value>关闭</value>
   </data>
   <data name="ConfirmDeleteMessage" xml:space="preserve">
-    <value>是否确认删除该对象？</value>
+    <value>是否确认删除该{0}？</value>
   </data>
   <data name="Copy" xml:space="preserve">
     <value>复制</value>

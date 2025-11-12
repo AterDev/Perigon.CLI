@@ -200,7 +200,7 @@ public class ApiDocInfoManager(
             .FirstOrDefaultAsync();
         if (doc == null)
         {
-            ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId);
+            ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId.ToString());
             return null;
         }
         doc.LocalPath = dto.OutputPath;

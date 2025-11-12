@@ -120,40 +120,16 @@ public class SolutionService(
         // create dirs
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ModelsDir));
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ManagersDir));
-        await AssemblyHelper.GenerateFileAsync(projectPath, "ModuleExtensions.cs", TplContent.ModuleExtension(moduleName));
+        await AssemblyHelper.GenerateFileAsync(
+            projectPath,
+            "ModuleExtensions.cs",
+            TplContent.ModuleExtension(moduleName)
+        );
 
-        await AddModuleConstFieldAsync(moduleName);
         // update solution file
         UpdateSolutionFile(
             Path.Combine(projectPath, $"{moduleName}{ConstVal.CSharpProjectExtension}")
         );
-    }
-
-    /// <summary>
-    /// 添加模块常量
-    /// </summary>
-    public async Task AddModuleConstFieldAsync(string moduleName)
-    {
-        string moduleConstPath = Path.Combine(_projectContext.EntityPath!, "Modules.cs");
-        if (File.Exists(moduleConstPath))
-        {
-            var entityPath = _projectContext.EntityPath;
-            if (entityPath != null)
-            {
-                CompilationHelper analyzer = new(entityPath);
-                string content = File.ReadAllText(moduleConstPath);
-                analyzer.LoadContent(content);
-                string fieldName = moduleName.Replace("Mod", "");
-
-                if (!analyzer.FieldExist(fieldName))
-                {
-                    string newField = @$"public const string {fieldName} = ""{moduleName}"";";
-                    analyzer.AddClassField(newField);
-                    content = analyzer.SyntaxRoot!.ToFullString();
-                    await AssemblyHelper.GenerateFileAsync(moduleConstPath, content, true);
-                }
-            }
-        }
     }
 
     /// <summary>
@@ -448,18 +424,104 @@ public class SolutionService(
             ? res.Where(m => m.ProjectType is ProjectType.WebAPI or ProjectType.Web).ToList()
             : res;
     }
+
     /// <summary>
     /// delete module
     /// </summary>
     /// <param name="moduleName"></param>
     public void DeleteModule(string moduleName)
     {
+        // 1 获取并移除实体
+        var entityDir = Path.Combine(
+            _projectContext.SolutionPath!,
+            PathConst.EntityPath,
+            moduleName
+        );
+        List<string> entityNames = [];
+        if (Directory.Exists(entityDir))
+        {
+            // 获取所有文件名作为实体名
+            entityNames = Directory
+                .GetFiles(entityDir, "*.cs")
+                .Select(Path.GetFileNameWithoutExtension)
+                .ToList()!;
+            Directory.Delete(entityDir, true);
+        }
+        // 2 移除DbContext中的DbSet
+        if (entityNames.Count > 0)
+        {
+            var databasePath = _projectContext.EntityFrameworkPath!;
+            var dbProviderDir = Path.Combine(databasePath, "DBProvider");
+            if (Directory.Exists(dbProviderDir))
+            {
+                var dbContextFiles = Directory.GetFiles(dbProviderDir, "*.cs");
+                foreach (var dbContextFile in dbContextFiles)
+                {
+                    if (
+                        !dbContextFile.EndsWith("DbContext.cs")
+                        && dbContextFile != "ContextBase.cs"
+                    )
+                    {
+                        continue;
+                    }
+                    var dbContextContent = File.ReadAllText(dbContextFile);
+                    CompilationHelper compilation = new(databasePath);
+                    compilation.LoadContent(dbContextContent);
+
+                    if (
+                        compilation.GetParentClassName() == "ContextBase"
+                        || compilation.GetParentClassName() == "DbContext"
+                    )
+                    {
+                        foreach (var entityName in entityNames)
+                        {
+                            var plural = entityName.Pluralize();
+                            if (compilation.PropertyExist(plural))
+                            {
+                                compilation.RemoveClassProperty(plural);
+                            }
+                        }
+
+                        dbContextContent = compilation.SyntaxRoot!.ToFullString();
+                        File.WriteAllText(dbContextFile, dbContextContent);
+                    }
+                }
+            }
+        }
+
+        // 3. 移除模块项目
         string moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
         var modulePath = Path.Combine(moduleDir, moduleName);
         if (Directory.Exists(modulePath))
         {
             Directory.Delete(modulePath, true);
         }
+
+        // 4. 服务中的项目引用
+        if (entityNames.Count > 0 && Directory.Exists(_projectContext.ServicesPath!))
+        {
+            var serviceDirs = Directory.GetDirectories(_projectContext.ServicesPath!);
+            foreach (var serviceDir in serviceDirs)
+            {
+                var controllersDir = Path.Combine(serviceDir, ConstVal.ControllersDir);
+                if (Directory.Exists(controllersDir))
+                {
+                    foreach (var entityName in entityNames)
+                    {
+                        var controllerFile = Path.Combine(
+                            controllersDir,
+                            $"{entityName}{ConstVal.Controller}.cs"
+                        );
+                        if (File.Exists(controllerFile))
+                        {
+                            File.Delete(controllerFile);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 5. 从解决方案中移除
         UpdateSolutionFile(
             Path.Combine(modulePath, $"{moduleName}{ConstVal.CSharpProjectExtension}"),
             true
@@ -726,6 +788,4 @@ public class SolutionService(
         var searchText = $"\\{referenceName}\\{referenceName}{ConstVal.CSharpProjectExtension}";
         return lines.Any(line => line.Contains(searchText, StringComparison.OrdinalIgnoreCase));
     }
-
-
 }
