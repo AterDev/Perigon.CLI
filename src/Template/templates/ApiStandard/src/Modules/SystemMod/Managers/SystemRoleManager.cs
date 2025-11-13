@@ -14,7 +14,7 @@ public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleMan
     public async Task<Guid?> AddAsync(SystemRoleAddDto dto)
     {
         var entity = dto.MapTo<SystemRole>();
-        return await AddAsync(entity) ? entity.Id : null;
+        return await UpsertAsync(entity) ? entity.Id : null;
     }
 
     /// <summary>
@@ -26,7 +26,7 @@ public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleMan
     public async Task<bool> UpdateAsync(SystemRole entity, SystemRoleUpdateDto dto)
     {
         entity.Merge(dto);
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)

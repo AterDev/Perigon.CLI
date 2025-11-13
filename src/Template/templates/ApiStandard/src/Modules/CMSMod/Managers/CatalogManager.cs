@@ -33,13 +33,13 @@ public class CatalogManager(DefaultDbContext dbContext, ILogger<BlogManager> log
                 entity.Level = 0;
             }
         }
-        return await AddAsync(entity) ? entity.Id : null;
+        return await UpsertAsync(entity) ? entity.Id : null;
     }
 
     public async Task<bool> UpdateAsync(Catalog entity, CatalogUpdateDto dto)
     {
         entity.Merge(dto);
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<CatalogItemDto>> ToPageAsync(CatalogFilterDto filter)

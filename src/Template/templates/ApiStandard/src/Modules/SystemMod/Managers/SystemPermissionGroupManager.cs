@@ -16,7 +16,7 @@ public class SystemPermissionGroupManager(
     public async Task<Guid?> AddAsync(SystemPermissionGroupAddDto dto)
     {
         SystemPermissionGroup entity = dto.MapTo<SystemPermissionGroup>();
-        return await AddAsync(entity) ? entity.Id : null;
+        await UpsertAsync(entity);
     }
 
     public async Task<bool> UpdateAsync(
@@ -25,7 +25,7 @@ public class SystemPermissionGroupManager(
     )
     {
         entity.Merge(dto);
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<SystemPermissionGroupItemDto>> ToPageAsync(

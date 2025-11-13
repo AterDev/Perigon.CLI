@@ -19,7 +19,7 @@ IResourceBuilder<IResourceWithConnectionString>? qdrant = null;
 var defaultName = "MyProjectName_dev";
 
 var devPassword = builder.AddParameter(
-    "sql-password",
+    "dev-password",
     value: aspireSetting.DevPassword,
     secret: true
 );

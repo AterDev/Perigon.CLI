@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using Ater.AspNetCore.Toolkit.Helpers;
 using Ater.AspNetCore.Options;
+using Ater.AspNetCore.Toolkit.Helpers;
 using EntityFramework.DBProvider;
 using Share.Models.Auth;
 using SystemMod.Models;
@@ -184,7 +184,7 @@ public class SystemUserManager(
             var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
-        return await AddAsync(entity) ? entity.Id : null;
+        return await UpsertAsync(entity) ? entity.Id : null;
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class SystemUserManager(
             var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
             entity.SystemRoles = roles;
         }
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<SystemUserItemDto>> ToPageAsync(SystemUserFilterDto filter)
@@ -286,13 +286,14 @@ public class SystemUserManager(
         };
         if (!Regex.IsMatch(password, pwdReg))
         {
-            ErrorMsg = loginPolicy.PasswordLevel switch
+            string errorMsg = loginPolicy.PasswordLevel switch
             {
                 PasswordLevel.Simple => "密码长度6-60位",
                 PasswordLevel.Normal => "密码长度8-60位，必须包含大小写字母和数字",
                 PasswordLevel.Strict => "密码长度8位以上，必须包含大小写字母、数字和特殊字符",
                 _ => "密码长度6-16位",
             };
+
             return false;
         }
         return true;

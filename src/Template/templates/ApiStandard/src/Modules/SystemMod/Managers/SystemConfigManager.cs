@@ -1,6 +1,6 @@
+using System.Text.Json;
 using Ater.AspNetCore.Options;
 using EntityFramework.DBProvider;
-using System.Text.Json;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
@@ -26,8 +26,7 @@ public class SystemConfigManager(
     public async Task<Guid?> AddAsync(SystemConfigAddDto dto)
     {
         SystemConfig entity = dto.MapTo<SystemConfig>();
-        // other required props
-        return await AddAsync(entity) ? entity.Id : null;
+        return await UpsertAsync(entity) ? entity.Id : null;
     }
 
     public async Task<bool> UpdateAsync(SystemConfig entity, SystemConfigUpdateDto dto)
@@ -38,7 +37,7 @@ public class SystemConfigManager(
             dto.Key = null;
             dto.GroupName = null;
         }
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<SystemConfigItemDto>> ToPageAsync(SystemConfigFilterDto filter)

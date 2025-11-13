@@ -43,8 +43,15 @@ public class SystemPermissionController(
         {
             return NotFound("不存在的权限组");
         }
-        var id = await _manager.AddAsync(dto);
-        return id == null ? base.Problem(Localizer.AddFailed) : id;
+        SystemPermission entity = dto.MapTo<SystemPermission>();
+        if (await _manager.UpsertAsync(entity))
+        {
+            return entity.Id;
+        }
+        else
+        {
+            return Problem(Localizer.AddFailed);
+        }
     }
 
     /// <summary>
@@ -77,7 +84,8 @@ public class SystemPermissionController(
             }
             current.Group = systemPermissionGroup;
         }
-        return await _manager.UpdateAsync(current, dto);
+        current.Merge(dto);
+        return await _manager.UpsertAsync(current);
     }
 
     /// <summary>

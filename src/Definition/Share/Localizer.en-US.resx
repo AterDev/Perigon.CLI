@@ -544,4 +544,7 @@
   <data name="SystemModDes" xml:space="preserve">
     <value>System module, which is considered as a management system and will affect the generated content of the controller</value>
   </data>
+  <data name="DeleteModuleDescription" xml:space="preserve">
+    <value>This will delete the entities, module, and related controllers of this module.</value>
+  </data>
 </root>

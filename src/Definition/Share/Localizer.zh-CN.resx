@@ -544,4 +544,7 @@
   <data name="SystemModDes" xml:space="preserve">
     <value>系统模块，引用该模块的被认为是管理系统，将影响控制器的生成内容</value>
   </data>
+  <data name="DeleteModuleDescription" xml:space="preserve">
+    <value>这将删除该模块的实体，模块和相关控制器</value>
+  </data>
 </root>

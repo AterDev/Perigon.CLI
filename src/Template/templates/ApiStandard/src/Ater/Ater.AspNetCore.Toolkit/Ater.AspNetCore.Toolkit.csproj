@@ -17,6 +17,8 @@
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Aspire.NATS.Net" />
+    <PackageReference Include="Aspire.Qdrant.Client" />
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="MiniExcel" />

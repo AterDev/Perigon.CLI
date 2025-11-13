@@ -1,7 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Ater.AspNetCore;
 using Ater.AspNetCore.Converters;
 using Ater.AspNetCore.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using ServiceDefaults;
 using ServiceDefaults.Middleware;
 
 namespace ServiceDefaults;
@@ -74,7 +74,6 @@ public static class WebExtensions
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
         // 异常统一处理
-        app.UseExceptionHandler(ExceptionHandler.Handler());
 
         if (app.Environment.IsProduction())
         {
@@ -95,6 +94,7 @@ public static class WebExtensions
         app.MapSwagger().CacheOutput("openapi");
 
         //app.UseMiddleware<JwtMiddleware>();
+        app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();

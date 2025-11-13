@@ -17,13 +17,13 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
     public async Task<Guid?> AddAsync(BlogAddDto dto)
     {
         Blog entity = dto.MapTo<Blog>();
-        return await AddAsync(entity) ? entity.Id : null;
+        return await UpsertAsync(entity) ? entity.Id : null;
     }
 
     public async Task<bool> UpdateAsync(Blog entity, BlogUpdateDto dto)
     {
         entity.Merge(dto);
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<BlogItemDto>> ToPageAsync(BlogFilterDto filter)

@@ -20,7 +20,7 @@ public class SystemPermissionManager(
     {
         SystemPermission entity = dto.MapTo<SystemPermission>();
         entity.GroupId = dto.SystemPermissionGroupId;
-        return await AddAsync(entity) ? entity.Id : null;
+        return await UpsertAsync(entity) ? entity.Id : null;
     }
 
     public override Task<SystemPermission?> GetCurrentAsync(Guid id)
@@ -31,7 +31,7 @@ public class SystemPermissionManager(
     public async Task<bool> UpdateAsync(SystemPermission entity, SystemPermissionUpdateDto dto)
     {
         entity.Merge(dto);
-        return await UpdateAsync(entity);
+        return await UpsertAsync(entity);
     }
 
     public async Task<PageList<SystemPermissionItemDto>> ToPageAsync(

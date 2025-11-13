@@ -33,8 +33,15 @@ public class SystemPermissionGroupController(
     [HttpPost]
     public async Task<ActionResult<Guid?>> AddAsync(SystemPermissionGroupAddDto dto)
     {
-        var id = await _manager.AddAsync(dto);
-        return id == null ? base.Problem(Localizer.AddFailed) : id;
+        SystemPermissionGroup entity = dto.MapTo<SystemPermissionGroup>();
+        if (await _manager.UpsertAsync(entity))
+        {
+            return entity.Id;
+        }
+        else
+        {
+            return Problem(Localizer.AddFailed);
+        }
     }
 
     /// <summary>
@@ -55,7 +62,8 @@ public class SystemPermissionGroupController(
             return NotFound(Localizer.NotFoundResource);
         }
         ;
-        return await _manager.UpdateAsync(current, dto);
+        current.Merge(dto);
+        return await _manager.UpsertAsync(current);
     }
 
     /// <summary>

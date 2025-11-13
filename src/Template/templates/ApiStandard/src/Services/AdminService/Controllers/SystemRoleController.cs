@@ -36,8 +36,8 @@ public class SystemRoleController(
     [HttpPost]
     public async Task<ActionResult<Guid?>> AddAsync(SystemRoleAddDto dto)
     {
-        var id = await _manager.AddAsync(dto);
-        return id == null ? base.Problem(Localizer.AddFailed) : id;
+        SystemRole entity = dto.MapTo<SystemRole>();
+        return await _manager.UpsertAsync(entity) ? entity.Id : Problem(Localizer.AddFailed);
     }
 
     /// <summary>
@@ -55,7 +55,8 @@ public class SystemRoleController(
             return NotFound(Localizer.NotFoundResource);
         }
 
-        return await _manager.UpdateAsync(current, dto);
+        current.Merge(dto);
+        return await _manager.UpsertAsync(current);
     }
 
     /// <summary>

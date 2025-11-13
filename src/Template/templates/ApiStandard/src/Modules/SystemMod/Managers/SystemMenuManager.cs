@@ -14,15 +14,15 @@ public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuMan
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddAsync(SystemMenuAddDto dto)
+    public async Task<SystemMenu> AddAsync(SystemMenuAddDto dto)
     {
         SystemMenu entity = dto.MapTo<SystemMenu>();
         if (dto.ParentId != null)
         {
             entity.ParentId = dto.ParentId.Value;
         }
-
-        return await AddAsync(entity) ? entity.Id : null;
+        await UpsertAsync(entity);
+        return entity;
     }
 
     /// <summary>
@@ -120,10 +120,11 @@ public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuMan
         return res;
     }
 
-    public async Task<bool> UpdateAsync(SystemMenu entity, SystemMenuUpdateDto dto)
+    public async Task<SystemMenu> UpdateAsync(SystemMenu entity, SystemMenuUpdateDto dto)
     {
         entity.Merge(dto);
-        return await UpdateAsync(entity);
+        await UpsertAsync(entity);
+        return entity;
     }
 
     public async Task<PageList<SystemMenu>> FilterAsync(SystemMenuFilterDto filter)

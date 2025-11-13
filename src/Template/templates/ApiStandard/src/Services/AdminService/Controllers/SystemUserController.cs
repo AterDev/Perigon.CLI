@@ -231,8 +231,15 @@ public class SystemUserController(
     [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
     {
-        var id = await _manager.AddAsync(dto);
-        return id == null ? base.Problem(Localizer.AddFailed) : id;
+        SystemUser entity = dto.MapTo<SystemUser>();
+        if (await _manager.UpsertAsync(entity))
+        {
+            return entity.Id;
+        }
+        else
+        {
+            return Problem(Localizer.AddFailed);
+        }
     }
 
     /// <summary>
@@ -248,7 +255,7 @@ public class SystemUserController(
         SystemUser? current = await _manager.GetCurrentAsync(id);
         return current == null
             ? base.NotFound(Localizer.NotFoundResource)
-            : await base._manager.UpdateAsync(current, dto);
+            : await _manager.UpsertAsync(current.Merge(dto));
     }
 
     /// <summary>

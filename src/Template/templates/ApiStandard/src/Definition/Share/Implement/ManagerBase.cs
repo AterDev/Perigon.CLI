@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using EFCore.BulkExtensions;
 using Entity;
 
 namespace Share.Implement;
@@ -34,16 +35,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// Enable or disable global query filters.
     /// </summary>
     public bool EnableGlobalQuery { get; set; } = true;
-
-    /// <summary>
-    /// Indicates whether to automatically call SaveChanges after operations.
-    /// </summary>
-    protected bool AutoSave { get; set; } = true;
-
-    /// <summary>
-    /// Error message for the last operation.
-    /// </summary>
-    public string ErrorMsg { get; set; } = string.Empty;
 
     /// <summary>
     /// Error status code for the last operation.
@@ -219,25 +210,13 @@ public abstract class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// Adds a new entity to the database.
+    /// Upsert by primary key and immediately save.
     /// </summary>
-    /// <param name="entity">Entity to add</param>
-    /// <returns>True if successful; otherwise, false.</returns>
-    public virtual async Task<bool> AddAsync(TEntity entity)
+    /// <remarks></remarks>
+    /// <param name="entity">The entity to insert or update. Cannot be null.</param>
+    public async Task UpsertAsync(TEntity entity)
     {
-        await _dbSet.AddAsync(entity);
-        return !AutoSave || await SaveChangesAsync() > 0;
-    }
-
-    /// <summary>
-    /// Updates an existing tracked entity.
-    /// </summary>
-    /// <param name="entity">Tracked entity to update</param>
-    /// <returns>True if successful; otherwise, false.</returns>
-    public virtual async Task<bool> UpdateAsync(TEntity entity)
-    {
-        _dbSet.Update(entity);
-        return !AutoSave || await SaveChangesAsync() > 0;
+        await _dbContext.BulkInsertOrUpdateAsync([entity]);
     }
 
     /// <summary>

@@ -45,8 +45,15 @@ public class SystemConfigController(
     [HttpPost]
     public async Task<ActionResult<Guid?>> AddAsync(SystemConfigAddDto dto)
     {
-        var id = await _manager.AddAsync(dto);
-        return id == null ? base.Problem(Localizer.AddFailed) : id;
+        SystemConfig entity = dto.MapTo<SystemConfig>();
+        if (await _manager.UpsertAsync(entity))
+        {
+            return entity.Id;
+        }
+        else
+        {
+            return Problem(Localizer.AddFailed);
+        }
     }
 
     /// <summary>
@@ -67,7 +74,8 @@ public class SystemConfigController(
             return NotFound(Localizer.NotFoundResource);
         }
         ;
-        return await _manager.UpdateAsync(current, dto);
+        current.Merge(dto);
+        return await _manager.UpsertAsync(current);
     }
 
     /// <summary>
