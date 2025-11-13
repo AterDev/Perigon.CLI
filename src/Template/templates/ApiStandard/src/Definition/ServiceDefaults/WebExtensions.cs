@@ -2,7 +2,6 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
 using Ater.AspNetCore.Converters;
-using Ater.AspNetCore.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -27,13 +26,6 @@ public static class WebExtensions
         builder.Services.ConfigureWebMiddleware(builder.Configuration);
         builder
             .Services.AddControllers()
-            .ConfigureApiBehaviorOptions(o =>
-            {
-                o.InvalidModelStateResponseFactory = context =>
-                {
-                    return new CustomBadRequest(context, null);
-                };
-            })
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

@@ -1,9 +1,9 @@
 namespace Ater.AspNetCore.Models;
 
-public class ErrorResult
+public class ErrorResult(string detail, string traceId, string title = "error", int status = 500)
 {
-    public required string Title { get; set; } = "error";
-    public string? Detail { get; set; }
-    public int Status { get; set; } = 500;
-    public required string TraceId { get; set; }
+    public string Title { get; set; } = title;
+    public string? Detail { get; set; } = detail;
+    public int Status { get; set; } = status;
+    public string TraceId { get; set; } = traceId;
 }

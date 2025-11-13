@@ -135,6 +135,9 @@
   <data name="AddFailed" xml:space="preserve">
     <value>添加失败</value>
   </data>
+  <data name="BadRequest" xml:space="preserve">
+    <value>请求参数错误</value>
+  </data>
   <data name="ConflictResource" xml:space="preserve">
     <value>已存在的资源</value>
   </data>

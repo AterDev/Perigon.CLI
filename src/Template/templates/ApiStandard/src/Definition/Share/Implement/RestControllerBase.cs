@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace Share.Implement;
 
@@ -27,7 +27,7 @@ public class RestControllerBase<TManager>(
 [Produces("application/json")]
 public abstract class RestControllerBase(Localizer localizer) : ControllerBase
 {
-    protected readonly Localizer? _localizer = localizer;
+    protected readonly Localizer _localizer = localizer;
 
     /// <summary>
     /// 自定义403
@@ -97,7 +97,7 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
     [NonAction]
     public BadRequestObjectResult BadRequest(string? error, params object[] arguments)
     {
-        var res = CreateResult("BadRequest", error, 0, arguments);
+        var res = CreateResult(_localizer.Get(Localizer.BadRequest), error, 0, arguments);
         return base.BadRequest(res);
     }
 
@@ -113,19 +113,13 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
 
         if (detail != null)
         {
-            error = _localizer?.Get(detail, arguments) ?? detail;
+            error = _localizer.Get(detail, arguments) ?? detail;
         }
         else if (errorCode != 0)
         {
-            error = _localizer?.Get(errorCode.ToString()) ?? error;
+            error = _localizer.Get(errorCode.ToString()) ?? error;
         }
 
-        return new ErrorResult
-        {
-            Title = title,
-            Detail = error,
-            Status = errorCode,
-            TraceId = HttpContext.TraceIdentifier,
-        };
+        return new ErrorResult(error, HttpContext.TraceIdentifier, title, errorCode);
     }
 }
