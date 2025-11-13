@@ -37,21 +37,17 @@ public class SystemPermissionController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<Guid?>> AddAsync(SystemPermissionAddDto dto)
+    public async Task<ActionResult<SystemPermission>> AddAsync(SystemPermissionAddDto dto)
     {
         if (!await _systemPermissionGroupManager.ExistAsync(dto.SystemPermissionGroupId))
         {
             return NotFound("不存在的权限组");
         }
+
         SystemPermission entity = dto.MapTo<SystemPermission>();
-        if (await _manager.UpsertAsync(entity))
-        {
-            return entity.Id;
-        }
-        else
-        {
-            return Problem(Localizer.AddFailed);
-        }
+        entity.GroupId = dto.SystemPermissionGroupId;
+        await _manager.UpsertAsync(entity);
+        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -61,7 +57,7 @@ public class SystemPermissionController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync(
+    public async Task<ActionResult<bool>> UpdateAsync(
         [FromRoute] Guid id,
         SystemPermissionUpdateDto dto
     )
@@ -71,7 +67,7 @@ public class SystemPermissionController(
         {
             return NotFound(Localizer.NotFoundResource);
         }
-        ;
+
         if (dto.SystemPermissionGroupId != null && current.Group.Id != dto.SystemPermissionGroupId)
         {
             SystemPermissionGroup? systemPermissionGroup =
@@ -85,7 +81,8 @@ public class SystemPermissionController(
             current.Group = systemPermissionGroup;
         }
         current.Merge(dto);
-        return await _manager.UpsertAsync(current);
+        await _manager.UpsertAsync(current);
+        return true;
     }
 
     /// <summary>
@@ -106,7 +103,7 @@ public class SystemPermissionController(
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
         SystemPermission? entity = await _manager.GetCurrentAsync(id);

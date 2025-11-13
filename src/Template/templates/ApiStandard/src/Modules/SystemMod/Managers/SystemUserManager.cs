@@ -167,49 +167,6 @@ public class SystemUserManager(
         return await SaveChangesAsync() > 0;
     }
 
-    /// <summary>
-    /// 创建待添加实体
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<Guid?> AddAsync(SystemUserAddDto dto)
-    {
-        SystemUser entity = dto.MapTo<SystemUser>();
-        // 密码处理
-        entity.PasswordSalt = HashCrypto.BuildSalt();
-        entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
-        // 角色处理
-        if (dto.RoleIds != null && dto.RoleIds.Count != 0)
-        {
-            var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
-            entity.SystemRoles = roles;
-        }
-        return await UpsertAsync(entity) ? entity.Id : null;
-    }
-
-    /// <summary>
-    /// 更新实体
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<bool> UpdateAsync(SystemUser entity, SystemUserUpdateDto dto)
-    {
-        entity.Merge(dto);
-        if (dto.Password != null)
-        {
-            entity.PasswordSalt = HashCrypto.BuildSalt();
-            entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
-        }
-        if (dto.RoleIds != null)
-        {
-            await LoadManyAsync(entity, e => e.SystemRoles);
-            var roles = _dbContext.SystemRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
-            entity.SystemRoles = roles;
-        }
-        return await UpsertAsync(entity);
-    }
-
     public async Task<PageList<SystemUserItemDto>> ToPageAsync(SystemUserFilterDto filter)
     {
         Queryable = Queryable.WhereNotNull(

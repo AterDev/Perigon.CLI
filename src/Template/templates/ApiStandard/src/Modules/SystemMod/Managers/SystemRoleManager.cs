@@ -6,29 +6,6 @@ namespace SystemMod.Managers;
 public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleManager> logger)
     : ManagerBase<DefaultDbContext, SystemRole>(dbContext, logger)
 {
-    /// <summary>
-    /// 创建待添加实体
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<Guid?> AddAsync(SystemRoleAddDto dto)
-    {
-        var entity = dto.MapTo<SystemRole>();
-        return await UpsertAsync(entity) ? entity.Id : null;
-    }
-
-    /// <summary>
-    /// 更新实体
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<bool> UpdateAsync(SystemRole entity, SystemRoleUpdateDto dto)
-    {
-        entity.Merge(dto);
-        return await UpsertAsync(entity);
-    }
-
     public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)
     {
         Queryable = Queryable

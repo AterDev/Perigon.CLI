@@ -65,7 +65,7 @@ public class SystemMenuController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<Guid?>> AddAsync(SystemMenuAddDto dto)
+    public async Task<ActionResult<SystemMenu>> AddAsync(SystemMenuAddDto dto)
     {
         if (dto.ParentId != null)
         {
@@ -74,19 +74,14 @@ public class SystemMenuController(
                 return NotFound(Localizer.NotFoundResource);
             }
         }
+
         SystemMenu entity = dto.MapTo<SystemMenu>();
         if (dto.ParentId != null)
         {
             entity.ParentId = dto.ParentId.Value;
         }
-        if (await _manager.UpsertAsync(entity))
-        {
-            return entity.Id;
-        }
-        else
-        {
-            return Problem(Localizer.AddFailed);
-        }
+        await _manager.UpsertAsync(entity);
+        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -96,34 +91,28 @@ public class SystemMenuController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemMenuUpdateDto dto)
+    public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemMenuUpdateDto dto)
     {
         SystemMenu? current = await _manager.GetCurrentAsync(id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);
         }
-        ;
+
         current.Merge(dto);
-        return await _manager.UpsertAsync(current);
+        await _manager.UpsertAsync(current);
+        return true;
     }
 
     /// <summary>
-    /// ⚠删除 ✅
+    /// 详情 ✅
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    [HttpDelete("{id}")]
-    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<SystemMenu?>> GetDetailAsync([FromRoute] Guid id)
     {
-        // 注意删除权限
-        SystemMenu? entity = await _manager.GetOwnedAsync(id);
-        if (entity == null)
-        {
-            return NotFound();
-        }
-        ;
-        return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
+        var entity = await _manager.GetCurrentAsync(id);
+        return entity == null ? NotFound() : entity;
     }
 }

@@ -8,26 +8,6 @@ public class SystemPermissionGroupManager(
     ILogger<SystemPermissionGroupManager> logger
 ) : ManagerBase<DefaultDbContext, SystemPermissionGroup>(dbContext, logger)
 {
-    /// <summary>
-    /// 创建待添加实体
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<Guid?> AddAsync(SystemPermissionGroupAddDto dto)
-    {
-        SystemPermissionGroup entity = dto.MapTo<SystemPermissionGroup>();
-        await UpsertAsync(entity);
-    }
-
-    public async Task<bool> UpdateAsync(
-        SystemPermissionGroup entity,
-        SystemPermissionGroupUpdateDto dto
-    )
-    {
-        entity.Merge(dto);
-        return await UpsertAsync(entity);
-    }
-
     public async Task<PageList<SystemPermissionGroupItemDto>> ToPageAsync(
         SystemPermissionGroupFilterDto filter
     )

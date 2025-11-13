@@ -164,60 +164,6 @@ public async Task<PageList<FolderItemDto>> ToPageAsync(FolderFilterDto filter)
 }
 ```
 
-### 新增实体
-
-代码示例:
-
-Manager:
-
-```csharp
-public async Task<Guid?> AddAsync(FolderAddDto dto)
-{
-    Folder entity = dto.MapTo<Folder>();
-    return await AddAsync(entity) ? entity.Id : null;
-}
-```
-
-Controller:
-```csharp
-[HttpPost]
-public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
-{
-    var id = await _manager.AddAsync(dto);
-    return id == null ? base.Problem(Localizer.AddFailed) : id;
-}
-```
-
-### 更新实体
-
-`Manager`提供了`GetCurrentAsync`方法来获取当前实体。
-
-在控制器中，会先获取实体，如果不存在，则直接返回`404`。
-
-代码示例:
-
-Manager:
-```csharp
-public async Task<bool> UpdateAsync(Folder entity, FolderUpdateDto dto)
-{
-    entity.Merge(dto);
-    return await UpdateAsync(entity);
-}
-```
-
-Controller:
-
-```csharp
-[HttpPatch("{id}")]
-public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
-{
-    SystemUser? current = await _manager.GetCurrentAsync(id);
-    return current == null
-        ? base.NotFound(Localizer.NotFoundResource)
-        : await base._manager.UpdateAsync(current, dto);
-}
-```
-
 ### 详情查询
 
 `Manager`提供了默认的详情查询方法，可直接传递查询条件:

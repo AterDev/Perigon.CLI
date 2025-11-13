@@ -9,39 +9,6 @@ namespace CMSMod.Managers;
 public class CatalogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
     : ManagerBase<DefaultDbContext, Catalog>(dbContext, logger)
 {
-    /// <summary>
-    /// 创建待添加实体
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    public async Task<Guid?> AddAsync(CatalogAddDto dto, Guid userId)
-    {
-        Catalog entity = dto.MapTo<Catalog>();
-        entity.UserId = userId;
-        if (dto.ParentId != null)
-        {
-            Catalog? parent = await GetCurrentAsync(dto.ParentId.Value);
-            if (parent != null)
-            {
-                entity.ParentId = parent.Id;
-                entity.Parent = parent;
-                entity.Level = (short)(parent.Level + 1);
-            }
-            else
-            {
-                entity.Level = 0;
-            }
-        }
-        return await UpsertAsync(entity) ? entity.Id : null;
-    }
-
-    public async Task<bool> UpdateAsync(Catalog entity, CatalogUpdateDto dto)
-    {
-        entity.Merge(dto);
-        return await UpsertAsync(entity);
-    }
-
     public async Task<PageList<CatalogItemDto>> ToPageAsync(CatalogFilterDto filter)
     {
         // TODO:根据实际业务构建筛选条件

@@ -229,17 +229,20 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPost]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<Guid?>> AddAsync(SystemUserAddDto dto)
+    public async Task<ActionResult<SystemUser>> AddAsync(SystemUserAddDto dto)
     {
         SystemUser entity = dto.MapTo<SystemUser>();
-        if (await _manager.UpsertAsync(entity))
+        // 密码处理
+        entity.PasswordSalt = HashCrypto.BuildSalt();
+        entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
+        // 角色处理
+        if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            return entity.Id;
+            var roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
+            entity.SystemRoles = roles;
         }
-        else
-        {
-            return Problem(Localizer.AddFailed);
-        }
+        await _manager.UpsertAsync(entity);
+        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -250,12 +253,28 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPatch("{id}")]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
+    public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
     {
         SystemUser? current = await _manager.GetCurrentAsync(id);
-        return current == null
-            ? base.NotFound(Localizer.NotFoundResource)
-            : await _manager.UpsertAsync(current.Merge(dto));
+        if (current == null)
+        {
+            return NotFound(Localizer.NotFoundResource);
+        }
+
+        current.Merge(dto);
+        if (dto.Password != null)
+        {
+            current.PasswordSalt = HashCrypto.BuildSalt();
+            current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
+        }
+        if (dto.RoleIds != null)
+        {
+            await _manager.LoadManyAsync(current, e => e.SystemRoles);
+            var roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
+            current.SystemRoles = roles;
+        }
+        await _manager.UpsertAsync(current);
+        return true;
     }
 
     /// <summary>

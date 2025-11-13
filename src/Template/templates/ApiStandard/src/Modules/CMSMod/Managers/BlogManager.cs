@@ -9,23 +9,6 @@ namespace CMSMod.Managers;
 public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
     : ManagerBase<DefaultDbContext, Blog>(dbContext, logger)
 {
-    /// <summary>
-    /// 创建待添加实体
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<Guid?> AddAsync(BlogAddDto dto)
-    {
-        Blog entity = dto.MapTo<Blog>();
-        return await UpsertAsync(entity) ? entity.Id : null;
-    }
-
-    public async Task<bool> UpdateAsync(Blog entity, BlogUpdateDto dto)
-    {
-        entity.Merge(dto);
-        return await UpsertAsync(entity);
-    }
-
     public async Task<PageList<BlogItemDto>> ToPageAsync(BlogFilterDto filter)
     {
         Queryable = Queryable

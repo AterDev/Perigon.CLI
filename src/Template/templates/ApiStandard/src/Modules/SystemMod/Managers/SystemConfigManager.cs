@@ -18,28 +18,6 @@ public class SystemConfigManager(
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
 
-    /// <summary>
-    /// 创建待添加实体
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<Guid?> AddAsync(SystemConfigAddDto dto)
-    {
-        SystemConfig entity = dto.MapTo<SystemConfig>();
-        return await UpsertAsync(entity) ? entity.Id : null;
-    }
-
-    public async Task<bool> UpdateAsync(SystemConfig entity, SystemConfigUpdateDto dto)
-    {
-        entity.Merge(dto);
-        if (entity.IsSystem)
-        {
-            dto.Key = null;
-            dto.GroupName = null;
-        }
-        return await UpsertAsync(entity);
-    }
-
     public async Task<PageList<SystemConfigItemDto>> ToPageAsync(SystemConfigFilterDto filter)
     {
         Queryable = Queryable

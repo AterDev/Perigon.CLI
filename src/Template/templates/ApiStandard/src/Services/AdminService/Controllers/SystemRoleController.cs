@@ -34,10 +34,11 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<Guid?>> AddAsync(SystemRoleAddDto dto)
+    public async Task<ActionResult<SystemRole>> AddAsync(SystemRoleAddDto dto)
     {
-        SystemRole entity = dto.MapTo<SystemRole>();
-        return await _manager.UpsertAsync(entity) ? entity.Id : Problem(Localizer.AddFailed);
+        var entity = dto.MapTo<SystemRole>();
+        await _manager.UpsertAsync(entity);
+        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -47,7 +48,7 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync([FromRoute] Guid id, SystemRoleUpdateDto dto)
+    public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemRoleUpdateDto dto)
     {
         SystemRole? current = await _manager.GetOwnedAsync(id);
         if (current == null)
@@ -56,7 +57,8 @@ public class SystemRoleController(
         }
 
         current.Merge(dto);
-        return await _manager.UpsertAsync(current);
+        await _manager.UpsertAsync(current);
+        return true;
     }
 
     /// <summary>
@@ -116,7 +118,7 @@ public class SystemRoleController(
     /// <returns></returns>
     // [ApiExplorerSettings(IgnoreApi = true)]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
         SystemRole? entity = await _manager.GetOwnedAsync(id);
@@ -125,6 +127,6 @@ public class SystemRoleController(
             return NotFound();
         }
         // return Forbid();
-        return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
+        return await _manager.DeleteAsync([id], false);
     }
 }

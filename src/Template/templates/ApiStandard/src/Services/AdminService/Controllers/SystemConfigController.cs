@@ -43,17 +43,11 @@ public class SystemConfigController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<Guid?>> AddAsync(SystemConfigAddDto dto)
+    public async Task<ActionResult<SystemConfig>> AddAsync(SystemConfigAddDto dto)
     {
         SystemConfig entity = dto.MapTo<SystemConfig>();
-        if (await _manager.UpsertAsync(entity))
-        {
-            return entity.Id;
-        }
-        else
-        {
-            return Problem(Localizer.AddFailed);
-        }
+        await _manager.UpsertAsync(entity);
+        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -63,7 +57,7 @@ public class SystemConfigController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool?>> UpdateAsync(
+    public async Task<ActionResult<bool>> UpdateAsync(
         [FromRoute] Guid id,
         SystemConfigUpdateDto dto
     )
@@ -73,9 +67,10 @@ public class SystemConfigController(
         {
             return NotFound(Localizer.NotFoundResource);
         }
-        ;
+
         current.Merge(dto);
-        return await _manager.UpsertAsync(current);
+        await _manager.UpsertAsync(current);
+        return true;
     }
 
     /// <summary>
@@ -96,7 +91,7 @@ public class SystemConfigController(
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
         SystemConfig? entity = await _manager.GetCurrentAsync(id);
@@ -104,7 +99,7 @@ public class SystemConfigController(
         {
             return NotFound();
         }
-        ;
+
         return entity.IsSystem
             ? Problem("系统配置，无法删除!")
             : await _manager.DeleteAsync([id], false);

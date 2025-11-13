@@ -5,18 +5,15 @@ namespace Ater.AspNetCore.Models;
 /// </summary>
 public class FilterBase
 {
-    private int _pageSize;
-    private int _pageIndex;
-
     public int PageIndex
     {
-        get => _pageIndex;
+        get;
         set
         {
-            _pageIndex = value;
+            field = value;
             if (value < 1)
             {
-                _pageIndex = 1;
+                field = 1;
             }
         }
     }
@@ -26,17 +23,17 @@ public class FilterBase
     /// </summary>
     public int PageSize
     {
-        get => _pageSize;
+        get;
         set
         {
-            _pageSize = value;
+            field = value;
             if (value > 1000)
             {
-                _pageSize = 1000;
+                field = 1000;
             }
             if (value < 0)
             {
-                _pageSize = 0;
+                field = 0;
             }
         }
     }
