@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using Entity;
-using Share.Exceptions;
 
 namespace Share.Implement;
 
@@ -194,13 +193,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
         if (idsList.Count == 0)
         {
             return false;
-        }
-
-        // 检查实体是否存在
-        var existingCount = await _dbSet.CountAsync(d => idsList.Contains(d.Id));
-        if (existingCount == 0)
-        {
-            throw new BusinessException(Localizer.EntityNotFound, StatusCodes.Status404NotFound);
         }
 
         var res = softDelete
