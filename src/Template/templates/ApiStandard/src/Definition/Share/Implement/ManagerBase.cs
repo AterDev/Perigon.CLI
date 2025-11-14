@@ -35,11 +35,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// Enable or disable global query filters.
     /// </summary>
     public bool EnableGlobalQuery { get; set; } = true;
-
-    /// <summary>
-    /// Error status code for the last operation.
-    /// </summary>
-    public int ErrorStatus { get; set; }
     #endregion
     protected IQueryable<TEntity> Queryable { get; set; }
     protected readonly ILogger _logger;
@@ -60,39 +55,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
         if (!EnableGlobalQuery)
         {
             Queryable = Queryable.IgnoreQueryFilters();
-        }
-    }
-
-    /// <summary>
-    /// Gets the current entity by id without tracking.
-    /// </summary>
-    /// <param name="id">Entity id</param>
-    /// <returns>The entity if found; otherwise, null.</returns>
-    public virtual async Task<TEntity?> GetCurrentAsync(Guid id)
-    {
-        return await _dbSet.FindAsync(id);
-    }
-
-    /// <summary>
-    /// Gets the current entity or DTO by condition without tracking.
-    /// </summary>
-    /// <typeparam name="TDto">DTO type</typeparam>
-    /// <param name="whereExp">Filter expression</param>
-    /// <returns>The DTO if found; otherwise, null.</returns>
-    public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
-        where TDto : class
-    {
-        if (typeof(TDto) == typeof(TEntity))
-        {
-            var model = await _dbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
-            return model as TDto;
-        }
-        else
-        {
-            return await _dbSet
-                .Where(whereExp ?? (e => true))
-                .ProjectTo<TDto>()
-                .FirstOrDefaultAsync();
         }
     }
 
@@ -120,11 +82,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
             .FirstOrDefaultAsync();
-
-        if (typeof(TDto) is TEntity && model != null)
-        {
-            _dbSet.Attach((model as TEntity)!);
-        }
         return model;
     }
 
@@ -219,65 +176,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
         await _dbContext.BulkInsertOrUpdateAsync([entity]);
     }
 
-    /// <summary>
-    /// Updates related collection data for an entity.
-    /// </summary>
-    /// <typeparam name="TProperty">Related entity type</typeparam>
-    /// <param name="entity">Current entity</param>
-    /// <param name="propertyExpression">Navigation property expression</param>
-    /// <param name="data">New related data</param>
-    public void UpdateRelation<TProperty>(
-        TEntity entity,
-        Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression,
-        List<TProperty> data
-    )
-        where TProperty : class
+    public async Task BulkUpsertAsync(IEnumerable<TEntity> entities)
     {
-        var currentValue = _dbContext.Entry(entity).Collection(propertyExpression).CurrentValue;
-        if (currentValue != null && currentValue.Any())
-        {
-            _dbContext.RemoveRange(currentValue);
-            _dbContext.Entry(entity).Collection(propertyExpression).CurrentValue = null;
-        }
-        _dbContext.AddRange(data);
-    }
-
-    /// <summary>
-    /// Saves a list of entities, updating, adding, or removing as needed by id.
-    /// </summary>
-    /// <param name="entityList">New full list of entities</param>
-    /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> SaveAsync(List<TEntity> entityList)
-    {
-        var Ids = await _dbSet.Select(e => e.Id).ToListAsync();
-        // new entity by id
-        var newEntities = entityList.Where(d => !Ids.Contains(d.Id)).ToList();
-
-        var updateEntities = entityList.Where(d => Ids.Contains(d.Id)).ToList();
-        var removeEntities = Ids.Where(d => !entityList.Select(e => e.Id).Contains(d)).ToList();
-
-        if (newEntities.Count != 0)
-        {
-            await _dbSet.AddRangeAsync(newEntities);
-        }
-        if (updateEntities.Count != 0)
-        {
-            _dbSet.UpdateRange(updateEntities);
-        }
-        try
-        {
-            if (removeEntities.Count != 0)
-            {
-                await _dbSet.Where(d => removeEntities.Contains(d.Id)).ExecuteDeleteAsync();
-            }
-            _ = await SaveChangesAsync();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "AddOrUpdateAsync");
-            return false;
-        }
+        await _dbContext.BulkInsertOrUpdateAsync(entities);
     }
 
     /// <summary>
@@ -286,7 +187,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="ids">List of entity ids</param>
     /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public virtual async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public virtual async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool softDelete = true)
     {
         var res = softDelete
             ? await _dbSet
@@ -294,25 +195,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
             : await _dbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
         return res > 0;
-    }
-
-    /// <summary>
-    /// Deletes a single entity, with optional soft delete.
-    /// </summary>
-    /// <param name="entity">Entity to delete</param>
-    /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
-    /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
-    {
-        if (softDelete)
-        {
-            entity.IsDeleted = true;
-        }
-        else
-        {
-            _dbSet.Remove(entity);
-        }
-        return await SaveChangesAsync() > 0;
     }
 
     /// <summary>

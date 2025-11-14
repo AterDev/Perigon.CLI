@@ -11,7 +11,7 @@ public class SystemPermissionManager(
     ILogger<SystemPermissionManager> logger
 ) : ManagerBase<DefaultDbContext, SystemPermission>(dbContext, logger)
 {
-    public override Task<SystemPermission?> GetCurrentAsync(Guid id)
+    public override Task<SystemPermission?> FindAsync(Guid id)
     {
         return _dbSet.Where(p => p.Id == id).Include(p => p.Group).FirstOrDefaultAsync();
     }

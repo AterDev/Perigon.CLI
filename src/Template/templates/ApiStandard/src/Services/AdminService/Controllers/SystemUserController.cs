@@ -2,6 +2,7 @@ using Ater.AspNetCore.Models;
 using Ater.AspNetCore.Options;
 using Ater.AspNetCore.Services;
 using Microsoft.AspNetCore.RateLimiting;
+using Share.Exceptions;
 using Share.Models.Auth;
 using SystemMod.Models.SystemUserDtos;
 
@@ -35,11 +36,12 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPost("verifyCode")]
     [AllowAnonymous]
+    [EnableRateLimiting(WebConst.Limited)]
     public async Task<ActionResult> SendVerifyCodeAsync(string email)
     {
         if (!await _manager.IsExistAsync(email))
         {
-            return NotFound("不存在的邮箱账号");
+            return BadRequest("不存在的邮箱账号");
         }
         var captcha = SystemUserManager.GetCaptcha();
         var key = WebConst.VerifyCodeCachePrefix + email;
@@ -72,23 +74,20 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting(WebConst.Limited)]
     public async Task<ActionResult<AuthResult>> LoginAsync(SystemLoginDto dto)
     {
-        dto.Password = dto.Password.Trim();
-        // 查询用户
-        SystemUser? user = await _manager.FindByUserNameAsync(dto.UserName);
-        if (user == null)
+        try
         {
-            return NotFound("不存在该用户");
-        }
+            dto.Password = dto.Password.Trim();
+            // 查询用户
+            SystemUser? user = await _manager.FindByUserNameAsync(dto.UserName);
+            if (user == null)
+            {
+                return NotFound("不存在该用户");
+            }
 
-        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
-
-        if (await _manager.ValidateLoginAsync(dto, user, loginPolicy))
-        {
-            user.LastLoginTime = DateTimeOffset.UtcNow;
-
-            // 菜单和权限信息
+            // 获取菜单和权限信息
             var menus = new List<SystemMenu>();
             var permissionGroups = new List<SystemPermissionGroup>();
             if (user.SystemRoles != null)
@@ -99,60 +98,15 @@ public class SystemUserController(
                 );
             }
 
-            AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
-
-            // 缓存登录状态
+            // 获取client
             var client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
-            if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
-            {
-                client = WebConst.AllPlatform;
-            }
-            var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
-            // 若会话过期时间为0，则使用jwt过期时间
 
-            var expiredSeconds =
-                loginPolicy.SessionExpiredSeconds == 0
-                    ? jwtToken.ExpiresIn
-                    : loginPolicy.SessionExpiredSeconds;
-
-            // 缓存
-            await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
-            await _cache.SetValueAsync(
-                jwtToken.RefreshToken,
-                user.Id.ToString(),
-                jwtToken.RefreshExpiresIn
-            );
-
-            await _logService.NewLog(
-                "登录",
-                UserActionType.Login,
-                "登录成功",
-                user.UserName,
-                user.Id
-            );
-            return new AuthResult
-            {
-                Id = user.Id,
-                Username = user.UserName,
-                Menus = menus,
-                Roles =
-                    user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
-                PermissionGroups = permissionGroups,
-                AccessToken = jwtToken.AccessToken,
-                ExpiresIn = jwtToken.ExpiresIn,
-                RefreshToken = jwtToken.RefreshToken,
-            };
+            var result = await _manager.LoginAsync(dto, menus, permissionGroups, client);
+            return result;
         }
-        else
+        catch (BusinessException ex)
         {
-            await _logService.NewLog(
-                "登录",
-                UserActionType.Login,
-                "登录失败:" + _manager.ErrorStatus,
-                user.UserName,
-                user.Id
-            );
-            return Problem(errorCode: _manager.ErrorStatus);
+            return Problem(ex.Message);
         }
     }
 
@@ -231,17 +185,13 @@ public class SystemUserController(
     [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<SystemUser>> AddAsync(SystemUserAddDto dto)
     {
-        SystemUser entity = dto.MapTo<SystemUser>();
-        // 密码处理
-        entity.PasswordSalt = HashCrypto.BuildSalt();
-        entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
         // 角色处理
+        List<SystemRole>? roles = null;
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            var roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
-            entity.SystemRoles = roles;
+            roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
         }
-        await _manager.UpsertAsync(entity);
+        var entity = await _manager.AddAsync(dto, roles);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -255,26 +205,13 @@ public class SystemUserController(
     [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
     {
-        SystemUser? current = await _manager.GetCurrentAsync(id);
-        if (current == null)
-        {
-            return NotFound(Localizer.NotFoundResource);
-        }
-
-        current.Merge(dto);
-        if (dto.Password != null)
-        {
-            current.PasswordSalt = HashCrypto.BuildSalt();
-            current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
-        }
+        // 角色处理
+        List<SystemRole>? roles = null;
         if (dto.RoleIds != null)
         {
-            await _manager.LoadManyAsync(current, e => e.SystemRoles);
-            var roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
-            current.SystemRoles = roles;
+            roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
         }
-        await _manager.UpsertAsync(current);
-        return true;
+        return await _manager.UpdateAsync(id, dto, roles);
     }
 
     /// <summary>
@@ -288,7 +225,7 @@ public class SystemUserController(
         {
             return NotFound("");
         }
-        SystemUser? user = await _manager.GetCurrentAsync(_user.UserId);
+        SystemUser? user = await _manager.FindAsync(_user.UserId);
         return !HashCrypto.Validate(password, user!.PasswordSalt, user.PasswordHash)
             ? Problem("当前密码不正确")
             : await _manager.ChangePasswordAsync(user, newPassword);
@@ -315,10 +252,10 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpDelete("{id}")]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<bool?>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        SystemUser? entity = await _manager.GetCurrentAsync(id);
+        SystemUser? entity = await _manager.FindAsync(id);
         return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
     }
 }

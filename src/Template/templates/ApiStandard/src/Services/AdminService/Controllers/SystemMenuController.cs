@@ -93,7 +93,7 @@ public class SystemMenuController(
     [HttpPatch("{id}")]
     public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemMenuUpdateDto dto)
     {
-        SystemMenu? current = await _manager.GetCurrentAsync(id);
+        SystemMenu? current = await _manager.FindAsync(id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);
@@ -112,7 +112,7 @@ public class SystemMenuController(
     [HttpGet("{id}")]
     public async Task<ActionResult<SystemMenu?>> GetDetailAsync([FromRoute] Guid id)
     {
-        var entity = await _manager.GetCurrentAsync(id);
+        var entity = await _manager.FindAsync(id);
         return entity == null ? NotFound() : entity;
     }
 }

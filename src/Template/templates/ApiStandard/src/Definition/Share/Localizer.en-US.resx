@@ -117,19 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="500001" xml:space="preserve">
+  <data name="LockAccountForManyTimes" xml:space="preserve">
     <value>Too many password attempts, account locked</value>
   </data>
-  <data name="500002" xml:space="preserve">
+  <data name="InvalidVerifyCode" xml:space="preserve">
     <value>Invalid verification code</value>
   </data>
-  <data name="500003" xml:space="preserve">
+  <data name="VerifyCodeExpired" xml:space="preserve">
     <value>Verification code expired</value>
   </data>
-  <data name="500004" xml:space="preserve">
+  <data name="PasswordExpired" xml:space="preserve">
     <value>Password expired, please change your password</value>
   </data>
-  <data name="500005" xml:space="preserve">
+  <data name="InvalidUserOrPassword" xml:space="preserve">
     <value>Invalid username or password</value>
   </data>
   <data name="AddFailed" xml:space="preserve">
@@ -144,8 +144,8 @@
   <data name="en-US" xml:space="preserve">
     <value>en-US</value>
   </data>
-  <data name="ExistUser" xml:space="preserve">
-    <value>Exist User</value>
+  <data name="ExistUserName" xml:space="preserve">
+    <value>Exist UserName</value>
   </data>
   <data name="NotFoundResource" xml:space="preserve">
     <value>Not Found Resource</value>

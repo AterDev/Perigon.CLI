@@ -2,6 +2,7 @@ using Ater.AspNetCore.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Share.Exceptions;
 
 namespace ServiceDefaults.Middleware;
 
@@ -28,6 +29,13 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
             ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await ctx.Response.WriteAsJsonAsync(
                 new ErrorResult(ex.Message, ctx.TraceIdentifier, "database error!")
+            );
+        }
+        catch (BusinessException ex)
+        {
+            ctx.Response.StatusCode = ex.StatusCodes;
+            await ctx.Response.WriteAsJsonAsync(
+                new ErrorResult(localizer.Get(ex.ErrorCode), ctx.TraceIdentifier, ex.ErrorCode)
             );
         }
         catch (Exception ex)

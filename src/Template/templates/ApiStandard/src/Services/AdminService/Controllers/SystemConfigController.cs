@@ -62,7 +62,7 @@ public class SystemConfigController(
         SystemConfigUpdateDto dto
     )
     {
-        SystemConfig? current = await _manager.GetCurrentAsync(id);
+        SystemConfig? current = await _manager.FindAsync(id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);
@@ -94,7 +94,7 @@ public class SystemConfigController(
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        SystemConfig? entity = await _manager.GetCurrentAsync(id);
+        SystemConfig? entity = await _manager.FindAsync(id);
         if (entity == null)
         {
             return NotFound();

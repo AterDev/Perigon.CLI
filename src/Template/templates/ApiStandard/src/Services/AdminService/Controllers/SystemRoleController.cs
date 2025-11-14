@@ -71,7 +71,7 @@ public class SystemRoleController(
         [FromBody] SystemRoleSetMenusDto dto
     )
     {
-        SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
+        SystemRole? current = await _manager.FindAsync(dto.Id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);
@@ -90,7 +90,7 @@ public class SystemRoleController(
         [FromBody] SystemRoleSetPermissionGroupsDto dto
     )
     {
-        SystemRole? current = await _manager.GetCurrentAsync(dto.Id);
+        SystemRole? current = await _manager.FindAsync(dto.Id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);

@@ -3,24 +3,27 @@ using System.Text.RegularExpressions;
 using Ater.AspNetCore.Options;
 using Ater.AspNetCore.Toolkit.Helpers;
 using EntityFramework.DBProvider;
+using Share;
+using Share.Exceptions;
 using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
+using SystemMod.Services;
 
 namespace SystemMod.Managers;
 
 public class SystemUserManager(
     DefaultDbContext dbContext,
-    IConfiguration configuration,
     CacheService cache,
     JwtService jwtService,
     SystemConfigManager systemConfig,
+    SystemLogService logService,
     ILogger<SystemUserManager> logger
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContext, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
-    private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
+    private readonly SystemLogService _logService = logService;
 
     /// <summary>
     /// 获取验证码
@@ -52,7 +55,7 @@ public class SystemUserManager(
     /// <param name="user"></param>
     /// <param name="loginPolicy"></param>
     /// <returns></returns>
-    public async Task<bool> ValidateLoginAsync(
+    public async Task ValidateLoginAsync(
         SystemLoginDto dto,
         SystemUser user,
         LoginSecurityPolicyOption loginPolicy
@@ -60,7 +63,7 @@ public class SystemUserManager(
     {
         if (loginPolicy == null || !loginPolicy.IsEnable)
         {
-            return true;
+            return;
         }
         // 刷新锁定状态
         var lastLoginTime = user.LastLoginTime?.ToLocalTime() ?? DateTimeOffset.Now;
@@ -79,8 +82,7 @@ public class SystemUserManager(
         if (user.LockoutEnabled || user.RetryCount >= loginPolicy.LoginRetry)
         {
             user.LockoutEnabled = true;
-            ErrorStatus = 500001;
-            return false;
+            throw new BusinessException(Localizer.LockAccountForManyTimes);
         }
 
         // 验证码处理
@@ -89,41 +91,35 @@ public class SystemUserManager(
             if (dto.VerifyCode == null)
             {
                 user.RetryCount++;
-                ErrorStatus = 500002;
-                return false;
+                throw new BusinessException(Localizer.InvalidVerifyCode);
             }
             var key = WebConst.VerifyCodeCachePrefix + user.Email;
             var code = await _cache.GetValueAsync<string>(key);
             if (code == null)
             {
-                ErrorStatus = 500003;
                 user.RetryCount++;
-                return false;
+                throw new BusinessException(Localizer.VerifyCodeExpired);
             }
             if (!code.Equals(dto.VerifyCode))
             {
                 await _cache.RemoveAsync(key);
-                ErrorStatus = 500002;
                 user.RetryCount++;
-                return false;
+                throw new BusinessException(Localizer.InvalidVerifyCode);
             }
         }
 
         // 密码过期时间
         if ((DateTimeOffset.UtcNow - user.LastPwdEditTime).TotalDays > loginPolicy.PasswordExpired)
         {
-            ErrorStatus = 500004;
             user.RetryCount++;
-            return false;
+            throw new BusinessException("密码已过期"); // 需要适当的本地化
         }
 
         if (!HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
-            ErrorStatus = 500005;
             user.RetryCount++;
-            return false;
+            throw new BusinessException("密码错误"); // 需要适当的本地化
         }
-        return true;
     }
 
     /// <summary>
@@ -220,7 +216,7 @@ public class SystemUserManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         return await base.DeleteAsync(ids, softDelete);
     }
@@ -270,5 +266,127 @@ public class SystemUserManager(
             .Where(u => u.UserName.Equals(userName))
             .Include(u => u.SystemRoles)
             .SingleOrDefaultAsync();
+    }
+
+    public async Task<AuthResult> LoginAsync(
+        SystemLoginDto dto,
+        List<SystemMenu> menus,
+        List<SystemPermissionGroup> permissionGroups,
+        string client
+    )
+    {
+        dto.Password = dto.Password.Trim();
+        // 查询用户
+        SystemUser? user = await FindByUserNameAsync(dto.UserName);
+        if (user == null)
+        {
+            throw new BusinessException("不存在该用户");
+        }
+
+        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
+
+        try
+        {
+            await ValidateLoginAsync(dto, user, loginPolicy);
+        }
+        catch (BusinessException)
+        {
+            await _logService.NewLog(
+                "登录",
+                UserActionType.Login,
+                "登录失败",
+                user.UserName,
+                user.Id
+            );
+            throw;
+        }
+
+        user.LastLoginTime = DateTimeOffset.UtcNow;
+
+        // 菜单和权限信息 使用传入的参数
+        // var menus = new List<SystemMenu>();
+        // var permissionGroups = new List<SystemPermissionGroup>();
+        // if (user.SystemRoles != null)
+        // {
+        //     menus = await _roleManager.GetSystemMenusAsync([.. user.SystemRoles]);
+        //     permissionGroups = await _roleManager.GetPermissionGroupsAsync(
+        //         [.. user.SystemRoles]
+        //     );
+        // }
+
+        AccessTokenDto jwtToken = GenerateJwtToken(user);
+
+        // 缓存登录状态 使用传入的client
+        // var client = WebConst.Web; // 默认
+        if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
+        {
+            client = WebConst.AllPlatform;
+        }
+        var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
+
+        var expiredSeconds =
+            loginPolicy.SessionExpiredSeconds == 0
+                ? jwtToken.ExpiresIn
+                : loginPolicy.SessionExpiredSeconds;
+
+        // 缓存
+        await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
+        await _cache.SetValueAsync(
+            jwtToken.RefreshToken,
+            user.Id.ToString(),
+            jwtToken.RefreshExpiresIn
+        );
+
+        await _logService.NewLog("登录", UserActionType.Login, "登录成功", user.UserName, user.Id);
+
+        return new AuthResult
+        {
+            Id = user.Id,
+            Username = user.UserName,
+            Menus = menus,
+            Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
+            PermissionGroups = permissionGroups,
+            AccessToken = jwtToken.AccessToken,
+            ExpiresIn = jwtToken.ExpiresIn,
+            RefreshToken = jwtToken.RefreshToken,
+        };
+    }
+
+    public async Task<SystemUser> AddAsync(SystemUserAddDto dto, List<SystemRole>? roles)
+    {
+        SystemUser entity = dto.MapTo<SystemUser>();
+        // 密码处理
+        entity.PasswordSalt = HashCrypto.BuildSalt();
+        entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
+        // 角色处理
+        if (roles != null)
+        {
+            entity.SystemRoles = roles;
+        }
+        await UpsertAsync(entity);
+        return entity;
+    }
+
+    public async Task<bool> UpdateAsync(Guid id, SystemUserUpdateDto dto, List<SystemRole>? roles)
+    {
+        SystemUser? current = await FindAsync(id);
+        if (current == null)
+        {
+            throw new BusinessException("用户不存在");
+        }
+
+        current.Merge(dto);
+        if (dto.Password != null)
+        {
+            current.PasswordSalt = HashCrypto.BuildSalt();
+            current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
+        }
+        if (roles != null)
+        {
+            await LoadManyAsync(current, e => e.SystemRoles);
+            current.SystemRoles = roles;
+        }
+        await UpsertAsync(current);
+        return true;
     }
 }

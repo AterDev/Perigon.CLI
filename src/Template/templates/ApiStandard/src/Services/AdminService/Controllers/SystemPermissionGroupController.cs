@@ -50,7 +50,7 @@ public class SystemPermissionGroupController(
         SystemPermissionGroupUpdateDto dto
     )
     {
-        SystemPermissionGroup? current = await _manager.GetCurrentAsync(id);
+        SystemPermissionGroup? current = await _manager.FindAsync(id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);
@@ -84,7 +84,7 @@ public class SystemPermissionGroupController(
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        SystemPermissionGroup? entity = await _manager.GetCurrentAsync(id);
+        SystemPermissionGroup? entity = await _manager.FindAsync(id);
         return entity == null ? NotFound() : await _manager.DeleteAsync([id]);
     }
 }

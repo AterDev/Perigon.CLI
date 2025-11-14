@@ -165,7 +165,7 @@ public static class WebExtensions
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-            // 验证码  每10秒5次
+            // for limited policy
             options.AddPolicy(
                 WebConst.Limited,
                 context =>
@@ -176,8 +176,8 @@ public static class WebExtensions
                             remoteIpAddress!.ToString(),
                             _ => new FixedWindowRateLimiterOptions
                             {
-                                PermitLimit = 5,
-                                Window = TimeSpan.FromSeconds(10),
+                                PermitLimit = 10,
+                                Window = TimeSpan.FromSeconds(60),
                                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                                 QueueLimit = 3,
                             }
