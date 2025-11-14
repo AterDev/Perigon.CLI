@@ -20,9 +20,9 @@ public class SystemRoleController(
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    [HttpPost("filter")]
+    [HttpGet]
     public async Task<ActionResult<PageList<SystemRoleItemDto>>> FilterAsync(
-        SystemRoleFilterDto filter
+        [FromQuery] SystemRoleFilterDto filter
     )
     {
         return await _manager.ToPageAsync(filter);
@@ -48,17 +48,10 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemRoleUpdateDto dto)
+    public async Task<ActionResult<SystemRole>> UpdateAsync([FromRoute] Guid id, SystemRoleUpdateDto dto)
     {
-        SystemRole? current = await _manager.GetOwnedAsync(id);
-        if (current == null)
-        {
-            return NotFound(Localizer.NotFoundResource);
-        }
-
-        current.Merge(dto);
-        await _manager.UpsertAsync(current);
-        return true;
+        var entity = await _manager.UpdateAsync(id, dto);
+        return Ok(entity);
     }
 
     /// <summary>
@@ -67,17 +60,12 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut("menus")]
-    public async Task<ActionResult<SystemRole?>> UpdateMenusAsync(
+    public async Task<ActionResult<SystemRole>> UpdateMenusAsync(
         [FromBody] SystemRoleSetMenusDto dto
     )
     {
-        SystemRole? current = await _manager.FindAsync(dto.Id);
-        if (current == null)
-        {
-            return NotFound(Localizer.NotFoundResource);
-        }
-        SystemRole? res = await _manager.SetMenusAsync(current, dto);
-        return Ok(res) ?? Problem("菜单更新失败");
+        var result = await _manager.SetMenusAsync(dto);
+        return Ok(result);
     }
 
     /// <summary>
@@ -86,17 +74,12 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut("permissionGroups")]
-    public async Task<ActionResult<SystemRole?>> UpdatePermissionGroupsAsync(
+    public async Task<ActionResult<SystemRole>> UpdatePermissionGroupsAsync(
         [FromBody] SystemRoleSetPermissionGroupsDto dto
     )
     {
-        SystemRole? current = await _manager.FindAsync(dto.Id);
-        if (current == null)
-        {
-            return NotFound(Localizer.NotFoundResource);
-        }
-        SystemRole? res = await _manager.SetPermissionGroupsAsync(current, dto);
-        return Ok(res) ?? Problem("权限组更新失败");
+        var result = await _manager.SetPermissionGroupsAsync(dto);
+        return Ok(result);
     }
 
     /// <summary>
@@ -116,17 +99,10 @@ public class SystemRoleController(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    // [ApiExplorerSettings(IgnoreApi = true)]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id)
     {
-        // 注意删除权限
-        SystemRole? entity = await _manager.GetOwnedAsync(id);
-        if (entity == null)
-        {
-            return NotFound();
-        }
-        // return Forbid();
-        return await _manager.DeleteAsync([id], false);
+        await _manager.DeleteAsync([id], false);
+        return NoContent();
     }
 }

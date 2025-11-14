@@ -9,6 +9,7 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<SystemUser> SystemUsers { get; set; }
     public DbSet<SystemRole> SystemRoles { get; set; }
+    public DbSet<SystemUserRole> SystemUserRoles { get; set; }
     public DbSet<SystemConfig> SystemConfigs { get; set; }
 
     /// <summary>
@@ -27,5 +28,24 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        // 配置SystemUser和SystemRole的多对多关系
+        builder.Entity<SystemUser>()
+            .HasMany(u => u.SystemRoles)
+            .WithMany(r => r.Users)
+            .UsingEntity<SystemUserRole>(
+                j => j
+                    .HasOne(ur => ur.Role)
+                    .WithMany()
+                    .HasForeignKey(ur => ur.RoleId),
+                j => j
+                    .HasOne(ur => ur.User)
+                    .WithMany()
+                    .HasForeignKey(ur => ur.UserId),
+                j =>
+                {
+                    j.HasKey(ur => ur.Id);
+                    j.ToTable("SystemUserRoles");
+                });
     }
 }

@@ -11,4 +11,13 @@ public partial class Localizer(IStringLocalizer<Localizer> localizer)
     {
         return localizer[key, arguments];
     }
+
+    // 常用的本地化常量
+    public const string UserNotFound = nameof(UserNotFound);
+    public const string RoleNotFound = nameof(RoleNotFound);
+    public const string InsufficientPermissions = nameof(InsufficientPermissions);
+    public const string PasswordComplexityNotMet = nameof(PasswordComplexityNotMet);
+    public const string EntityNotFound = nameof(EntityNotFound);
+    public const string MenuUpdateFailed = nameof(MenuUpdateFailed);
+    public const string PermissionGroupUpdateFailed = nameof(PermissionGroupUpdateFailed);
 }

@@ -159,4 +159,25 @@
   <data name="zh-CN" xml:space="preserve">
     <value>zh-CN</value>
   </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="RoleNotFound" xml:space="preserve">
+    <value>Role not found</value>
+  </data>
+  <data name="InsufficientPermissions" xml:space="preserve">
+    <value>Insufficient permissions</value>
+  </data>
+  <data name="PasswordComplexityNotMet" xml:space="preserve">
+    <value>Password complexity requirements not met</value>
+  </data>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entity to delete not found</value>
+  </data>
+  <data name="MenuUpdateFailed" xml:space="preserve">
+    <value>Menu update failed</value>
+  </data>
+  <data name="PermissionGroupUpdateFailed" xml:space="preserve">
+    <value>Permission group update failed</value>
+  </data>
 </root>

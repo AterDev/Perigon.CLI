@@ -1,11 +1,18 @@
 using EntityFramework.DBProvider;
+using Share.Exceptions;
 using SystemMod.Models.SystemRoleDtos;
 
 namespace SystemMod.Managers;
 
-public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleManager> logger)
-    : ManagerBase<DefaultDbContext, SystemRole>(dbContext, logger)
+public class SystemRoleManager(
+    DefaultDbContext dbContext, 
+    ILogger<SystemRoleManager> logger,
+    IUserContext userContext,
+    Localizer localizer
+) : ManagerBase<DefaultDbContext, SystemRole>(dbContext, logger)
 {
+    private readonly IUserContext _userContext = userContext;
+    private readonly Localizer _localizer = localizer;
     public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)
     {
         Queryable = Queryable
@@ -30,30 +37,30 @@ public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleMan
     /// <summary>
     /// Set PermissionGroups
     /// </summary>
-    /// <param name="current"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<SystemRole?> SetPermissionGroupsAsync(
-        SystemRole current,
-        SystemRoleSetPermissionGroupsDto dto
-    )
+    public async Task<SystemRole> SetPermissionGroupsAsync(SystemRoleSetPermissionGroupsDto dto)
     {
-        try
+        return await ExecuteInTransactionAsync(async () =>
         {
+            var current = await FindAsync(dto.Id) ?? throw new BusinessException(Localizer.RoleNotFound);
+            
+            if (!CanUserModifyRole(current))
+            {
+                throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+            }
+
             await _dbContext.Entry(current).Collection(r => r.PermissionGroups).LoadAsync();
 
-            List<SystemPermissionGroup> groups = await _dbContext
+            var groups = await _dbContext
                 .SystemPermissionGroups.Where(m => dto.PermissionGroupIds.Contains(m.Id))
                 .ToListAsync();
+                
             current.PermissionGroups = groups;
-            await SaveChangesAsync();
+            await UpsertAsync(current);
+            
             return current;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError("set role permission groups failed:{message}", e.Message);
-            return null;
-        }
+        });
     }
 
     /// <summary>
@@ -72,44 +79,63 @@ public class SystemRoleManager(DefaultDbContext dbContext, ILogger<SystemRoleMan
     }
 
     /// <summary>
-    /// 当前用户所拥有的对象
+    /// 更新角色
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<SystemRole?> GetOwnedAsync(Guid id)
+    public async Task<SystemRole> UpdateAsync(Guid id, SystemRoleUpdateDto dto)
     {
-        IQueryable<SystemRole> query = _dbSet.Where(q => q.Id == id);
-        // 获取用户所属的对象
-        return await query.FirstOrDefaultAsync();
+        var current = await FindAsync(id) ?? throw new BusinessException(Localizer.RoleNotFound);
+        
+        // 权限验证可以在这里进行，利用 _userContext
+        if (!CanUserModifyRole(current))
+        {
+            throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+        }
+
+        current.Merge(dto);
+        await UpsertAsync(current);
+        return current;
+    }
+
+    /// <summary>
+    /// 验证用户是否可以修改角色
+    /// </summary>
+    /// <param name="role"></param>
+    /// <returns></returns>
+    private bool CanUserModifyRole(SystemRole role)
+    {
+        // 实现具体的权限逻辑
+        return _userContext.IsRole(WebConst.SuperAdmin);
     }
 
     /// <summary>
     /// 更新角色菜单
     /// </summary>
-    /// <param name="current"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public async Task<SystemRole?> SetMenusAsync(SystemRole current, SystemRoleSetMenusDto dto)
+    public async Task<SystemRole> SetMenusAsync(SystemRoleSetMenusDto dto)
     {
-        // 更新角色菜单
-        try
+        return await ExecuteInTransactionAsync(async () =>
         {
+            var current = await FindAsync(dto.Id) ?? throw new BusinessException(Localizer.RoleNotFound);
+            
+            if (!CanUserModifyRole(current))
+            {
+                throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+            }
+
             await _dbContext.Entry(current).Collection(r => r.Menus).LoadAsync();
 
-            current.Menus = [];
-
-            List<SystemMenu> menus = await _dbContext
+            var menus = await _dbContext
                 .SystemMenus.Where(m => dto.MenuIds.Contains(m.Id))
                 .ToListAsync();
+                
             current.Menus = menus;
-            await SaveChangesAsync();
+            await UpsertAsync(current);
+            
             return current;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError("update role menus failed:{message}", e.Message);
-            return default;
-        }
+        });
     }
 }

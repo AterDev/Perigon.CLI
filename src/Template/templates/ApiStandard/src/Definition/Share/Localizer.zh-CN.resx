@@ -159,4 +159,25 @@
   <data name="zh-CN" xml:space="preserve">
     <value>简体中文</value>
   </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>用户不存在</value>
+  </data>
+  <data name="RoleNotFound" xml:space="preserve">
+    <value>角色不存在</value>
+  </data>
+  <data name="InsufficientPermissions" xml:space="preserve">
+    <value>权限不足</value>
+  </data>
+  <data name="PasswordComplexityNotMet" xml:space="preserve">
+    <value>密码复杂度不符合要求</value>
+  </data>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>要删除的实体不存在</value>
+  </data>
+  <data name="MenuUpdateFailed" xml:space="preserve">
+    <value>菜单更新失败</value>
+  </data>
+  <data name="PermissionGroupUpdateFailed" xml:space="preserve">
+    <value>权限组更新失败</value>
+  </data>
 </root>

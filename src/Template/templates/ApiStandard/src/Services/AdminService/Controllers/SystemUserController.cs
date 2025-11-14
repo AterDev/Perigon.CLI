@@ -167,10 +167,10 @@ public class SystemUserController(
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    [HttpPost("filter")]
+    [HttpGet]
     [Authorize(WebConst.SuperAdmin)]
     public async Task<ActionResult<PageList<SystemUserItemDto>>> FilterAsync(
-        SystemUserFilterDto filter
+        [FromQuery] SystemUserFilterDto filter
     )
     {
         return await _manager.ToPageAsync(filter);
@@ -203,7 +203,7 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPatch("{id}")]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
+    public async Task<ActionResult<SystemUser>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
     {
         // 角色处理
         List<SystemRole>? roles = null;
@@ -211,7 +211,8 @@ public class SystemUserController(
         {
             roles = await _roleManager.ToListAsync(r => dto.RoleIds.Contains(r.Id));
         }
-        return await _manager.UpdateAsync(id, dto, roles);
+        var entity = await _manager.UpdateAsync(id, dto, roles);
+        return Ok(entity);
     }
 
     /// <summary>
@@ -252,10 +253,9 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpDelete("{id}")]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id)
     {
-        // 注意删除权限
-        SystemUser? entity = await _manager.FindAsync(id);
-        return entity == null ? NotFound() : await _manager.DeleteAsync([id], false);
+        await _manager.DeleteAsync([id], false);
+        return NoContent();
     }
 }

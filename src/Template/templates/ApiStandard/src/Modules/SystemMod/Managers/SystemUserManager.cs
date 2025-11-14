@@ -18,12 +18,18 @@ public class SystemUserManager(
     JwtService jwtService,
     SystemConfigManager systemConfig,
     SystemLogService logService,
-    ILogger<SystemUserManager> logger
+    ILogger<SystemUserManager> logger,
+    IUserContext userContext,
+    Localizer localizer,
+    SystemUserRoleManager userRoleManager
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContext, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
     private readonly SystemLogService _logService = logService;
+    private readonly IUserContext _userContext = userContext;
+    private readonly Localizer _localizer = localizer;
+    private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
 
     /// <summary>
     /// 获取验证码
@@ -354,39 +360,70 @@ public class SystemUserManager(
 
     public async Task<SystemUser> AddAsync(SystemUserAddDto dto, List<SystemRole>? roles)
     {
-        SystemUser entity = dto.MapTo<SystemUser>();
-        // 密码处理
-        entity.PasswordSalt = HashCrypto.BuildSalt();
-        entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
-        // 角色处理
-        if (roles != null)
+        return await ExecuteInTransactionAsync(async () =>
         {
-            entity.SystemRoles = roles;
-        }
-        await UpsertAsync(entity);
-        return entity;
+            SystemUser entity = dto.MapTo<SystemUser>();
+            // 密码处理
+            entity.PasswordSalt = HashCrypto.BuildSalt();
+            entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
+            
+            await UpsertAsync(entity);
+            
+            // 使用中间表管理器处理角色关联，提高性能
+            if (roles != null && roles.Count > 0)
+            {
+                var roleIds = roles.Select(r => r.Id).ToList();
+                await _userRoleManager.SetUserRolesAsync(entity.Id, roleIds);
+            }
+            
+            return entity;
+        });
     }
 
-    public async Task<bool> UpdateAsync(Guid id, SystemUserUpdateDto dto, List<SystemRole>? roles)
+    public async Task<SystemUser> UpdateAsync(Guid id, SystemUserUpdateDto dto, List<SystemRole>? roles)
     {
-        SystemUser? current = await FindAsync(id);
-        if (current == null)
+        return await ExecuteInTransactionAsync(async () =>
         {
-            throw new BusinessException("用户不存在");
-        }
+            var current = await FindAsync(id) ?? throw new BusinessException(Localizer.UserNotFound);
 
-        current.Merge(dto);
-        if (dto.Password != null)
-        {
-            current.PasswordSalt = HashCrypto.BuildSalt();
-            current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
-        }
-        if (roles != null)
-        {
-            await LoadManyAsync(current, e => e.SystemRoles);
-            current.SystemRoles = roles;
-        }
-        await UpsertAsync(current);
-        return true;
+            // 权限验证，利用 IUserContext
+            if (!CanUserModify(current))
+            {
+                throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+            }
+
+            current.Merge(dto);
+            if (dto.Password != null)
+            {
+                if (!await ValidatePasswordAsync(dto.Password))
+                {
+                    throw new BusinessException(Localizer.PasswordComplexityNotMet, StatusCodes.Status400BadRequest);
+                }
+                current.PasswordSalt = HashCrypto.BuildSalt();
+                current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
+            }
+            
+            await UpsertAsync(current);
+            
+            // 使用中间表管理器处理角色关联，提高性能
+            if (roles != null)
+            {
+                var roleIds = roles.Select(r => r.Id).ToList();
+                await _userRoleManager.SetUserRolesAsync(current.Id, roleIds);
+            }
+            
+            return current;
+        });
+    }
+
+    /// <summary>
+    /// 验证用户是否可以修改
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private bool CanUserModify(SystemUser user)
+    {
+        // 超级管理员可以修改所有用户，普通用户只能修改自己
+        return _userContext.IsRole(WebConst.SuperAdmin) || _userContext.UserId == user.Id;
     }
 }

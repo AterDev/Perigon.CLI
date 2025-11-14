@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Hosting;
+using SystemMod.Managers;
 using SystemMod.Services;
 using SystemMod.Worker;
 
@@ -16,6 +17,7 @@ public static class ModuleExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddSystemMod(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddScoped<SystemUserRoleManager>();
         builder.Services.AddSingleton<IEntityTaskQueue<SystemLogs>, EntityTaskQueue<SystemLogs>>();
         builder.Services.AddSingleton<SystemLogService>();
         builder.Services.AddHostedService<SystemLogTaskHostedService>();

@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using Entity;
+using Share.Exceptions;
 
 namespace Share.Implement;
 
@@ -189,11 +190,24 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public virtual async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool softDelete = true)
     {
+        var idsList = ids.ToList();
+        if (idsList.Count == 0)
+        {
+            return false;
+        }
+
+        // 检查实体是否存在
+        var existingCount = await _dbSet.CountAsync(d => idsList.Contains(d.Id));
+        if (existingCount == 0)
+        {
+            throw new BusinessException(Localizer.EntityNotFound, StatusCodes.Status404NotFound);
+        }
+
         var res = softDelete
             ? await _dbSet
-                .Where(d => ids.Contains(d.Id))
+                .Where(d => idsList.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
-            : await _dbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
+            : await _dbSet.Where(d => idsList.Contains(d.Id)).ExecuteDeleteAsync();
         return res > 0;
     }
 
@@ -262,6 +276,49 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected async Task<int> SaveChangesAsync()
     {
         return await _dbContext.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// 执行事务操作
+    /// </summary>
+    /// <param name="operation">要执行的操作</param>
+    /// <returns></returns>
+    protected async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> operation)
+    {
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var result = await operation();
+            await transaction.CommitAsync();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "执行事务操作时发生错误");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 执行事务操作 (无返回值)
+    /// </summary>
+    /// <param name="operation">要执行的操作</param>
+    /// <returns></returns>
+    protected async Task ExecuteInTransactionAsync(Func<Task> operation)
+    {
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await operation();
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "执行事务操作时发生错误");
+            throw;
+        }
     }
 
     /// <summary>
