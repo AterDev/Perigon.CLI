@@ -49,15 +49,12 @@ public static class EnumHelper
         var field = value
             .GetType()
             .GetField(value.ToString(), BindingFlags.Public | BindingFlags.Static);
-        if (
+        return
             field != null
             && field.GetCustomAttribute<DescriptionAttribute>(true)
                 is DescriptionAttribute attribute
-        )
-        {
-            return attribute.Description;
-        }
-        return value.ToString();
+            ? attribute.Description
+            : value.ToString();
     }
 
     /// <summary>

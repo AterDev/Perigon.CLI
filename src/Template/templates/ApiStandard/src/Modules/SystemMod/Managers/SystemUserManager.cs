@@ -366,30 +366,38 @@ public class SystemUserManager(
             // 密码处理
             entity.PasswordSalt = HashCrypto.BuildSalt();
             entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
-            
+
             await UpsertAsync(entity);
-            
+
             // 使用中间表管理器处理角色关联，提高性能
             if (roles != null && roles.Count > 0)
             {
                 var roleIds = roles.Select(r => r.Id).ToList();
                 await _userRoleManager.SetUserRolesAsync(entity.Id, roleIds);
             }
-            
+
             return entity;
         });
     }
 
-    public async Task<SystemUser> UpdateAsync(Guid id, SystemUserUpdateDto dto, List<SystemRole>? roles)
+    public async Task<SystemUser> UpdateAsync(
+        Guid id,
+        SystemUserUpdateDto dto,
+        List<SystemRole>? roles
+    )
     {
         return await ExecuteInTransactionAsync(async () =>
         {
-            var current = await FindAsync(id) ?? throw new BusinessException(Localizer.UserNotFound);
+            var current =
+                await FindAsync(id) ?? throw new BusinessException(Localizer.UserNotFound);
 
             // 权限验证，利用 IUserContext
             if (!CanUserModify(current))
             {
-                throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+                throw new BusinessException(
+                    Localizer.InsufficientPermissions,
+                    StatusCodes.Status403Forbidden
+                );
             }
 
             current.Merge(dto);
@@ -397,21 +405,24 @@ public class SystemUserManager(
             {
                 if (!await ValidatePasswordAsync(dto.Password))
                 {
-                    throw new BusinessException(Localizer.PasswordComplexityNotMet, StatusCodes.Status400BadRequest);
+                    throw new BusinessException(
+                        Localizer.PasswordComplexityNotMet,
+                        StatusCodes.Status400BadRequest
+                    );
                 }
                 current.PasswordSalt = HashCrypto.BuildSalt();
                 current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
             }
-            
+
             await UpsertAsync(current);
-            
+
             // 使用中间表管理器处理角色关联，提高性能
             if (roles != null)
             {
                 var roleIds = roles.Select(r => r.Id).ToList();
                 await _userRoleManager.SetUserRolesAsync(current.Id, roleIds);
             }
-            
+
             return current;
         });
     }

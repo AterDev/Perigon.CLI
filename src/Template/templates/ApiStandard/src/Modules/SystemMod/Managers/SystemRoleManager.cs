@@ -5,7 +5,7 @@ using SystemMod.Models.SystemRoleDtos;
 namespace SystemMod.Managers;
 
 public class SystemRoleManager(
-    DefaultDbContext dbContext, 
+    DefaultDbContext dbContext,
     ILogger<SystemRoleManager> logger,
     IUserContext userContext,
     Localizer localizer
@@ -13,6 +13,7 @@ public class SystemRoleManager(
 {
     private readonly IUserContext _userContext = userContext;
     private readonly Localizer _localizer = localizer;
+
     public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)
     {
         Queryable = Queryable
@@ -43,11 +44,15 @@ public class SystemRoleManager(
     {
         return await ExecuteInTransactionAsync(async () =>
         {
-            var current = await FindAsync(dto.Id) ?? throw new BusinessException(Localizer.RoleNotFound);
-            
+            var current =
+                await FindAsync(dto.Id) ?? throw new BusinessException(Localizer.RoleNotFound);
+
             if (!CanUserModifyRole(current))
             {
-                throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+                throw new BusinessException(
+                    Localizer.InsufficientPermissions,
+                    StatusCodes.Status403Forbidden
+                );
             }
 
             await _dbContext.Entry(current).Collection(r => r.PermissionGroups).LoadAsync();
@@ -55,10 +60,10 @@ public class SystemRoleManager(
             var groups = await _dbContext
                 .SystemPermissionGroups.Where(m => dto.PermissionGroupIds.Contains(m.Id))
                 .ToListAsync();
-                
+
             current.PermissionGroups = groups;
             await UpsertAsync(current);
-            
+
             return current;
         });
     }
@@ -87,11 +92,14 @@ public class SystemRoleManager(
     public async Task<SystemRole> UpdateAsync(Guid id, SystemRoleUpdateDto dto)
     {
         var current = await FindAsync(id) ?? throw new BusinessException(Localizer.RoleNotFound);
-        
+
         // 权限验证可以在这里进行，利用 _userContext
         if (!CanUserModifyRole(current))
         {
-            throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+            throw new BusinessException(
+                Localizer.InsufficientPermissions,
+                StatusCodes.Status403Forbidden
+            );
         }
 
         current.Merge(dto);
@@ -119,11 +127,15 @@ public class SystemRoleManager(
     {
         return await ExecuteInTransactionAsync(async () =>
         {
-            var current = await FindAsync(dto.Id) ?? throw new BusinessException(Localizer.RoleNotFound);
-            
+            var current =
+                await FindAsync(dto.Id) ?? throw new BusinessException(Localizer.RoleNotFound);
+
             if (!CanUserModifyRole(current))
             {
-                throw new BusinessException(Localizer.InsufficientPermissions, StatusCodes.Status403Forbidden);
+                throw new BusinessException(
+                    Localizer.InsufficientPermissions,
+                    StatusCodes.Status403Forbidden
+                );
             }
 
             await _dbContext.Entry(current).Collection(r => r.Menus).LoadAsync();
@@ -131,10 +143,10 @@ public class SystemRoleManager(
             var menus = await _dbContext
                 .SystemMenus.Where(m => dto.MenuIds.Contains(m.Id))
                 .ToListAsync();
-                
+
             current.Menus = menus;
             await UpsertAsync(current);
-            
+
             return current;
         });
     }

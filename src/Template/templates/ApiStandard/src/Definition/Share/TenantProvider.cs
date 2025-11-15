@@ -1,8 +1,8 @@
 using System.Security.Claims;
-
 using Microsoft.AspNetCore.Http;
 
 namespace Share;
+
 public class TenantProvider : ITenantProvider
 {
     public Guid TenantId { get; set; } = Guid.Empty;
@@ -12,7 +12,10 @@ public class TenantProvider : ITenantProvider
     public TenantProvider(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
-        if (Guid.TryParse(FindClaim(WebConst.TenantId)?.Value, out Guid userId) && userId != Guid.Empty)
+        if (
+            Guid.TryParse(FindClaim(WebConst.TenantId)?.Value, out Guid userId)
+            && userId != Guid.Empty
+        )
         {
             TenantId = userId;
         }

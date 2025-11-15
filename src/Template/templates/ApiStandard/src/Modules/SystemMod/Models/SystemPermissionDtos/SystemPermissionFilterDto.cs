@@ -1,7 +1,5 @@
-using Ater.AspNetCore.Models;
-using Entity.SystemMod;
-
 namespace SystemMod.Models.SystemPermissionDtos;
+
 /// <summary>
 /// 权限查询筛选
 /// </summary>
@@ -13,10 +11,10 @@ public class SystemPermissionFilterDto : FilterBase
     /// </summary>
     [MaxLength(30)]
     public string? Name { get; set; }
+
     /// <summary>
     /// 权限类型
     /// </summary>
     public PermissionType? PermissionType { get; set; }
     public Guid? GroupId { get; set; }
-
 }

@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ServiceDefaults.Middleware;
+
 /// <summary>
-/// this is for swashbuckle to custom enum 
+/// this is for swashbuckle to custom enum
 /// </summary>
 public class SwaggerSchemaFilter : ISchemaFilter
 {
@@ -14,7 +15,9 @@ public class SwaggerSchemaFilter : ISchemaFilter
         if (context.Type.IsEnum)
         {
             var enumItems = new List<EnumItem>();
-            foreach (FieldInfo f in context.Type.GetFields(BindingFlags.Public | BindingFlags.Static))
+            foreach (
+                FieldInfo f in context.Type.GetFields(BindingFlags.Public | BindingFlags.Static)
+            )
             {
                 if (f.Name == "value__")
                 {
@@ -27,7 +30,9 @@ public class SwaggerSchemaFilter : ISchemaFilter
                 }
                 int value = Convert.ToInt32(raw);
                 string? description = null;
-                var desAttr = f.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "DescriptionAttribute");
+                var desAttr = f.CustomAttributes.FirstOrDefault(a =>
+                    a.AttributeType.Name == "DescriptionAttribute"
+                );
                 if (desAttr != null)
                 {
                     var arg = desAttr.ConstructorArguments.FirstOrDefault();
@@ -54,14 +59,18 @@ public class SwaggerSchemaFilter : ISchemaFilter
                 return;
             }
 
-            PropertyInfo[] properties = context.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = context.Type.GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             foreach (var kvp in model.Properties)
             {
                 if (kvp.Value is null)
                 {
                     continue;
                 }
-                PropertyInfo? prop = properties.FirstOrDefault(x => x.Name.ToCamelCase() == kvp.Key);
+                PropertyInfo? prop = properties.FirstOrDefault(x =>
+                    x.Name.ToCamelCase() == kvp.Key
+                );
                 if (prop is null)
                 {
                     continue;
@@ -80,6 +89,7 @@ public class SwaggerSchemaFilter : ISchemaFilter
     private sealed class EnumDataExtension : IOpenApiExtension
     {
         private readonly IReadOnlyList<EnumItem> _items;
+
         public EnumDataExtension(IReadOnlyList<EnumItem> items)
         {
             _items = items;

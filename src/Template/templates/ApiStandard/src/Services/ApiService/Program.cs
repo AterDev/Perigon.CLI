@@ -1,5 +1,3 @@
-using Ater.AspNetCore;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.

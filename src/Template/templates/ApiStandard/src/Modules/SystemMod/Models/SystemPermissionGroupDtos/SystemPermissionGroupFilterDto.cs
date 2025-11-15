@@ -1,5 +1,3 @@
-using Ater.AspNetCore.Models;
-
 namespace SystemMod.Models.SystemPermissionGroupDtos;
 
 /// <see cref="SystemPermissionGroup"/>

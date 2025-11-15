@@ -20,14 +20,9 @@ public class NumberToStringJsonConverter : JsonConverter<string>
             && typeToConvert.FullName == "System.String"
         )
         {
-            if (reader.TryGetInt64(out var longValue))
-            {
-                return longValue.ToString();
-            }
-            else
-            {
-                return reader.GetDouble().ToString();
-            }
+            return reader.TryGetInt64(out var longValue)
+                ? longValue.ToString()
+                : reader.GetDouble().ToString();
         }
         return default;
     }

@@ -8,11 +8,9 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
         JsonSerializerOptions options
     )
     {
-        if (reader.TryGetDateTime(out DateTime dateTime))
-        {
-            return DateOnly.FromDateTime(dateTime.ToLocalTime());
-        }
-        throw new JsonException("Invalid date format.");
+        return reader.TryGetDateTime(out DateTime dateTime)
+            ? DateOnly.FromDateTime(dateTime.ToLocalTime())
+            : throw new JsonException("Invalid date format.");
     }
 
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)

@@ -1,7 +1,5 @@
-using Ater.AspNetCore.Models;
-using Entity.SystemMod;
-
 namespace SystemMod.Models.SystemUserDtos;
+
 /// <summary>
 /// 系统用户列表元素
 /// </summary>
@@ -13,13 +11,16 @@ public class SystemUserItemDto
     /// </summary>
     [MaxLength(30)]
     public string UserName { get; set; } = default!;
+
     /// <summary>
     /// 真实姓名
     /// </summary>
     [MaxLength(30)]
     public string? RealName { get; set; }
+
     [MaxLength(100)]
     public string? Email { get; set; }
+
     /// <summary>
     /// 最后登录时间
     /// </summary>

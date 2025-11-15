@@ -161,11 +161,7 @@ public static class ProcessHelper
         process.WaitForExit();
 
         var errorOutput = errorBuilder.ToString();
-        if (!string.IsNullOrWhiteSpace(errorOutput))
-        {
-            return errorOutput;
-        }
-        return outputBuilder.ToString();
+        return !string.IsNullOrWhiteSpace(errorOutput) ? errorOutput : outputBuilder.ToString();
     }
 
     /// <summary>
