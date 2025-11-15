@@ -18,15 +18,11 @@ public class SystemUserController(
     SystemUserManager manager,
     SystemConfigManager systemConfig,
     CacheService cache,
-    IConfiguration config,
-    SystemLogService logService,
     SystemRoleManager roleManager
 ) : RestControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
-    private readonly IConfiguration _config = config;
-    private readonly SystemLogService _logService = logService;
     private readonly SystemRoleManager _roleManager = roleManager;
 
     /// <summary>
@@ -41,13 +37,13 @@ public class SystemUserController(
     {
         if (!await _manager.IsExistAsync(email))
         {
-            return BadRequest("不存在的邮箱账号");
+            return BadRequest(Localizer.UserNotFound);
         }
         var captcha = SystemUserManager.GetCaptcha();
         var key = WebConst.VerifyCodeCachePrefix + email;
         if (await _cache.GetValueAsync<string>(key) != null)
         {
-            return Conflict("验证码已发送!");
+            return Conflict(Localizer.VerifyCodeAlreadySent);
         }
 
         // 缓存，默认5分钟过期
@@ -84,7 +80,7 @@ public class SystemUserController(
             SystemUser? user = await _manager.FindByUserNameAsync(dto.UserName);
             if (user == null)
             {
-                return NotFound("不存在该用户");
+                return NotFound(Localizer.UserNotFound);
             }
 
             // 获取菜单和权限信息
@@ -203,7 +199,10 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpPatch("{id}")]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<SystemUser>> UpdateAsync([FromRoute] Guid id, SystemUserUpdateDto dto)
+    public async Task<ActionResult<SystemUser>> UpdateAsync(
+        [FromRoute] Guid id,
+        SystemUserUpdateDto dto
+    )
     {
         // 角色处理
         List<SystemRole>? roles = null;
@@ -228,7 +227,7 @@ public class SystemUserController(
         }
         SystemUser? user = await _manager.FindAsync(_user.UserId);
         return !HashCrypto.Validate(password, user!.PasswordSalt, user.PasswordHash)
-            ? Problem("当前密码不正确")
+            ? Problem(Localizer.InvalidUserOrPassword)
             : await _manager.ChangePasswordAsync(user, newPassword);
     }
 

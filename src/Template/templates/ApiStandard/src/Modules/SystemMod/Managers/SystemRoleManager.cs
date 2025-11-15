@@ -1,5 +1,4 @@
 using EntityFramework.DBProvider;
-using Share.Exceptions;
 using SystemMod.Models.SystemRoleDtos;
 
 namespace SystemMod.Managers;
@@ -7,12 +6,10 @@ namespace SystemMod.Managers;
 public class SystemRoleManager(
     DefaultDbContext dbContext,
     ILogger<SystemRoleManager> logger,
-    IUserContext userContext,
-    Localizer localizer
+    IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemRole>(dbContext, logger)
 {
     private readonly IUserContext _userContext = userContext;
-    private readonly Localizer _localizer = localizer;
 
     public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)
     {

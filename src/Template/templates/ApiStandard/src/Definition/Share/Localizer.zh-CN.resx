@@ -180,4 +180,35 @@
   <data name="PermissionGroupUpdateFailed" xml:space="preserve">
     <value>权限组更新失败</value>
   </data>
+  <data name="VerifyCodeAlreadySent" xml:space="preserve">
+    <value>VerifyCode already sent</value>
+    <comment>验证码已发送</comment>
+  </data>
+  <data name="UserNotExists" xml:space="preserve">
+    <value>不存在该用户</value>
+  </data>
+  <data name="PasswordInvalid" xml:space="preserve">
+    <value>密码错误</value>
+  </data>
+  <data name="PasswordComplexitySimple" xml:space="preserve">
+    <value>密码长度6-60位</value>
+  </data>
+  <data name="PasswordComplexityNormal" xml:space="preserve">
+    <value>密码长度8-60位，必须包含大小写字母和数字</value>
+  </data>
+  <data name="PasswordComplexityStrict" xml:space="preserve">
+    <value>密码长度8位以上，必须包含大小写字母、数字和特殊字符</value>
+  </data>
+  <data name="PasswordComplexityDefault" xml:space="preserve">
+    <value>密码长度6-16位</value>
+  </data>
+  <data name="LoginAction" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>登录成功</value>
+  </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>登录失败</value>
+  </data>
 </root>

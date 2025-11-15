@@ -3,8 +3,6 @@ using System.Text.RegularExpressions;
 using Ater.AspNetCore.Options;
 using Ater.AspNetCore.Toolkit.Helpers;
 using EntityFramework.DBProvider;
-using Share;
-using Share.Exceptions;
 using Share.Models.Auth;
 using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
@@ -118,13 +116,13 @@ public class SystemUserManager(
         if ((DateTimeOffset.UtcNow - user.LastPwdEditTime).TotalDays > loginPolicy.PasswordExpired)
         {
             user.RetryCount++;
-            throw new BusinessException("密码已过期"); // 需要适当的本地化
+            throw new BusinessException(Localizer.PasswordExpired);
         }
 
         if (!HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
             user.RetryCount++;
-            throw new BusinessException("密码错误"); // 需要适当的本地化
+            throw new BusinessException(Localizer.PasswordInvalid);
         }
     }
 
@@ -222,9 +220,9 @@ public class SystemUserManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
-        return await base.DeleteAsync(ids, softDelete);
+        await base.DeleteAsync(ids, softDelete);
     }
 
     /// <summary>
@@ -243,19 +241,7 @@ public class SystemUserManager(
             PasswordLevel.Strict => "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$",
             _ => "^.{6,16}$",
         };
-        if (!Regex.IsMatch(password, pwdReg))
-        {
-            string errorMsg = loginPolicy.PasswordLevel switch
-            {
-                PasswordLevel.Simple => "密码长度6-60位",
-                PasswordLevel.Normal => "密码长度8-60位，必须包含大小写字母和数字",
-                PasswordLevel.Strict => "密码长度8位以上，必须包含大小写字母、数字和特殊字符",
-                _ => "密码长度6-16位",
-            };
-
-            return false;
-        }
-        return true;
+        return Regex.IsMatch(password, pwdReg);
     }
 
     public override async Task<SystemUser?> FindAsync(Guid id)
@@ -286,7 +272,7 @@ public class SystemUserManager(
         SystemUser? user = await FindByUserNameAsync(dto.UserName);
         if (user == null)
         {
-            throw new BusinessException("不存在该用户");
+            throw new BusinessException(Localizer.UserNotExists);
         }
 
         var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
@@ -298,9 +284,9 @@ public class SystemUserManager(
         catch (BusinessException)
         {
             await _logService.NewLog(
-                "登录",
+                Localizer.LoginAction,
                 UserActionType.Login,
-                "登录失败",
+                Localizer.LoginFailed,
                 user.UserName,
                 user.Id
             );
@@ -343,7 +329,13 @@ public class SystemUserManager(
             jwtToken.RefreshExpiresIn
         );
 
-        await _logService.NewLog("登录", UserActionType.Login, "登录成功", user.UserName, user.Id);
+        await _logService.NewLog(
+            Localizer.LoginAction,
+            UserActionType.Login,
+            Localizer.LoginSuccess,
+            user.UserName,
+            user.Id
+        );
 
         return new AuthResult
         {

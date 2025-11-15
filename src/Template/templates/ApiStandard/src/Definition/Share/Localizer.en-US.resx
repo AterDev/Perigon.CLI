@@ -180,4 +180,35 @@
   <data name="PermissionGroupUpdateFailed" xml:space="preserve">
     <value>Permission group update failed</value>
   </data>
+  <data name="VerifyCodeAlreadySent" xml:space="preserve">
+    <value>VerifyCode already sent</value>
+    <comment>验证码已发送</comment>
+  </data>
+  <data name="UserNotExists" xml:space="preserve">
+    <value>User does not exist</value>
+  </data>
+  <data name="PasswordInvalid" xml:space="preserve">
+    <value>Invalid password</value>
+  </data>
+  <data name="PasswordComplexitySimple" xml:space="preserve">
+    <value>Password length 6-60 characters</value>
+  </data>
+  <data name="PasswordComplexityNormal" xml:space="preserve">
+    <value>Password length 8-60 characters, must contain uppercase and lowercase letters and numbers</value>
+  </data>
+  <data name="PasswordComplexityStrict" xml:space="preserve">
+    <value>Password length 8+ characters, must contain uppercase and lowercase letters, numbers and special characters</value>
+  </data>
+  <data name="PasswordComplexityDefault" xml:space="preserve">
+    <value>Password length 6-16 characters</value>
+  </data>
+  <data name="LoginAction" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>Login successful</value>
+  </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>Login failed</value>
+  </data>
 </root>
