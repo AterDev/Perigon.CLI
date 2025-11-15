@@ -1,12 +1,7 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using Ater.AspNetCore.Options;
-using Ater.AspNetCore.Toolkit.Helpers;
-using EntityFramework.DBProvider;
 using Share.Models.Auth;
-using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
-using SystemMod.Services;
 
 namespace SystemMod.Managers;
 
@@ -236,10 +231,10 @@ public class SystemUserManager(
         // 密码复杂度校验
         var pwdReg = loginPolicy.PasswordLevel switch
         {
-            PasswordLevel.Simple => "",
-            PasswordLevel.Normal => "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,60}$",
-            PasswordLevel.Strict => "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$",
-            _ => "^.{6,16}$",
+            PasswordLevel.Simple => RegexConst.SimplePasswordRegex,
+            PasswordLevel.Normal => RegexConst.NormalPasswordRegex,
+            PasswordLevel.Strict => RegexConst.StrongPasswordRegex,
+            _ => RegexConst.StrongPasswordRegex,
         };
         return Regex.IsMatch(password, pwdReg);
     }
@@ -294,22 +289,8 @@ public class SystemUserManager(
         }
 
         user.LastLoginTime = DateTimeOffset.UtcNow;
-
-        // 菜单和权限信息 使用传入的参数
-        // var menus = new List<SystemMenu>();
-        // var permissionGroups = new List<SystemPermissionGroup>();
-        // if (user.SystemRoles != null)
-        // {
-        //     menus = await _roleManager.GetSystemMenusAsync([.. user.SystemRoles]);
-        //     permissionGroups = await _roleManager.GetPermissionGroupsAsync(
-        //         [.. user.SystemRoles]
-        //     );
-        // }
-
         AccessTokenDto jwtToken = GenerateJwtToken(user);
 
-        // 缓存登录状态 使用传入的client
-        // var client = WebConst.Web; // 默认
         if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
         {
             client = WebConst.AllPlatform;

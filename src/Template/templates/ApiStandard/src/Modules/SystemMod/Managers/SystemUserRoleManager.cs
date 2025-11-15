@@ -1,5 +1,3 @@
-using EntityFramework.DBProvider;
-
 namespace SystemMod.Managers;
 
 /// <summary>
@@ -21,9 +19,7 @@ public class SystemUserRoleManager(
         return await ExecuteInTransactionAsync(async () =>
         {
             // 先删除现有的用户角色关联
-            await _dbSet
-                .Where(ur => ur.UserId == userId)
-                .ExecuteDeleteAsync();
+            await _dbSet.Where(ur => ur.UserId == userId).ExecuteDeleteAsync();
 
             // 批量插入新的用户角色关联
             if (roleIds.Count > 0)
@@ -32,7 +28,7 @@ public class SystemUserRoleManager(
                 {
                     UserId = userId,
                     RoleId = roleId,
-                    CreatedTime = DateTimeOffset.UtcNow
+                    CreatedTime = DateTimeOffset.UtcNow,
                 });
 
                 await BulkUpsertAsync(userRoles);

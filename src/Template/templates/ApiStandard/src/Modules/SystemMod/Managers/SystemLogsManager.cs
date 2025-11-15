@@ -1,4 +1,3 @@
-using EntityFramework.DBProvider;
 using SystemMod.Models.SystemLogsDtos;
 
 namespace SystemMod.Managers;
