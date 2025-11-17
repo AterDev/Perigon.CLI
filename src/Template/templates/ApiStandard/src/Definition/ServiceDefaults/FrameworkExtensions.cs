@@ -21,7 +21,7 @@ public static class FrameworkExtensions
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IUserContext, UserContext>();
-            builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+            builder.Services.AddScoped<ITenantContext, TenantContext>();
 
             var components =
                 builder.Configuration.GetSection(ComponentOption.ConfigPath).Get<ComponentOption>()

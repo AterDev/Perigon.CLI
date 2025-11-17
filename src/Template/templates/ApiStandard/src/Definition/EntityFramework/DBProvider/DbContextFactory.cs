@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 namespace EntityFramework.DBProvider;
 
 /// <summary>
-/// create DbContext from factory
+/// create Common DbContext What you want
 /// </summary>
 /// <param name="configuration"></param>
 public class DbContextFactory(IConfiguration configuration)

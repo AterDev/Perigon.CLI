@@ -21,5 +21,26 @@ public class Tenant : EntityBase
     [MaxLength(200)]
     public string? Domain { get; set; }
 
-    public bool Enable { get; set; }
+    public TenantType Type { get; set; }
+
+    public bool Disabled { get; set; }
+}
+
+public enum TenantType
+{
+    /// <summary>
+    /// Trial
+    /// </summary>
+    [Description("Trial")]
+    Trial,
+    /// <summary>
+    /// Normal
+    /// </summary>
+    [Description("Normal")]
+    Normal,
+    /// <summary>
+    /// Independent
+    /// </summary>
+    [Description("Independent")]
+    Independent
 }

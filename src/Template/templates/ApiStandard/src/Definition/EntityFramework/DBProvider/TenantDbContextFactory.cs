@@ -10,7 +10,7 @@ namespace EntityFramework.DBProvider;
 /// <param name="cache"></param>
 /// <param name="configuration"></param>
 public class TenantDbContextFactory(
-    ITenantProvider tenantProvider,
+    ITenantContext tenantProvider,
     HybridCache cache,
     DefaultDbContext db,
     IOptions<ComponentOption> options
