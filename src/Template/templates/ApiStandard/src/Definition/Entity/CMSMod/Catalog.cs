@@ -3,8 +3,7 @@ namespace Entity.CMSMod;
 /// <summary>
 /// 目录
 /// </summary>
-[Index(nameof(Name))]
-[Index(nameof(Level))]
+[Index(nameof(UserId), nameof(Name), IsUnique = true)]
 public class Catalog : EntityBase, ITreeNode<Catalog>
 {
     /// <summary>
@@ -29,7 +28,7 @@ public class Catalog : EntityBase, ITreeNode<Catalog>
     [ForeignKey(nameof(ParentId))]
     public Catalog? Parent { get; set; }
     public Guid? ParentId { get; set; }
-    public ICollection<Blog> Blogs { get; set; } = [];
+    public ICollection<Article> Blogs { get; set; } = [];
 
     public Guid UserId { get; set; }
 }

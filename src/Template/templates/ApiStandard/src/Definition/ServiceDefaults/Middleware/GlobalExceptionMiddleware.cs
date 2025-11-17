@@ -14,6 +14,14 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
         {
             await next(ctx);
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            // 并发冲突提示
+            ctx.Response.StatusCode = StatusCodes.Status409Conflict;
+            await ctx.Response.WriteAsJsonAsync(
+                new ErrorResult(localizer.Get(Localizer.AlreadyUpdated), ctx.TraceIdentifier)
+            );
+        }
         catch (DbUpdateException ex) when (EfCoreErrorHelper.IsUniqueConstraintViolation(ex))
         {
             // 唯一约束冲突提示

@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using Entity;
+using EntityFramework.DBProvider;
 
 namespace Share.Implement;
 
@@ -40,6 +41,18 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected readonly ILogger _logger;
     protected readonly TDbContext _dbContext;
     protected readonly DbSet<TEntity> _dbSet;
+
+    public ManagerBase(TenantDbContextFactory dbContextFactory, ILogger logger)
+    {
+        _logger = logger;
+        _dbContext = (dbContextFactory.CreateDbContext() as TDbContext)!;
+        _dbSet = _dbContext.Set<TEntity>();
+        Queryable = _dbSet.AsNoTracking().AsQueryable();
+        if (!EnableGlobalQuery)
+        {
+            Queryable = Queryable.IgnoreQueryFilters();
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the ManagerBase class.
@@ -173,6 +186,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
     public async Task UpsertAsync(TEntity entity)
     {
+        entity.UpdatedTime = DateTimeOffset.UtcNow;
         await _dbContext.BulkInsertOrUpdateAsync([entity]);
     }
 

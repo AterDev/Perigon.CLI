@@ -3,7 +3,7 @@ namespace CMSMod.Models.BlogDtos;
 /// <summary>
 /// 博客查询筛选
 /// </summary>
-/// <inheritdoc cref="Blog"/>
+/// <inheritdoc cref="Article"/>
 public class BlogFilterDto : FilterBase
 {
     /// <summary>
@@ -38,7 +38,7 @@ public class BlogFilterDto : FilterBase
     /// <summary>
     /// 全站类别
     /// </summary>
-    public BlogType? BlogType { get; set; }
+    public ContentType? BlogType { get; set; }
 
     /// <summary>
     /// 是否审核

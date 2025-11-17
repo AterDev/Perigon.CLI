@@ -7,14 +7,14 @@ namespace CMSMod.Managers;
 /// 博客
 /// </summary>
 public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
-    : ManagerBase<DefaultDbContext, Blog>(dbContext, logger)
+    : ManagerBase<DefaultDbContext, Article>(dbContext, logger)
 {
     public async Task<PageList<BlogItemDto>> ToPageAsync(BlogFilterDto filter)
     {
         Queryable = Queryable
             .WhereNotNull(filter.Title, q => q.Title == filter.Title)
             .WhereNotNull(filter.LanguageType, q => q.LanguageType == filter.LanguageType)
-            .WhereNotNull(filter.BlogType, q => q.BlogType == filter.BlogType)
+            .WhereNotNull(filter.BlogType, q => q.ContentType == filter.BlogType)
             .WhereNotNull(filter.IsAudit, q => q.IsAudit == filter.IsAudit)
             .WhereNotNull(filter.IsPublic, q => q.IsPublic == filter.IsPublic)
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
@@ -33,9 +33,9 @@ public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<Blog?> GetOwnedAsync(Guid id)
+    public async Task<Article?> GetOwnedAsync(Guid id)
     {
-        IQueryable<Blog> query = _dbSet.Where(q => q.Id == id);
+        IQueryable<Article> query = _dbSet.Where(q => q.Id == id);
         // 获取权限范围的实体
         // query = query.Where(q => q.User.Id == _userContext.UserId);
         return await query.FirstOrDefaultAsync();

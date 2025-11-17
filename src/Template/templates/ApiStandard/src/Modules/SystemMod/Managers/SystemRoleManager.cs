@@ -10,6 +10,18 @@ public class SystemRoleManager(
 {
     private readonly IUserContext _userContext = userContext;
 
+    /// <summary>
+    /// 添加实体
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    public async Task<SystemRole> AddAsync(SystemRoleAddDto dto)
+    {
+        var entity = dto.MapTo<SystemRole>();
+        await UpsertAsync(entity);
+        return entity;
+    }
+
     public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)
     {
         Queryable = Queryable

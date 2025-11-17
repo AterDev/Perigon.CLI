@@ -6,8 +6,8 @@ namespace Entity;
 public abstract class EntityBase
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
-    public DateTimeOffset CreatedTime { get; set; }
-    public DateTimeOffset UpdatedTime { get; set; }
+    public DateTimeOffset CreatedTime { get; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedTime { get; set; } = DateTimeOffset.UtcNow;
     public bool IsDeleted { get; set; }
-    public Guid? TenantId { get; set; }
+    public virtual Guid TenantId { get; set; }
 }

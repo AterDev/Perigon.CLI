@@ -211,4 +211,8 @@
   <data name="LoginFailed" xml:space="preserve">
     <value>Login failed</value>
   </data>
+  <data name="AlreadyUpdated" xml:space="preserve">
+    <value>Data changed, please refresh and retry!</value>
+    <comment>数据已发生变化，请刷新后重试</comment>
+  </data>
 </root>

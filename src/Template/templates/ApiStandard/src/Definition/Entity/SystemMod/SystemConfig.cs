@@ -3,10 +3,9 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统配置
 /// </summary>
-[Index(nameof(Key))]
+[Index(nameof(GroupName), nameof(Key), IsUnique = true)]
 [Index(nameof(IsSystem))]
 [Index(nameof(Valid))]
-[Index(nameof(GroupName))]
 public class SystemConfig : EntityBase
 {
     [MaxLength(100)]

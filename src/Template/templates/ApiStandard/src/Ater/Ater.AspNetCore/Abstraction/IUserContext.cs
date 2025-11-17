@@ -14,7 +14,7 @@ public interface IUserContext
     /// </summary>
     Guid? GroupId { get; }
 
-    Guid? TenantId { get; }
+    Guid TenantId { get; }
 
     /// <summary>
     /// 用户名

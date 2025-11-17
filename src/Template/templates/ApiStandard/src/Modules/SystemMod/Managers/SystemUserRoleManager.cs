@@ -28,7 +28,6 @@ public class SystemUserRoleManager(
                 {
                     UserId = userId,
                     RoleId = roleId,
-                    CreatedTime = DateTimeOffset.UtcNow,
                 });
 
                 await BulkUpsertAsync(userRoles);

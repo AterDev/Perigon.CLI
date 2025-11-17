@@ -1,3 +1,4 @@
+using Entity.CommonMod;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -5,8 +6,12 @@ namespace EntityFramework.DBProvider;
 
 public abstract partial class ContextBase(DbContextOptions options) : DbContext(options)
 {
+    public DbSet<Tenant> Tenants { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.Entity<Tenant>().Ignore(t => t.TenantId);
+
         base.OnModelCreating(builder);
         OnModelExtendCreating(builder);
         OnSQLiteModelCreating(builder);
@@ -25,7 +30,8 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
                 entityEntry.Metadata.FindProperty(nameof(EntityBase.CreatedTime));
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
-                entityEntry.Property(nameof(EntityBase.CreatedTime)).CurrentValue = DateTimeOffset.UtcNow;
+                entityEntry.Property(nameof(EntityBase.CreatedTime)).CurrentValue =
+                    DateTimeOffset.UtcNow;
             }
         }
         entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList();
@@ -35,7 +41,8 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
                 entityEntry.Metadata.FindProperty(nameof(EntityBase.UpdatedTime));
             if (property != null && property.ClrType == typeof(DateTimeOffset))
             {
-                entityEntry.Property(nameof(EntityBase.UpdatedTime)).CurrentValue = DateTimeOffset.UtcNow;
+                entityEntry.Property(nameof(EntityBase.UpdatedTime)).CurrentValue =
+                    DateTimeOffset.UtcNow;
             }
         }
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);

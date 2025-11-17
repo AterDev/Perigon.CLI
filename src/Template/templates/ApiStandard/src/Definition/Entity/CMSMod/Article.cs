@@ -1,10 +1,10 @@
 namespace Entity.CMSMod;
 
 /// <summary>
-/// 博客
+/// 内容
 /// </summary>
-[Index(nameof(Title))]
-public class Blog : EntityBase
+[Index(nameof(UserId), nameof(Title), IsUnique = true)]
+public class Article : EntityBase
 {
     /// <summary>
     /// 标题
@@ -31,18 +31,6 @@ public class Blog : EntityBase
     public required string Authors { get; set; }
 
     /// <summary>
-    /// 标题
-    /// </summary>
-    [MaxLength(200)]
-    public string? TranslateTitle { get; set; }
-
-    /// <summary>
-    /// 翻译内容
-    /// </summary>
-    [MaxLength(12000)]
-    public string? TranslateContent { get; set; }
-
-    /// <summary>
     /// 语言类型
     /// </summary>
     public LanguageType LanguageType { get; set; } = LanguageType.CN;
@@ -50,7 +38,7 @@ public class Blog : EntityBase
     /// <summary>
     /// 全站类别
     /// </summary>
-    public BlogType BlogType { get; set; }
+    public ContentType ContentType { get; set; }
 
     /// <summary>
     /// 是否审核
@@ -82,49 +70,49 @@ public class Blog : EntityBase
     public int ViewCount { get; set; }
 }
 
-public enum BlogType
+public enum ContentType
 {
     /// <summary>
-    /// 资讯
+    /// News
     /// </summary>
-    [Description("资讯")]
+    [Description("News")]
     News,
 
     /// <summary>
-    /// 见解与分析
+    /// ViewPoint
     /// </summary>
-    [Description("见解与分析")]
-    View,
+    [Description("ViewPoint")]
+    ViewPoint,
 
     /// <summary>
-    /// 教程
+    /// Knowledge
     /// </summary>
-    [Description("教程")]
-    Course,
+    [Description("Knowledge")]
+    Knowledge,
 
     /// <summary>
-    /// 技能分享
+    /// Documentary
     /// </summary>
-    [Description("技能分享")]
-    Skill,
+    [Description("Documentary")]
+    Documentary,
 
     /// <summary>
-    /// 其它
+    /// Private
     /// </summary>
-    [Description("其它")]
-    Else,
+    [Description("Private")]
+    Private,
 }
 
 public enum LanguageType
 {
     /// <summary>
-    /// 中文
+    /// zn-CN
     /// </summary>
     [Description("zh-CN")]
     CN,
 
     /// <summary>
-    /// 英文
+    /// en-US
     /// </summary>
     [Description("en-US")]
     EN,

@@ -36,8 +36,7 @@ public class SystemRoleController(
     [HttpPost]
     public async Task<ActionResult<SystemRole>> AddAsync(SystemRoleAddDto dto)
     {
-        var entity = dto.MapTo<SystemRole>();
-        await _manager.UpsertAsync(entity);
+        var entity = await _manager.AddAsync(dto);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -48,7 +47,10 @@ public class SystemRoleController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<ActionResult<SystemRole>> UpdateAsync([FromRoute] Guid id, SystemRoleUpdateDto dto)
+    public async Task<ActionResult<SystemRole>> UpdateAsync(
+        [FromRoute] Guid id,
+        SystemRoleUpdateDto dto
+    )
     {
         var entity = await _manager.UpdateAsync(id, dto);
         return Ok(entity);

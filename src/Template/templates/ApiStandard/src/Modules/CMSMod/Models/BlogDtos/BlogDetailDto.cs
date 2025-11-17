@@ -3,7 +3,7 @@ namespace CMSMod.Models.BlogDtos;
 /// <summary>
 /// 博客概要
 /// </summary>
-/// <inheritdoc cref="Blog"/>
+/// <inheritdoc cref="Article"/>
 public class BlogDetailDto
 {
     /// <summary>
@@ -38,7 +38,7 @@ public class BlogDetailDto
     /// <summary>
     /// 全站类别
     /// </summary>
-    public BlogType BlogType { get; set; }
+    public ContentType BlogType { get; set; }
 
     /// <summary>
     /// 是否审核
