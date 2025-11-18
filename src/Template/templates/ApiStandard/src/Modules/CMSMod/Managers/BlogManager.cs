@@ -1,13 +1,19 @@
+using Ater.AspNetCore.Abstraction;
 using CMSMod.Models.BlogDtos;
-using EntityFramework.DBProvider;
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
+using Share.Implement;
 
 namespace CMSMod.Managers;
 
 /// <summary>
 /// 博客
 /// </summary>
-public class BlogManager(DefaultDbContext dbContext, ILogger<BlogManager> logger)
-    : ManagerBase<DefaultDbContext, Article>(dbContext, logger)
+public class BlogManager(
+    TenantDbFactory dbContextFactory,
+    ILogger<BlogManager> logger,
+    IUserContext userContext
+) : ManagerBase<DefaultDbContext, Article>(dbContextFactory, userContext, logger)
 {
     public async Task<PageList<BlogItemDto>> ToPageAsync(BlogFilterDto filter)
     {

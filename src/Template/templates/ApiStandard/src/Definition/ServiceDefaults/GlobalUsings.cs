@@ -4,7 +4,7 @@ global using System.Text.Json.Serialization;
 global using Ater.AspNetCore.Constants;
 global using Ater.AspNetCore.Options;
 global using Ater.AspNetCore.Utils;
-global using EntityFramework.DBProvider;
+global using EntityFramework.AppDbContext;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

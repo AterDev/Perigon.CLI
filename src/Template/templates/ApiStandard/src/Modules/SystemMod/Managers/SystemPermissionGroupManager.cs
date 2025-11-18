@@ -1,11 +1,14 @@
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemPermissionGroupDtos;
 
 namespace SystemMod.Managers;
 
 public class SystemPermissionGroupManager(
-    DefaultDbContext dbContext,
-    ILogger<SystemPermissionGroupManager> logger
-) : ManagerBase<DefaultDbContext, SystemPermissionGroup>(dbContext, logger)
+    TenantDbFactory dbContextFactory,
+    ILogger<SystemPermissionGroupManager> logger,
+    IUserContext userContext
+) : ManagerBase<DefaultDbContext, SystemPermissionGroup>(dbContextFactory, userContext, logger)
 {
     public async Task<PageList<SystemPermissionGroupItemDto>> ToPageAsync(
         SystemPermissionGroupFilterDto filter

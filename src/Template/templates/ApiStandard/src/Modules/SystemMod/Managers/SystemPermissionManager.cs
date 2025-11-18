@@ -1,3 +1,5 @@
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemPermissionDtos;
 
 namespace SystemMod.Managers;
@@ -6,9 +8,10 @@ namespace SystemMod.Managers;
 /// 权限
 /// </summary>
 public class SystemPermissionManager(
-    DefaultDbContext dbContext,
-    ILogger<SystemPermissionManager> logger
-) : ManagerBase<DefaultDbContext, SystemPermission>(dbContext, logger)
+    TenantDbFactory dbContextFactory,
+    ILogger<SystemPermissionManager> logger,
+    IUserContext userContext
+) : ManagerBase<DefaultDbContext, SystemPermission>(dbContextFactory, userContext, logger)
 {
     public override Task<SystemPermission?> FindAsync(Guid id)
     {

@@ -1,12 +1,16 @@
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
+
 namespace SystemMod.Managers;
 
 /// <summary>
 /// 系统用户角色关联管理器
 /// </summary>
 public class SystemUserRoleManager(
-    DefaultDbContext dbContext,
-    ILogger<SystemUserRoleManager> logger
-) : ManagerBase<DefaultDbContext, SystemUserRole>(dbContext, logger)
+    TenantDbFactory dbContextFactory,
+    ILogger<SystemUserRoleManager> logger,
+    IUserContext userContext
+) : ManagerBase<DefaultDbContext, SystemUserRole>(dbContextFactory, userContext, logger)
 {
     /// <summary>
     /// 批量设置用户角色

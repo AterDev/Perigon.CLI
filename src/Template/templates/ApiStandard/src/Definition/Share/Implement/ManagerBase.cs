@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using Entity;
-using EntityFramework.DBProvider;
+using EntityFramework.AppDbFactory;
 
 namespace Share.Implement;
 
@@ -30,45 +30,20 @@ public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : DbContext
     where TEntity : EntityBase
 {
-    #region Properties and Fields
-
-    /// <summary>
-    /// Enable or disable global query filters.
-    /// </summary>
-    public bool EnableGlobalQuery { get; set; } = true;
-    #endregion
     protected IQueryable<TEntity> Queryable { get; set; }
     protected readonly ILogger _logger;
     protected readonly TDbContext _dbContext;
     protected readonly DbSet<TEntity> _dbSet;
+    protected readonly IUserContext _userContext;
 
-    public ManagerBase(TenantDbContextFactory dbContextFactory, ILogger logger)
+    public ManagerBase(TenantDbFactory dbContextFactory, IUserContext userContext, ILogger logger)
     {
         _logger = logger;
         _dbContext = (dbContextFactory.CreateDbContext() as TDbContext)!;
+        _userContext = userContext;
         _dbSet = _dbContext.Set<TEntity>();
+        _userContext = userContext;
         Queryable = _dbSet.AsNoTracking().AsQueryable();
-        if (!EnableGlobalQuery)
-        {
-            Queryable = Queryable.IgnoreQueryFilters();
-        }
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the ManagerBase class.
-    /// </summary>
-    /// <param name="dbContext">Database context</param>
-    /// <param name="logger">Logger instance</param>
-    public ManagerBase(TDbContext dbContext, ILogger logger)
-    {
-        _logger = logger;
-        _dbContext = dbContext;
-        _dbSet = _dbContext.Set<TEntity>();
-        Queryable = _dbSet.AsNoTracking().AsQueryable();
-        if (!EnableGlobalQuery)
-        {
-            Queryable = Queryable.IgnoreQueryFilters();
-        }
     }
 
     /// <summary>
@@ -186,12 +161,17 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
     public async Task UpsertAsync(TEntity entity)
     {
+        entity.TenantId = _userContext.TenantId;
         entity.UpdatedTime = DateTimeOffset.UtcNow;
         await _dbContext.BulkInsertOrUpdateAsync([entity]);
     }
 
     public async Task BulkUpsertAsync(IEnumerable<TEntity> entities)
     {
+        foreach (TEntity entity in entities)
+        {
+            entity.UpdatedTime = DateTimeOffset.UtcNow;
+        }
         await _dbContext.BulkInsertOrUpdateAsync(entities);
     }
 
@@ -332,8 +312,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     protected void ResetQuery()
     {
-        Queryable = EnableGlobalQuery
-            ? _dbSet.AsQueryable()
-            : Queryable.IgnoreQueryFilters().AsQueryable();
+        Queryable = _dbSet.AsQueryable();
     }
 }

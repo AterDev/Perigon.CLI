@@ -1,6 +1,8 @@
 using Ater.AspNetCore.Abstraction;
 using Ater.AspNetCore.Services;
 using Ater.AspNetCore.Toolkit.Services;
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using Mapster;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -66,8 +68,8 @@ public static class FrameworkExtensions
         /// <returns></returns>
         public IHostApplicationBuilder AddDbFactory()
         {
-            builder.Services.AddSingleton<DbContextFactory>();
-            //builder.Services.AddScoped<TenantDbContextFactory>();
+            builder.Services.AddSingleton<UniversalDbFactory>();
+            builder.Services.AddScoped<TenantDbFactory>();
             return builder;
         }
 

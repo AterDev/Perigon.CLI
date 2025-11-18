@@ -1,15 +1,15 @@
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemRoleDtos;
 
 namespace SystemMod.Managers;
 
 public class SystemRoleManager(
-    DefaultDbContext dbContext,
+    TenantDbFactory dbContextFactory,
     ILogger<SystemRoleManager> logger,
     IUserContext userContext
-) : ManagerBase<DefaultDbContext, SystemRole>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, SystemRole>(dbContextFactory, userContext, logger)
 {
-    private readonly IUserContext _userContext = userContext;
-
     /// <summary>
     /// 添加实体
     /// </summary>

@@ -1,10 +1,18 @@
+using Entity.CMSMod;
 using Entity.SystemMod;
 
-namespace EntityFramework.DBProvider;
+namespace EntityFramework.AppDbContext;
 
+/// <summary>
+/// default data access for main business
+/// </summary>
+/// <param name="options"></param>
 public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options)
     : ContextBase(options)
 {
+    public DbSet<Article> Articles { get; set; }
+    public DbSet<ArticleCategory> ArticleCategories { get; set; }
+
     public DbSet<SystemUser> SystemUsers { get; set; }
     public DbSet<SystemRole> SystemRoles { get; set; }
     public DbSet<SystemUserRole> SystemUserRoles { get; set; }

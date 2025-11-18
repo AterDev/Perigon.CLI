@@ -59,7 +59,7 @@ public class BlogDetailDto
     /// <summary>
     /// 所属目录
     /// </summary>
-    public Catalog Catalog { get; set; } = default!;
+    public ArticleCategory Catalog { get; set; } = default!;
     public Guid CatalogId { get; set; }
 
     /// <summary>

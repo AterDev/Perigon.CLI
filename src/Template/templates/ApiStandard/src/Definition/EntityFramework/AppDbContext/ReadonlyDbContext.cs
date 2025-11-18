@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace EntityFramework.DBProvider;
+namespace EntityFramework.AppDbContext;
 
 /// <summary>
 /// 只读数据库上下文
 /// </summary>
 public abstract class ReadonlyDbContext : ContextBase
 {
-    public ReadonlyDbContext(DbContextOptions<ReadonlyDbContext> options)
+    public ReadonlyDbContext(DbContextOptions options)
         : base(options)
     {
         ChangeTracker.AutoDetectChangesEnabled = false;

@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using Share.Models.Auth;
 using SystemMod.Models.SystemUserDtos;
 
 namespace SystemMod.Managers;
 
 public class SystemUserManager(
-    DefaultDbContext dbContext,
+    TenantDbFactory dbContextFactory,
     CacheService cache,
     JwtService jwtService,
     SystemConfigManager systemConfig,
@@ -15,12 +17,11 @@ public class SystemUserManager(
     IUserContext userContext,
     Localizer localizer,
     SystemUserRoleManager userRoleManager
-) : ManagerBase<DefaultDbContext, SystemUser>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
     private readonly CacheService _cache = cache;
     private readonly SystemLogService _logService = logService;
-    private readonly IUserContext _userContext = userContext;
     private readonly Localizer _localizer = localizer;
     private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
 

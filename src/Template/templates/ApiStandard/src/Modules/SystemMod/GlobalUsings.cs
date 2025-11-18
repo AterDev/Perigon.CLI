@@ -7,7 +7,7 @@ global using Ater.AspNetCore.Services;
 global using Ater.AspNetCore.Toolkit.Helpers;
 global using Ater.AspNetCore.Utils;
 global using Entity.SystemMod;
-global using EntityFramework.DBProvider;
+global using EntityFramework.AppDbContext;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Configuration;

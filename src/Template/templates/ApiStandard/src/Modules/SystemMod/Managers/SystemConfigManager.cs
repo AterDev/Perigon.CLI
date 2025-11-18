@@ -1,4 +1,6 @@
 using System.Text.Json;
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
@@ -7,11 +9,12 @@ namespace SystemMod.Managers;
 /// 系统配置
 /// </summary>
 public class SystemConfigManager(
-    DefaultDbContext dbContext,
+    TenantDbFactory dbContextFactory,
     ILogger<SystemConfigManager> logger,
+    IUserContext userContext,
     IConfiguration configuration,
     CacheService cache
-) : ManagerBase<DefaultDbContext, SystemConfig>(dbContext, logger)
+) : ManagerBase<DefaultDbContext, SystemConfig>(dbContextFactory, userContext, logger)
 {
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;

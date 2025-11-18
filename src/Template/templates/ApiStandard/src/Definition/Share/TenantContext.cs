@@ -1,9 +1,9 @@
+using System.Security.Claims;
 using Ater.AspNetCore.Services;
 using Entity.CommonMod;
-using EntityFramework.DBProvider;
+using EntityFramework.AppDbContext;
 using Microsoft.AspNetCore.Http;
 using Share.Exceptions;
-using System.Security.Claims;
 
 namespace Share;
 
@@ -14,7 +14,11 @@ public class TenantContext : ITenantContext
     private readonly Tenant _tenant;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public TenantContext(IHttpContextAccessor httpContextAccessor, CacheService cache, DefaultDbContext dbContext)
+    public TenantContext(
+        IHttpContextAccessor httpContextAccessor,
+        CacheService cache,
+        DefaultDbContext dbContext
+    )
     {
         _httpContextAccessor = httpContextAccessor;
         if (
@@ -33,14 +37,20 @@ public class TenantContext : ITenantContext
         TenantType = tenantType.Value;
 
         var cacheKey = $"{WebConst.TenantId}__{TenantId}";
-        var tenant = cache.GetOrCreateAsync(
-            cacheKey,
-            async (cancellationToken) =>
-            {
-                return await dbContext.Tenants
-                    .FirstOrDefaultAsync(t => t.TenantId == TenantId, cancellationToken);
-            }
-        ).Result ?? throw new BusinessException("WrongTenantId", StatusCodes.Status400BadRequest);
+        var tenant =
+            cache
+                .GetOrCreateAsync(
+                    cacheKey,
+                    async (cancellationToken) =>
+                    {
+                        return await dbContext.Tenants.FirstOrDefaultAsync(
+                            t => t.TenantId == TenantId,
+                            cancellationToken
+                        );
+                    }
+                )
+                .Result
+            ?? throw new BusinessException("WrongTenantId", StatusCodes.Status400BadRequest);
         _tenant = tenant;
     }
 

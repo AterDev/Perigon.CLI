@@ -1,8 +1,9 @@
 namespace CMSMod.Models.CatalogDtos;
+
 /// <summary>
 /// 目录概要
 /// </summary>
-/// <inheritdoc cref="Catalog"/>
+/// <inheritdoc cref="ArticleCategory"/>
 public class CatalogDetailDto
 {
     /// <summary>
@@ -10,16 +11,17 @@ public class CatalogDetailDto
     /// </summary>
     [MaxLength(50)]
     public string Name { get; set; } = default!;
+
     /// <summary>
     /// 层级
     /// </summary>
     public short Level { get; set; }
+
     /// <summary>
     /// 父目录
     /// </summary>
-    public Catalog? Parent { get; set; }
+    public ArticleCategory? Parent { get; set; }
     public Guid? ParentId { get; set; }
     public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedTime { get; set; } = DateTimeOffset.UtcNow;
-
 }

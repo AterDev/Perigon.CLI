@@ -1,8 +1,9 @@
 namespace CMSMod.Models.CatalogDtos;
+
 /// <summary>
 /// 目录列表元素
 /// </summary>
-/// <inheritdoc cref="Catalog"/>
+/// <inheritdoc cref="ArticleCategory"/>
 public class CatalogItemDto
 {
     /// <summary>
@@ -10,6 +11,7 @@ public class CatalogItemDto
     /// </summary>
     [MaxLength(50)]
     public string Name { get; set; } = default!;
+
     /// <summary>
     /// 层级
     /// </summary>

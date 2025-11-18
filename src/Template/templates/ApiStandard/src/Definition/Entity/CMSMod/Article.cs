@@ -61,7 +61,7 @@ public class Article : EntityBase
     /// 所属目录
     /// </summary>
     [ForeignKey(nameof(CatalogId))]
-    public Catalog Catalog { get; set; } = null!;
+    public ArticleCategory Catalog { get; set; } = null!;
     public Guid CatalogId { get; set; }
 
     /// <summary>

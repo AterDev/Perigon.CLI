@@ -1,3 +1,5 @@
+using EntityFramework.AppDbContext;
+using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemLogsDtos;
 
 namespace SystemMod.Managers;
@@ -6,10 +8,10 @@ namespace SystemMod.Managers;
 /// 系统日志
 /// </summary>
 public class SystemLogsManager(
-    //DataAccessContext<SystemLogs> dbContext,
-    DefaultDbContext dbContext,
-    ILogger<SystemLogsManager> logger
-) : ManagerBase<DefaultDbContext, SystemLogs>(dbContext, logger)
+    TenantDbFactory dbContextFactory,
+    ILogger<SystemLogsManager> logger,
+    IUserContext userContext
+) : ManagerBase<DefaultDbContext, SystemLogs>(dbContextFactory, userContext, logger)
 {
     public async Task<PageList<SystemLogsItemDto>> ToPageAsync(SystemLogsFilterDto filter)
     {

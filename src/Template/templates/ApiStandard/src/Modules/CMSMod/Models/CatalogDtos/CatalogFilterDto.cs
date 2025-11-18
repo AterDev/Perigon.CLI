@@ -3,7 +3,7 @@ namespace CMSMod.Models.CatalogDtos;
 /// <summary>
 /// 目录查询筛选
 /// </summary>
-/// <inheritdoc cref="Catalog"/>
+/// <inheritdoc cref="ArticleCategory"/>
 public class CatalogFilterDto : FilterBase
 {
     /// <summary>

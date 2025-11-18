@@ -2,7 +2,7 @@ using Entity.CommonMod;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace EntityFramework.DBProvider;
+namespace EntityFramework.AppDbContext;
 
 public abstract partial class ContextBase(DbContextOptions options) : DbContext(options)
 {
@@ -14,42 +14,12 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
 
         base.OnModelCreating(builder);
         OnModelExtendCreating(builder);
+        ConfigureMultiTenantUniqueIndexes(builder);
         OnSQLiteModelCreating(builder);
     }
 
-    public override Task<int> SaveChangesAsync(
-        bool acceptAllChangesOnSuccess,
-        CancellationToken cancellationToken = default
-    )
-    {
-        // 创建和更新时间处理
-        var entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added).ToList();
-        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
-        {
-            Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
-                entityEntry.Metadata.FindProperty(nameof(EntityBase.CreatedTime));
-            if (property != null && property.ClrType == typeof(DateTimeOffset))
-            {
-                entityEntry.Property(nameof(EntityBase.CreatedTime)).CurrentValue =
-                    DateTimeOffset.UtcNow;
-            }
-        }
-        entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList();
-        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? entityEntry in entries)
-        {
-            Microsoft.EntityFrameworkCore.Metadata.IProperty? property =
-                entityEntry.Metadata.FindProperty(nameof(EntityBase.UpdatedTime));
-            if (property != null && property.ClrType == typeof(DateTimeOffset))
-            {
-                entityEntry.Property(nameof(EntityBase.UpdatedTime)).CurrentValue =
-                    DateTimeOffset.UtcNow;
-            }
-        }
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
     /// <summary>
-    /// 设置主键Id和软删除过滤
+    /// 设置主键Id和软删除过滤器
     /// </summary>
     /// <param name="modelBuilder"></param>
     private void OnModelExtendCreating(ModelBuilder modelBuilder)
@@ -68,6 +38,53 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
                     .HasQueryFilter(
                         ConvertFilterExpression<EntityBase>(e => !e.IsDeleted, entityType.ClrType)
                     );
+            }
+        }
+    }
+
+    /// <summary>
+    /// 为所有唯一索引添加 TenantId 和软删除过滤器
+    /// </summary>
+    private void ConfigureMultiTenantUniqueIndexes(ModelBuilder modelBuilder)
+    {
+        var entityTypes = modelBuilder
+            .Model.GetEntityTypes()
+            .Where(e => typeof(EntityBase).IsAssignableFrom(e.ClrType))
+            .ToList();
+
+        foreach (var entityType in entityTypes)
+        {
+            // 检查该实体是否有 TenantId 属性（未被忽略）
+            var tenantIdProperty = entityType.FindProperty(nameof(EntityBase.TenantId));
+            if (tenantIdProperty == null)
+            {
+                continue;
+            }
+
+            foreach (var index in entityType.GetIndexes())
+            {
+                var propertyNames = new List<string> { nameof(EntityBase.TenantId) };
+                // 添加原索引的属性，确保 TenantId 在第一位
+                foreach (var property in index.Properties)
+                {
+                    if (property.Name != nameof(EntityBase.TenantId))
+                    {
+                        propertyNames.Add(property.Name);
+                    }
+                }
+
+                if (index.IsUnique)
+                {
+                    modelBuilder
+                        .Entity(entityType.ClrType)
+                        .HasIndex([.. propertyNames])
+                        .IsUnique()
+                        .HasFilter($"\"{nameof(EntityBase.IsDeleted)}\" = 0");
+                }
+                else
+                {
+                    modelBuilder.Entity(entityType.ClrType).HasIndex([.. propertyNames]);
+                }
             }
         }
     }

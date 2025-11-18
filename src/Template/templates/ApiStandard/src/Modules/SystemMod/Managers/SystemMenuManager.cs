@@ -1,3 +1,4 @@
+using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemMenuDtos;
 
 namespace SystemMod.Managers;
@@ -5,8 +6,11 @@ namespace SystemMod.Managers;
 /// <summary>
 /// 系统菜单
 /// </summary>
-public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuManager> logger)
-    : ManagerBase<DefaultDbContext, SystemMenu>(dbContext, logger)
+public class SystemMenuManager(
+    TenantDbFactory dbContextFactory,
+    ILogger<SystemMenuManager> logger,
+    IUserContext userContext
+) : ManagerBase<DefaultDbContext, SystemMenu>(dbContextFactory, userContext, logger)
 {
     /// <summary>
     /// 创建待添加实体
@@ -20,6 +24,13 @@ public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuMan
         {
             entity.ParentId = dto.ParentId.Value;
         }
+        await UpsertAsync(entity);
+        return entity;
+    }
+
+    public async Task<SystemMenu> UpdateAsync(SystemMenu entity, SystemMenuUpdateDto dto)
+    {
+        entity = entity.Merge(dto);
         await UpsertAsync(entity);
         return entity;
     }
@@ -117,13 +128,6 @@ public class SystemMenuManager(DefaultDbContext dbContext, ILogger<SystemMenuMan
             }
         }
         return res;
-    }
-
-    public async Task<SystemMenu> UpdateAsync(SystemMenu entity, SystemMenuUpdateDto dto)
-    {
-        entity.Merge(dto);
-        await UpsertAsync(entity);
-        return entity;
     }
 
     public async Task<PageList<SystemMenu>> FilterAsync(SystemMenuFilterDto filter)

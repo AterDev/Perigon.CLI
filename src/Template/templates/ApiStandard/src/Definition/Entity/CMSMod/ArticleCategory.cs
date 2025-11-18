@@ -4,7 +4,7 @@ namespace Entity.CMSMod;
 /// 目录
 /// </summary>
 [Index(nameof(UserId), nameof(Name), IsUnique = true)]
-public class Catalog : EntityBase, ITreeNode<Catalog>
+public class ArticleCategory : EntityBase, ITreeNode<ArticleCategory>
 {
     /// <summary>
     /// 目录名称
@@ -20,13 +20,13 @@ public class Catalog : EntityBase, ITreeNode<Catalog>
     /// <summary>
     /// 子目录
     /// </summary>
-    public List<Catalog> Children { get; set; } = [];
+    public List<ArticleCategory> Children { get; set; } = [];
 
     /// <summary>
     /// 父目录
     /// </summary>
     [ForeignKey(nameof(ParentId))]
-    public Catalog? Parent { get; set; }
+    public ArticleCategory? Parent { get; set; }
     public Guid? ParentId { get; set; }
     public ICollection<Article> Blogs { get; set; } = [];
 

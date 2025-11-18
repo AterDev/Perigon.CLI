@@ -3,8 +3,7 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统菜单
 /// </summary>
-[Index(nameof(AccessCode))]
-[Index(nameof(Name))]
+[Index(nameof(AccessCode), IsUnique = true)]
 public class SystemMenu : EntityBase, ITreeNode<SystemMenu>
 {
     /// <summary>

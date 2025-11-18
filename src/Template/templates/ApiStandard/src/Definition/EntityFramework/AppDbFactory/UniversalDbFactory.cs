@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Configuration;
 
-namespace EntityFramework.DBProvider;
+namespace EntityFramework.AppDbFactory;
 
 /// <summary>
-/// create Common DbContext What you want
+/// create universal DbContext what you want
 /// </summary>
+/// <remarks>you can custom this factory</remarks>
 /// <param name="configuration"></param>
-public class DbContextFactory(IConfiguration configuration)
+public class UniversalDbFactory(IConfiguration configuration)
 {
     public TContext CreateDbContext<TContext>(DatabaseType databaseType = DatabaseType.PostgreSql)
         where TContext : DbContext
@@ -36,6 +37,7 @@ public class DbContextFactory(IConfiguration configuration)
                     $"Database provider {databaseType} is not supported."
                 );
         }
+
         try
         {
             var context = (TContext?)Activator.CreateInstance(typeof(TContext), builder.Options);

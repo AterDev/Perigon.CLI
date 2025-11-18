@@ -1,8 +1,9 @@
 namespace CMSMod.Models.CatalogDtos;
+
 /// <summary>
 /// 目录更新时请求结构
 /// </summary>
-/// <inheritdoc cref="Catalog"/>
+/// <inheritdoc cref="ArticleCategory"/>
 public class CatalogUpdateDto
 {
     /// <summary>
