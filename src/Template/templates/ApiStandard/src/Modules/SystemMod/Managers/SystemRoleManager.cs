@@ -18,7 +18,7 @@ public class SystemRoleManager(
     public async Task<SystemRole> AddAsync(SystemRoleAddDto dto)
     {
         var entity = dto.MapTo<SystemRole>();
-        await UpsertAsync(entity);
+        await InsertAsync(entity);
         return entity;
     }
 
@@ -70,7 +70,7 @@ public class SystemRoleManager(
                 .ToListAsync();
 
             current.PermissionGroups = groups;
-            await UpsertAsync(current);
+            await InsertAsync(current);
 
             return current;
         });
@@ -111,7 +111,7 @@ public class SystemRoleManager(
         }
 
         current.Merge(dto);
-        await UpsertAsync(current);
+        await InsertAsync(current);
         return current;
     }
 
@@ -153,7 +153,7 @@ public class SystemRoleManager(
                 .ToListAsync();
 
             current.Menus = menus;
-            await UpsertAsync(current);
+            await InsertAsync(current);
 
             return current;
         });

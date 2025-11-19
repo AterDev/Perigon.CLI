@@ -34,7 +34,7 @@ public class SystemUserRoleManager(
                     RoleId = roleId,
                 });
 
-                await BulkUpsertAsync(userRoles);
+                await BulkInsertAsync(userRoles);
             }
 
             return true;

@@ -215,4 +215,7 @@
     <value>Data changed, please refresh and retry!</value>
     <comment>数据已发生变化，请刷新后重试</comment>
   </data>
+  <data name="NoPermission" xml:space="preserve">
+    <value>No permission to operate</value>
+  </data>
 </root>

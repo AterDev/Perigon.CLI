@@ -46,7 +46,7 @@ public class SystemPermissionController(
 
         SystemPermission entity = dto.MapTo<SystemPermission>();
         entity.GroupId = dto.SystemPermissionGroupId;
-        await _manager.UpsertAsync(entity);
+        await _manager.InsertAsync(entity);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -71,7 +71,9 @@ public class SystemPermissionController(
         if (dto.SystemPermissionGroupId != null && current.Group.Id != dto.SystemPermissionGroupId)
         {
             SystemPermissionGroup? systemPermissionGroup =
-                await _systemPermissionGroupManager.FindAsync(dto.SystemPermissionGroupId.Value);
+                await _systemPermissionGroupManager.GetGroupAsync(
+                    dto.SystemPermissionGroupId.Value
+                );
             if (systemPermissionGroup == null)
             {
                 return NotFound("不存在的权限组");
@@ -79,7 +81,7 @@ public class SystemPermissionController(
             current.Group = systemPermissionGroup;
         }
         current.Merge(dto);
-        await _manager.UpsertAsync(current);
+        await _manager.InsertAsync(current);
         return true;
     }
 

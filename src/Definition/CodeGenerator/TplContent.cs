@@ -28,8 +28,6 @@ public class TplContent
                 public async Task<@(Model.EntityName)> AddAsync(@(Model.EntityName)AddDto dto)
                 {
                     var entity = dto.MapTo<@(Model.EntityName)>();
-                    entity.TenantId = userContext.TenantId;
-
                     await UpsertAsync(entity);
                     return entity;
                 }
@@ -216,18 +214,18 @@ export class EnumTextPipeModule { }
     /// <returns></returns>
     public static string ModuleGlobalUsings(string moduleName)
     {
-        return $$"""
+        return $"""
             global using System.ComponentModel.DataAnnotations;
             global using System.Diagnostics;
             global using System.Linq.Expressions;
-            global using {{ConstVal.CoreLibName}};
-            global using {{ConstVal.CoreLibName}}.{{ConstVal.ModelsDir}};
-            global using {{ConstVal.CoreLibName}}.Utils;
-            global using {{ConstVal.ExtensionLibName}};
-            global using {{ConstVal.DefinitionDir}}.{{ConstVal.EntityName}};
-            global using {{ConstVal.DefinitionDir}}.{{ConstVal.EntityName}}.{{moduleName}};
-            global using {{ConstVal.DefinitionDir}}.{{ConstVal.EntityFrameworkName}};
-            global using {{ConstVal.DefinitionDir}}.{{ConstVal.EntityFrameworkName}}.AppDbContext;
+            global using {ConstVal.CoreLibName};
+            global using {ConstVal.CoreLibName}.{ConstVal.ModelsDir};
+            global using {ConstVal.CoreLibName}.Utils;
+            global using {ConstVal.ExtensionLibName};
+            global using {ConstVal.DefinitionDir}.{ConstVal.EntityName};
+            global using {ConstVal.DefinitionDir}.{ConstVal.EntityName}.{moduleName};
+            global using {ConstVal.DefinitionDir}.{ConstVal.EntityFrameworkName};
+            global using {ConstVal.DefinitionDir}.{ConstVal.EntityFrameworkName}.AppDbContext;
             global using Microsoft.AspNetCore.Authorization;
             global using Microsoft.Extensions.DependencyInjection;
             global using Microsoft.AspNetCore.Mvc;
@@ -334,9 +332,9 @@ export class EnumTextPipeModule { }
             global using Microsoft.AspNetCore.Mvc;
             global using Microsoft.EntityFrameworkCore;
             global using ServiceDefaults;
-            global using {{ConstVal.ShareName}};
-            global using {{ConstVal.ShareName}}.Constants;
-            global using {{ConstVal.ShareName}}.Implement;
+            global using {ConstVal.ShareName};
+            global using {ConstVal.ShareName}.Constants;
+            global using {ConstVal.ShareName}.Implement;
 
             """;
     }

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemConfigDtos;
 
@@ -84,5 +83,10 @@ public class SystemConfigManager(
             }
         }
         return policy ?? new LoginSecurityPolicyOption();
+    }
+
+    public override Task<bool> HasPermissionAsync(Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -341,7 +341,7 @@ public class SystemUserManager(
             entity.PasswordSalt = HashCrypto.BuildSalt();
             entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
 
-            await UpsertAsync(entity);
+            await InsertAsync(entity);
 
             // 使用中间表管理器处理角色关联，提高性能
             if (roles != null && roles.Count > 0)
@@ -388,7 +388,7 @@ public class SystemUserManager(
                 current.PasswordHash = HashCrypto.GeneratePwd(dto.Password, current.PasswordSalt);
             }
 
-            await UpsertAsync(current);
+            await InsertAsync(current);
 
             // 使用中间表管理器处理角色关联，提高性能
             if (roles != null)

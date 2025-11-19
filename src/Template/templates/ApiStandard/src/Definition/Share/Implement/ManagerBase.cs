@@ -1,7 +1,9 @@
 using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using Entity;
+using EntityFramework;
 using EntityFramework.AppDbFactory;
+using Mapster;
 
 namespace Share.Implement;
 
@@ -51,7 +53,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="id">Entity id</param>
     /// <returns>The entity if found; otherwise, null.</returns>
-    public virtual async Task<TEntity?> FindAsync(Guid id)
+    public async Task<TEntity?> FindAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
     }
@@ -68,7 +70,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         var model = await _dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
-            .ProjectTo<TDto>()
+            .ProjectToType<TDto>()
             .FirstOrDefaultAsync();
         return model;
     }
@@ -78,7 +80,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="id">Entity id</param>
     /// <returns>True if exists; otherwise, false.</returns>
-    public virtual async Task<bool> ExistAsync(Guid id)
+    public async Task<bool> ExistAsync(Guid id)
     {
         return await _dbSet.AnyAsync(q => q.Id == id);
     }
@@ -107,7 +109,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         return await _dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
-            .ProjectTo<TDto>()
+            .ProjectToType<TDto>()
             .ToListAsync();
     }
 
@@ -142,7 +144,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .ProjectTo<TItem>()
+            .ProjectToType<TItem>()
             .ToListAsync();
 
         ResetQuery();
@@ -155,24 +157,38 @@ public abstract class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// Upsert by primary key and immediately save.
+    /// Insert new entity to database
     /// </summary>
     /// <remarks></remarks>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
-    public async Task UpsertAsync(TEntity entity)
+    public async Task InsertAsync(TEntity entity)
     {
         entity.TenantId = _userContext.TenantId;
-        entity.UpdatedTime = DateTimeOffset.UtcNow;
-        await _dbContext.BulkInsertOrUpdateAsync([entity]);
+        await _dbContext.BulkInsertAsync([entity]);
     }
 
-    public async Task BulkUpsertAsync(IEnumerable<TEntity> entities)
+    /// <summary>
+    /// update entity data to database
+    /// </summary>
+    /// <typeparam name="TUpdateDto"></typeparam>
+    /// <param name="id"></param>
+    /// <param name="dto"></param>
+    /// <param name="updateTime"></param>
+    /// <returns></returns>
+    public async Task<int> UpdateAsync<TUpdateDto>(Guid id, TUpdateDto dto, bool updateTime = true)
+        where TUpdateDto : class
+    {
+        return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(id, dto, updateTime);
+    }
+
+    public async Task BulkInsertAsync(IEnumerable<TEntity> entities)
     {
         foreach (TEntity entity in entities)
         {
-            entity.UpdatedTime = DateTimeOffset.UtcNow;
+            entity.TenantId = _userContext.TenantId;
+            entity.UpdatedTime = DateTime.UtcNow;
         }
-        await _dbContext.BulkInsertOrUpdateAsync(entities);
+        await _dbContext.BulkInsertAsync(entities);
     }
 
     /// <summary>
@@ -181,12 +197,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="ids">List of entity ids</param>
     /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public virtual async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool softDelete = true)
+    public async Task<int> DeleteAsync(IEnumerable<Guid> ids, bool softDelete = true)
     {
         var idsList = ids.ToList();
         if (idsList.Count == 0)
         {
-            return false;
+            return 0;
         }
 
         var res = softDelete
@@ -194,7 +210,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 .Where(d => idsList.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
             : await _dbSet.Where(d => idsList.Contains(d.Id)).ExecuteDeleteAsync();
-        return res > 0;
+        return res;
     }
 
     /// <summary>
@@ -306,6 +322,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
             throw;
         }
     }
+
+    public abstract Task<bool> HasPermissionAsync(Guid id);
 
     /// <summary>
     /// Resets the queryable to its default state, applying or ignoring global query filters.

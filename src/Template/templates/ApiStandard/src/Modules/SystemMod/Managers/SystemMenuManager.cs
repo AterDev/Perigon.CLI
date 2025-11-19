@@ -19,20 +19,23 @@ public class SystemMenuManager(
     /// <returns></returns>
     public async Task<SystemMenu> AddAsync(SystemMenuAddDto dto)
     {
-        SystemMenu entity = dto.MapTo<SystemMenu>();
+        var entity = dto.MapTo<SystemMenu>();
+        // other property set
         if (dto.ParentId != null)
         {
             entity.ParentId = dto.ParentId.Value;
         }
-        await UpsertAsync(entity);
+        await InsertAsync(entity);
         return entity;
     }
 
-    public async Task<SystemMenu> UpdateAsync(SystemMenu entity, SystemMenuUpdateDto dto)
+    public async Task<bool> EditAsync(Guid id, SystemMenuUpdateDto dto)
     {
-        entity = entity.Merge(dto);
-        await UpsertAsync(entity);
-        return entity;
+        if (await HasPermissionAsync(id))
+        {
+            return await UpdateAsync(id, dto) > 0;
+        }
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>
@@ -161,15 +164,55 @@ public class SystemMenuManager(
         return new PageList<SystemMenu>() { Data = menus, PageIndex = filter.PageIndex };
     }
 
+    public async Task<bool> RemoveAsync(IEnumerable<Guid> ids, bool isDelete = false)
+    {
+        if (!ids.Any())
+        {
+            return false;
+        }
+
+        if (ids.Count() == 1)
+        {
+            Guid id = ids.First();
+            if (await HasPermissionAsync(id))
+            {
+                return await DeleteAsync(ids, !isDelete) > 0;
+            }
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+        }
+        else
+        {
+            var ownedIds = await GetOwnedIdsAsync(ids);
+            if (ownedIds.Any())
+            {
+                return await DeleteAsync(ownedIds, !isDelete) > 0;
+            }
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+        }
+    }
+
     /// <summary>
-    /// 当前用户所拥有的对象
+    /// wheather user have edit/delete permission
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<SystemMenu?> GetOwnedAsync(Guid id)
+    public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        IQueryable<SystemMenu> query = _dbSet.Where(q => q.Id == id);
-        // 获取用户所属的对象
-        return await query.FirstOrDefaultAsync();
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        // TODO: other conditions
+        return await query.AnyAsync();
+    }
+
+    public async Task<List<Guid>> GetOwnedIdsAsync(IEnumerable<Guid> ids)
+    {
+        if (!ids.Any())
+        {
+            return [];
+        }
+        var query = _dbSet
+            .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
+            // TODO: other conditions
+            .Select(q => q.Id);
+        return await query.ToListAsync();
     }
 }

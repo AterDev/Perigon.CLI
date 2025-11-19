@@ -1,4 +1,3 @@
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemPermissionGroupDtos;
 
@@ -20,7 +19,7 @@ public class SystemPermissionGroupManager(
         );
     }
 
-    public override async Task<SystemPermissionGroup?> FindAsync(Guid id)
+    public async Task<SystemPermissionGroup?> GetGroupAsync(Guid id)
     {
         return await Queryable
             .Include(g => g.Permissions)
@@ -38,5 +37,10 @@ public class SystemPermissionGroupManager(
         IQueryable<SystemPermissionGroup> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         return await query.FirstOrDefaultAsync();
+    }
+
+    public override Task<bool> HasPermissionAsync(Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

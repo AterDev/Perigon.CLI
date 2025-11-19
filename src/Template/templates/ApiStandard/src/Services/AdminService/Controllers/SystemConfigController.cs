@@ -46,7 +46,7 @@ public class SystemConfigController(
     public async Task<ActionResult<SystemConfig>> AddAsync(SystemConfigAddDto dto)
     {
         SystemConfig entity = dto.MapTo<SystemConfig>();
-        await _manager.UpsertAsync(entity);
+        await _manager.InsertAsync(entity);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -69,7 +69,7 @@ public class SystemConfigController(
         }
 
         current.Merge(dto);
-        await _manager.UpsertAsync(current);
+        await _manager.InsertAsync(current);
         return true;
     }
 

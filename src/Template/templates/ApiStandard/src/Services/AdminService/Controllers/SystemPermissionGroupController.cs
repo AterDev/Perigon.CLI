@@ -34,7 +34,7 @@ public class SystemPermissionGroupController(
     public async Task<ActionResult<SystemPermissionGroup>> AddAsync(SystemPermissionGroupAddDto dto)
     {
         SystemPermissionGroup entity = dto.MapTo<SystemPermissionGroup>();
-        await _manager.UpsertAsync(entity);
+        await _manager.InsertAsync(entity);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -50,14 +50,14 @@ public class SystemPermissionGroupController(
         SystemPermissionGroupUpdateDto dto
     )
     {
-        SystemPermissionGroup? current = await _manager.FindAsync(id);
+        SystemPermissionGroup? current = await _manager.GetGroupAsync(id);
         if (current == null)
         {
             return NotFound(Localizer.NotFoundResource);
         }
 
         current.Merge(dto);
-        await _manager.UpsertAsync(current);
+        await _manager.InsertAsync(current);
         return true;
     }
 
@@ -84,7 +84,7 @@ public class SystemPermissionGroupController(
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        SystemPermissionGroup? entity = await _manager.FindAsync(id);
+        SystemPermissionGroup? entity = await _manager.GetGroupAsync(id);
         return entity == null ? NotFound() : await _manager.DeleteAsync([id]);
     }
 }
