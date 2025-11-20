@@ -3,7 +3,7 @@
 /// <summary>
 /// The tenant entity
 /// </summary>
-[Index(nameof(Name), IsUnique = true)]
+[Index(nameof(Domain), IsUnique = true)]
 public class Tenant : EntityBase
 {
     [MaxLength(100)]
@@ -19,7 +19,7 @@ public class Tenant : EntityBase
     public string? AnalysisConnectionString { get; set; }
 
     [MaxLength(200)]
-    public string? Domain { get; set; }
+    public required string Domain { get; set; }
 
     public TenantType Type { get; set; }
 

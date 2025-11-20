@@ -6,7 +6,7 @@
 public class SystemLoginDto
 {
     [MaxLength(50)]
-    public string UserName { get; set; } = default!;
+    public string Email { get; set; } = default!;
     [MaxLength(60)]
     [MinLength(6)]
     public string Password { get; set; } = default!;

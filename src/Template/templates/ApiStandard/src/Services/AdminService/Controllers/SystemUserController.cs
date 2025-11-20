@@ -4,6 +4,7 @@ using Ater.AspNetCore.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Share.Exceptions;
 using Share.Models.Auth;
+using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 
 namespace AdminService.Controllers;
@@ -65,46 +66,54 @@ public class SystemUserController(
 
     /// <summary>
     /// 登录获取Token ✅
+    /// 返回仅包含 token 信息和用户 id/username
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting(WebConst.Limited)]
-    public async Task<ActionResult<AuthResult>> LoginAsync(SystemLoginDto dto)
+    public async Task<AccessTokenDto> LoginAsync(SystemLoginDto dto)
     {
-        try
+        // 获取client
+        var client =
+            HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+
+        var tokenResult = await _manager.LoginAsync(dto, client);
+        return tokenResult;
+    }
+
+    /// <summary>
+    /// 根据用户 id 获取用户角色、菜单与权限组等信息
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("userinfo/{id}")]
+    public async Task<ActionResult<UserInfoDto>> GetUserInfoAsync([FromRoute] Guid id)
+    {
+        // 获取用户
+        var user = await _manager.GetSystemUserAsync(id);
+        if (user == null)
         {
-            dto.Password = dto.Password.Trim();
-            // 查询用户
-            SystemUser? user = await _manager.FindByUserNameAsync(dto.UserName);
-            if (user == null)
-            {
-                return NotFound(Localizer.UserNotFound);
-            }
-
-            // 获取菜单和权限信息
-            var menus = new List<SystemMenu>();
-            var permissionGroups = new List<SystemPermissionGroup>();
-            if (user.SystemRoles != null)
-            {
-                menus = await _roleManager.GetSystemMenusAsync([.. user.SystemRoles]);
-                permissionGroups = await _roleManager.GetPermissionGroupsAsync(
-                    [.. user.SystemRoles]
-                );
-            }
-
-            // 获取client
-            var client =
-                HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
-
-            var result = await _manager.LoginAsync(dto, menus, permissionGroups, client);
-            return result;
+            return NotFound(Localizer.NotFoundUser);
         }
-        catch (BusinessException ex)
+
+        var menus = new List<SystemMenu>();
+        var permissionGroups = new List<SystemPermissionGroup>();
+        if (user.SystemRoles != null)
         {
-            return Problem(ex.Message);
+            menus = await _roleManager.GetSystemMenusAsync([.. user.SystemRoles]);
+            permissionGroups = await _roleManager.GetPermissionGroupsAsync([.. user.SystemRoles]);
         }
+
+        return new UserInfoDto
+        {
+            Id = user.Id,
+            Username = user.UserName,
+            Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
+            Menus = menus,
+            PermissionGroups = permissionGroups,
+        };
     }
 
     /// <summary>
@@ -241,7 +250,7 @@ public class SystemUserController(
     [HttpGet("{id}")]
     public async Task<ActionResult<SystemUserDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
-        var res = await _manager.FindAsync<SystemUserDetailDto>(d => d.Id == id);
+        var res = await _manager.GetAsync(id);
         return res == null ? NotFound() : res;
     }
 

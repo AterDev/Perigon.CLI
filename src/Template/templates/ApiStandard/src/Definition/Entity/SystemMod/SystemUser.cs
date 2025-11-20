@@ -5,7 +5,6 @@ namespace Entity.SystemMod;
 /// <summary>
 /// 系统用户
 /// </summary>
-[Index(nameof(UserName), IsUnique = true)]
 [Index(nameof(Email), IsUnique = true)]
 [Index(nameof(PhoneNumber), IsUnique = true)]
 [Index(nameof(CreatedTime))]
@@ -15,9 +14,9 @@ public class SystemUser : EntityBase
     /// <summary>
     /// 用户名
     /// </summary>
-    [Length(3, 30)]
     [MaxLength(30)]
-    public required string UserName { get; set; }
+    [MinLength(4)]
+    public string? UserName { get; set; }
 
     /// <summary>
     /// 真实姓名
@@ -27,8 +26,9 @@ public class SystemUser : EntityBase
     public string? RealName { get; set; }
 
     [MaxLength(100)]
+    [MinLength(6)]
     [EmailAddress]
-    public string? Email { get; set; }
+    public required string Email { get; set; }
     public bool EmailConfirmed { get; set; }
 
     [JsonIgnore]

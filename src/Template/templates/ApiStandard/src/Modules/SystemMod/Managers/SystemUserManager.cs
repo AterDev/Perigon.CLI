@@ -253,16 +253,12 @@ public class SystemUserManager(
         return await FindAsync<SystemUserDetailDto>(d => d.Id == id);
     }
 
-    public async Task<AuthResult> LoginAsync(
-        SystemLoginDto dto,
-        List<SystemMenu> menus,
-        List<SystemPermissionGroup> permissionGroups,
-        string client
-    )
+    public async Task<AccessTokenDto> LoginAsync(SystemLoginDto dto, string client)
     {
-        dto.Password = dto.Password.Trim();
         // 查询用户
-        SystemUser? user = await FindByUserNameAsync(dto.UserName);
+        var user = await _dbSet.Where(u => u.Email == dto.Email)
+            .Include(u => u.SystemRoles)
+            .FirstOrDefaultAsync();
         if (user == null)
         {
             throw new BusinessException(Localizer.UserNotExists);
@@ -316,17 +312,7 @@ public class SystemUserManager(
             user.Id
         );
 
-        return new AuthResult
-        {
-            Id = user.Id,
-            Username = user.UserName,
-            Menus = menus,
-            Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
-            PermissionGroups = permissionGroups,
-            AccessToken = jwtToken.AccessToken,
-            ExpiresIn = jwtToken.ExpiresIn,
-            RefreshToken = jwtToken.RefreshToken,
-        };
+        return jwtToken;
     }
 
     public async Task<SystemUser> AddAsync(SystemUserAddDto dto, List<SystemRole>? roles)
