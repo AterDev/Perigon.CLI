@@ -104,7 +104,7 @@ public class SystemRoleController(
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id)
     {
-        await _manager.DeleteAsync([id], false);
+        await _manager.DeleteOrUpdateAsync([id], false);
         return NoContent();
     }
 }

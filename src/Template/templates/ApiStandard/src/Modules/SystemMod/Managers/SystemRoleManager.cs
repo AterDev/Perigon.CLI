@@ -1,4 +1,3 @@
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemRoleDtos;
 
@@ -27,7 +26,7 @@ public class SystemRoleManager(
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.NameValue, q => q.NameValue == filter.NameValue);
-        return await ToPageAsync<SystemRoleFilterDto, SystemRoleItemDto>(filter);
+        return await PageListAsync<SystemRoleFilterDto, SystemRoleItemDto>(filter);
     }
 
     /// <summary>

@@ -2,7 +2,6 @@ using Ater.AspNetCore.Abstraction;
 using CMSMod.Models.BlogDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
-using Share.Implement;
 
 namespace CMSMod.Managers;
 
@@ -26,7 +25,7 @@ public class BlogManager(
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
             .WhereNotNull(filter.CatalogId, q => q.Catalog.Id == filter.CatalogId);
-        return await ToPageAsync<BlogFilterDto, BlogItemDto>(filter);
+        return await PageListAsync<BlogFilterDto, BlogItemDto>(filter);
     }
 
     public async Task<bool> IsOwnedAsync(Guid id, Guid userId)

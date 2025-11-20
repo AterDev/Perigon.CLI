@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Share.Models.Auth;
 using SystemMod.Models.SystemUserDtos;
@@ -186,7 +185,7 @@ public class SystemUserManager(
         {
             Queryable = Queryable.Where(q => q.SystemRoles.Any(r => r.Id == filter.RoleId));
         }
-        return await ToPageAsync<SystemUserFilterDto, SystemUserItemDto>(filter);
+        return await PageListAsync<SystemUserFilterDto, SystemUserItemDto>(filter);
     }
 
     /// <summary>
@@ -218,7 +217,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public async Task DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
-        await base.DeleteAsync(ids, softDelete);
+        await base.DeleteOrUpdateAsync(ids, softDelete);
     }
 
     /// <summary>

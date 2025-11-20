@@ -19,7 +19,7 @@ public class FilterBase
     }
 
     /// <summary>
-    /// 默认最大1000
+    /// max 10000
     /// </summary>
     public int PageSize
     {
@@ -27,9 +27,9 @@ public class FilterBase
         set
         {
             field = value;
-            if (value > 1000)
+            if (value > 10000)
             {
-                field = 1000;
+                field = 10000;
             }
             if (value < 0)
             {

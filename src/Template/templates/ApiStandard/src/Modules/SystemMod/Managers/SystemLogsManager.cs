@@ -1,4 +1,3 @@
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemLogsDtos;
 
@@ -26,7 +25,7 @@ public class SystemLogsManager(
             var endDate = filter.EndDate.Value.AddDays(1);
             Queryable = Queryable.Between(q => q.CreatedTime, filter.StartDate.Value, endDate);
         }
-        return await ToPageAsync<SystemLogsFilterDto, SystemLogsItemDto>(filter);
+        return await PageListAsync<SystemLogsFilterDto, SystemLogsItemDto>(filter);
     }
 
     /// <summary>

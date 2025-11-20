@@ -27,7 +27,7 @@ public class SystemConfigManager(
             )
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
 
-        return await ToPageAsync<SystemConfigFilterDto, SystemConfigItemDto>(filter);
+        return await PageListAsync<SystemConfigFilterDto, SystemConfigItemDto>(filter);
     }
 
     /// <summary>

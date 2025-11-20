@@ -2,7 +2,8 @@ using Ater.AspNetCore.Abstraction;
 using CMSMod.Models.CatalogDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
-using Share.Implement;
+using Share;
+using Share.Exceptions;
 
 namespace CMSMod.Managers;
 
@@ -15,11 +16,61 @@ public class CatalogManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ArticleCategory>(dbContextFactory, userContext, logger)
 {
-    public async Task<PageList<CatalogItemDto>> ToPageAsync(CatalogFilterDto filter)
+    /// <summary>
+    /// add catalog
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    public async Task<ArticleCategory> AddAsync(CatalogAddDto dto)
     {
-        // TODO:根据实际业务构建筛选条件
-        // if ... Queryable = ...
-        return await ToPageAsync<CatalogFilterDto, CatalogItemDto>(filter);
+        var entity = dto.MapTo<ArticleCategory>();
+        entity.UserId = _userContext.UserId;
+        await InsertAsync(entity);
+        return entity;
+    }
+
+    /// <summary>
+    /// edit catalog
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="BusinessException"></exception>
+    public async Task<int> EditAsync(Guid id, CatalogUpdateDto dto)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            await UpdateAsync(id, dto);
+        }
+        throw new BusinessException(Localizer.NoPermission);
+    }
+
+    public async Task<CatalogDetailDto?> GetAsync(Guid id)
+    {
+        return await FindAsync<CatalogDetailDto>(q => q.Id == id);
+    }
+
+    public async Task<PageList<CatalogItemDto>> FilterAsync(CatalogFilterDto filter)
+    {
+        Queryable = Queryable.WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!));
+        return await PageListAsync<CatalogFilterDto, CatalogItemDto>(filter);
+    }
+
+    public async Task<int> DeleteAsync(Guid id)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            return await DeleteAsync(id);
+        }
+        throw new BusinessException(Localizer.NoPermission);
+    }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q =>
+            q.Id == id && q.UserId == _userContext.UserId && q.TenantId == _userContext.TenantId
+        );
+        return await query.AnyAsync();
     }
 
     /// <summary>
@@ -28,7 +79,7 @@ public class CatalogManager(
     /// <returns></returns>
     public async Task<List<ArticleCategory>> GetTreeAsync()
     {
-        List<ArticleCategory> data = await ToListAsync(null);
+        List<ArticleCategory> data = await ListAsync(null);
         List<ArticleCategory> tree = data.BuildTree();
         return tree;
     }
@@ -46,25 +97,5 @@ public class CatalogManager(
             .Include(c => c.Parent)
             .ToListAsync();
         return source;
-    }
-
-    /// <summary>
-    /// 当前用户所拥有的对象
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    public async Task<ArticleCategory?> GetOwnedAsync(Guid id, Guid userId)
-    {
-        IQueryable<ArticleCategory> query = _dbSet.Where(q => q.Id == id);
-        // 属于当前角色的对象
-        query = query.Where(q => q.UserId == userId);
-        return await query.FirstOrDefaultAsync();
-    }
-
-    public override async Task<bool> HasPermissionAsync(Guid id)
-    {
-        var query = _dbSet.Where(q => q.Id == id && q.UserId == _userContext.UserId);
-        return await query.AnyAsync();
     }
 }

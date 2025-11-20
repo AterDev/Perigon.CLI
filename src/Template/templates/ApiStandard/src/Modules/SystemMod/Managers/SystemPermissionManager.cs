@@ -1,4 +1,3 @@
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemPermissionDtos;
 
@@ -27,7 +26,7 @@ public class SystemPermissionManager(
             .WhereNotNull(filter.PermissionType, q => q.PermissionType == filter.PermissionType)
             .WhereNotNull(filter.GroupId, q => q.Group.Id == filter.GroupId);
 
-        return await ToPageAsync<SystemPermissionFilterDto, SystemPermissionItemDto>(filter);
+        return await PageListAsync<SystemPermissionFilterDto, SystemPermissionItemDto>(filter);
     }
 
     /// <summary>

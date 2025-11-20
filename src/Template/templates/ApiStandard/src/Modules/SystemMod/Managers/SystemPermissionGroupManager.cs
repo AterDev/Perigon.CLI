@@ -14,7 +14,7 @@ public class SystemPermissionGroupManager(
     )
     {
         Queryable = Queryable.WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!));
-        return await ToPageAsync<SystemPermissionGroupFilterDto, SystemPermissionGroupItemDto>(
+        return await PageListAsync<SystemPermissionGroupFilterDto, SystemPermissionGroupItemDto>(
             filter
         );
     }

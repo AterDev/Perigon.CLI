@@ -64,11 +64,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>The DTO if found; otherwise, null.</returns>
-    public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
+    protected async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
         var model = await _dbSet
             .AsNoTracking()
+            .Where(e => e.TenantId == _userContext.TenantId)
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
             .FirstOrDefaultAsync();
@@ -86,41 +87,24 @@ public abstract class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// Checks if any entity matches the given condition.
-    /// </summary>
-    /// <param name="whereExp">Filter expression</param>
-    /// <returns>True if any entity matches; otherwise, false.</returns>
-    public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
-    {
-        return await _dbSet.AnyAsync(whereExp);
-    }
-
-    /// <summary>
     /// Gets a list of DTOs matching the condition without tracking.
     /// </summary>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of DTOs.</returns>
-    public async Task<List<TDto>> ToListAsync<TDto>(
-        Expression<Func<TEntity, bool>>? whereExp = null
+    protected async Task<List<TDto>> ListAsync<TDto>(
+        Expression<Func<TEntity, bool>>? whereExp = null,
+        CancellationToken cancellationToken = default
     )
         where TDto : class
     {
         return await _dbSet
             .AsNoTracking()
+            .Where(e => e.TenantId == _userContext.TenantId)
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
-            .ToListAsync();
-    }
-
-    /// <summary>
-    /// Gets a list of entities matching the condition without tracking.
-    /// </summary>
-    /// <param name="whereExp">Filter expression</param>
-    /// <returns>List of entities.</returns>
-    public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
-    {
-        return await _dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -129,11 +113,16 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <typeparam name="TFilter">Filter type</typeparam>
     /// <typeparam name="TItem">Item type</typeparam>
     /// <param name="filter">Paging and filter information</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paged list of items.</returns>
-    public async Task<PageList<TItem>> ToPageAsync<TFilter, TItem>(TFilter filter)
+    public async Task<PageList<TItem>> PageListAsync<TFilter, TItem>(
+        TFilter filter,
+        CancellationToken cancellationToken = default
+    )
         where TFilter : FilterBase
         where TItem : class
     {
+        Queryable = Queryable.Where(e => e.TenantId == _userContext.TenantId);
         Queryable =
             filter.OrderBy != null && filter.OrderBy.Count > 0
                 ? Queryable.OrderBy(filter.OrderBy)
@@ -145,7 +134,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ProjectToType<TItem>()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         ResetQuery();
         return new PageList<TItem>
@@ -161,7 +150,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <remarks></remarks>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
-    public async Task InsertAsync(TEntity entity)
+    protected async Task InsertAsync(TEntity entity)
     {
         entity.TenantId = _userContext.TenantId;
         await _dbContext.BulkInsertAsync([entity]);
@@ -175,20 +164,27 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="dto"></param>
     /// <param name="updateTime"></param>
     /// <returns></returns>
-    public async Task<int> UpdateAsync<TUpdateDto>(Guid id, TUpdateDto dto, bool updateTime = true)
+    protected async Task<int> UpdateAsync<TUpdateDto>(
+        Guid id,
+        TUpdateDto dto,
+        bool updateTime = true
+    )
         where TUpdateDto : class
     {
         return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(id, dto, updateTime);
     }
 
-    public async Task BulkInsertAsync(IEnumerable<TEntity> entities)
+    protected async Task BulkInsertAsync(
+        IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = default
+    )
     {
         foreach (TEntity entity in entities)
         {
             entity.TenantId = _userContext.TenantId;
             entity.UpdatedTime = DateTime.UtcNow;
         }
-        await _dbContext.BulkInsertAsync(entities);
+        await _dbContext.BulkInsertAsync(entities, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -196,8 +192,13 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="ids">List of entity ids</param>
     /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<int> DeleteAsync(IEnumerable<Guid> ids, bool softDelete = true)
+    protected async Task<int> DeleteOrUpdateAsync(
+        IEnumerable<Guid> ids,
+        bool softDelete = true,
+        CancellationToken cancellationToken = default
+    )
     {
         var idsList = ids.ToList();
         if (idsList.Count == 0)
@@ -208,8 +209,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
         var res = softDelete
             ? await _dbSet
                 .Where(d => idsList.Contains(d.Id))
-                .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
-            : await _dbSet.Where(d => idsList.Contains(d.Id)).ExecuteDeleteAsync();
+                .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true), cancellationToken)
+            : await _dbSet.Where(d => idsList.Contains(d.Id)).ExecuteDeleteAsync(cancellationToken);
         return res;
     }
 
@@ -220,7 +221,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="entity">Entity instance</param>
     /// <param name="propertyExpression">Navigation property expression</param>
     /// <returns>Task representing the asynchronous operation.</returns>
-    public async Task LoadAsync<TProperty>(
+    protected async Task LoadAsync<TProperty>(
         TEntity entity,
         Expression<Func<TEntity, TProperty?>> propertyExpression
     )
@@ -249,7 +250,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="entity">Entity instance</param>
     /// <param name="propertyExpression">Collection property expression</param>
     /// <returns>Task representing the asynchronous operation.</returns>
-    public async Task LoadManyAsync<TProperty>(
+    protected async Task LoadManyAsync<TProperty>(
         TEntity entity,
         Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression
     )
@@ -272,31 +273,26 @@ public abstract class ManagerBase<TDbContext, TEntity>
     }
 
     /// <summary>
-    /// Saves changes to the database asynchronously.
-    /// </summary>
-    /// <returns>The number of state entries written to the database.</returns>
-    protected async Task<int> SaveChangesAsync()
-    {
-        return await _dbContext.SaveChangesAsync();
-    }
-
-    /// <summary>
     /// 执行事务操作
     /// </summary>
     /// <param name="operation">要执行的操作</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns></returns>
-    protected async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> operation)
+    protected async Task<T> ExecuteInTransactionAsync<T>(
+        Func<Task<T>> operation,
+        CancellationToken cancellationToken = default
+    )
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
             var result = await operation();
-            await transaction.CommitAsync();
+            await transaction.CommitAsync(cancellationToken);
             return result;
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
             _logger.LogError(ex, "执行事务操作时发生错误");
             throw;
         }
@@ -306,24 +302,28 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// 执行事务操作 (无返回值)
     /// </summary>
     /// <param name="operation">要执行的操作</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns></returns>
-    protected async Task ExecuteInTransactionAsync(Func<Task> operation)
+    protected async Task ExecuteInTransactionAsync(
+        Func<Task> operation,
+        CancellationToken cancellationToken = default
+    )
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
             await operation();
-            await transaction.CommitAsync();
+            await transaction.CommitAsync(cancellationToken);
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
             _logger.LogError(ex, "执行事务操作时发生错误");
             throw;
         }
     }
 
-    public abstract Task<bool> HasPermissionAsync(Guid id);
+    protected abstract Task<bool> HasPermissionAsync(Guid id);
 
     /// <summary>
     /// Resets the queryable to its default state, applying or ignoring global query filters.

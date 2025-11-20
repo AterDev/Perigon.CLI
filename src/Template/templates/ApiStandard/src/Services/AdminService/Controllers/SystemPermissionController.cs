@@ -107,6 +107,6 @@ public class SystemPermissionController(
     {
         // 注意删除权限
         SystemPermission? entity = await _manager.GetSystemPermissionAsync(id);
-        return entity == null ? NotFound() : await _manager.DeleteAsync([id], false) > 0;
+        return entity == null ? NotFound() : await _manager.DeleteOrUpdateAsync([id], false) > 0;
     }
 }

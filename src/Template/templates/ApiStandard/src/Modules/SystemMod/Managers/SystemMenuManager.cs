@@ -164,7 +164,7 @@ public class SystemMenuManager(
         return new PageList<SystemMenu>() { Data = menus, PageIndex = filter.PageIndex };
     }
 
-    public async Task<bool> RemoveAsync(IEnumerable<Guid> ids, bool isDelete = false)
+    public async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool isDelete = false)
     {
         if (!ids.Any())
         {
@@ -176,7 +176,7 @@ public class SystemMenuManager(
             Guid id = ids.First();
             if (await HasPermissionAsync(id))
             {
-                return await DeleteAsync(ids, !isDelete) > 0;
+                return await DeleteOrUpdateAsync(ids, !isDelete) > 0;
             }
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
@@ -185,7 +185,7 @@ public class SystemMenuManager(
             var ownedIds = await GetOwnedIdsAsync(ids);
             if (ownedIds.Any())
             {
-                return await DeleteAsync(ownedIds, !isDelete) > 0;
+                return await DeleteOrUpdateAsync(ownedIds, !isDelete) > 0;
             }
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
@@ -196,7 +196,7 @@ public class SystemMenuManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public override async Task<bool> HasPermissionAsync(Guid id)
+    protected override async Task<bool> HasPermissionAsync(Guid id)
     {
         var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         // TODO: other conditions
