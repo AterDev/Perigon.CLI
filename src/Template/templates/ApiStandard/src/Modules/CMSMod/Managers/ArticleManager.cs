@@ -1,5 +1,5 @@
 using Ater.AspNetCore.Abstraction;
-using CMSMod.Models.BlogDtos;
+using CMSMod.Models.ArticleDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 
@@ -8,13 +8,13 @@ namespace CMSMod.Managers;
 /// <summary>
 /// 博客
 /// </summary>
-public class BlogManager(
+public class ArticleManager(
     TenantDbFactory dbContextFactory,
-    ILogger<BlogManager> logger,
+    ILogger<ArticleManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Article>(dbContextFactory, userContext, logger)
 {
-    public async Task<PageList<BlogItemDto>> ToPageAsync(BlogFilterDto filter)
+    public async Task<PageList<ArticleItemDto>> ToPageAsync(ArticleFilterDto filter)
     {
         Queryable = Queryable
             .WhereNotNull(filter.Title, q => q.Title == filter.Title)
@@ -25,7 +25,7 @@ public class BlogManager(
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
             .WhereNotNull(filter.CatalogId, q => q.Catalog.Id == filter.CatalogId);
-        return await PageListAsync<BlogFilterDto, BlogItemDto>(filter);
+        return await PageListAsync<ArticleFilterDto, ArticleItemDto>(filter);
     }
 
     public async Task<bool> IsOwnedAsync(Guid id, Guid userId)

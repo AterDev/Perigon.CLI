@@ -1,10 +1,10 @@
-namespace CMSMod.Models.CatalogDtos;
+namespace CMSMod.Models.ArticleCategoryDtos;
 
 /// <summary>
 /// 目录添加时请求结构
 /// </summary>
 /// <inheritdoc cref="ArticleCategory"/>
-public class CatalogAddDto
+public class ArticleCategoryAddDto
 {
     /// <summary>
     /// 目录名称

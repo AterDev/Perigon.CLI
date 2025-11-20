@@ -92,7 +92,7 @@ public class SystemRoleController(
     [HttpGet("{id}")]
     public async Task<ActionResult<SystemRoleDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
-        var res = await _manager.FindAsync<SystemRoleDetailDto>(d => d.Id == id);
+        var res = await _manager.GetAsync(id);
         return res == null ? NotFound() : res;
     }
 
@@ -104,7 +104,7 @@ public class SystemRoleController(
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id)
     {
-        await _manager.DeleteOrUpdateAsync([id], false);
+        await _manager.DeleteAsync(id);
         return NoContent();
     }
 }

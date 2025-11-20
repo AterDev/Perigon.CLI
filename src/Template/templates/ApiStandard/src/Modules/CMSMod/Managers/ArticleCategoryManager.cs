@@ -1,5 +1,5 @@
 using Ater.AspNetCore.Abstraction;
-using CMSMod.Models.CatalogDtos;
+using CMSMod.Models.ArticleCategoryDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Share;
@@ -10,9 +10,9 @@ namespace CMSMod.Managers;
 /// <summary>
 /// 目录管理
 /// </summary>
-public class CatalogManager(
+public class ArticleCategoryManager(
     TenantDbFactory dbContextFactory,
-    ILogger<BlogManager> logger,
+    ILogger<ArticleManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ArticleCategory>(dbContextFactory, userContext, logger)
 {
@@ -21,7 +21,7 @@ public class CatalogManager(
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<ArticleCategory> AddAsync(CatalogAddDto dto)
+    public async Task<ArticleCategory> AddAsync(ArticleCategoryAddDto dto)
     {
         var entity = dto.MapTo<ArticleCategory>();
         entity.UserId = _userContext.UserId;
@@ -36,7 +36,7 @@ public class CatalogManager(
     /// <param name="dto"></param>
     /// <returns></returns>
     /// <exception cref="BusinessException"></exception>
-    public async Task<int> EditAsync(Guid id, CatalogUpdateDto dto)
+    public async Task<int> EditAsync(Guid id, ArticleCategoryUpdateDto dto)
     {
         if (await HasPermissionAsync(id))
         {
@@ -45,15 +45,15 @@ public class CatalogManager(
         throw new BusinessException(Localizer.NoPermission);
     }
 
-    public async Task<CatalogDetailDto?> GetAsync(Guid id)
+    public async Task<ArticleCategoryDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync<CatalogDetailDto>(q => q.Id == id);
+        return await FindAsync<ArticleCategoryDetailDto>(q => q.Id == id);
     }
 
-    public async Task<PageList<CatalogItemDto>> FilterAsync(CatalogFilterDto filter)
+    public async Task<PageList<ArticleCategoryItemDto>> FilterAsync(ArticleCategoryFilterDto filter)
     {
         Queryable = Queryable.WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!));
-        return await PageListAsync<CatalogFilterDto, CatalogItemDto>(filter);
+        return await PageListAsync<ArticleCategoryFilterDto, ArticleCategoryItemDto>(filter);
     }
 
     public async Task<int> DeleteAsync(Guid id)
@@ -79,7 +79,7 @@ public class CatalogManager(
     /// <returns></returns>
     public async Task<List<ArticleCategory>> GetTreeAsync()
     {
-        List<ArticleCategory> data = await ListAsync(null);
+        List<ArticleCategory> data = await ListAsync<ArticleCategory>(null);
         List<ArticleCategory> tree = data.BuildTree();
         return tree;
     }

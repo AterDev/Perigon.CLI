@@ -159,7 +159,7 @@ public class SystemUserManager(
         user.PasswordSalt = HashCrypto.BuildSalt();
         user.PasswordHash = HashCrypto.GeneratePwd(newPassword, user.PasswordSalt);
         _dbSet.Update(user);
-        return await SaveChangesAsync() > 0;
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<PageList<SystemUserItemDto>> ToPageAsync(SystemUserFilterDto filter)
@@ -247,12 +247,10 @@ public class SystemUserManager(
             .FirstOrDefaultAsync();
     }
 
-    public async Task<SystemUser?> FindByUserNameAsync(string userName)
+    // expose DTO getter for controllers
+    public async Task<SystemUserDetailDto?> GetAsync(Guid id)
     {
-        return await _dbSet
-            .Where(u => u.UserName.Equals(userName))
-            .Include(u => u.SystemRoles)
-            .SingleOrDefaultAsync();
+        return await FindAsync<SystemUserDetailDto>(d => d.Id == id);
     }
 
     public async Task<AuthResult> LoginAsync(

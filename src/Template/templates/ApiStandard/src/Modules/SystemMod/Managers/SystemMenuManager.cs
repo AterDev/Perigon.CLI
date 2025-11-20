@@ -84,7 +84,7 @@ public class SystemMenuManager(
                 await _dbSet.AddAsync(menu);
             }
         }
-        return await SaveChangesAsync() > 0;
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ public class SystemMenuManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    protected override async Task<bool> HasPermissionAsync(Guid id)
+    public override async Task<bool> HasPermissionAsync(Guid id)
     {
         var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         // TODO: other conditions

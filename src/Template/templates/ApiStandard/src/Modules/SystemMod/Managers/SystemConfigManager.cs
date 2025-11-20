@@ -18,18 +18,6 @@ public class SystemConfigManager(
     private readonly IConfiguration _configuration = configuration;
     private readonly CacheService _cache = cache;
 
-    public async Task<PageList<SystemConfigItemDto>> ToPageAsync(SystemConfigFilterDto filter)
-    {
-        Queryable = Queryable
-            .WhereNotNull(
-                filter.Key,
-                q => q.Key.Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase)
-            )
-            .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
-
-        return await PageListAsync<SystemConfigFilterDto, SystemConfigItemDto>(filter);
-    }
-
     /// <summary>
     /// 获取枚举信息
     /// </summary>
@@ -85,8 +73,67 @@ public class SystemConfigManager(
         return policy ?? new LoginSecurityPolicyOption();
     }
 
+    /// <summary>
+    /// Add system config
+    /// </summary>
+    public async Task<SystemConfig> AddAsync(SystemConfigAddDto dto)
+    {
+        var entity = dto.MapTo<SystemConfig>();
+        await InsertAsync(entity);
+        return entity;
+    }
+
+    /// <summary>
+    /// Edit system config
+    /// </summary>
+    public async Task<int> EditAsync(Guid id, SystemConfigUpdateDto dto)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            return await UpdateAsync(id, dto);
+        }
+        throw new BusinessException(Localizer.NoPermission);
+    }
+
+    /// <summary>
+    /// Get detail
+    /// </summary>
+    public async Task<SystemConfigDetailDto?> GetAsync(Guid id)
+    {
+        return await FindAsync<SystemConfigDetailDto>(c => c.Id == id);
+    }
+
+    /// <summary>
+    /// Filter (pagination)
+    /// </summary>
+    public async Task<PageList<SystemConfigItemDto>> FilterAsync(SystemConfigFilterDto filter)
+    {
+        Queryable = Queryable
+            .WhereNotNull(
+                filter.Key,
+                q => q.Key.Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase)
+            )
+            .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
+
+        return await PageListAsync<SystemConfigFilterDto, SystemConfigItemDto>(filter);
+    }
+
+    /// <summary>
+    /// Delete
+    /// </summary>
+    public async Task<int> DeleteAsync(Guid id)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            return await DeleteOrUpdateAsync([id], false);
+        }
+        throw new BusinessException(Localizer.NoPermission);
+    }
+
     public override Task<bool> HasPermissionAsync(Guid id)
     {
-        throw new NotImplementedException();
+        // allow if exists in tenant
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        return query.AnyAsync();
     }
 }

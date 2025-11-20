@@ -323,7 +323,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         }
     }
 
-    protected abstract Task<bool> HasPermissionAsync(Guid id);
+    public abstract Task<bool> HasPermissionAsync(Guid id);
 
     /// <summary>
     /// Resets the queryable to its default state, applying or ignoring global query filters.

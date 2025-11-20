@@ -1,16 +1,16 @@
-namespace CMSMod.Models.BlogDtos;
+namespace CMSMod.Models.ArticleDtos;
 
 /// <summary>
-/// 博客列表元素
+/// 博客查询筛选
 /// </summary>
 /// <inheritdoc cref="Article"/>
-public class BlogItemDto
+public class ArticleFilterDto : FilterBase
 {
     /// <summary>
     /// 标题
     /// </summary>
     [MaxLength(100)]
-    public string Title { get; set; } = default!;
+    public string? Title { get; set; }
 
     /// <summary>
     /// 描述
@@ -22,7 +22,7 @@ public class BlogItemDto
     /// 作者
     /// </summary>
     [MaxLength(200)]
-    public string Authors { get; set; } = default!;
+    public string? Authors { get; set; }
 
     /// <summary>
     /// 标题
@@ -33,35 +33,32 @@ public class BlogItemDto
     /// <summary>
     /// 语言类型
     /// </summary>
-    public LanguageType LanguageType { get; set; } = LanguageType.CN;
+    public LanguageType? LanguageType { get; set; }
 
     /// <summary>
     /// 全站类别
     /// </summary>
-    public ContentType BlogType { get; set; }
+    public ContentType? BlogType { get; set; }
 
     /// <summary>
     /// 是否审核
     /// </summary>
-    public bool IsAudit { get; set; }
+    public bool? IsAudit { get; set; }
 
     /// <summary>
     /// 是否公开
     /// </summary>
-    public bool IsPublic { get; set; } = true;
+    public bool? IsPublic { get; set; }
 
     /// <summary>
     /// 是否原创
     /// </summary>
-    public bool IsOriginal { get; set; }
-    public Guid UserId { get; set; }
-    public Guid CatalogId { get; set; }
+    public bool? IsOriginal { get; set; }
+    public Guid? UserId { get; set; }
+    public Guid? CatalogId { get; set; }
 
     /// <summary>
     /// 浏览量
     /// </summary>
-    public int ViewCount { get; set; }
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
-    public DateTimeOffset UpdatedTime { get; set; } = DateTimeOffset.UtcNow;
+    public int? ViewCount { get; set; }
 }

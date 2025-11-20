@@ -1,5 +1,6 @@
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemRoleDtos;
+using System.Linq.Expressions;
 
 namespace SystemMod.Managers;
 
@@ -162,5 +163,24 @@ public class SystemRoleManager(
     {
         var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         return await query.AnyAsync();
+    }
+
+    public async Task<List<SystemRole>> ListAsync(Expression<Func<SystemRole, bool>>? whereExp = null)
+    {
+        return await _dbContext.SystemRoles.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+    }
+
+    public async Task<SystemRoleDetailDto?> GetAsync(Guid id)
+    {
+        return await FindAsync<SystemRoleDetailDto>(d => d.Id == id);
+    }
+
+    public async Task<int> DeleteAsync(Guid id)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            return await DeleteOrUpdateAsync([id], false);
+        }
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 }

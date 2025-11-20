@@ -1,10 +1,10 @@
-namespace CMSMod.Models.BlogDtos;
+namespace CMSMod.Models.ArticleDtos;
 
 /// <summary>
-/// 博客概要
+/// 博客列表元素
 /// </summary>
 /// <inheritdoc cref="Article"/>
-public class BlogDetailDto
+public class ArticleItemDto
 {
     /// <summary>
     /// 标题
@@ -55,11 +55,6 @@ public class BlogDetailDto
     /// </summary>
     public bool IsOriginal { get; set; }
     public Guid UserId { get; set; }
-
-    /// <summary>
-    /// 所属目录
-    /// </summary>
-    public ArticleCategory Catalog { get; set; } = default!;
     public Guid CatalogId { get; set; }
 
     /// <summary>

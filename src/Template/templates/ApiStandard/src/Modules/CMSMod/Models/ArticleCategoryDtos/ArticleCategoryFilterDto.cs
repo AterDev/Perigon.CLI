@@ -1,10 +1,10 @@
-namespace CMSMod.Models.CatalogDtos;
+namespace CMSMod.Models.ArticleCategoryDtos;
 
 /// <summary>
 /// 目录查询筛选
 /// </summary>
 /// <inheritdoc cref="ArticleCategory"/>
-public class CatalogFilterDto : FilterBase
+public class ArticleCategoryFilterDto : FilterBase
 {
     /// <summary>
     /// 目录名称

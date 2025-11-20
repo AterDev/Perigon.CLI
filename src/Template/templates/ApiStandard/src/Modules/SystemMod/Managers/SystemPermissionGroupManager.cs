@@ -9,7 +9,7 @@ public class SystemPermissionGroupManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemPermissionGroup>(dbContextFactory, userContext, logger)
 {
-    public async Task<PageList<SystemPermissionGroupItemDto>> ToPageAsync(
+    public async Task<PageList<SystemPermissionGroupItemDto>> FilterAsync(
         SystemPermissionGroupFilterDto filter
     )
     {
@@ -41,6 +41,39 @@ public class SystemPermissionGroupManager(
 
     public override Task<bool> HasPermissionAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        return query.AnyAsync();
+    }
+
+    // --- New API style methods (Create/Add, Edit, Get, Filter, Delete) ---
+    public async Task<SystemPermissionGroup> AddAsync(SystemPermissionGroupAddDto dto)
+    {
+        var entity = dto.MapTo<SystemPermissionGroup>();
+        await InsertAsync(entity);
+        return entity;
+    }
+
+    public async Task<int> EditAsync(Guid id, SystemPermissionGroupUpdateDto dto)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            return await UpdateAsync(id, dto);
+        }
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+    }
+
+    public async Task<SystemPermissionGroupDetailDto?> GetAsync(Guid id)
+    {
+        return await FindAsync<SystemPermissionGroupDetailDto>(d => d.Id == id);
+    }
+
+    public async Task<int> DeleteAsync(Guid id)
+    {
+        var entity = await GetOwnedAsync(id);
+        if (entity == null)
+        {
+            return 0;
+        }
+        return await DeleteOrUpdateAsync([id]) ;
     }
 }

@@ -17,7 +17,7 @@ public class SystemPermissionManager(
         return _dbSet.Where(p => p.Id == id).Include(p => p.Group).FirstOrDefaultAsync();
     }
 
-    public async Task<PageList<SystemPermissionItemDto>> ToPageAsync(
+    public async Task<PageList<SystemPermissionItemDto>> FilterAsync(
         SystemPermissionFilterDto filter
     )
     {
@@ -29,21 +29,60 @@ public class SystemPermissionManager(
         return await PageListAsync<SystemPermissionFilterDto, SystemPermissionItemDto>(filter);
     }
 
-    /// <summary>
-    /// 当前用户所拥有的对象
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public async Task<SystemPermission?> GetOwnedAsync(Guid id)
-    {
-        IQueryable<SystemPermission> query = _dbSet.Where(q => q.Id == id);
-        // 获取用户所属的对象
-        return await query.FirstOrDefaultAsync();
-    }
-
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
         var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         return await query.AnyAsync();
+    }
+
+    // New business methods
+    public async Task<SystemPermission> AddAsync(SystemPermissionAddDto dto)
+    {
+        var entity = dto.MapTo<SystemPermission>();
+        entity.GroupId = dto.SystemPermissionGroupId;
+        await InsertAsync(entity);
+        return entity;
+    }
+
+    public async Task<int> EditAsync(Guid id, SystemPermissionUpdateDto dto)
+    {
+        // load current entity to handle group change
+        var current = await _dbSet.Where(q => q.Id == id).Include(q => q.Group).FirstOrDefaultAsync();
+        if (current == null)
+        {
+            throw new BusinessException(Localizer.NotFoundResource);
+        }
+
+        if (!await HasPermissionAsync(id))
+        {
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+        }
+
+        if (dto.SystemPermissionGroupId != null && (current.Group == null || current.Group.Id != dto.SystemPermissionGroupId.Value))
+        {
+            var group = await _dbContext.SystemPermissionGroups.FindAsync(dto.SystemPermissionGroupId.Value);
+            if (group == null)
+            {
+                throw new BusinessException(Localizer.NotFoundResource);
+            }
+            current.Group = group;
+        }
+
+        // apply updates via partial update
+        return await UpdateAsync(id, dto);
+    }
+
+    public async Task<SystemPermissionDetailDto?> GetAsync(Guid id)
+    {
+        return await FindAsync<SystemPermissionDetailDto>(d => d.Id == id);
+    }
+
+    public async Task<int> DeleteAsync(Guid id)
+    {
+        if (await HasPermissionAsync(id))
+        {
+            return await DeleteOrUpdateAsync([id], false);
+        }
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 }

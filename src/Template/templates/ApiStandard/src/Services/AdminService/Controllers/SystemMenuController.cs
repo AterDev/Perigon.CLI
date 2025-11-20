@@ -75,12 +75,7 @@ public class SystemMenuController(
             }
         }
 
-        SystemMenu entity = dto.MapTo<SystemMenu>();
-        if (dto.ParentId != null)
-        {
-            entity.ParentId = dto.ParentId.Value;
-        }
-        await _manager.InsertAsync(entity);
+        var entity = await _manager.AddAsync(dto);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -99,8 +94,7 @@ public class SystemMenuController(
             return NotFound(Localizer.NotFoundResource);
         }
 
-        current.Merge(dto);
-        await _manager.InsertAsync(current);
+        await _manager.EditAsync(id, dto);
         return true;
     }
 

@@ -24,7 +24,7 @@ public class SystemConfigController(
         SystemConfigFilterDto filter
     )
     {
-        return await _manager.ToPageAsync(filter);
+        return await _manager.FilterAsync(filter);
     }
 
     /// <summary>
@@ -45,8 +45,7 @@ public class SystemConfigController(
     [HttpPost]
     public async Task<ActionResult<SystemConfig>> AddAsync(SystemConfigAddDto dto)
     {
-        SystemConfig entity = dto.MapTo<SystemConfig>();
-        await _manager.InsertAsync(entity);
+        var entity = await _manager.AddAsync(dto);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
     }
 
@@ -62,14 +61,8 @@ public class SystemConfigController(
         SystemConfigUpdateDto dto
     )
     {
-        SystemConfig? current = await _manager.FindAsync(id);
-        if (current == null)
-        {
-            return NotFound(Localizer.NotFoundResource);
-        }
-
-        current.Merge(dto);
-        await _manager.InsertAsync(current);
+        // Use manager to perform edit which includes permission check
+        await _manager.EditAsync(id, dto);
         return true;
     }
 
@@ -81,7 +74,7 @@ public class SystemConfigController(
     [HttpGet("{id}")]
     public async Task<ActionResult<SystemConfigDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
-        var res = await _manager.FindAsync<SystemConfigDetailDto>(c => c.Id == id);
+        var res = await _manager.GetAsync(id);
         return res == null ? NotFound() : res;
     }
 
@@ -94,14 +87,18 @@ public class SystemConfigController(
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         // 注意删除权限
-        SystemConfig? entity = await _manager.FindAsync(id);
+        var entity = await _manager.GetOwnedAsync(id);
         if (entity == null)
         {
             return NotFound();
         }
 
-        return entity.IsSystem
-            ? Problem("系统配置，无法删除!")
-            : await _manager.DeleteOrUpdateAsync([id], false) > 0;
+        if (entity.IsSystem)
+        {
+            return Problem("系统配置，无法删除!");
+        }
+
+        var deleted = await _manager.DeleteAsync(id);
+        return deleted > 0;
     }
 }

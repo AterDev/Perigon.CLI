@@ -1,16 +1,16 @@
-namespace CMSMod.Models.BlogDtos;
+namespace CMSMod.Models.ArticleDtos;
 
 /// <summary>
-/// 博客查询筛选
+/// 博客更新时请求结构
 /// </summary>
 /// <inheritdoc cref="Article"/>
-public class BlogFilterDto : FilterBase
+public class ArticleUpdateDto
 {
     /// <summary>
     /// 标题
     /// </summary>
     [MaxLength(100)]
-    public string? Title { get; set; }
+    public string Title { get; set; } = default!;
 
     /// <summary>
     /// 描述
@@ -19,16 +19,28 @@ public class BlogFilterDto : FilterBase
     public string? Description { get; set; }
 
     /// <summary>
+    /// 内容
+    /// </summary>
+    [MaxLength(10000)]
+    public string Content { get; set; } = default!;
+
+    /// <summary>
     /// 作者
     /// </summary>
     [MaxLength(200)]
-    public string? Authors { get; set; }
+    public string Authors { get; set; } = default!;
 
     /// <summary>
     /// 标题
     /// </summary>
     [MaxLength(200)]
     public string? TranslateTitle { get; set; }
+
+    /// <summary>
+    /// 翻译内容
+    /// </summary>
+    [MaxLength(12000)]
+    public string? TranslateContent { get; set; }
 
     /// <summary>
     /// 语言类型
