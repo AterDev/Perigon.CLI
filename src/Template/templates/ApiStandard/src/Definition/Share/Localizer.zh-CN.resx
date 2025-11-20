@@ -218,4 +218,7 @@
   <data name="NoPermission" xml:space="preserve">
     <value>没有操作权限</value>
   </data>
+  <data name="TenantNotExist" xml:space="preserve">
+    <value>租户不存在</value>
+  </data>
 </root>

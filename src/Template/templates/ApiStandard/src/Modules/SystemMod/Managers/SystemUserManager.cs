@@ -255,6 +255,10 @@ public class SystemUserManager(
 
     public async Task<AccessTokenDto> LoginAsync(SystemLoginDto dto, string client)
     {
+        var domain = dto.Email.Split("@").Last();
+        var tenant = await _dbContext.Tenants.Where(t => t.Domain == domain)
+            .FirstOrDefaultAsync() ?? throw new BusinessException(Localizer.TenantNotExist);
+
         // 查询用户
         var user = await _dbSet.Where(u => u.Email == dto.Email)
             .Include(u => u.SystemRoles)
@@ -263,56 +267,49 @@ public class SystemUserManager(
         {
             throw new BusinessException(Localizer.UserNotExists);
         }
-
-        var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
-
+        user.LastLoginTime = DateTimeOffset.UtcNow;
         try
         {
+            var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
             await ValidateLoginAsync(dto, user, loginPolicy);
-        }
-        catch (BusinessException)
-        {
+            AccessTokenDto jwtToken = GenerateJwtToken(user);
+            if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
+            {
+                client = WebConst.AllPlatform;
+            }
+            var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
+
+            var expiredSeconds =
+                loginPolicy.SessionExpiredSeconds == 0
+                    ? jwtToken.ExpiresIn
+                    : loginPolicy.SessionExpiredSeconds;
+
+            // 缓存
+            await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
+            await _cache.SetValueAsync(
+                jwtToken.RefreshToken,
+                user.Id.ToString(),
+                jwtToken.RefreshExpiresIn
+            );
+
             await _logService.NewLog(
                 Localizer.LoginAction,
                 UserActionType.Login,
-                Localizer.LoginFailed,
+                Localizer.LoginSuccess,
                 user.UserName,
                 user.Id
             );
+
+            return jwtToken;
+        }
+        catch (Exception)
+        {
             throw;
         }
-
-        user.LastLoginTime = DateTimeOffset.UtcNow;
-        AccessTokenDto jwtToken = GenerateJwtToken(user);
-
-        if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
+        finally
         {
-            client = WebConst.AllPlatform;
+            await _dbContext.SaveChangesAsync();
         }
-        var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
-
-        var expiredSeconds =
-            loginPolicy.SessionExpiredSeconds == 0
-                ? jwtToken.ExpiresIn
-                : loginPolicy.SessionExpiredSeconds;
-
-        // 缓存
-        await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
-        await _cache.SetValueAsync(
-            jwtToken.RefreshToken,
-            user.Id.ToString(),
-            jwtToken.RefreshExpiresIn
-        );
-
-        await _logService.NewLog(
-            Localizer.LoginAction,
-            UserActionType.Login,
-            Localizer.LoginSuccess,
-            user.UserName,
-            user.Id
-        );
-
-        return jwtToken;
     }
 
     public async Task<SystemUser> AddAsync(SystemUserAddDto dto, List<SystemRole>? roles)
