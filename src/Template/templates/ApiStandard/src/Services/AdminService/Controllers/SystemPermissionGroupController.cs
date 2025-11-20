@@ -85,6 +85,6 @@ public class SystemPermissionGroupController(
     {
         // 注意删除权限
         SystemPermissionGroup? entity = await _manager.GetGroupAsync(id);
-        return entity == null ? NotFound() : await _manager.DeleteAsync([id]);
+        return entity == null ? NotFound() : await _manager.DeleteAsync([id]) > 0;
     }
 }

@@ -13,12 +13,12 @@ namespace AdminService.Controllers;
 /// </summary>
 public class SystemUserController(
     Localizer localizer,
-    IUserContext user,
-    ILogger<SystemUserController> logger,
-    SystemUserManager manager,
     SystemConfigManager systemConfig,
     CacheService cache,
-    SystemRoleManager roleManager
+    SystemRoleManager roleManager,
+    SystemUserManager manager,
+    IUserContext user,
+    ILogger<SystemUserController> logger
 ) : RestControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
@@ -95,7 +95,7 @@ public class SystemUserController(
             }
 
             // 获取client
-            var client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+            var client = HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
 
             var result = await _manager.LoginAsync(dto, menus, permissionGroups, client);
             return result;
@@ -130,7 +130,7 @@ public class SystemUserController(
         // 更新缓存
         var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
 
-        var client = Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+        var client = HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
         if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
         {
             client = WebConst.AllPlatform;
@@ -239,9 +239,7 @@ public class SystemUserController(
     [HttpGet("{id}")]
     public async Task<ActionResult<SystemUserDetailDto?>> GetDetailAsync([FromRoute] Guid id)
     {
-        var res = _user.IsRole(WebConst.SuperAdmin)
-            ? await _manager.FindAsync<SystemUserDetailDto>(u => u.Id == id)
-            : await _manager.FindAsync<SystemUserDetailDto>(u => u.Id == _user.UserId);
+        var res = await _manager.FindAsync<SystemUserDetailDto>(d => d.Id == id);
         return res == null ? NotFound() : res;
     }
 

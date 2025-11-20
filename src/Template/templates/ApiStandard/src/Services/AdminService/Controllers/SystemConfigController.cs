@@ -102,6 +102,6 @@ public class SystemConfigController(
 
         return entity.IsSystem
             ? Problem("系统配置，无法删除!")
-            : await _manager.DeleteAsync([id], false);
+            : await _manager.DeleteAsync([id], false) > 0;
     }
 }

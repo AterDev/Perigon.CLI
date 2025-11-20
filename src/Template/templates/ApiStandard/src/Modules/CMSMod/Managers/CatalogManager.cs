@@ -61,4 +61,10 @@ public class CatalogManager(
         query = query.Where(q => q.UserId == userId);
         return await query.FirstOrDefaultAsync();
     }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q => q.Id == id && q.UserId == _userContext.UserId);
+        return await query.AnyAsync();
+    }
 }

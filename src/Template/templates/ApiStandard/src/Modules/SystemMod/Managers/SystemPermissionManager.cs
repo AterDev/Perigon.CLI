@@ -13,7 +13,7 @@ public class SystemPermissionManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemPermission>(dbContextFactory, userContext, logger)
 {
-    public override Task<SystemPermission?> FindAsync(Guid id)
+    public Task<SystemPermission?> GetSystemPermissionAsync(Guid id)
     {
         return _dbSet.Where(p => p.Id == id).Include(p => p.Group).FirstOrDefaultAsync();
     }
@@ -40,5 +40,11 @@ public class SystemPermissionManager(
         IQueryable<SystemPermission> query = _dbSet.Where(q => q.Id == id);
         // 获取用户所属的对象
         return await query.FirstOrDefaultAsync();
+    }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        return await query.AnyAsync();
     }
 }

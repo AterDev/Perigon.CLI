@@ -81,4 +81,10 @@ public class SystemUserRoleManager(
             .AsNoTracking()
             .AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
     }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q => q.Id == id).Join(_dbContext.SystemUsers, ur => ur.UserId, u => u.Id, (ur, u) => u).Where(u => u.TenantId == _userContext.TenantId);
+        return await query.AnyAsync();
+    }
 }

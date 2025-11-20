@@ -158,4 +158,10 @@ public class SystemRoleManager(
             return current;
         });
     }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        return await query.AnyAsync();
+    }
 }

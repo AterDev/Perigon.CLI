@@ -240,7 +240,7 @@ public class SystemUserManager(
         return Regex.IsMatch(password, pwdReg);
     }
 
-    public override async Task<SystemUser?> FindAsync(Guid id)
+    public async Task<SystemUser?> GetSystemUserAsync(Guid id)
     {
         return await Queryable
             .Where(q => q.Id == id)
@@ -410,5 +410,11 @@ public class SystemUserManager(
     {
         // 超级管理员可以修改所有用户，普通用户只能修改自己
         return _userContext.IsRole(WebConst.SuperAdmin) || _userContext.UserId == user.Id;
+    }
+
+    public override async Task<bool> HasPermissionAsync(Guid id)
+    {
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        return await query.AnyAsync();
     }
 }
