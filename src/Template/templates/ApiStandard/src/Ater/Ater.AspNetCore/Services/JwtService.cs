@@ -72,7 +72,7 @@ public class JwtService(IOptions<JwtOption> options)
     public static string GetRefreshToken()
     {
         var guid = Guid.CreateVersion7().ToString("N");
-        return guid + HashCrypto.GetRnd(32, useLow: true);
+        return guid + HashCrypto.GetRandom(32, useLow: true);
     }
 
     /// <summary>

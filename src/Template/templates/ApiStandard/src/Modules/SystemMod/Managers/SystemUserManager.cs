@@ -32,7 +32,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public static string GetCaptcha(int length = 6)
     {
-        return HashCrypto.GetRnd(length);
+        return HashCrypto.GetRandom(length);
     }
 
     /// <summary>
@@ -256,11 +256,13 @@ public class SystemUserManager(
     public async Task<AccessTokenDto> LoginAsync(SystemLoginDto dto, string client)
     {
         var domain = dto.Email.Split("@").Last();
-        var tenant = await _dbContext.Tenants.Where(t => t.Domain == domain)
-            .FirstOrDefaultAsync() ?? throw new BusinessException(Localizer.TenantNotExist);
+        var tenant =
+            await _dbContext.Tenants.Where(t => t.Domain == domain).FirstOrDefaultAsync()
+            ?? throw new BusinessException(Localizer.TenantNotExist);
 
         // 查询用户
-        var user = await _dbSet.Where(u => u.Email == dto.Email)
+        var user = await _dbSet
+            .Where(u => u.Email == dto.Email)
             .Include(u => u.SystemRoles)
             .FirstOrDefaultAsync();
         if (user == null)

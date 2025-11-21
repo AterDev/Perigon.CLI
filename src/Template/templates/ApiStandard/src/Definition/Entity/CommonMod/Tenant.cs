@@ -21,7 +21,7 @@ public class Tenant : EntityBase
     [MaxLength(200)]
     public required string Domain { get; set; }
 
-    public TenantType Type { get; set; }
+    public TenantType Type { get; set; } = TenantType.Normal;
 
     public bool Disabled { get; set; }
 }
@@ -33,14 +33,16 @@ public enum TenantType
     /// </summary>
     [Description("Trial")]
     Trial,
+
     /// <summary>
     /// Normal
     /// </summary>
     [Description("Normal")]
     Normal,
+
     /// <summary>
     /// Independent
     /// </summary>
     [Description("Independent")]
-    Independent
+    Independent,
 }

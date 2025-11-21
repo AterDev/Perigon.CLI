@@ -1,5 +1,5 @@
 using System.Text.Json;
-using EntityFramework.AppDbContext;
+using Entity.CommonMod;
 
 namespace SystemMod;
 
@@ -12,26 +12,19 @@ public class InitModule
     /// <returns></returns>
     public static async Task InitializeAsync(IServiceProvider provider)
     {
-        ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
-        ILogger<InitModule> logger = loggerFactory.CreateLogger<InitModule>();
-        IConfiguration configuration = provider.GetRequiredService<IConfiguration>();
-        CacheService cache = provider.GetRequiredService<CacheService>();
+        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+        var context = provider.GetRequiredService<DefaultDbContext>();
+        var logger = loggerFactory.CreateLogger<InitModule>();
+        var configuration = provider.GetRequiredService<IConfiguration>();
+        var cache = provider.GetRequiredService<CacheService>();
 
         try
         {
-            var isInitString = context
-                .SystemConfigs.Where(c => c.Key.Equals(WebConst.IsInit))
-                .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
-                .Select(c => c.Value)
-                .FirstOrDefault();
-
-            // 未初始化时
-            if (isInitString.IsEmpty() || isInitString.Equals("false"))
+            var hasTenant = await context.Tenants.AnyAsync();
+            if (!hasTenant)
             {
-                logger.LogInformation("⛏️ 开始初始化[System]模块");
-                await InitRoleAndUserAsync(context, logger, configuration);
-                // 初始化配置
+                logger.LogInformation("⛏️ Start init [System] Module");
+                await InitTenantAdminAccountAsync(context);
                 await InitConfigAsync(context, configuration, logger);
             }
 
@@ -42,63 +35,49 @@ public class InitModule
         catch (Exception ex)
         {
             var conn = context.Database.GetConnectionString();
-            logger.LogError("初始化系统配置失败！{message}. ", ex.Message);
+            logger.LogError("Failed to initialize system configuration! {message}. ", ex.Message);
         }
     }
 
-    private static async Task InitRoleAndUserAsync(
-        DefaultDbContext context,
-        ILogger<InitModule> logger,
-        IConfiguration configuration
-    )
+    private static async Task InitTenantAdminAccountAsync(DefaultDbContext context)
     {
-        SystemRole? role = await context.SystemRoles.SingleOrDefaultAsync(r =>
-            r.NameValue == WebConst.SuperAdmin
-        );
-        // 初始化管理员账号和角色
-        if (role == null)
+        var domain = "default.com";
+        var tenant = new Tenant()
         {
-            var defaultPassword = configuration.GetValue<string>("Key:DefaultPassword");
-            if (string.IsNullOrWhiteSpace(defaultPassword))
-            {
-                defaultPassword = "Hello.Net";
-            }
-            SystemRole superRole = new()
-            {
-                Name = WebConst.SuperAdmin,
-                NameValue = WebConst.SuperAdmin,
-            };
-            SystemRole adminRole = new()
-            {
-                Name = WebConst.AdminUser,
-                NameValue = WebConst.AdminUser,
-            };
-            var salt = HashCrypto.BuildSalt();
-            SystemUser adminUser = new()
-            {
-                UserName = "admin",
-                PasswordSalt = salt,
-                PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
-                SystemRoles = [superRole, adminRole],
-            };
+            Domain = domain,
+            Name = AppConst.Default,
+            Description = "This is default tenant, created by system.",
+        };
+        var defaultPassword = HashCrypto.GetRandom(10, true, true, true);
 
-            SystemUser manager = new()
-            {
-                UserName = "manager",
-                PasswordSalt = salt,
-                PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
-                SystemRoles = [superRole],
-            };
+        var superRole = new SystemRole()
+        {
+            Name = WebConst.SuperAdmin,
+            NameValue = WebConst.SuperAdmin,
+            TenantId = tenant.Id,
+        };
 
-            context.SystemUsers.Add(adminUser);
-            context.SystemUsers.Add(manager);
-            await context.SaveChangesAsync();
-            logger.LogInformation(
-                "初始化管理员账号:{username}/{password}",
-                adminUser.UserName,
-                defaultPassword
-            );
-        }
+        var adminRole = new SystemRole()
+        {
+            Name = WebConst.AdminUser,
+            NameValue = WebConst.AdminUser,
+            TenantId = tenant.Id,
+        };
+        var salt = HashCrypto.BuildSalt();
+        var adminUser = new SystemUser()
+        {
+            Email = $"admin@{domain}",
+            PasswordSalt = salt,
+            PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
+            SystemRoles = [superRole, adminRole],
+            TenantId = tenant.Id,
+        };
+
+        context.Add(tenant);
+        context.Add(adminUser);
+        await context.SaveChangesAsync();
+
+        Console.WriteLine($"✨ Created admin for {domain} : {adminUser.Email}/{defaultPassword}");
     }
 
     /// <summary>

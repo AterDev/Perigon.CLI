@@ -150,7 +150,7 @@ public class HashCrypto
     /// <param name="useSpe"></param>
     /// <param name="custom"></param>
     /// <returns></returns>
-    public static string GetRnd(
+    public static string GetRandom(
         int length = 4,
         bool useNum = true,
         bool useLow = false,
