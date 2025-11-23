@@ -43,7 +43,7 @@ public class JsonHelper
     /// <returns>The corresponding JsonElement node, or null if not found.</returns>
     public JsonElement? GetJsonNode(string keyPath)
     {
-        var paths = keyPath.Split('.');
+        var paths     = keyPath.Split('.');
         var current = JsonElement;
         foreach (var path in paths)
         {
@@ -105,7 +105,7 @@ public class JsonHelper
     public static void AddOrUpdateJsonNode(JsonNode root, string keyPath, object? newValue)
     {
         ArgumentNullException.ThrowIfNull(root, nameof(root));
-        var paths = keyPath.Split('.');
+        var paths     = keyPath.Split('.');
         var current = root;
         for (var i = 0; i < paths.Length - 1; i++)
         {
@@ -148,7 +148,7 @@ public class JsonHelper
         {
             return null;
         }
-        var paths = keyPath.Split('.');
+        var paths     = keyPath.Split('.');
         var current = node;
         foreach (var path in paths)
         {

@@ -2,9 +2,7 @@ using Ater.AspNetCore.Models;
 using Ater.AspNetCore.Options;
 using Ater.AspNetCore.Services;
 using Microsoft.AspNetCore.RateLimiting;
-using Share.Exceptions;
 using Share.Models.Auth;
-using SystemMod.Models;
 using SystemMod.Models.SystemUserDtos;
 
 namespace AdminService.Controllers;
@@ -13,18 +11,19 @@ namespace AdminService.Controllers;
 /// 系统用户
 /// </summary>
 public class SystemUserController(
-    Localizer localizer,
-    SystemConfigManager systemConfig,
-    CacheService cache,
-    SystemRoleManager roleManager,
-    SystemUserManager manager,
-    IUserContext user,
-    ILogger<SystemUserController> logger
+        Localizer localizer,
+        SystemConfigManager systemConfig,
+        CacheService cache,
+        SystemRoleManager roleManager,
+        SystemUserManager manager,
+        IUserContext user,
+        ILogger<SystemUserController> logger
+
 ) : RestControllerBase<SystemUserManager>(localizer, manager, user, logger)
 {
     private readonly SystemConfigManager _systemConfig = systemConfig;
-    private readonly CacheService _cache = cache;
-    private readonly SystemRoleManager _roleManager = roleManager;
+    private readonly CacheService        _cache        = cache;
+    private readonly SystemRoleManager   _roleManager  = roleManager;
 
     /// <summary>
     /// 登录时，发送邮箱验证码 ✅
@@ -40,8 +39,9 @@ public class SystemUserController(
         {
             return BadRequest(Localizer.UserNotFound);
         }
+
         var captcha = SystemUserManager.GetCaptcha();
-        var key = WebConst.VerifyCodeCachePrefix + email;
+        var key     = WebConst.VerifyCodeCachePrefix + email;
         if (await _cache.GetValueAsync<string>(key) != null)
         {
             return Conflict(Localizer.VerifyCodeAlreadySent);
@@ -98,7 +98,7 @@ public class SystemUserController(
             return NotFound(Localizer.NotFoundUser);
         }
 
-        var menus = new List<SystemMenu>();
+        var menus            = new List<SystemMenu>();
         var permissionGroups = new List<SystemPermissionGroup>();
         if (user.SystemRoles != null)
         {
@@ -131,7 +131,9 @@ public class SystemUserController(
         {
             return NotFound(Localizer.NotFoundResource);
         }
+
         SystemUser? user = await _manager.FindAsync(Guid.Parse(userId));
+
         if (user == null)
         {
             return Forbid(Localizer.NotFoundUser);

@@ -49,21 +49,21 @@ public static partial class Extensions
         /// <exception cref="NullReferenceException"></exception>
         public IQueryable<TResult> Select<TResult>()
         {
-            Type sourceType = typeof(TSource);
-            Type resultType = typeof(TResult);
-            ParameterExpression parameter = Expression.Parameter(sourceType, "e");
+            var sourceType = typeof(TSource);
+            var resultType = typeof(TResult);
+            var parameter  = Expression.Parameter(sourceType, "e");
 
             // 只构造都存在的属性
             var sourceNames = sourceType.GetProperties().Select(s => s.Name).ToList();
-            var props = resultType.GetProperties().ToList();
+            var props       = resultType.GetProperties().ToList();
             props = props.Where(p => sourceNames.Contains(p.Name)).ToList();
             //props = props.Intersect(sourceProps).ToList();
 
             var bindings = props
                 .Select(p => Expression.Bind(p, Expression.PropertyOrField(parameter, p.Name)))
                 .ToList();
-            MemberInitExpression body = Expression.MemberInit(Expression.New(resultType), bindings);
-            LambdaExpression selector = Expression.Lambda(body, parameter);
+            MemberInitExpression body     = Expression.MemberInit(Expression.New(resultType), bindings);
+            LambdaExpression     selector = Expression.Lambda(body, parameter);
             return source.Provider.CreateQuery<TResult>(
                 Expression.Call(
                     typeof(Queryable),
@@ -112,15 +112,13 @@ public static partial class Extensions
             Expression<Func<TSource, TValue>> propertyExpression,
             TValue minVal,
             TValue maxVal
-        )
-            where TValue : struct
+        ) where TValue : struct
         {
-            ParameterExpression parameter = propertyExpression.Parameters[0];
-            MemberExpression? memberExpression =
-                (
-                    propertyExpression.Body as MemberExpression
-                    ?? (propertyExpression.Body as UnaryExpression)?.Operand as MemberExpression
-                )
+            ParameterExpression parameter        = propertyExpression.Parameters[0];
+            MemberExpression?   memberExpression = (
+                propertyExpression.Body as MemberExpression
+                ?? (propertyExpression.Body as UnaryExpression)?.Operand as MemberExpression)
+
                 ?? throw new ArgumentException(
                     "Invalid property expression",
                     nameof(propertyExpression)
@@ -130,17 +128,13 @@ public static partial class Extensions
             var minValObj = Convert.ChangeType(minVal, propertyType);
             var maxValObj = Convert.ChangeType(maxVal, propertyType);
 
-            ConstantExpression minExpr = Expression.Constant(minValObj, propertyType);
-            ConstantExpression maxExpr = Expression.Constant(maxValObj, propertyType);
-
-            MemberExpression propertyAccess = Expression.MakeMemberAccess(
-                parameter,
-                memberExpression.Member
-            );
-            BinaryExpression leftExpr = Expression.GreaterThanOrEqual(propertyAccess, minExpr);
-            BinaryExpression rightExpr = Expression.LessThanOrEqual(propertyAccess, maxExpr);
-            BinaryExpression andExpr = Expression.AndAlso(leftExpr, rightExpr);
-            var lambdaExpr = Expression.Lambda<Func<TSource, bool>>(andExpr, parameter);
+            ConstantExpression minExpr        = Expression.Constant(minValObj, propertyType);
+            ConstantExpression maxExpr        = Expression.Constant(maxValObj, propertyType);
+            MemberExpression   propertyAccess = Expression.MakeMemberAccess(parameter, memberExpression.Member);
+            BinaryExpression   leftExpr       = Expression.GreaterThanOrEqual(propertyAccess, minExpr);
+            BinaryExpression   rightExpr      = Expression.LessThanOrEqual(propertyAccess, maxExpr);
+            BinaryExpression   andExpr        = Expression.AndAlso(leftExpr, rightExpr);
+            var                lambdaExpr     = Expression.Lambda<Func<TSource, bool>>(andExpr, parameter);
 
             return source.Where(lambdaExpr);
         }
@@ -155,13 +149,11 @@ public static partial class Extensions
         /// <param name="query"></param>
         /// <param name="dic"></param>
         /// <returns></returns>
-        public IOrderedQueryable<T> OrderBy(
-            Dictionary<string, bool> dic
-        )
+        public IOrderedQueryable<T> OrderBy(Dictionary<string, bool> dic)
         {
             IOrderedQueryable<T> orderQuery = (IOrderedQueryable<T>)query;
-            ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
-            var count = 0;
+            ParameterExpression  parameter  = Expression.Parameter(typeof(T), "e");
+            var                  count      = 0;
             foreach (KeyValuePair<string, bool> item in dic)
             {
                 MemberExpression prop = Expression.PropertyOrField(parameter, item.Key);
@@ -206,12 +198,10 @@ public static partial class Extensions
             return orderQuery;
         }
 
-        public IOrderedQueryable<T> ThenBy(
-            Dictionary<string, bool> dic
-        )
+        public IOrderedQueryable<T> ThenBy(Dictionary<string, bool> dic)
         {
             IOrderedQueryable<T> orderQuery = (IOrderedQueryable<T>)query;
-            ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
+            ParameterExpression  parameter  = Expression.Parameter(typeof(T), "e");
             foreach (KeyValuePair<string, bool> item in dic)
             {
                 MemberExpression prop = Expression.PropertyOrField(parameter, item.Key);
@@ -255,7 +245,7 @@ public static partial class Extensions
             Expression<Func<T, int>> propertyExpression,
             int minVal,
             int maxVal
-        )
+)
         {
             return source.Between<T, int>(propertyExpression, minVal, maxVal);
         }
@@ -287,11 +277,7 @@ public static partial class Extensions
         /// <param name="minVal"></param>
         /// <param name="maxVal"></param>
         /// <returns></returns>
-        public IQueryable<T> Between(
-            Expression<Func<T, double>> propertyExpression,
-            int minVal,
-            int maxVal
-        )
+        public IQueryable<T> Between(Expression<Func<T, double>> propertyExpression, int minVal, int maxVal,int a=1)
         {
             return source.Between<T, double>(propertyExpression, minVal, maxVal);
         }
@@ -329,7 +315,7 @@ public static partial class Extensions
             Expression<Func<T, DateTimeOffset>> propertyExpression,
             DateTimeOffset minVal,
             DateTimeOffset maxVal
-        )
+)
         {
             return source.Between<T, DateTimeOffset>(propertyExpression, minVal, maxVal);
         }
@@ -349,8 +335,8 @@ public static partial class Extensions
             {
                 n.Children = [];
             });
-            var nodeDict = nodes.ToDictionary(n => n.Id);
-            List<T> res = [];
+            var     nodeDict = nodes.ToDictionary(n => n.Id);
+            List<T> res      = [];
 
             foreach (T node in nodes)
             {

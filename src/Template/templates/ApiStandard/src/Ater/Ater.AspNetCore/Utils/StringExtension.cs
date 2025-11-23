@@ -19,9 +19,9 @@ public static partial class StringExtension
             return string.Empty;
         }
 
-        ReadOnlySpan<char> span = str.AsSpan();
-        StringBuilder builder = new();
-        var upperNumber = 0;
+        ReadOnlySpan<char> span        = str.AsSpan();
+        StringBuilder      builder     = new();
+        var                upperNumber = 0;
         for (var i = 0; i < span.Length; i++)
         {
             var item = span[i];
@@ -65,8 +65,8 @@ public static partial class StringExtension
             return string.Empty;
         }
 
-        ReadOnlySpan<char> span = str.AsSpan();
-        StringBuilder resultBuilder = new();
+        ReadOnlySpan<char> span          = str.AsSpan();
+        StringBuilder      resultBuilder = new();
         foreach (var c in span)
         {
             _ = !char.IsLetterOrDigit(c) ? resultBuilder.Append(' ') : resultBuilder.Append(c);
@@ -254,8 +254,8 @@ public static partial class StringExtension
             return str;
         }
 
-        ReadOnlySpan<char> span = str.AsSpan();
-        var result = new StringBuilder();
+        ReadOnlySpan<char> span   = str.AsSpan();
+        var                result = new StringBuilder();
         foreach (var item in span)
         {
             if (
@@ -291,13 +291,7 @@ public static partial class StringExtension
         ReadOnlySpan<char> span = str.AsSpan();
 
         if (
-            DateTimeOffset.TryParseExact(
-                span,
-                dateFormats,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AllowInnerWhite,
-                out DateTimeOffset dt
-            )
+            DateTimeOffset.TryParseExact(span, dateFormats, CultureInfo.InvariantCulture, DateTimeStyles.AllowInnerWhite, out DateTimeOffset dt)
         )
         {
             return dt.ToUniversalTime();
@@ -366,10 +360,10 @@ public static partial class StringExtension
             return 0;
         }
 
-        ReadOnlySpan<char> span = expression.AsSpan();
-        var result = 0;
-        var operand = 0;
-        var operation = '+';
+        ReadOnlySpan<char> span      = expression.AsSpan();
+        var                result    = 0;
+        var                operand   = 0;
+        var                operation = '+';
 
         for (var i = 0; i < span.Length; i++)
         {
@@ -394,7 +388,11 @@ public static partial class StringExtension
         return ApplyOperation(result, operand, operation);
     }
 
-    private static int ApplyOperation(int result, int operand, char operation)
+    private static int ApplyOperation(
+        int result,
+        int operand,
+        char operation
+)
     {
         return operation switch
         {
