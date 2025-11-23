@@ -16,7 +16,7 @@ public class SystemConfigManager(
 ) : ManagerBase<DefaultDbContext, SystemConfig>(dbContextFactory, userContext, logger)
 {
     private readonly IConfiguration _configuration = configuration;
-    private readonly CacheService _cache = cache;
+    private readonly CacheService   _cache         = cache;
 
     /// <summary>
     /// 获取枚举信息
@@ -56,7 +56,7 @@ public class SystemConfigManager(
     public async Task<LoginSecurityPolicyOption> GetLoginSecurityPolicyAsync()
     {
         // 优先级：缓存>配置文件
-        var policy = new LoginSecurityPolicyOption();
+        var policy       = new LoginSecurityPolicyOption();
         var configString = await _cache.GetValueAsync<string>(WebConst.LoginSecurityPolicy);
         if (configString != null)
         {

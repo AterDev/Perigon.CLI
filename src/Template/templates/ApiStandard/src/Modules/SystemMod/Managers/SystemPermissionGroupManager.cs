@@ -74,6 +74,6 @@ public class SystemPermissionGroupManager(
         {
             return 0;
         }
-        return await DeleteOrUpdateAsync([id]) ;
+        return await DeleteOrUpdateAsync([id]);
     }
 }

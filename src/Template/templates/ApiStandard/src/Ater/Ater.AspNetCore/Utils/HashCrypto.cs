@@ -89,7 +89,7 @@ public class HashCrypto
     public static string HMACSHA256(string key, string content)
     {
         using var hmac       = new HMACSHA256(Encoding.UTF8.GetBytes(key));
-        var valueBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(content));
+        var       valueBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(content));
         return Convert.ToBase64String(valueBytes);
     }
 
@@ -112,6 +112,7 @@ public class HashCrypto
     public static string HashString(string str, HashType type = HashType.MD5)
     {
         var bytes = HashData(str, type);
+
         return Convert.ToHexStringLower(bytes);
     }
 
@@ -134,9 +135,10 @@ public class HashCrypto
     /// <returns></returns>
     public static string Md5FileHash(Stream stream)
     {
-        using var           md5      = MD5.Create();
+        using var     md5      = MD5.Create();
         var           data     = md5.ComputeHash(stream);
         StringBuilder sBuilder = new();
+
         foreach (var b in data)
         {
             _ = sBuilder.Append(b.ToString("x2"));
@@ -163,6 +165,7 @@ public class HashCrypto
         string custom = ""
     )
     {
+
         var sb = new StringBuilder(custom);
         if (useNum)
         {
