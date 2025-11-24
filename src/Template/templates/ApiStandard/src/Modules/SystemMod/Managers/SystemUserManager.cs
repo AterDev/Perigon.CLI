@@ -23,7 +23,6 @@ public class SystemUserManager(
     private readonly SystemLogService      _logService      = logService;
     private readonly Localizer             _localizer       = localizer;
     private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
-    private readonly SystemConfigManager   _systemConfig    = systemConfig;
 
     /// <summary>
     /// 获取验证码
