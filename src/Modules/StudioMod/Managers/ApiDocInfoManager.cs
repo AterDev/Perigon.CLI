@@ -179,7 +179,7 @@ public class ApiDocInfoManager(
         using var context = _dbContextFactory.CreateDbContext();
         var query2 = context.Set<ApiDocInfo>().Where(q => q.Id == id);
         // 获取用户所属的对象
-        // query2 = query2.Where(q => q.User.Id == _userContext.UserId);
+        // query2 = query2.Where(q => q.User.Id == _userContext.UserIdKeys);
         return await query2.FirstOrDefaultAsync();
     }
 

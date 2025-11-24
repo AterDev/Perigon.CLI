@@ -5,12 +5,12 @@ namespace CodeGenerator.Generate;
 /// <summary>
 /// 数据仓储生成
 /// </summary>
-public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEntities)
+public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKeys)
 {
     public string CommonNamespace { get; init; } = entityInfo.GetCommonNamespace();
     public string ShareNamespace { get; init; } = entityInfo.GetShareNamespace();
     public EntityInfo EntityInfo { get; init; } = entityInfo;
-    public ICollection<string> UserEntities = userEntities;
+    public ICollection<string> UserIdKeys = userIdKeys;
 
     /// <summary>
     /// 全局依赖
@@ -39,203 +39,92 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
     public string GetManagerContent(string tplContent, string nsp)
     {
         var genContext = new RazorGenContext();
-        var model = new ManagerViewModel
+        var model      = new ManagerViewModel
         {
             Namespace = nsp,
             EntityName = EntityInfo.Name,
+            EntitySummary = EntityInfo.Summary,
             ShareNamespace = ShareNamespace,
             DbContextName = EntityInfo.DbContextName,
             Comment = EntityInfo.Comment,
-            FilterCode = GetFilterMethodContent(),
-            AdditionMethods = GenAdditionMethods(),
+            AddMethod = GetAddMethodContent(),
+            FilterMethod = GetFilterMethodContent(),
+            AdditionMethods = GetUserRelateMethods(),
         };
 
         return genContext.GenManager(tplContent, model);
+    }
+
+    private string GetAddMethodContent()
+    {
+        var userId = GetUserIdKey();
+        return $$"""
+                /// <summary>
+                /// Add {{EntityInfo.Summary}}
+                /// </summary>
+                /// <param name="dto"></param>
+                /// <returns></returns>
+                public async Task{{EntityInfo.Name}}> AddAsync(@(Model.EntityName)AddDto dto)
+                {
+                    var entity = dto.MapTo{{EntityInfo.Name}}>();
+                    {{(userId == null ? "" : "entity.UserId = _userContext.UserId;")}}
+                    await InsertAsync(entity);
+                    return entity;
+                }
+            """;
+    }
+
+    private string? GetUserIdKey()
+    {
+        var prop = EntityInfo.PropertyInfos
+            .Where(p => UserIdKeys.Contains(p.Name)
+            && p.Type == "Guid")
+            .FirstOrDefault();
+        return prop?.Name;
+
     }
 
     /// <summary>
     /// 额外方法
     /// </summary>
     /// <returns></returns>
-    private string GenAdditionMethods()
+    private string GetUserRelateMethods()
     {
         var methods = new List<string>
         {
-            GenGetOwnedMethod(),
-            GenIsOwnedMethods(),
-            GenValidateMethods(),
+            GenPermissionMethods(),
         };
 
         return string.Join(Environment.NewLine, methods);
     }
 
-    private string GenValidateMethods()
+    private string GenPermissionMethods()
     {
-        var navigations = EntityInfo.Navigations.Where(n =>
-            !UserEntities.Contains(n.Type) && n.Type != EntityInfo.Name && !n.IsCollection
-        );
-
-        if (!navigations.Any())
+        var userId      = GetUserIdKey();
+        var queryString = string.Empty;
+        if (!string.IsNullOrWhiteSpace(userId))
         {
-            return string.Empty;
-        }
-
-        var methods = new List<string>();
-        foreach (var navigation in navigations)
-        {
-            var userNav = navigation
-                .EntityInfo?.Navigations.Where(n => UserEntities.Contains(n.Type))
-                .FirstOrDefault();
-
-            if (userNav != null)
-            {
-                // 推断外键参数名称（当前实体上的外键，如 CatalogId）
-                var foreignKey = navigation.ForeignKey;
-                if (navigation.ForeignKeyProperties.Count > 1)
-                {
-                    foreignKey = navigation
-                        .ForeignKey.Split(",")
-                        .Where(f => f.Contains(navigation.Name))
-                        .FirstOrDefault();
-
-                    foreignKey ??= navigation.ForeignKeyProperties.First().Name;
-                }
-                var fkParam = foreignKey.ToCamelCase();
-                // 方法名基于导航类型
-                var methodName = $"IsValidate{navigation.Type}Async";
-                var entityType = navigation.Type;
-
-                string navigationId = $"{userNav.Name}.Id";
-                // Using explicitly defined foreign keys
-                if (
-                    userNav.ForeignKeyProperties.Any(p =>
-                        !p.IsShadow && p.Name == userNav.ForeignKey
-                    )
-                )
-                {
-                    navigationId = userNav.ForeignKey;
-                }
-                var condition = $" && q.{navigationId} == userId";
-
-                var method = $$"""
-                        /// <summary>
-                        /// Validate {{entityType}} owned by user
-                        /// </summary>
-                        public async Task<bool> {{methodName}}(Guid {{fkParam}}, Guid userId)
-                        {
-                            return await _dbContext
-                                .Set<{{entityType}}>()
-                                .Where(q => q.Id == {{fkParam}}{{condition}})
-                                .AnyAsync();
-                        }
-
-                    """;
-
-                methods.Add(method);
-            }
-        }
-
-        return string.Join(Environment.NewLine, methods);
-    }
-
-    /// <summary>
-    /// generate is owned methods
-    /// </summary>
-    /// <returns></returns>
-    private string GenIsOwnedMethods()
-    {
-        var navigations = EntityInfo.Navigations.Where(n => UserEntities.Contains(n.Type));
-        if (!navigations.Any())
-        {
-            return string.Empty;
-        }
-        var methodParams = string.Empty;
-        var conditions = string.Empty;
-        foreach (var navigation in navigations)
-        {
-            var foreignKey = navigation.ForeignKey;
-            if (navigation.ForeignKeyProperties.Count > 1)
-            {
-                foreignKey = navigation
-                    .ForeignKey.Split(",")
-                    .Where(f => f.Contains(navigation.Name))
-                    .FirstOrDefault();
-
-                foreignKey ??= navigation.ForeignKeyProperties.First().Name;
-            }
-            methodParams += $", Guid {foreignKey.ToCamelCase()}";
-            string navigationId = $"q.{navigation.Name}.Id";
-            // Using explicitly defined foreign keys
-            if (navigation.ForeignKeyProperties.Any(p => !p.IsShadow && p.Name == foreignKey))
-            {
-                navigationId = foreignKey;
-            }
-            conditions += $" && q.{navigationId} == {foreignKey.ToCamelCase()}";
+            queryString = $".Where(q => q.{userId} == _userContext.UserId)";
         }
         return $$"""
-                /// <summary>
-                /// Has {{EntityInfo.Name}}
-                /// </summary>
-                public async Task<bool> IsOwnedAsync(Guid id{{methodParams}})
+                public override async Task<bool> HasPermissionAsync(Guid id)
                 {
-                    return await Queryable.AnyAsync(q => q.Id == id{{conditions}});
+                    var query = _dbSet{{queryString}}
+                        .Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+                    return await query.AnyAsync();
                 }
 
-            """;
-    }
-
-    /// <summary>
-    /// generate get owned method
-    /// </summary>
-    /// <returns></returns>
-    private string GenGetOwnedMethod()
-    {
-        var navigations = EntityInfo.Navigations.Where(n => UserEntities.Contains(n.Type));
-
-        if (!navigations.Any())
-        {
-            return string.Empty;
-        }
-        var methodParams = string.Empty;
-        var queryLines = string.Empty;
-        foreach (var navigation in navigations)
-        {
-            var foreignKey = navigation.ForeignKey;
-            if (navigation.ForeignKeyProperties.Count > 1)
-            {
-                foreignKey = navigation
-                    .ForeignKey.Split(",")
-                    .Where(f => f.Contains(navigation.Name))
-                    .FirstOrDefault();
-
-                foreignKey ??= navigation.ForeignKeyProperties.First().Name;
-            }
-            methodParams += $", Guid {foreignKey.ToCamelCase()}";
-            string navigationId = $"{navigation.Name}.Id";
-            // Using explicitly defined foreign keys
-            if (navigation.ForeignKeyProperties.Any(p => !p.IsShadow && p.Name == foreignKey))
-            {
-                navigationId = foreignKey;
-            }
-            queryLines +=
-                $".Where(q => q.{navigationId} == {foreignKey.ToCamelCase()});{Environment.NewLine}";
-        }
-        if (queryLines.NotEmpty())
-        {
-            queryLines = $"query = query{queryLines}";
-        }
-
-        return $$"""
-                /// <summary>
-                /// Get owned {{EntityInfo.Name}}
-                /// </summary>
-                public async Task<{{EntityInfo.Name}}?> GetOwnedAsync(Guid id{{methodParams}})
+                public async Task<List<Guid>> GetOwnedIdsAsync(IEnumerable<Guid> ids)
                 {
-                    var query = _dbSet.Where(q => q.Id == id);
-                    {{queryLines}}
-                    return await query.FirstOrDefaultAsync();
+                    if (!ids.Any())
+                    {
+                        return [];
+                    }
+                    var query = _dbSet{{queryString}}
+                        .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
+                        .Select(q => q.Id);
+                    return await query.ToListAsync();
                 }
-
             """;
     }
 
@@ -245,9 +134,9 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
     /// <returns></returns>
     private string GetFilterMethodContent()
     {
-        string content = "";
-        string entityName = EntityInfo?.Name ?? "";
-        List<PropertyInfo>? props = EntityInfo?.GetFilterProperties();
+        string              content    = "";
+        string              entityName = EntityInfo?.Name ?? "";
+        List<PropertyInfo>? props      = EntityInfo?.GetFilterProperties();
         if (props != null && props.Count != 0)
         {
             content += """
@@ -268,9 +157,13 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userEnti
             """;
         });
         content += $$"""
-                    
-                    return await ToPageAsync<{{entityName + ConstVal.FilterDto}}, {{entityName
-                + ConstVal.ItemDto}}>(filter);
+                /// <summary>
+                /// Filter {{EntityInfo?.Summary}} with paging
+                /// </summary>
+                public async Task<PageList{{EntityInfo?.Name}}ItemDto>> FilterAsync(@(Model.EntityName)FilterDto filter)
+                {        
+                    return await PageListAsync<{{entityName + ConstVal.FilterDto}}, {{entityName + ConstVal.ItemDto}}>(filter);
+                }
             """;
         return content;
     }

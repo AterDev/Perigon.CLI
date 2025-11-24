@@ -2,6 +2,7 @@ using Ater.AspNetCore.Abstraction;
 using CMSMod.Models.ArticleCategoryDtos;
 using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
+using Microsoft.AspNetCore.Http;
 using Share;
 using Share.Exceptions;
 
@@ -40,14 +41,18 @@ public class ArticleCategoryManager(
     {
         if (await HasPermissionAsync(id))
         {
-            await UpdateAsync(id, dto);
+            return await UpdateAsync(id, dto);
         }
         throw new BusinessException(Localizer.NoPermission);
     }
 
     public async Task<ArticleCategoryDetailDto?> GetAsync(Guid id)
     {
-        return await FindAsync<ArticleCategoryDetailDto>(q => q.Id == id);
+        if (await HasPermissionAsync(id))
+        {
+            return await FindAsync<ArticleCategoryDetailDto>(q => q.Id == id);
+        }
+        throw new BusinessException(Localizer.NoPermission);
     }
 
     public async Task<PageList<ArticleCategoryItemDto>> FilterAsync(ArticleCategoryFilterDto filter)
@@ -56,21 +61,49 @@ public class ArticleCategoryManager(
         return await PageListAsync<ArticleCategoryFilterDto, ArticleCategoryItemDto>(filter);
     }
 
-    public async Task<int> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(IEnumerable<Guid> ids, bool isDelete = false)
     {
-        if (await HasPermissionAsync(id))
+        if (!ids.Any())
         {
-            return await DeleteAsync(id);
+            return false;
         }
-        throw new BusinessException(Localizer.NoPermission);
+        if (ids.Count() == 1)
+        {
+            Guid id = ids.First();
+            if (await HasPermissionAsync(id))
+            {
+                return await DeleteOrUpdateAsync(ids, !isDelete) > 0;
+            }
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+        }
+        else
+        {
+            var ownedIds = await GetOwnedIdsAsync(ids);
+            if (ownedIds.Any())
+            {
+                return await DeleteOrUpdateAsync(ownedIds, !isDelete) > 0;
+            }
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+        }
     }
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = _dbSet.Where(q =>
-            q.Id == id && q.UserId == _userContext.UserId && q.TenantId == _userContext.TenantId
-        );
+        var query = _dbSet.Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+        query = query.Where(q => q.UserId == _userContext.UserId);
         return await query.AnyAsync();
+    }
+    public async Task<List<Guid>> GetOwnedIdsAsync(IEnumerable<Guid> ids)
+    {
+        if (!ids.Any())
+        {
+            return [];
+        }
+        var query = _dbSet
+            .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
+            // TODO: other conditions
+            .Select(q => q.Id);
+        return await query.ToListAsync();
     }
 
     /// <summary>

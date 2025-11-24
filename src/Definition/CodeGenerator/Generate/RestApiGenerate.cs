@@ -68,7 +68,7 @@ public class RestApiGenerate(
         var result = string.Empty;
         if (!isSystem)
         {
-            var userEntities = SolutionConfig.UserEntities;
+            var userEntities = SolutionConfig.UserIdKeys;
             if (DtoDict.TryGetValue(EntityInfo.Name + DtoType.Filter.ToString(), out var dto))
             {
                 var userProp = dto
@@ -91,7 +91,7 @@ public class RestApiGenerate(
         var result = string.Empty;
         if (!isSystem)
         {
-            var userEntities = SolutionConfig.UserEntities;
+            var userEntities = SolutionConfig.UserIdKeys;
             var navigations = EntityInfo.Navigations.Where(n =>
                 !userEntities.Contains(n.Type) && n.Type != EntityInfo.Name && !n.IsCollection
             );
@@ -164,7 +164,7 @@ public class RestApiGenerate(
         if (!isSystem)
         {
             var navigations = EntityInfo.Navigations.Where(n =>
-                SolutionConfig.UserEntities.Contains(n.Type)
+                SolutionConfig.UserIdKeys.Contains(n.Type)
             );
 
             if (navigations.Any())
@@ -186,7 +186,7 @@ public class RestApiGenerate(
         if (!isSystem)
         {
             var navigations = EntityInfo.Navigations.Where(n =>
-                SolutionConfig.UserEntities.Contains(n.Type)
+                SolutionConfig.UserIdKeys.Contains(n.Type)
             );
             if (navigations.Any())
             {

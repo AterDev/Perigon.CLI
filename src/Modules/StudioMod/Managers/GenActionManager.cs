@@ -119,7 +119,7 @@ public class GenActionManager(
         using var context = _dbContextFactory.CreateDbContext();
         var query = context.Set<GenAction>().Where(q => q.Id == id);
         // TODO:自定义数据权限验证
-        // query = query.Where(q => q.User.Id == _userContext.UserId);
+        // query = query.Where(q => q.User.Id == _userContext.UserIdKeys);
         return await query.FirstOrDefaultAsync();
     }
 

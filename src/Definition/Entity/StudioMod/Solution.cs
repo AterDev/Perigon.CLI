@@ -83,9 +83,9 @@ public class SolutionConfig
     public bool IsTenantMode { get; set; }
 
     /// <summary>
-    /// 用来标识哪些为用户实体
+    /// 用来标识用户标识名称
     /// </summary>
-    public ICollection<string> UserEntities { get; set; } = ["User", "SystemUser"];
+    public ICollection<string> UserIdKeys { get; set; } = ["UserId"];
 
     [Required]
     public string SystemModName { get; set; } = "SystemMod";

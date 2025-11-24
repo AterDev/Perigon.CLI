@@ -21,11 +21,11 @@ public class SystemRoleController(
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<PageList<SystemRoleItemDto>>> FilterAsync(
+    public async Task<ActionResult<PageList<SystemRoleItemDto>>> ListAsync(
         [FromQuery] SystemRoleFilterDto filter
     )
     {
-        return await _manager.ToPageAsync(filter);
+        return await _manager.FilterAsync(filter);
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class SystemRoleController(
     public async Task<ActionResult<SystemRole>> AddAsync(SystemRoleAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public class SystemRoleController(
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<SystemRoleDetailDto?>> GetDetailAsync([FromRoute] Guid id)
+    public async Task<ActionResult<SystemRoleDetailDto?>> DetailAsync([FromRoute] Guid id)
     {
         var res = await _manager.GetAsync(id);
         return res == null ? NotFound() : res;

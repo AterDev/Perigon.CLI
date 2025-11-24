@@ -1,6 +1,6 @@
+using System.Linq.Expressions;
 using EntityFramework.AppDbFactory;
 using SystemMod.Models.SystemRoleDtos;
-using System.Linq.Expressions;
 
 namespace SystemMod.Managers;
 
@@ -22,7 +22,7 @@ public class SystemRoleManager(
         return entity;
     }
 
-    public async Task<PageList<SystemRoleItemDto>> ToPageAsync(SystemRoleFilterDto filter)
+    public async Task<PageList<SystemRoleItemDto>> FilterAsync(SystemRoleFilterDto filter)
     {
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)

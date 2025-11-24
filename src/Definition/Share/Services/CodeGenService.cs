@@ -16,10 +16,10 @@ public class CodeGenService(
     CacheService cache
 )
 {
-    private readonly ILogger<CodeGenService> _logger = logger;
-    private readonly IProjectContext _projectContext = projectContext;
-    private readonly CacheService _cache = cache;
-    private readonly DtoType[] DtoTypes =
+    private readonly ILogger<CodeGenService> _logger         = logger;
+    private readonly IProjectContext         _projectContext = projectContext;
+    private readonly CacheService            _cache          = cache;
+    private readonly DtoType[]               DtoTypes        =
     [
         DtoType.Add,
         DtoType.Update,
@@ -42,11 +42,11 @@ public class CodeGenService(
     )
     {
         _logger.LogInformation("🚀 Generating Dtos...");
-        var dtoGen = new DtoCodeGenerate(entityInfo, _projectContext.SolutionConfig?.UserEntities);
+        var dtoGen  = new DtoCodeGenerate(entityInfo, _projectContext.SolutionConfig?.UserIdKeys);
         var dirName = entityInfo.Name + "Dtos";
         // GlobalUsing
         var globalContent = string.Join(Environment.NewLine, dtoGen.GetGlobalUsings());
-        var globalFile = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
+        var globalFile    = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
@@ -79,7 +79,7 @@ public class CodeGenService(
     public GenFileInfo GenerateDto(DtoCodeGenerate dtoGen, EntityInfo entityInfo, DtoType dtoType)
     {
         var dirName = entityInfo.Name + "Dtos";
-        var dto = dtoType switch
+        var dto     = dtoType switch
         {
             DtoType.Add => dtoGen.GetAddDto(),
             DtoType.Update => dtoGen.GetUpdateDto(),
@@ -116,11 +116,11 @@ public class CodeGenService(
     {
         var managerGen = new ManagerGenerate(
             entityInfo,
-            _projectContext.SolutionConfig?.UserEntities ?? []
+            _projectContext.SolutionConfig?.UserIdKeys ?? []
         );
         // GlobalUsing
         var globalContent = string.Join(Environment.NewLine, managerGen.GetGlobalUsings());
-        var globalFile = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
+        var globalFile    = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
         {
             IsCover = isCover,
             FileType = GenFileType.Global,
@@ -128,7 +128,7 @@ public class CodeGenService(
             ModuleName = entityInfo.ModuleName,
         };
 
-        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace());
+        var content     = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace());
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
             IsCover = isCover,
@@ -176,7 +176,7 @@ public class CodeGenService(
             _projectContext.SolutionConfig,
             GetDtoCache(entityInfo)
         );
-        var content = apiGen.GetRestApiContent(tplContent, serviceName, hasSystemMod);
+        var content        = apiGen.GetRestApiContent(tplContent, serviceName, hasSystemMod);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
             IsCover = isCover,
@@ -190,7 +190,7 @@ public class CodeGenService(
 
         // global usings
         var globalFilePath = Path.Combine(servicePath, ConstVal.GlobalUsingsFile);
-        var globalLines = File.Exists(globalFilePath)
+        var globalLines    = File.Exists(globalFilePath)
             ? File.ReadLines(globalFilePath).ToList()
             : [];
         var globalList = apiGen.GetGlobalUsings();
@@ -334,7 +334,12 @@ public class CodeGenService(
         var tsModels = client.GenerateModelFiles();
         tsModels.ForEach(m =>
         {
-            dir = Path.Combine(outputPath, "services", docName, m.DirName);
+            dir = Path.Combine(
+                outputPath,
+                "services",
+                docName,
+                m.DirName
+            );
             m.FullName = Path.Combine(dir, m.Name);
             m.IsCover = true;
         });
@@ -345,7 +350,12 @@ public class CodeGenService(
             var services = client.GenerateServices(apiDocument.Tags, docName);
             services.ForEach(s =>
             {
-                dir = Path.Combine(outputPath, "services", docName, s.DirName);
+                dir = Path.Combine(
+                    outputPath,
+                    "services",
+                    docName,
+                    s.DirName
+                );
                 s.FullName = Path.Combine(dir, s.Name);
             });
             files.AddRange(services);
@@ -441,16 +451,16 @@ public class CodeGenService(
         string outputPath
     )
     {
-        var files = new List<GenFileInfo>();
-        var docName = docUrl.Split('/').Reverse().Skip(1).First();
+        var files       = new List<GenFileInfo>();
+        var docName     = docUrl.Split('/').Reverse().Skip(1).First();
         var projectName = docName.ToPascalCase() + "API";
         outputPath = Path.Combine(outputPath, projectName);
 
         var (apiDocument, _) = await OpenApiDocument.LoadAsync(docUrl);
         var gen = new CSHttpClientGenerate(apiDocument!);
 
-        string nspName = new DirectoryInfo(outputPath).Name;
-        string baseContent = CSHttpClientGenerate.GetBaseService(nspName);
+        string nspName            = new DirectoryInfo(outputPath).Name;
+        string baseContent        = CSHttpClientGenerate.GetBaseService(nspName);
         string globalUsingContent = CSHttpClientGenerate.GetGlobalUsing(projectName);
 
         files.Add(

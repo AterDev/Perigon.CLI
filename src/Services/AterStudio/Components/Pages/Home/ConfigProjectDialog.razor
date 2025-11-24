@@ -118,7 +118,7 @@
     if (Content != null)
     {
       dto = Content.Config;
-      UserIds = string.Join(';', dto.UserEntities ?? []);
+      UserIds = string.Join(';', dto.UserIdKeys ?? []);
     }
     editContext = new EditContext(dto);
     editContext.OnFieldChanged += HandleFieldChanged;
@@ -156,7 +156,7 @@
       return;
     }
 
-    dto.UserEntities = UserIds
+    dto.UserIdKeys = UserIds
       .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
       .Select(x => x.Trim())
       .Where(x => !string.IsNullOrWhiteSpace(x))

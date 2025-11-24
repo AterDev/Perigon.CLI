@@ -20,69 +20,70 @@ public class TplContent
                 IUserContext userContext
             ) : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContextFactory, logger)
             {
-                /// <summary>
-                /// Add entity
-                /// </summary>
-                /// <param name="dto"></param>
-                /// <returns></returns>
-                public async Task<@(Model.EntityName)> AddAsync(@(Model.EntityName)AddDto dto)
-                {
-                    var entity = dto.MapTo<@(Model.EntityName)>();
-                    await UpsertAsync(entity);
-                    return entity;
-                }
+            @(Model.FilterMethod)
+
+            @(Model.AddMethod)
 
                 /// <summary>
-                /// Update entity
+                /// edit @(Model.EntitySummary)
                 /// </summary>
                 /// <param name="entity"></param>
                 /// <param name="dto"></param>
                 /// <returns></returns>
-                public async Task<bool> UpdateAsync(@(Model.EntityName) entity, @(Model.EntityName)UpdateDto dto)
+                public async Task<bool> EditAsync(Guid id, @(Model.EntityName)UpdateDto dto)
                 {
-                    entity.Merge(dto);
-                    // add other logic
-                    return await base.UpdateAsync(entity);
+                    if (await HasPermissionAsync(id))
+                    {
+                        return await UpdateAsync(id, dto);
+                    }
+                    throw new BusinessException(Localizer.NoPermission);
                 }
 
-                public async Task<PageList<@(Model.EntityName)ItemDto>> ToPageAsync(@(Model.EntityName)FilterDto filter)
-                {
-            @Model.FilterCode
-                }
 
                 /// <summary>
-                /// Get entity detail
+                /// Get @(Model.EntitySummary) detail
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
-                public async Task<@(Model.EntityName)DetailDto?> GetDetailAsync(Guid id)
+                public async Task<@(Model.EntityName)DetailDto?> GetAsync(Guid id)
                 {
-                    return await FindAsync<@(Model.EntityName)DetailDto>(e => e.Id == id);
+                    if (await HasPermissionAsync(id))
+                    {
+                        return await FindAsync<@(Model.EntityName)DetailDto>(q => q.Id == id);
+                    }
+                    throw new BusinessException(Localizer.NoPermission);
                 }
 
                 /// <summary>
-                /// has conflict with unique
-                /// </summary>
-                /// <param name="unique">unique</param>
-                /// <param name="id">exclude current id</param>
-                /// <returns></returns>
-                public async Task<bool> HasConflictAsync(string unique, Guid? id = null)
-                {
-                    // custom unique check
-                    return await _dbSet.Where(q => q.Id.ToString() == unique)
-                        .WhereNotNull(id, q => q.Id != id)
-                        .AnyAsync();
-                }
-
-                /// <summary>
-                /// Delete entity
+                /// Delete  @(Model.EntitySummary)
                 /// </summary>
                 /// <param name="ids"></param>
                 /// <param name="softDelete"></param>
                 /// <returns></returns>
                 public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
                 {
-                    return await base.DeleteAsync(ids, softDelete);
+                    if (!ids.Any())
+                    {
+                        return false;
+                    }
+                    if (ids.Count() == 1)
+                    {
+                        Guid id = ids.First();
+                        if (await HasPermissionAsync(id))
+                        {
+                            return await DeleteOrUpdateAsync(ids, !isDelete) > 0;
+                        }
+                        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+                    }
+                    else
+                    {
+                        var ownedIds = await GetOwnedIdsAsync(ids);
+                        if (ownedIds.Any())
+                        {
+                            return await DeleteOrUpdateAsync(ownedIds, !isDelete) > 0;
+                        }
+                        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+                    }
                 }
 
             @(Model.AdditionMethods)
