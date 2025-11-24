@@ -25,6 +25,8 @@ public class ArticleManager(
             .WhereNotNull(filter.IsOriginal, q => q.IsOriginal == filter.IsOriginal)
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
             .WhereNotNull(filter.CatalogId, q => q.Catalog.Id == filter.CatalogId);
+
+
         return await PageListAsync<ArticleFilterDto, ArticleItemDto>(filter);
     }
 
