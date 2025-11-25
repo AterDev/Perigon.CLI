@@ -144,6 +144,13 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
 
                 """;
         }
+
+        var userId = GetUserIdKey();
+        if (!string.IsNullOrWhiteSpace(userId))
+        {
+            content = $".Where(q => q.{userId} == _userContext.UserId)";
+        }
+
         var last = props?.LastOrDefault();
         props?.ForEach(p =>
         {

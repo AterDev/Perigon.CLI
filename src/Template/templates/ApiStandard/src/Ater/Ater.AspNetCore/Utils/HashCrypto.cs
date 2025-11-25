@@ -42,7 +42,7 @@ public class HashCrypto
     /// <returns></returns>
     public static string GeneratePAT(string value)
     {
-        var salt       = BuildSalt();
+        var salt = BuildSalt();
         var valueBytes = Rfc2898DeriveBytes.Pbkdf2(
             password: value,
             salt: Encoding.UTF8.GetBytes(salt),
@@ -88,7 +88,7 @@ public class HashCrypto
     /// <returns></returns>
     public static string HMACSHA256(string key, string content)
     {
-        using var hmac       = new HMACSHA256(Encoding.UTF8.GetBytes(key));
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));
         var valueBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(content));
         return Convert.ToBase64String(valueBytes);
     }
@@ -134,8 +134,8 @@ public class HashCrypto
     /// <returns></returns>
     public static string Md5FileHash(Stream stream)
     {
-        using var           md5      = MD5.Create();
-        var           data     = md5.ComputeHash(stream);
+        using var md5 = MD5.Create();
+        var data = md5.ComputeHash(stream);
         StringBuilder sBuilder = new();
         foreach (var b in data)
         {
@@ -209,7 +209,6 @@ public class HashCrypto
             ICryptoTransform encryptor = aesAlg.CreateEncryptor();
             using MemoryStream memoryStream = new();
             using var csEncrypt = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
-
             csEncrypt.Write(bytes, 0, bytes.Length);
             csEncrypt.FlushFinalBlock();
             encrypted = memoryStream.ToArray();

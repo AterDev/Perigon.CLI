@@ -106,67 +106,61 @@ public class TplContent
                 ) : RestControllerBase<@(Model.EntityName)Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
-                /// Page Filter ✍️
+                /// list @Model.Summary with page ✍️
                 /// </summary>
                 /// <param name="filter"></param>
                 /// <returns></returns>
                 [HttpPost("filter")]
-                public async Task<ActionResult<PageList<@(Model.EntityName)ItemDto>>> FilterAsync(@(Model.EntityName)FilterDto filter)
+                public async Task<ActionResult<PageList<@(Model.EntityName)ItemDto>>> ListAsync(@(Model.EntityName)FilterDto filter)
                 {
-                    @(Model.FilterCodes)
                     return await _manager.ToPageAsync(filter);
                 }
 
                 /// <summary>
-                /// Add ✍️
+                /// Add @Model.Summary ✍️
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
                 [HttpPost]
-                public async Task<ActionResult<Guid?>> AddAsync(@(Model.EntityName)AddDto dto)
+                public async Task<ActionResult<@(Model.EntityName)>> AddAsync(@(Model.EntityName)AddDto dto)
                 {
                     @(Model.AddCodes)
-                    var id = await _manager.AddAsync(dto);
-                    return id == null ? Problem(Localizer.AddFailed) : id;
+                    var entity = await _manager.AddAsync(dto);
+                    return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
                 }
 
                 /// <summary>
-                /// Update ✍️
+                /// Update @Model.Summary ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <param name="dto"></param>
                 /// <returns></returns>
                 [HttpPatch("{id}")]
-                public async Task<ActionResult<bool>> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
+                public async Task<bool> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
                 {
-                    @(Model.UpdateCodes)
-                    return await _manager.UpdateAsync(entity, dto);
+                    return await _manager.EditAsync(id, dto) == 1;
                 }
 
                 /// <summary>
-                /// Detail ✍️
+                /// Get @Model.Summary Detail ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpGet("{id}")]
-                public async Task<ActionResult<@(Model.EntityName)DetailDto?>> GetDetailAsync([FromRoute] Guid id)
+                public async Task<@(Model.EntityName)DetailDto?> DetailAsync([FromRoute] Guid id)
                 {
-                    @(Model.DetailCodes)
-                    var res = await _manager.GetDetailAsync(id);
-                    return (res == null) ? NotFound() : res;
+                    return await _manager.GetAsync(id);
                 }
 
                 /// <summary>
-                /// Delete ✍️
+                /// Delete @Model.Summary ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpDelete("{id}")]
                 public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
                 {
-                    // attention permission
-                    @(Model.DeleteCodes)
-                    return await _manager.DeleteAsync([id], true);
+                    return await _manager.DeleteAsync([id], false);
                 }
             }
             """;

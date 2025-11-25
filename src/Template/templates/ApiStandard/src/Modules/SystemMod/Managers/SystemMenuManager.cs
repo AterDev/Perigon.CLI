@@ -47,7 +47,7 @@ public class SystemMenuManager(
     {
         // 查询当前菜单内容
         List<SystemMenu> currentMenus = await _dbSet.ToListAsync();
-        List<SystemMenu> flatMenus    = FlatTree(menus);
+        List<SystemMenu> flatMenus = FlatTree(menus);
 
         var accessCodes = flatMenus.Select(m => m.AccessCode).ToList();
         // 获取需要被删除的
@@ -155,7 +155,7 @@ public class SystemMenuManager(
                 .AsNoTracking()
                 .OrderByDescending(t => t.Sort)
                 .ThenByDescending(t => t.CreatedTime)
-                .Skip((filter.PageIndex - 1) * filter.PageIndex)
+                .Skip((filter.PageIndex - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .ToListAsync();
             menus = menus.BuildTree();

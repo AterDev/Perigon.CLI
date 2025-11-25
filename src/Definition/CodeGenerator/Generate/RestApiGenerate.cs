@@ -53,38 +53,13 @@ public class RestApiGenerate(
             Namespace = serviceName,
             EntityName = EntityInfo.Name,
             Comment = EntityInfo.Comment,
+            Summary = EntityInfo.Summary,
             ShareNamespace = ShareNamespace,
             AddCodes = GenAddCodes(isSystem),
-            UpdateCodes = GenUpdateCodes(isSystem),
-            DetailCodes = GenDetailCodes(isSystem),
-            DeleteCodes = GenDeleteCodes(isSystem),
-            FilterCodes = GenFilterCodes(isSystem),
         };
         return genContext.GenCode(tplContent, model);
     }
 
-    private string GenFilterCodes(bool isSystem = false)
-    {
-        var result = string.Empty;
-        if (!isSystem)
-        {
-            var userEntities = SolutionConfig.UserIdKeys;
-            if (DtoDict.TryGetValue(EntityInfo.Name + DtoType.Filter.ToString(), out var dto))
-            {
-                var userProp = dto
-                    .Properties.Where(d =>
-                        d.IsNavigation && userEntities.Contains(d.NavigationName ?? d.Type)
-                    )
-                    .FirstOrDefault();
-
-                if (userProp != null)
-                {
-                    result = $@"filter.{userProp.Name} = _user.UserId;";
-                }
-            }
-        }
-        return result;
-    }
 
     private string GenAddCodes(bool isSystem = false)
     {
@@ -118,84 +93,8 @@ public class RestApiGenerate(
                     {
                         navigationId = userNav.ForeignKey;
                     }
-                    result += $$"""
-                        if (!await _manager.IsValidate{{navigation.Type}}Async(dto.{{navigationId}}, _user.UserId))
-                                {
-                                    return NotFound(Localizer.NotFoundResource);
-                                }
-                        """;
+                    result += $"// should validate {navigationId}";
                 }
-            }
-
-            if (DtoDict.TryGetValue(EntityInfo.Name + DtoType.Add.ToString(), out var dto))
-            {
-                var userProp = dto
-                    .Properties.Where(d =>
-                        d.IsNavigation && userEntities.Contains(d.NavigationName ?? d.Type)
-                    )
-                    .FirstOrDefault();
-                if (userProp != null)
-                {
-                    result += $@"dto.{userProp.Name} = _user.UserId;";
-                }
-            }
-        }
-        return result;
-    }
-
-    private string GenUpdateCodes(bool isSystem = false)
-    {
-        var result = string.Empty;
-        string method = isSystem ? "GetCurrentAsync(id)" : "GetOwnedAsync(id, _user.UserId)";
-
-        result = $$"""
-            var entity = await _manager.{{method}};
-                    if (entity == null)
-                    {
-                        return NotFound(Localizer.NotFoundResource);
-                    }
-            """;
-        return result;
-    }
-
-    private string GenDetailCodes(bool isSystem = false)
-    {
-        var result = string.Empty;
-        if (!isSystem)
-        {
-            var navigations = EntityInfo.Navigations.Where(n =>
-                SolutionConfig.UserIdKeys.Contains(n.Type)
-            );
-
-            if (navigations.Any())
-            {
-                result = """
-                        if (!await _manager.IsOwnedAsync(id, _user.UserId))
-                            {
-                                return NotFound(Localizer.NotFoundResource);
-                            }
-                    """;
-            }
-        }
-        return result;
-    }
-
-    private string GenDeleteCodes(bool isSystem = false)
-    {
-        var result = string.Empty;
-        if (!isSystem)
-        {
-            var navigations = EntityInfo.Navigations.Where(n =>
-                SolutionConfig.UserIdKeys.Contains(n.Type)
-            );
-            if (navigations.Any())
-            {
-                result = """
-                    if (!await _manager.IsOwnedAsync(id, _user.UserId))
-                            {
-                                return NotFound(Localizer.NotFoundResource);
-                            }
-                    """;
             }
         }
         return result;

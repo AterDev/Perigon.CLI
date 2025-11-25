@@ -1,7 +1,7 @@
-using EntityFramework.AppDbFactory;
-using Share.Models.Auth;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using EntityFramework.AppDbFactory;
+using Share.Models.Auth;
 using SystemMod.Models.SystemUserDtos;
 
 namespace SystemMod.Managers;
