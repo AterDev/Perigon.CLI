@@ -178,9 +178,7 @@ public class SystemUserController(
     /// <returns></returns>
     [HttpGet]
     [Authorize(WebConst.SuperAdmin)]
-    public async Task<ActionResult<PageList<SystemUserItemDto>>> FilterAsync(
-        [FromQuery] SystemUserFilterDto filter
-    )
+    public async Task<ActionResult<PageList<SystemUserItemDto>>> FilterAsync([FromQuery] SystemUserFilterDto filter)
     {
         return await _manager.ToPageAsync(filter);
     }
