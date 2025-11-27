@@ -57,7 +57,9 @@ public class ArticleCategoryManager(
 
     public async Task<PageList<ArticleCategoryItemDto>> FilterAsync(ArticleCategoryFilterDto filter)
     {
-        Queryable = Queryable.WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!));
+        Queryable = Queryable.WhereNotNull(filter.Name, q => q
+            .Name
+            .Contains(filter.Name!));
         return await PageListAsync<ArticleCategoryFilterDto, ArticleCategoryItemDto>(filter);
     }
 

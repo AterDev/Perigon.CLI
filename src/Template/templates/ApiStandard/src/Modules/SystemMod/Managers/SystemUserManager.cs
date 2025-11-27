@@ -18,10 +18,10 @@ public class SystemUserManager(
     SystemUserRoleManager userRoleManager
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
 {
-    private readonly SystemConfigManager   _systemConfig    = systemConfig;
-    private readonly CacheService          _cache           = cache;
-    private readonly SystemLogService      _logService      = logService;
-    private readonly Localizer             _localizer       = localizer;
+    private readonly SystemConfigManager _systemConfig = systemConfig;
+    private readonly CacheService _cache = cache;
+    private readonly SystemLogService _logService = logService;
+    private readonly Localizer _localizer = localizer;
     private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
 
     /// <summary>
@@ -42,7 +42,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public byte[] GetCaptchaImage(int length = 4)
     {
-        var code  = GetCaptcha(length);
+        var code = GetCaptcha(length);
         var width = length * 20;
         return ImageHelper.GenerateImageCaptcha(code, width);
     }
@@ -138,7 +138,9 @@ public class SystemUserManager(
         }
 
         jwtService.Claims = [new(ClaimTypes.Name, user.UserName)];
-        var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
+        var token = jwtService.GetToken(user
+            .Id
+            .ToString(), [.. roles]);
 
         return new AccessTokenDto
         {
@@ -175,16 +177,22 @@ public class SystemUserManager(
 
         if (filter.RoleId != null)
         {
-            var role = await _dbContext.SystemRoles.FindAsync(filter.RoleId);
+            var role = await _dbContext
+                .SystemRoles
+                .FindAsync(filter.RoleId);
             if (role != null)
             {
-                Queryable = Queryable.Where(q => q.SystemRoles.Contains(role));
+                Queryable = Queryable.Where(q => q
+                    .SystemRoles
+                    .Contains(role));
             }
         }
 
         if (filter.RoleId != null)
         {
-            Queryable = Queryable.Where(q => q.SystemRoles.Any(r => r.Id == filter.RoleId));
+            Queryable = Queryable.Where(q => q
+                .SystemRoles
+                .Any(r => r.Id == filter.RoleId));
         }
         return await PageListAsync<SystemUserFilterDto, SystemUserItemDto>(filter);
     }
@@ -291,7 +299,9 @@ public class SystemUserManager(
             await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
             await _cache.SetValueAsync(
                 jwtToken.RefreshToken,
-                user.Id.ToString(),
+                user
+                    .Id
+                    .ToString(),
                 jwtToken.RefreshExpiresIn
             );
 
