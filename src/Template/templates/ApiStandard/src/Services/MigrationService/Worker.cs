@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using EntityFramework.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace MigrationService;

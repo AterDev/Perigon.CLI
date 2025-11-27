@@ -1,6 +1,5 @@
 using System.Reflection;
 using Ater.AspNetCore.Attributes;
-using EntityFramework.AppDbContext;
 using Microsoft.Extensions.Hosting;
 
 namespace SystemMod.Worker;

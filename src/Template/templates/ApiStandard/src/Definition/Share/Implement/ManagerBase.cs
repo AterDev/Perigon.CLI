@@ -44,12 +44,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
         ILogger logger
     )
     {
-        _logger      = logger;
-        _dbContext   = (dbContextFactory.CreateDbContext() as TDbContext)!;
+        _logger = logger;
+        _dbContext = (dbContextFactory.CreateDbContext() as TDbContext)!;
         _userContext = userContext;
-        _dbSet       = _dbContext.Set<TEntity>();
+        _dbSet = _dbContext.Set<TEntity>();
         _userContext = userContext;
-        Queryable    = _dbSet.AsNoTracking().AsQueryable();
+        Queryable = _dbSet.AsNoTracking().AsQueryable();
     }
 
     /// <summary>
@@ -132,8 +132,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 ? Queryable.OrderBy(filter.OrderBy)
                 : Queryable.OrderByDescending(t => t.CreatedTime);
 
-        var         count = Queryable.Count();
-        List<TItem> data  = await Queryable
+        var count = Queryable.Count();
+        List<TItem> data = await Queryable
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)

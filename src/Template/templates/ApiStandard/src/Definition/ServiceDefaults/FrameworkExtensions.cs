@@ -1,7 +1,6 @@
 using Ater.AspNetCore.Abstraction;
 using Ater.AspNetCore.Services;
 using Ater.AspNetCore.Toolkit.Services;
-using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Mapster;
 using Microsoft.AspNetCore.Builder;
