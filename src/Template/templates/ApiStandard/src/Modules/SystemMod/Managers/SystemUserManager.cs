@@ -1,7 +1,7 @@
-using System.Security.Claims;
-using System.Text.RegularExpressions;
 using EntityFramework.AppDbFactory;
 using Share.Models.Auth;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 using SystemMod.Models.SystemUserDtos;
 
 namespace SystemMod.Managers;
@@ -18,10 +18,10 @@ public class SystemUserManager(
     SystemUserRoleManager userRoleManager
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
 {
-    private readonly SystemConfigManager   _systemConfig    = systemConfig;
-    private readonly CacheService          _cache           = cache;
-    private readonly SystemLogService      _logService      = logService;
-    private readonly Localizer             _localizer       = localizer;
+    private readonly SystemConfigManager _systemConfig = systemConfig;
+    private readonly CacheService _cache = cache;
+    private readonly SystemLogService _logService = logService;
+    private readonly Localizer _localizer = localizer;
     private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
 
     /// <summary>
@@ -42,7 +42,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public byte[] GetCaptchaImage(int length = 4)
     {
-        var code  = GetCaptcha(length);
+        var code = GetCaptcha(length);
         var width = length * 20;
         return ImageHelper.GenerateImageCaptcha(code, width);
     }

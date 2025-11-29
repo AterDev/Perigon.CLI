@@ -2,7 +2,6 @@ namespace Entity.StudioMod;
 /// <summary>
 /// 配置
 /// </summary>
-[Module(Modules.Studio)]
 public class ConfigData : EntityBase
 {
     /// <summary>

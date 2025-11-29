@@ -108,8 +108,7 @@ public class ModelProperty
         if (!string.IsNullOrEmpty(attributeText))
         {
             attributeText = attributeText.Trim();
-            attributeText =
-                $@"    {attributeText.Replace(Environment.NewLine, Environment.NewLine + "    ")}"
+            attributeText = $@"    {attributeText.Replace(Environment.NewLine, Environment.NewLine + "    ")}"
                 + Environment.NewLine;
         }
         string nullableMark = IsNullable ? "?" : "";
@@ -156,7 +155,9 @@ public class ModelProperty
         {
             if (
                 !origin.Any(p =>
-                    p.Name.Equals(item.Name)
+                    p
+                        .Name
+                        .Equals(item.Name)
                     && p.IsList == item.IsList
                     && p.IsEnum == item.IsEnum
                     && p.Type == item.Type
@@ -170,7 +171,9 @@ public class ModelProperty
         {
             if (
                 !compare.Any(p =>
-                    p.Name.Equals(item.Name)
+                    p
+                        .Name
+                        .Equals(item.Name)
                     && p.IsList == item.IsList
                     && p.IsEnum == item.IsEnum
                     && p.Type == item.Type

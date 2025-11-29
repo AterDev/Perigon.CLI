@@ -47,7 +47,7 @@ public class SystemMenuManager(
     {
         // 查询当前菜单内容
         List<SystemMenu> currentMenus = await _dbSet.ToListAsync();
-        List<SystemMenu> flatMenus = FlatTree(menus);
+        List<SystemMenu> flatMenus    = FlatTree(menus);
 
         var accessCodes = flatMenus.Select(m => m.AccessCode).ToList();
         // 获取需要被删除的
@@ -63,7 +63,9 @@ public class SystemMenuManager(
         {
             if (currentMenus.Any(c => c.AccessCode == menu.AccessCode))
             {
-                var index = currentMenus.FindIndex(m => m.AccessCode.Equals(menu.AccessCode));
+                var index = currentMenus.FindIndex(m => m
+                    .AccessCode
+                    .Equals(menu.AccessCode));
                 currentMenus[index].Name = menu.Name;
                 currentMenus[index].Sort = menu.Sort;
                 currentMenus[index].Icon = menu.Icon;
@@ -105,12 +107,12 @@ public class SystemMenuManager(
             {
                 var menu = new SystemMenu
                 {
-                    Name = item.Name,
+                    Name       = item.Name,
                     AccessCode = item.AccessCode,
-                    MenuType = (MenuType)item.MenuType,
-                    Parent = parent,
-                    Sort = item.Sort ?? 0,
-                    Icon = item.Icon,
+                    MenuType   = (MenuType)item.MenuType,
+                    Parent     = parent,
+                    Sort       = item.Sort ?? 0,
+                    Icon       = item.Icon,
                 };
                 res.Add(menu);
                 List<SystemMenu> children = FlatTree(item.Children, menu);
@@ -120,12 +122,12 @@ public class SystemMenuManager(
             {
                 var menu = new SystemMenu
                 {
-                    Name = item.Name,
+                    Name       = item.Name,
                     AccessCode = item.AccessCode,
-                    MenuType = (MenuType)item.MenuType,
-                    Parent = parent,
-                    Sort = item.Sort ?? 0,
-                    Icon = item.Icon,
+                    MenuType   = (MenuType)item.MenuType,
+                    Parent     = parent,
+                    Sort       = item.Sort ?? 0,
+                    Icon       = item.Icon,
                 };
                 res.Add(menu);
             }
@@ -139,7 +141,9 @@ public class SystemMenuManager(
         if (filter.RoleId != null)
         {
             menus = await Queryable
-                .Where(q => q.Roles.Any(r => r.Id == filter.RoleId))
+                .Where(q => q
+                .Roles
+                .Any(r => r.Id == filter.RoleId))
                 .ToListAsync();
             menus.BuildTree();
         }

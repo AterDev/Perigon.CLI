@@ -3,7 +3,6 @@ namespace Entity.StudioMod;
 /// <summary>
 /// 接口文档
 /// </summary>
-[Module(Modules.Studio)]
 public class ApiDocInfo : EntityBase
 {
     /// <summary>

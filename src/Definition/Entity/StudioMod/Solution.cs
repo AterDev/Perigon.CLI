@@ -3,7 +3,6 @@ namespace Entity.StudioMod;
 /// <summary>
 /// 项目
 /// </summary>
-[Module(Modules.Studio)]
 public class Solution : EntityBase
 {
     /// <summary>
@@ -77,7 +76,7 @@ public class SolutionConfig
     public string ServicePath { get; set; } = PathConst.ServicesPath;
     public string SolutionPath { get; set; } = string.Empty;
 
-    /// <summary>
+    /// <summary> 
     /// 是否为租户模式
     /// </summary>
     public bool IsTenantMode { get; set; }

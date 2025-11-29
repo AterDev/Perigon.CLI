@@ -35,9 +35,6 @@
     <Project Path="src\Services\AterStudio\AterStudio.csproj" />
   </Folder>
 
-  <Folder Name="/test/">
-    <Project Path="test\CodeGenerator.Test\CodeGenerator.Test.csproj" />
-    <Project Path="test\CommandLine.Test\CommandLine.Test.csproj" />
-  </Folder>
+  <Folder Name="/test/" />
 
 </Solution>

@@ -7,13 +7,12 @@ var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 IResourceBuilder<IResourceWithConnectionString>? database = null;
 IResourceBuilder<IResourceWithConnectionString>? cache = null;
 IResourceBuilder<IResourceWithConnectionString>? nats = null;
-
 IResourceBuilder<IResourceWithConnectionString>? qdrant = null;
 
 // if you have exist resource, you can set connection string here, without create container
-//var db = builder.AddConnectionString(AppConst.Default, "");
-//kafka = builder.AddConnectionString("mq", "");
-//es = builder.AddConnectionString("es", "");
+// database = builder.AddConnectionString(AppConst.Default, "");
+// nats = builder.AddConnectionString("mq", "");
+// qdrant = builder.AddConnectionString("qdrant", "");
 
 #region containers
 var defaultName = "MyProjectName_dev";
@@ -28,7 +27,7 @@ _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
 {
     "postgresql" => database = builder
         .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
-        .WithImageTag("17.6-alpine")
+        .WithImageTag("18.1-alpine")
         .WithDataVolume()
         .AddDatabase(AppConst.Default, databaseName: defaultName),
     "sqlserver" => database = builder
@@ -52,7 +51,7 @@ if (aspireSetting.EnableNats)
 {
     nats = builder
         .AddNats(name: "mq", port: 14222)
-        .WithImageTag("2.11-alpine")
+        .WithImageTag("2.12-alpine")
         .WithJetStream()
         .WithDataVolume();
 }

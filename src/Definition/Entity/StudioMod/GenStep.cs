@@ -1,5 +1,3 @@
-using Ater.Common.Utils;
-
 namespace Entity.StudioMod;
 
 /// <summary>
@@ -51,7 +49,7 @@ public class GenStep : EntityBase
     public string OutputPathFormat(List<Variable> variables)
     {
         string format = OutputPath ?? string.Empty;
-        if (format.NotEmpty())
+        if (!string.IsNullOrWhiteSpace(format))
         {
             // 循环将vriables中的key 匹配的@{key}替换 成value
             foreach (var variable in variables)

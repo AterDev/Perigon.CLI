@@ -3,7 +3,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Trimming>full</Trimming>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Templates\**\*"></EmbeddedResource>
@@ -18,10 +17,10 @@
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="RazorEngineCore" />
-    <PackageReference Include="Microsoft.Build.Locator" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.Build.Locator"  ExcludeAssets="runtime"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" ExcludeAssets="runtime"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" ExcludeAssets="runtime"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" ExcludeAssets="runtime"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />
