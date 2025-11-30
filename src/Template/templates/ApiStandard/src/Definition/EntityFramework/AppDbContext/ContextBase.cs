@@ -52,6 +52,10 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
             .Where(e => typeof(EntityBase).IsAssignableFrom(e.ClrType))
             .ToList();
 
+        var uniqueFilter = Database.IsNpgsql() ? $"\"{nameof(EntityBase.IsDeleted)}\" = false"
+            : Database.IsSqlServer() ? $"[{nameof(EntityBase.IsDeleted)} = 0]"
+            : $"`{nameof(EntityBase.IsDeleted)}` = 0";
+
         foreach (var entityType in entityTypes)
         {
             // 检查该实体是否有 TenantId 属性（未被忽略）
@@ -61,7 +65,8 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
                 continue;
             }
 
-            foreach (var index in entityType.GetIndexes())
+            var indexes = entityType.GetIndexes().ToList();
+            foreach (var index in indexes)
             {
                 var propertyNames = new List<string> { nameof(EntityBase.TenantId) };
                 // 添加原索引的属性，确保 TenantId 在第一位
@@ -79,7 +84,7 @@ public abstract partial class ContextBase(DbContextOptions options) : DbContext(
                         .Entity(entityType.ClrType)
                         .HasIndex([.. propertyNames])
                         .IsUnique()
-                        .HasFilter($"\"{nameof(EntityBase.IsDeleted)}\" = 0");
+                        .HasFilter(uniqueFilter);
                 }
                 else
                 {

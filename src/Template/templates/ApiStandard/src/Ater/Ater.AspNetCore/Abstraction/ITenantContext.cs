@@ -1,4 +1,5 @@
 
+
 namespace Ater.AspNetCore.Abstraction;
 
 public interface ITenantContext
@@ -7,7 +8,7 @@ public interface ITenantContext
 
     public string TenantType { get; set; }
 
-    public string GetTenantName();
-    public string GetDbConnectionString();
-    public string GetAnalysisConnectionString();
+    Task<string?> GetDbConnectionStringAsync();
+    Task<string?> GetAnalysisConnectionStringAsync();
+    Task<string?> GetTenantNameAsync();
 }

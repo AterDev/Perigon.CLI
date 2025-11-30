@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Entity.CommonMod;
+using System.Text.Json;
 
 namespace SystemMod;
 
@@ -20,7 +20,9 @@ public class InitModule
 
         try
         {
-            var hasTenant = await context.Tenants.AnyAsync();
+            var hasTenant = await context
+                .Tenants
+                .AnyAsync();
             if (!hasTenant)
             {
                 logger.LogInformation("⛏️ Start init [System] Module");
@@ -34,7 +36,9 @@ public class InitModule
         }
         catch (Exception ex)
         {
-            var conn = context.Database.GetConnectionString();
+            var conn = context
+                .Database
+                .GetConnectionString();
             logger.LogError("Failed to initialize system configuration! {message}. ", ex.Message);
         }
     }
@@ -42,14 +46,13 @@ public class InitModule
     private static async Task InitTenantAdminAccountAsync(DefaultDbContext context)
     {
         var domain = "default.com";
+        var defaultPassword = "Ater.Default.2026";
         var tenant = new Tenant()
         {
             Domain = domain,
             Name = AppConst.Default,
             Description = "This is default tenant, created by system.",
         };
-        var defaultPassword = HashCrypto.GetRandom(10, true, true, true);
-
         var superRole = new SystemRole()
         {
             Name = WebConst.SuperAdmin,
@@ -66,6 +69,7 @@ public class InitModule
         var salt = HashCrypto.BuildSalt();
         var adminUser = new SystemUser()
         {
+            UserName = "admin",
             Email = $"admin@{domain}",
             PasswordSalt = salt,
             PasswordHash = HashCrypto.GeneratePwd(defaultPassword, salt),
@@ -110,8 +114,12 @@ public class InitModule
             JsonSerializer.Serialize(loginSecurityPolicy)
         );
 
-        context.SystemConfigs.Add(loginSecurityPolicyConfig);
-        context.SystemConfigs.Add(initConfig);
+        context
+            .SystemConfigs
+            .Add(loginSecurityPolicyConfig);
+        context
+            .SystemConfigs
+            .Add(initConfig);
 
         await context.SaveChangesAsync();
         logger.LogInformation("写入登录安全策略成功");
@@ -132,8 +140,12 @@ public class InitModule
     {
         logger.LogInformation("加载配置缓存");
         var securityPolicy = context
-            .SystemConfigs.Where(c => c.Key.Equals(WebConst.LoginSecurityPolicy))
-            .Where(c => c.GroupName.Equals(WebConst.SystemGroup))
+            .SystemConfigs.Where(c => c
+            .Key
+            .Equals(WebConst.LoginSecurityPolicy))
+            .Where(c => c
+            .GroupName
+            .Equals(WebConst.SystemGroup))
             .Select(c => c.Value)
             .FirstOrDefault();
 

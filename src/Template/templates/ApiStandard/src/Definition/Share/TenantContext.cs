@@ -1,9 +1,8 @@
-using System.Security.Claims;
 using Ater.AspNetCore.Services;
 using Entity.CommonMod;
 using EntityFramework.AppDbContext;
 using Microsoft.AspNetCore.Http;
-using Share.Exceptions;
+using System.Security.Claims;
 
 namespace Share;
 
@@ -11,8 +10,9 @@ public class TenantContext : ITenantContext
 {
     public Guid TenantId { get; set; }
     public string TenantType { get; set; }
-    private readonly Tenant _tenant;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly CacheService _cache;
+    private readonly DefaultDbContext _dbContext;
 
     public TenantContext(
         IHttpContextAccessor httpContextAccessor,
@@ -21,6 +21,8 @@ public class TenantContext : ITenantContext
     )
     {
         _httpContextAccessor = httpContextAccessor;
+        _cache = cache;
+        _dbContext = dbContext;
         if (
             Guid.TryParse(FindClaim(CustomClaimTypes.TenantId)?.Value, out Guid tenantId)
             && tenantId != Guid.Empty
@@ -30,28 +32,7 @@ public class TenantContext : ITenantContext
         }
 
         var tenantType = FindClaim(CustomClaimTypes.TenantType);
-        if (tenantType == null)
-        {
-            throw new BusinessException("WrongTenantType", StatusCodes.Status400BadRequest);
-        }
-        TenantType = tenantType.Value;
-
-        var cacheKey = $"{WebConst.TenantId}__{TenantId}";
-        var tenant =
-            cache
-                .GetOrCreateAsync(
-                    cacheKey,
-                    async (cancellationToken) =>
-                    {
-                        return await dbContext.Tenants.FirstOrDefaultAsync(
-                            t => t.TenantId == TenantId,
-                            cancellationToken
-                        );
-                    }
-                )
-                .Result
-            ?? throw new BusinessException("WrongTenantId", StatusCodes.Status400BadRequest);
-        _tenant = tenant;
+        TenantType = tenantType?.Value ?? "Normal";
     }
 
     public Claim? FindClaim(string claimType)
@@ -59,18 +40,39 @@ public class TenantContext : ITenantContext
         return _httpContextAccessor?.HttpContext?.User?.FindFirst(claimType);
     }
 
-    public string GetTenantName()
+    public async Task<string?> GetTenantNameAsync()
     {
-        throw new NotImplementedException();
+        var tenant = await GetTenantAsync();
+        return tenant?.Name;
     }
 
-    public string GetDbConnectionString()
+    public async Task<string?> GetDbConnectionStringAsync()
     {
-        throw new NotImplementedException();
+        var tenant = await GetTenantAsync();
+        return tenant?.DbConnectionString;
     }
 
-    public string GetAnalysisConnectionString()
+    public async Task<string?> GetAnalysisConnectionStringAsync()
     {
-        throw new NotImplementedException();
+        var tenant = await GetTenantAsync();
+        return tenant?.AnalysisConnectionString;
+    }
+
+    private async Task<Tenant?> GetTenantAsync()
+    {
+        var cacheKey = $"{WebConst.TenantId}__{TenantId}";
+        var tenant = await _cache.GetOrCreateAsync(
+                    cacheKey,
+                    async (cancellationToken) =>
+                    {
+                        return await _dbContext
+                            .Tenants
+                            .FirstOrDefaultAsync(
+                            t => t.TenantId == TenantId,
+                            cancellationToken
+                        );
+                    }
+                );
+        return tenant;
     }
 }

@@ -14,14 +14,15 @@ public class SystemUserManager(
     SystemLogService logService,
     ILogger<SystemUserManager> logger,
     IUserContext userContext,
+    ITenantContext tenantContext,
     Localizer localizer,
     SystemUserRoleManager userRoleManager
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
 {
-    private readonly SystemConfigManager _systemConfig = systemConfig;
-    private readonly CacheService _cache = cache;
-    private readonly SystemLogService _logService = logService;
-    private readonly Localizer _localizer = localizer;
+    private readonly SystemConfigManager   _systemConfig    = systemConfig;
+    private readonly CacheService          _cache           = cache;
+    private readonly SystemLogService      _logService      = logService;
+    private readonly Localizer             _localizer       = localizer;
     private readonly SystemUserRoleManager _userRoleManager = userRoleManager;
 
     /// <summary>
@@ -42,7 +43,7 @@ public class SystemUserManager(
     /// <returns></returns>
     public byte[] GetCaptchaImage(int length = 4)
     {
-        var code = GetCaptcha(length);
+        var code  = GetCaptcha(length);
         var width = length * 20;
         return ImageHelper.GenerateImageCaptcha(code, width);
     }
@@ -138,13 +139,15 @@ public class SystemUserManager(
         }
 
         jwtService.Claims = [new(ClaimTypes.Name, user.UserName)];
-        var token = jwtService.GetToken(user.Id.ToString(), [.. roles]);
+        var token = jwtService.GetToken(user
+            .Id
+            .ToString(), [.. roles]);
 
         return new AccessTokenDto
         {
-            AccessToken = token,
-            ExpiresIn = jwtService.ExpiredSecond,
-            RefreshToken = JwtService.GetRefreshToken(),
+            AccessToken      = token,
+            ExpiresIn        = jwtService.ExpiredSecond,
+            RefreshToken     = JwtService.GetRefreshToken(),
             RefreshExpiresIn = jwtService.RefreshExpiredSecond,
         };
     }
@@ -175,16 +178,22 @@ public class SystemUserManager(
 
         if (filter.RoleId != null)
         {
-            var role = await _dbContext.SystemRoles.FindAsync(filter.RoleId);
+            var role = await _dbContext
+                .SystemRoles
+                .FindAsync(filter.RoleId);
             if (role != null)
             {
-                Queryable = Queryable.Where(q => q.SystemRoles.Contains(role));
+                Queryable = Queryable.Where(q => q
+                    .SystemRoles
+                    .Contains(role));
             }
         }
 
         if (filter.RoleId != null)
         {
-            Queryable = Queryable.Where(q => q.SystemRoles.Any(r => r.Id == filter.RoleId));
+            Queryable = Queryable.Where(q => q
+                .SystemRoles
+                .Any(r => r.Id == filter.RoleId));
         }
         return await PageListAsync<SystemUserFilterDto, SystemUserItemDto>(filter);
     }
@@ -261,6 +270,11 @@ public class SystemUserManager(
             await _dbContext.Tenants.Where(t => t.Domain == domain).FirstOrDefaultAsync()
             ?? throw new BusinessException(Localizer.TenantNotExist);
 
+        tenantContext.TenantId   = tenant.Id;
+        tenantContext.TenantType = tenant
+            .Type
+            .ToString();
+
         // 查询用户
         var user = await _dbSet
             .Where(u => u.Email == dto.Email)
@@ -291,7 +305,9 @@ public class SystemUserManager(
             await _cache.SetValueAsync(key, jwtToken.AccessToken, expiredSeconds);
             await _cache.SetValueAsync(
                 jwtToken.RefreshToken,
-                user.Id.ToString(),
+                user
+                    .Id
+                    .ToString(),
                 jwtToken.RefreshExpiresIn
             );
 

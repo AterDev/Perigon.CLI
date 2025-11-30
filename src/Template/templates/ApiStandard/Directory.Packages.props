@@ -16,6 +16,9 @@
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.0.1" />
     <PackageVersion Include="Aspire.Qdrant.Client" Version="13.0.1" />
     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.0.1" />
+    <!--Test -->
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.0.1" />
+    <PackageVersion Include="TUnit" Version="1.3.0" />
     <!-- Microsoft ASP.NET Core Packages -->
     <PackageVersion Include="EFCore.BulkExtensions.PostgreSql" Version="10.0.0-rc.2" />
     <PackageVersion Include="EFCore.BulkExtensions.SqlServer" Version="10.0.0-rc.2" />
