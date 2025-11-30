@@ -16,28 +16,28 @@ IResourceBuilder<IResourceWithConnectionString>? qdrant = null;
 
 #region containers
 var defaultName = "MyProjectName_dev";
-
 var devPassword = builder.AddParameter(
     "dev-password",
     value: aspireSetting.DevPassword,
     secret: true
 );
 
+var infrastructureGroup = builder.AddGroup("Infrastructure", "Cloud");
 _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
 {
     "postgresql" => database = builder
-        .AddPostgres(name: "db", password: devPassword, port: aspireSetting.DbPort)
+        .AddPostgres(name: "Database", password: devPassword, port: aspireSetting.DbPort)
         .WithImageTag("18.1-alpine")
         .WithDataVolume()
         .AddDatabase(AppConst.Default, databaseName: defaultName),
     "sqlserver" => database = builder
-        .AddSqlServer(name: "db", password: devPassword, port: aspireSetting.DbPort)
+        .AddSqlServer(name: "Database", password: devPassword, port: aspireSetting.DbPort)
         .WithImageTag("2025-latest")
         .WithDataVolume()
         .AddDatabase(AppConst.Default, databaseName: defaultName),
     _ => null,
-};
 
+};
 _ = aspireSetting.CacheType?.ToLowerInvariant() switch
 {
     "memory" => null,
@@ -47,6 +47,11 @@ _ = aspireSetting.CacheType?.ToLowerInvariant() switch
         .WithDataVolume()
         .WithPersistence(interval: TimeSpan.FromMinutes(5)),
 };
+
+devPassword.WithParentRelationship(infrastructureGroup);
+database?.WithParentRelationship(infrastructureGroup);
+cache?.WithParentRelationship(infrastructureGroup);
+
 if (aspireSetting.EnableNats)
 {
     nats = builder
@@ -54,6 +59,7 @@ if (aspireSetting.EnableNats)
         .WithImageTag("2.12-alpine")
         .WithJetStream()
         .WithDataVolume();
+    nats.WithParentRelationship(infrastructureGroup);
 }
 if (aspireSetting.EnableQdrant)
 {
@@ -61,15 +67,18 @@ if (aspireSetting.EnableQdrant)
         .AddQdrant("qdrant", devPassword, grpcPort: 16334, httpPort: 16333)
         .WithLifetime(ContainerLifetime.Persistent)
         .WithDataVolume();
+    qdrant.WithParentRelationship(infrastructureGroup);
 }
 
 #endregion
 
-var migration = builder.AddProject<Projects.MigrationService>("MigrationService");
-var apiService = builder.AddProject<Projects.ApiService>("ApiService").WaitForCompletion(migration);
-var adminService = builder
-    .AddProject<Projects.AdminService>("AdminService")
-    .WaitForCompletion(migration);
+var serviceGroup = builder.AddGroup("Services", "Globe");
+var migration = builder.AddProject<Projects.MigrationService>("MigrationService")
+    .WithParentRelationship(serviceGroup);
+var apiService = builder.AddProject<Projects.ApiService>("ApiService").WaitForCompletion(migration)
+    .WithParentRelationship(serviceGroup);
+var adminService = builder.AddProject<Projects.AdminService>("AdminService").WaitForCompletion(migration)
+    .WithParentRelationship(serviceGroup);
 
 if (database != null)
 {

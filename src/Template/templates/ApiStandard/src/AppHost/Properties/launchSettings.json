@@ -1,18 +1,17 @@
 {
+  "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
     "https": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:17000",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ENVIRONMENT": "Development",
         "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21050",
         "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22291"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:17000",
-      "nativeDebugging": true
+      }
     }
-  },
-  "$schema": "https://json.schemastore.org/launchsettings.json"
+  }
 }

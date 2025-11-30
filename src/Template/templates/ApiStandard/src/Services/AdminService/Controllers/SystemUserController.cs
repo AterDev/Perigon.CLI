@@ -127,9 +127,7 @@ public class SystemUserController(
     public async Task<ActionResult<AccessTokenDto>> RefreshTokenAsync(string refreshToken)
     {
         var userId = await _cache.GetValueAsync<string>(refreshToken);
-        if (userId == null || userId != _user
-            .UserId
-            .ToString())
+        if (userId == null || userId != _user.UserId.ToString())
         {
             return NotFound(Localizer.NotFoundResource);
         }
@@ -150,9 +148,7 @@ public class SystemUserController(
         }
         var key = user.GetUniqueKey(WebConst.LoginCachePrefix, client);
 
-        await _cache.SetValueAsync(refreshToken, user
-            .Id
-            .ToString(), jwtToken.RefreshExpiresIn);
+        await _cache.SetValueAsync(refreshToken, user.Id.ToString(), jwtToken.RefreshExpiresIn);
         await _cache.SetValueAsync(key, jwtToken.AccessToken, jwtToken.ExpiresIn);
         return jwtToken;
     }
