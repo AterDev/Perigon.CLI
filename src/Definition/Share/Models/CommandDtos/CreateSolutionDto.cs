@@ -96,10 +96,7 @@ public enum DBType
     /// SQLServer
     /// </summary>
     [Description("SQLServer")]
-    SQLServer,
-
-    [Description("Else")]
-    Else,
+    SQLServer
 }
 
 public enum CacheType
@@ -136,6 +133,6 @@ public enum FrontType
     [Description("Angular")]
     Angular,
 
-    //[Description("Blazor")]
-    //Blazor,
+    [Description("Blazor")]
+    Blazor,
 }

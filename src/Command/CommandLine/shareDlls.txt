@@ -8,7 +8,6 @@ Mapster.Core.dll
 Mapster.dll
 Microsoft.AspNetCore.Razor.Language.dll
 Microsoft.Build.Framework.dll
-Microsoft.Build.Locator.dll
 Microsoft.CodeAnalysis.CSharp.dll
 Microsoft.CodeAnalysis.CSharp.Workspaces.dll
 Microsoft.CodeAnalysis.dll
@@ -30,6 +29,7 @@ Microsoft.VisualStudio.SolutionPersistence.dll
 Newtonsoft.Json.dll
 RazorEngineCore.dll
 Share.dll
+Spectre.Console.Cli.dll
 Spectre.Console.dll
 SQLitePCLRaw.batteries_v2.dll
 SQLitePCLRaw.core.dll

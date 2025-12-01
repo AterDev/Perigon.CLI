@@ -1,8 +1,0 @@
-@if(avatar){
-<img [src]="avatar" [width]="size" [height]="size">
-}@else {
-<span class="app-avatar" [style.height.px]="size" [style.width.px]="size" [style.font-size.px]="size"
-  [style.line-height.px]="size-2">
-  {{name | slice:0:1}}
-</span>
-}

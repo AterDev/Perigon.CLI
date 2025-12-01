@@ -1,3 +1,5 @@
+using Entity;
+
 namespace Share.Implement;
 
 /// <summary>
@@ -24,7 +26,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     ILogger logger
 )
     where TDbContext : DbContext
-    where TEntity : class, IEntityBase
+    where TEntity : EntityBase
 {
     #region Properties and Fields
 
@@ -70,7 +72,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
         where TDto : class
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var dbSet = context.Set<TEntity>();
+        var       dbSet   = context.Set<TEntity>();
         if (typeof(TDto) == typeof(TEntity))
         {
             var model = await dbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
@@ -106,8 +108,8 @@ public abstract class ManagerBase<TDbContext, TEntity>(
         where TDto : class
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var dbSet = context.Set<TEntity>();
-        var model = await dbSet
+        var       dbSet   = context.Set<TEntity>();
+        var       model   = await dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
             .ProjectTo<TDto>()
@@ -154,7 +156,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
         where TDto : class
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var dbSet = context.Set<TEntity>();
+        var       dbSet   = context.Set<TEntity>();
         return await dbSet
             .AsNoTracking()
             .Where(whereExp ?? (e => true))
@@ -170,7 +172,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var dbSet = context.Set<TEntity>();
+        var       dbSet   = context.Set<TEntity>();
         return await dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
     }
 
@@ -185,17 +187,17 @@ public abstract class ManagerBase<TDbContext, TEntity>(
         where TFilter : FilterBase
         where TItem : class
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var dbSet = context.Set<TEntity>();
-        var queryable = Queryable ?? dbSet.AsNoTracking().AsQueryable();
+        using var context   = _dbContextFactory.CreateDbContext();
+        var       dbSet     = context.Set<TEntity>();
+        var       queryable = Queryable ?? dbSet.AsNoTracking().AsQueryable();
 
         queryable =
             filter.OrderBy != null
                 ? queryable.OrderBy(filter.OrderBy)
                 : queryable.OrderByDescending(t => t.CreatedTime);
 
-        var count = queryable.Count();
-        List<TItem> data = await queryable
+        var         count = queryable.Count();
+        List<TItem> data  = await queryable
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
@@ -204,8 +206,8 @@ public abstract class ManagerBase<TDbContext, TEntity>(
 
         return new PageList<TItem>
         {
-            Count = count,
-            Data = data,
+            Count     = count,
+            Data      = data,
             PageIndex = filter.PageIndex,
         };
     }
@@ -230,7 +232,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     public async Task<bool> UpdateAsync(TEntity entity)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var _dbSet = context.Set<TEntity>();
+        var       _dbSet  = context.Set<TEntity>();
 
         _dbSet!.Update(entity);
         return await context.SaveChangesAsync() > 0;
@@ -245,8 +247,8 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var _dbSet = context.Set<TEntity>();
-        var res = softDelete
+        var       _dbSet  = context.Set<TEntity>();
+        var       res     = softDelete
             ? await _dbSet!
                 .Where(d => ids.Contains(d.Id))
                 .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
@@ -263,7 +265,7 @@ public abstract class ManagerBase<TDbContext, TEntity>(
     public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var _dbSet = context.Set<TEntity>();
+        var       _dbSet  = context.Set<TEntity>();
 
         if (softDelete)
         {
