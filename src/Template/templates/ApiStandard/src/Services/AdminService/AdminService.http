@@ -3,8 +3,8 @@
 POST {{AdminService_HostAddress}}/systemuser/login
 Accept: application/json
 {
-  "userName": "admin",
-  "password":"Hello.Net"
+  "userName": "admin@default.com",
+  "password":"Ater.Default.2026"
 }
 
 ###

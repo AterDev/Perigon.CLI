@@ -18,6 +18,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Command\CommandLine\CommandLine.csproj" />
-    <ProjectReference Include="..\CodeGenerator.Test\CodeGenerator.Test.csproj" />
   </ItemGroup>
 </Project>

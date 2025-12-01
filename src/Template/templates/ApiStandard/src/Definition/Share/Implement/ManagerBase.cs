@@ -1,9 +1,9 @@
-using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using Entity;
 using EntityFramework;
 using EntityFramework.AppDbFactory;
 using Mapster;
+using System.Linq.Expressions;
 
 namespace Share.Implement;
 
@@ -44,8 +44,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
         ILogger logger
     )
     {
-        _logger = logger;
-        _dbContext = (dbContextFactory.CreateDbContext() as TDbContext)!;
+        _logger      = logger;
+        _dbContext   = (dbContextFactory.CreateDbContextAsync().Result as TDbContext)!;
         _userContext = userContext;
         _dbSet = _dbContext.Set<TEntity>();
         _userContext = userContext;
@@ -143,8 +143,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
         ResetQuery();
         return new PageList<TItem>
         {
-            Count = count,
-            Data = data,
+            Count     = count,
+            Data      = data,
             PageIndex = filter.PageIndex,
         };
     }
@@ -287,7 +287,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
         CancellationToken cancellationToken = default
     )
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        using var transaction = await _dbContext
+            .Database
+            .BeginTransactionAsync(cancellationToken);
         try
         {
             var result = await operation();
@@ -313,7 +315,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
         CancellationToken cancellationToken = default
     )
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        using var transaction = await _dbContext
+            .Database
+            .BeginTransactionAsync(cancellationToken);
         try
         {
             await operation();

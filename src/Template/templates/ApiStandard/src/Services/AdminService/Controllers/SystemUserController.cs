@@ -108,10 +108,10 @@ public class SystemUserController(
 
         return new UserInfoDto
         {
-            Id = user.Id,
-            Username = user.UserName,
-            Roles = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
-            Menus = menus,
+            Id               = user.Id,
+            Username         = user.UserName,
+            Roles            = user.SystemRoles?.Select(r => r.NameValue).ToArray() ?? [WebConst.AdminUser],
+            Menus            = menus,
             PermissionGroups = permissionGroups,
         };
     }
@@ -141,9 +141,7 @@ public class SystemUserController(
         AccessTokenDto jwtToken = _manager.GenerateJwtToken(user);
         // 更新缓存
         var loginPolicy = await _systemConfig.GetLoginSecurityPolicyAsync();
-
-        var client =
-            HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
+        var client      = HttpContext.Request.Headers[WebConst.ClientHeader].FirstOrDefault() ?? WebConst.Web;
         if (loginPolicy.SessionLevel == SessionLevel.OnlyOne)
         {
             client = WebConst.AllPlatform;
@@ -196,7 +194,9 @@ public class SystemUserController(
         List<SystemRole>? roles = null;
         if (dto.RoleIds != null && dto.RoleIds.Count != 0)
         {
-            roles = await _roleManager.ListAsync(r => dto.RoleIds.Contains(r.Id));
+            roles = await _roleManager.ListAsync(r => dto
+                .RoleIds
+                .Contains(r.Id));
         }
         var entity = await _manager.AddAsync(dto, roles);
         return CreatedAtAction(nameof(GetDetailAsync), new { id = entity.Id }, entity);
@@ -219,7 +219,9 @@ public class SystemUserController(
         List<SystemRole>? roles = null;
         if (dto.RoleIds != null)
         {
-            roles = await _roleManager.ListAsync(r => dto.RoleIds.Contains(r.Id));
+            roles = await _roleManager.ListAsync(r => dto
+                .RoleIds
+                .Contains(r.Id));
         }
         var entity = await _manager.UpdateAsync(id, dto, roles);
         return Ok(entity);

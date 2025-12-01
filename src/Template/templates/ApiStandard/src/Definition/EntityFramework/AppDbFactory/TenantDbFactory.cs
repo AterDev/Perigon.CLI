@@ -18,15 +18,17 @@ public class TenantDbFactory(
     IOptions<ComponentOption> options
 )
 {
-    public DefaultDbContext CreateDbContext()
+    public async Task<DefaultDbContext> CreateDbContextAsync()
     {
-        var builder = new DbContextOptionsBuilder<DefaultDbContext>();
+        var  builder  = new DbContextOptionsBuilder<DefaultDbContext>();
         Guid tenantId = tenantContext.TenantId;
 
         var connectionStrings = configuration.GetConnectionString(AppConst.Default);
-        if (tenantContext.TenantType == TenantType.Independent.ToString())
+        if (tenantContext.TenantType == TenantType
+            .Independent
+            .ToString())
         {
-            connectionStrings = tenantContext.GetDbConnectionString();
+            connectionStrings = await tenantContext.GetDbConnectionStringAsync();
         }
         switch (options?.Value.Database)
         {
@@ -40,14 +42,16 @@ public class TenantDbFactory(
         return new DefaultDbContext(builder.Options);
     }
 
-    public AnalysisDbContext CreateAnalysisDbContext()
+    public async Task<AnalysisDbContext> CreateAnalysisDbContextAsync()
     {
-        var builder = new DbContextOptionsBuilder<AnalysisDbContext>();
-        Guid tenantId = tenantContext.TenantId;
-        var connectionStrings = configuration.GetConnectionString(AppConst.Analysis);
-        if (tenantContext.TenantType == TenantType.Independent.ToString())
+        var  builder           = new DbContextOptionsBuilder<AnalysisDbContext>();
+        Guid tenantId          = tenantContext.TenantId;
+        var  connectionStrings = configuration.GetConnectionString(AppConst.Analysis);
+        if (tenantContext.TenantType == TenantType
+            .Independent
+            .ToString())
         {
-            connectionStrings = tenantContext.GetDbConnectionString();
+            connectionStrings = await tenantContext.GetDbConnectionStringAsync();
         }
         switch (options?.Value.Database)
         {

@@ -1,6 +1,6 @@
 namespace Entity;
 
-public abstract class EntityBase : IEntityBase
+public abstract class EntityBase 
 {
     [Key]
     public Guid Id { get; set; } = Guid.CreateVersion7();

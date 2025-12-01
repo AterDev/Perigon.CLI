@@ -40,15 +40,15 @@ public class RazorGenContext
     /// </summary>
     /// <param name="templateContent"></param>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns></returns> 
     public string GenTemplate(string templateContent, List<Variable> model)
     {
         // model to dictionary
         var dictionary = model.ToDictionary(v => v.Key, v => v.Value);
-
         var template = RazorEngine.Compile<RazorEngineTemplateBase<Dictionary<string, string>>>(
             templateContent
         );
+
         string result = template.Run(instance =>
         {
             instance.Model = dictionary;
@@ -58,8 +58,7 @@ public class RazorGenContext
 
     public string GenTemplate(string templateContent, ActionRunModel model)
     {
-        templateContent =
-            $"@using {ConstVal.CoreLibName}.Utils;" + Environment.NewLine + templateContent;
+        templateContent = $"@using {ConstVal.CoreLibName}.Utils;" + Environment.NewLine + templateContent;
         var dictionary = model
             .Variables.DistinctBy(v => v.Key)
             .ToDictionary(v => v.Key, v => v.Value);

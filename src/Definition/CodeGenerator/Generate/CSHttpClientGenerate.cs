@@ -188,8 +188,12 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
             : function.ResponseType;
 
         // 函数名处理，去除tag前缀，然后格式化
-        function.Name = function.Name.Replace(function.Tag + "_", "");
-        function.Name = function.Name.ToCamelCase();
+        function.Name = function
+            .Name
+            .Replace(function.Tag + "_", "");
+        function.Name = function
+            .Name
+            .ToCamelCase();
         // 处理参数
         string paramsString = "";
         string paramsComments = "";
@@ -204,7 +208,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                     .Select(p => p.IsRequired ? p.Type + " " + p.Name : p.Type + "? " + p.Name)
                     .ToArray()
             );
-            function.Params.ForEach(p =>
+            function
+                .Params
+                .ForEach(p =>
             {
                 //<param name="dto"></param>
                 paramsComments +=
@@ -280,7 +286,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                 : method;
         string res = $$"""
             {{comments}}
-                public async Task<{{returnType}}?> {{function.Name.ToPascalCase()}}Async({{paramsString}}) {
+                public async Task<{{returnType}}?> {{function
+            .Name
+            .ToPascalCase()}}Async({{paramsString}}) {
                     var url = $"{{function.Path}}";
                     return await {{method}};
                 }
@@ -306,8 +314,12 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                 RequestServiceFunction function = new()
                 {
                     Description = operation.Value.Summary,
-                    Method = operation.Key.ToString(),
-                    Name = operation.Value.OperationId ?? (operation.Key.ToString() + path.Key),
+                    Method = operation
+                        .Key
+                        .ToString(),
+                    Name = operation.Value.OperationId ?? (operation
+                        .Key
+                        .ToString() + path.Key),
                     Path = path.Key,
                     Tag = operation.Value.Tags?.FirstOrDefault()?.Name,
                 };
@@ -348,7 +360,10 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 
         bool isEnum = (schema.Enum?.Count ?? 0) > 0 || schema.Extensions?.ContainsKey("x-enumData") == true;
         bool isList = schema.Type == JsonSchemaType.Array;
-        bool isNullable = schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null);
+        bool isNullable = schema.Type.HasValue && schema
+            .Type
+            .Value
+            .HasFlag(JsonSchemaType.Null);
 
         string baseType = OpenApiHelper.MapToCSharpType(schema);
         if (schema is OpenApiSchemaReference r && r.Reference.Id is not null)

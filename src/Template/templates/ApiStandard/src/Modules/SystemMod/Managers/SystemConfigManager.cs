@@ -1,5 +1,5 @@
-using System.Text.Json;
 using EntityFramework.AppDbFactory;
+using System.Text.Json;
 using SystemMod.Models.SystemConfigDtos;
 
 namespace SystemMod.Managers;
@@ -111,7 +111,9 @@ public class SystemConfigManager(
         Queryable = Queryable
             .WhereNotNull(
                 filter.Key,
-                q => q.Key.Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase)
+                q => q
+                    .Key
+                    .Contains(filter.Key!, StringComparison.CurrentCultureIgnoreCase)
             )
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName);
 

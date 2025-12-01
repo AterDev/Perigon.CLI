@@ -1,7 +1,7 @@
-using System.Security.Claims;
-using System.Text.RegularExpressions;
 using EntityFramework.AppDbFactory;
 using Share.Models.Auth;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 using SystemMod.Models.SystemUserDtos;
 
 namespace SystemMod.Managers;
@@ -14,6 +14,7 @@ public class SystemUserManager(
     SystemLogService logService,
     ILogger<SystemUserManager> logger,
     IUserContext userContext,
+    ITenantContext tenantContext,
     Localizer localizer,
     SystemUserRoleManager userRoleManager
 ) : ManagerBase<DefaultDbContext, SystemUser>(dbContextFactory, userContext, logger)
@@ -144,9 +145,9 @@ public class SystemUserManager(
 
         return new AccessTokenDto
         {
-            AccessToken = token,
-            ExpiresIn = jwtService.ExpiredSecond,
-            RefreshToken = JwtService.GetRefreshToken(),
+            AccessToken      = token,
+            ExpiresIn        = jwtService.ExpiredSecond,
+            RefreshToken     = JwtService.GetRefreshToken(),
             RefreshExpiresIn = jwtService.RefreshExpiredSecond,
         };
     }
@@ -268,6 +269,11 @@ public class SystemUserManager(
         var tenant =
             await _dbContext.Tenants.Where(t => t.Domain == domain).FirstOrDefaultAsync()
             ?? throw new BusinessException(Localizer.TenantNotExist);
+
+        tenantContext.TenantId   = tenant.Id;
+        tenantContext.TenantType = tenant
+            .Type
+            .ToString();
 
         // 查询用户
         var user = await _dbSet

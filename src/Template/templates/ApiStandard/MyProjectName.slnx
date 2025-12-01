@@ -23,9 +23,9 @@
     <Project Path="src/Definition/Share/Share.csproj" />
   </Folder>
   <Folder Name="/src/Ater/" Id="9048eb7f-3875-a59e-e36b-5bd4c6f2a282">
-    <Project Path="src/Ater/Ater.AspNetCore/Ater.AspNetCore.csproj" Id="5cd13529-038d-44b2-a90d-d636396d01bb" />
-    <Project Path="src/Ater/Ater.AspNetCore.Toolkit/Ater.AspNetCore.Toolkit.csproj" />
     <Project Path="src/Ater/Ater.AspNetCore.SourceGeneration/Ater.AspNetCore.SourceGeneration.csproj" Id="2100e1d1-be4d-45d4-ada2-87bf36ae67f7" />
+    <Project Path="src/Ater/Ater.AspNetCore.Toolkit/Ater.AspNetCore.Toolkit.csproj" />
+    <Project Path="src/Ater/Ater.AspNetCore/Ater.AspNetCore.csproj" Id="5cd13529-038d-44b2-a90d-d636396d01bb" />
   </Folder>
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/CMSMod/CMSMod.csproj" />
@@ -36,5 +36,8 @@
     <Project Path="src/Services/AdminService/AdminService.csproj" />
     <Project Path="src/Services/ApiService/ApiService.csproj" />
     <Project Path="src/Services/MigrationService/MigrationService.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ApiTest/ApiTest.csproj" Id="76a6ee38-e083-4d7a-a1f4-5f490942d94b" />
   </Folder>
 </Solution>
