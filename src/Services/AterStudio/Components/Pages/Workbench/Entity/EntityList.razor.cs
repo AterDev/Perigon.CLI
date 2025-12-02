@@ -1,6 +1,5 @@
 using CodeGenerator.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace AterStudio.Components.Pages.Workbench.Entity;
 
@@ -38,29 +37,10 @@ public partial class EntityList
 
     protected override async Task OnInitializedAsync()
     {
-        CheckProject();
-        try
-        {
-            await GetEntityListAsync();
-            GetModules();
-            GetServices();
-        }
-        catch (OperationCanceledException)
-        {
-            // 组件已卸载，忽略错误
-        }
-        catch (ObjectDisposedException)
-        {
-            // DbContext 已释放，忽略错误
-        }
-        catch (JSDisconnectedException)
-        {
-            // JavaScript interop 连接已断开
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        CheckProject(); await GetEntityListAsync();
+        GetModules();
+        GetServices();
+        isLoading = false;
     }
 
     private void GetServices()

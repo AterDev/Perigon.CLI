@@ -115,7 +115,7 @@
                               @(api.HttpMethod.ToString().Substring(0, 1))
                             </FluentLabel>
                             <FluentLabel Typo="Typography.Subject">
-                              @(api.Summary ?? api.Router)
+                              @(string.IsNullOrWhiteSpace(api.Summary) ? api.Router : api.Summary)
                             </FluentLabel>
                           </FluentStack>
                         </FluentNavLink>

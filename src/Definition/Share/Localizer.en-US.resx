@@ -547,4 +547,8 @@
   <data name="DeleteModuleDescription" xml:space="preserve">
     <value>This will delete the entities, module, and related controllers of this module.</value>
   </data>
+  <data name="CreateWebApiService" xml:space="preserve">
+    <value>Create a WebApi service</value>
+    <comment>创建WebApi服务</comment>
+  </data>
 </root>
