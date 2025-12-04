@@ -1,0 +1,59 @@
+@using System.ComponentModel.DataAnnotations
+@using AterStudio.Components.Shared.Models
+@inherits PageBase
+@implements IDialogContentComponent<DeleteConfirmDto>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.Subject">
+    @Content.Title
+  </FluentLabel>
+</FluentDialogHeader>
+
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="12">
+  <FluentStack Orientation="Orientation.Horizontal" VerticalGap="2" HorizontalAlignment="HorizontalAlignment.Start">
+    <FluentIcon Value="@(new Icons.Regular.Size24.Alert())" Color="Color.Error" />
+    <FluentLabel>@Content.Message</FluentLabel>
+  </FluentStack>
+</FluentStack>
+
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                Type="ButtonType.Button"
+                Loading="@loading"
+                OnClick="ConfirmAsync">
+    @Lang(Localizer.Confirm)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                Loading="@loading"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code {
+
+  [CascadingParameter]
+  FluentDialog Dialog { get; set; } = null!;
+
+  [Parameter]
+  public DeleteConfirmDto Content { get; set; } = default!;
+
+  bool loading = false;
+
+  private async Task ConfirmAsync()
+  {
+    loading = true;
+    await Task.Yield();
+    if (Content.OnConfirm != null)
+    {
+      await Content.OnConfirm();
+    }
+    loading = false;
+    await Dialog.CloseAsync(true);
+  }
+
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+}

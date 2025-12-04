@@ -16,7 +16,6 @@ public partial class EntityList
     bool isLoading = true;
     bool IsRefreshing { get; set; }
 
-    bool IsModuleDeleting { get; set; }
     bool IsCleaning { get; set; }
     bool BatchOpen { get; set; }
 
@@ -190,33 +189,29 @@ public partial class EntityList
     {
         if (!string.IsNullOrWhiteSpace(SelectedModule))
         {
-            var dialog = await DialogService.ShowConfirmationAsync(
-                Lang(Localizer.DeleteModuleDescription),
-                Lang(Localizer.Confirm),
-                Lang(Localizer.Cancel),
-                LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Modules))
-            );
-
-            var result = await dialog.Result;
-            if (!result.Cancelled)
+            var data = new DeleteConfirmDto
             {
-                if (IsModuleDeleting)
+                Title = LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Modules)),
+                Message = Lang(Localizer.DeleteModuleDescription),
+                OnConfirm = async () =>
                 {
-                    return;
+                    var res = SolutionManager.DeleteModule(SelectedModule);
+                    if (res)
+                    {
+                        ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
+                        GetModules();
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        ToastService.ShowError(SolutionManager.ErrorMsg);
+                    }
                 }
-                IsModuleDeleting = true;
-                var res = SolutionManager.DeleteModule(SelectedModule);
-                IsModuleDeleting = false;
-                if (res)
-                {
-                    ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
-                    GetModules();
-                }
-                else
-                {
-                    ToastService.ShowError(SolutionManager.ErrorMsg);
-                }
-            }
+            };
+            var dialog = await DialogService.ShowDialogAsync<DeleteConfirmDialog>(
+                data,
+                new DialogParameters { Modal = true, Width = "400px" }
+            );
         }
         else
         {
