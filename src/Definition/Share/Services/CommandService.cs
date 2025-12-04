@@ -65,7 +65,7 @@ public class CommandService(
 
         string version = AssemblyHelper.GetCurrentToolVersion();
 
-        if (ProcessHelper.RunCommand("dotnet", $"new list ater-{templateType}", out _))
+        if (ProcessHelper.RunCommand("dotnet", $"new list {templateType}", out _))
         {
             ProcessHelper.RunCommand("dotnet", $"new update", out _);
         }
@@ -73,7 +73,7 @@ public class CommandService(
         {
             ProcessHelper.RunCommand(
                 "dotnet",
-                $"new install ater.web.templates::{version}",
+                $"new install Perigon.template::{version}",
                 out string msg
             );
             OutputHelper.Info(msg);
@@ -92,7 +92,7 @@ public class CommandService(
         if (
             !ProcessHelper.RunCommand(
                 "dotnet",
-                $"new ater-{templateType} -o {solutionPath} --force {templateOptions}",
+                $"new {templateType} -o {solutionPath} --force {templateOptions}",
                 out string error
             )
         )

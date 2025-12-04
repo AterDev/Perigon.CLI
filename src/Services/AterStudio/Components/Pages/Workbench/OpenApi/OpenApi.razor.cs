@@ -299,7 +299,7 @@ public partial class OpenApi
             return;
         }
         var dialog = await DialogService.ShowConfirmationAsync(
-            Lang(Localizer.ConfirmDeleteMessage),
+            LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.File)),
             Lang(Localizer.Delete),
             Lang(Localizer.Cancel)
         );

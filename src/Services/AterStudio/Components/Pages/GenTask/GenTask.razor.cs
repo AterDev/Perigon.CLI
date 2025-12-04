@@ -123,7 +123,7 @@ public partial class GenTask : PageBase
             return;
 
         var dialog = await DialogService.ShowConfirmationAsync(
-            Lang(Localizer.ConfirmDeleteMessage),
+            LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Task)),
             Lang(Localizer.Confirm),
             Lang(Localizer.Cancel),
             Lang(Localizer.Delete, Localizer.Task)
@@ -172,7 +172,7 @@ public partial class GenTask : PageBase
             return;
 
         var dialog = await DialogService.ShowConfirmationAsync(
-            Lang(Localizer.ConfirmDeleteMessage),
+            LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Step)),
             Lang(Localizer.Confirm),
             Lang(Localizer.Cancel),
             Lang(Localizer.Delete, Localizer.Step)

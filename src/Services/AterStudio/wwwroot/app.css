@@ -77,6 +77,10 @@ body {
     height: 50vh !important;
 }
 
+.vh-default {
+    height: calc(100vh - 56px);
+}
+
 .d-flex {
     display: flex !important;
 }

@@ -133,6 +133,6 @@ public enum FrontType
     [Description("Angular")]
     Angular,
 
-    [Description("Blazor")]
-    Blazor,
+    //[Description("Blazor")]
+    //Blazor,
 }

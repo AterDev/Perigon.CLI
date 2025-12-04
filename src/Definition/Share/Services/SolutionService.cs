@@ -451,15 +451,15 @@ public class SolutionService(
         if (entityNames.Count > 0)
         {
             var databasePath = _projectContext.EntityFrameworkPath!;
-            var dbProviderDir = Path.Combine(databasePath, "DBProvider");
-            if (Directory.Exists(dbProviderDir))
+            var dbContextDir = Path.Combine(databasePath, ConstVal.AppDbContextName);
+            if (Directory.Exists(dbContextDir))
             {
-                var dbContextFiles = Directory.GetFiles(dbProviderDir, "*.cs");
+                var dbContextFiles = Directory.GetFiles(dbContextDir, "*.cs");
                 foreach (var dbContextFile in dbContextFiles)
                 {
                     if (
                         !dbContextFile.EndsWith("DbContext.cs")
-                        && dbContextFile != "ContextBase.cs"
+                        && dbContextFile != ConstVal.ContextBase + ".cs"
                     )
                     {
                         continue;
@@ -469,7 +469,7 @@ public class SolutionService(
                     compilation.LoadContent(dbContextContent);
 
                     if (
-                        compilation.GetParentClassName() == "ContextBase"
+                        compilation.GetParentClassName() == ConstVal.ContextBase
                         || compilation.GetParentClassName() == "DbContext"
                     )
                     {
@@ -483,6 +483,8 @@ public class SolutionService(
                         }
 
                         dbContextContent = compilation.SyntaxRoot!.ToFullString();
+                        // 命名空间移除
+                        dbContextContent = dbContextContent.Replace($"using Entity.{moduleName}", "");
                         File.WriteAllText(dbContextFile, dbContextContent);
                     }
                 }
@@ -490,8 +492,12 @@ public class SolutionService(
         }
 
         // 3. 移除模块项目
-        string moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
+        var moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
         var modulePath = Path.Combine(moduleDir, moduleName);
+        var moduleFilePath = Path.Combine(
+            modulePath,
+            $"{moduleName}{ConstVal.CSharpProjectExtension}"
+        );
         if (Directory.Exists(modulePath))
         {
             Directory.Delete(modulePath, true);
@@ -518,14 +524,29 @@ public class SolutionService(
                         }
                     }
                 }
+                // 移除引用
+                var serviceProjectFile = Directory.GetFiles(
+                        serviceDir,
+                        $"*{ConstVal.CSharpProjectExtension}",
+                        SearchOption.TopDirectoryOnly
+                    ).FirstOrDefault();
+
+                if (serviceProjectFile != null)
+                {
+                    if (ProcessHelper.RunCommand(
+                        "dotnet",
+                        $"remove {serviceProjectFile} reference {moduleFilePath}",
+                        out string _
+                    ))
+                    {
+                        OutputHelper.Success($"remove project reference ➡️ {serviceProjectFile}!");
+                    }
+                }
             }
         }
 
         // 5. 从解决方案中移除
-        UpdateSolutionFile(
-            Path.Combine(modulePath, $"{moduleName}{ConstVal.CSharpProjectExtension}"),
-            true
-        );
+        UpdateSolutionFile(moduleFilePath, true);
     }
 
     public string GenerateMigrations(string dbContextName, string migrationName)

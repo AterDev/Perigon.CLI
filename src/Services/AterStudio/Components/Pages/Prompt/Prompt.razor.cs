@@ -94,7 +94,7 @@ public partial class Prompt
                 Lang(Localizer.Delete, Localizer.Directory),
                 Lang(Localizer.Confirm),
                 Lang(Localizer.Cancel),
-                Lang(Localizer.ConfirmDeleteMessage)
+                LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Directory))
             );
 
             var result = await dialog.Result;
@@ -138,7 +138,7 @@ public partial class Prompt
             Lang(Localizer.Delete, Localizer.File),
             Lang(Localizer.Confirm),
             Lang(Localizer.Cancel),
-            Lang(Localizer.ConfirmDeleteMessage)
+            LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.File))
         );
 
         var result = await dialog.Result;

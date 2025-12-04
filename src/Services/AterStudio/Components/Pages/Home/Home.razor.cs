@@ -60,7 +60,7 @@ public partial class Home
     private async Task DeleteProject(Solution project)
     {
         var dialog = await DialogService.ShowConfirmationAsync(
-            Lang(Localizer.ConfirmDeleteMessage),
+            LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Project)),
             primaryText: Lang(Localizer.Yes),
             secondaryText: Lang(Localizer.No),
             title: Lang(Localizer.Delete, Localizer.Project)

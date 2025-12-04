@@ -16,6 +16,7 @@ public partial class EntityList
     bool isLoading = true;
     bool IsRefreshing { get; set; }
 
+    bool IsModuleDeleting { get; set; }
     bool IsCleaning { get; set; }
     bool BatchOpen { get; set; }
 
@@ -199,7 +200,13 @@ public partial class EntityList
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
+                if (IsModuleDeleting)
+                {
+                    return;
+                }
+                IsModuleDeleting = true;
                 var res = SolutionManager.DeleteModule(SelectedModule);
+                IsModuleDeleting = false;
                 if (res)
                 {
                     ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));

@@ -1,5 +1,4 @@
 using System.Runtime.Loader;
-using System.Text.Json;
 using System.Xml.Linq;
 using Entity;
 using Entity.StudioMod;
@@ -189,23 +188,6 @@ public class AssemblyHelper
                     .GetCustomAttribute<AssemblyVersionAttribute>()
                     ?.Version
                 ?? string.Empty;
-    }
-
-    /// <summary>
-    /// 获取解决方案版本
-    /// </summary>
-    /// <param name="solutionPath"></param>
-    /// <returns></returns>
-    public static async Task<string?> GetSolutionVersionAsync(string solutionPath)
-    {
-        string configFilePath = Path.Combine(solutionPath, ConstVal.ConfigFileName);
-        if (File.Exists(configFilePath))
-        {
-            string configJson = await File.ReadAllTextAsync(configFilePath);
-            var config = JsonSerializer.Deserialize<SolutionConfig>(configJson);
-            return config?.Version;
-        }
-        return default;
     }
 
     /// <summary>

@@ -62,7 +62,7 @@ public partial class MCP
     private async Task DeleteMcpTool(McpTool tool)
     {
         var dialog = await DialogService.ShowConfirmationAsync(
-            Lang(Localizer.ConfirmDeleteMessage),
+            LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Tools)),
             Lang(Localizer.Confirm),
             Lang(Localizer.Cancel),
             Lang(Localizer.Delete, Localizer.Tools)

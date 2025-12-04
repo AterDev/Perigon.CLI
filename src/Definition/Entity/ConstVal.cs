@@ -5,21 +5,20 @@ namespace Entity;
 
 public static class ConstVal
 {
-    public const string CommandName = "ater";
+    public const string CommandName = "perigon";
     public const string Version = "10.0.0";
     public const string NetVersion = "net10.0";
-    public const string PackageId = "ater.dry.copilot";
+    public const string PackageId = "Perigon.template";
 
     public const string Mini = "mini";
-    public const string WebApi = "webapi";
+    public const string WebApi = "perigon-webapi";
 
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public const string DbName = "ater.dry.copilot.db";
-    public const string ConfigFileName = ".dry-config.json";
+    public const string DbName = "perigon.db";
     public const string StudioFileName = "AterStudio.dll";
 
     // assembly name
@@ -28,6 +27,8 @@ public static class ConstVal
     public const string EntityName = "Entity";
     public const string APIName = "ApiService";
     public const string EntityFrameworkName = "EntityFramework";
+    public const string AppDbContextName = "AppDbContext";
+    public const string ContextBase = "ContextBase";
 
     // dir names
     public const string DefinitionDir = "Definition";

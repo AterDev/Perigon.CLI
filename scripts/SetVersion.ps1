@@ -22,7 +22,7 @@ try {
     $csproj.Save($csprojPath);
 
     # Template
-    $csprojPath = Join-Path $location "../src/Template/Pack.csproj"
+    $csprojPath = Join-Path $location "../../Perigon.template/Pack.csproj"
     $csproj = [xml](Get-Content $csprojPath)
     $node = $csproj.SelectSingleNode("//PackageVersion")
     $node.InnerText = $version
