@@ -30,7 +30,7 @@ public class OutputHelper
 
     public static void Success(string message)
     {
-        AnsiConsole.MarkupLineInterpolated($"[green]✔️ {message}[/]");
+        AnsiConsole.MarkupLineInterpolated($"[green]✅ {message}[/]");
     }
 
     public static void Warning(string message)

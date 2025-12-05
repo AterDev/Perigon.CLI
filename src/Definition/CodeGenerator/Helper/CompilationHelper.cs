@@ -521,8 +521,8 @@ public class CompilationHelper
     /// <returns></returns>
     public string? GetParentClassName()
     {
-        return ClassNode?.BaseList?.Types.FirstOrDefault()?.ToString();
-        //return ClassSymbol?.BaseType?.Name;
+        //return ClassNode?.BaseList?.Types.FirstOrDefault()?.Type.ToString();
+        return ClassSymbol?.BaseType?.Name;
     }
 
     /// <summary>

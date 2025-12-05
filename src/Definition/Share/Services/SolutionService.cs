@@ -431,6 +431,7 @@ public class SolutionService(
     /// <param name="moduleName"></param>
     public void DeleteModule(string moduleName)
     {
+        OutputHelper.Important($"🏃‍♂️‍➡️ Deleting module: {moduleName}");
         // 1 获取并移除实体
         var entityDir = Path.Combine(
             _projectContext.SolutionPath!,
@@ -446,6 +447,7 @@ public class SolutionService(
                 .Select(Path.GetFileNameWithoutExtension)
                 .ToList()!;
             Directory.Delete(entityDir, true);
+            OutputHelper.Success($"[1] remove entity dir: {entityDir}!");
         }
         // 2 移除DbContext中的DbSet
         if (entityNames.Count > 0)
@@ -457,10 +459,8 @@ public class SolutionService(
                 var dbContextFiles = Directory.GetFiles(dbContextDir, "*.cs");
                 foreach (var dbContextFile in dbContextFiles)
                 {
-                    if (
-                        !dbContextFile.EndsWith("DbContext.cs")
-                        && dbContextFile != ConstVal.ContextBase + ".cs"
-                    )
+                    var dbContextFileName = Path.GetFileName(dbContextFile);
+                    if (!dbContextFile.EndsWith("DbContext.cs") || dbContextFile == ConstVal.ContextBase + ".cs")
                     {
                         continue;
                     }
@@ -479,12 +479,16 @@ public class SolutionService(
                             if (compilation.PropertyExist(plural))
                             {
                                 compilation.RemoveClassProperty(plural);
+                                OutputHelper.Success(
+                                    $"[2] remove DbSet<{entityName}> {plural} from {dbContextFileName}!"
+                                );
                             }
                         }
 
                         dbContextContent = compilation.SyntaxRoot!.ToFullString();
                         // 命名空间移除
-                        dbContextContent = dbContextContent.Replace($"using Entity.{moduleName}", "");
+                        dbContextContent = dbContextContent.Replace($"using Entity.{moduleName};", "");
+                        OutputHelper.Success($"[2] remove namesapce from {dbContextFileName}!");
                         File.WriteAllText(dbContextFile, dbContextContent);
                     }
                 }
@@ -501,6 +505,7 @@ public class SolutionService(
         if (Directory.Exists(modulePath))
         {
             Directory.Delete(modulePath, true);
+            OutputHelper.Success($"[3] remove module dir: {modulePath}!");
         }
 
         // 4. 服务中的项目引用
@@ -539,7 +544,7 @@ public class SolutionService(
                         out string _
                     ))
                     {
-                        OutputHelper.Success($"remove project reference ➡️ {serviceProjectFile}!");
+                        OutputHelper.Success($"[4] remove project reference ➡️ {serviceProjectFile}!");
                     }
                 }
             }
@@ -547,6 +552,7 @@ public class SolutionService(
 
         // 5. 从解决方案中移除
         UpdateSolutionFile(moduleFilePath, true);
+        OutputHelper.Success($"Module {moduleName} deleted!");
     }
 
     public string GenerateMigrations(string dbContextName, string migrationName)

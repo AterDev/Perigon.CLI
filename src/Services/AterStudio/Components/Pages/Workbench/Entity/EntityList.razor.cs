@@ -123,8 +123,8 @@ public partial class EntityList
     private async Task OpenAddModuleDialogAsync()
     {
         var parameters = new DialogParameters { Modal = false, Width = "320px" };
-        var dialog = await DialogService.ShowDialogAsync<AddModuleDialog>(parameters);
-        var result = await dialog.Result;
+        var dialog     = await DialogService.ShowDialogAsync<AddModuleDialog>(parameters);
+        var result     = await dialog.Result;
         if (!result.Cancelled)
         {
             ToastService.ShowSuccess(Lang(Localizer.Add, Localizer.Success));
@@ -135,8 +135,8 @@ public partial class EntityList
     private async Task OpenServicesDialog()
     {
         var parameters = new DialogParameters { Modal = true, Width = "560px" };
-        var dialog = await DialogService.ShowDialogAsync<ServicesDialog>(parameters);
-        var result = await dialog.Result;
+        var dialog     = await DialogService.ShowDialogAsync<ServicesDialog>(parameters);
+        var result     = await dialog.Result;
         if (!result.Cancelled)
         {
             GetServices();
@@ -147,8 +147,8 @@ public partial class EntityList
     {
         var parameters = new DialogParameters
         {
-            Modal = true,
-            Width = "360px",
+            Modal       = true,
+            Width       = "360px",
             ShowDismiss = false,
         };
         var data = new GenerateDialogData { CommandType = commandType };
@@ -191,8 +191,8 @@ public partial class EntityList
         {
             var data = new DeleteConfirmDto
             {
-                Title = LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Modules)),
-                Message = Lang(Localizer.DeleteModuleDescription),
+                Title     = LangWithArguments(Localizer.ConfirmDeleteMessage, Lang(Localizer.Modules)),
+                Message   = Lang(Localizer.DeleteModuleDescription),
                 OnConfirm = async () =>
                 {
                     var res = SolutionManager.DeleteModule(SelectedModule);
