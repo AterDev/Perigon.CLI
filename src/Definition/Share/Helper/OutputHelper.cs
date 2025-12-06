@@ -12,7 +12,7 @@ public class OutputHelper
               | |  | | | |__) |  \ \_/ / 
               | |  | | |  _  /    \   /  
               | |__| | | | \ \     | |   
-              |_____/  |_|  \_\    |_|     Ater.Dry.Copilot
+              |_____/  |_|  \_\    |_|     Perigon.CLI
             """;
         string sign1 = "         —→ for freedom 🗽 ←—";
         string sign2 = "  🌐 [link]https://dusi.dev/docs[/]";

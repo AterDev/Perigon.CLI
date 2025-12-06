@@ -1,8 +1,8 @@
-# Ater.dry.copilot
+# Perigon.CLI
 
 🌐 **[English](./README_en.md)**
 
-**Ater.dry.copilot** 是一个智能代码辅助工具，帮助你快速构建基于Asp.Net Core 和EF Core的前后端服务的工具。它提供**命令行**，**WebUI**以及**MCP Server**多种方式,在经过实战的精心设计的项目架构中，通过代码生成和LLM技术，减少各种各样的模板化代码，智能生成简单的业务实现逻辑，极大的提高开发效率，改善开发体验！
+**Perigon.CLI** 是一个智能代码辅助工具，帮助你快速构建基于Asp.Net Core 和EF Core的前后端服务的工具。它提供**命令行**，**WebUI**以及**MCP Server**多种方式,在经过实战的精心设计的项目架构中，通过代码生成和LLM技术，减少各种各样的模板化代码，智能生成简单的业务实现逻辑，极大的提高开发效率，改善开发体验！
 
 它作为`dotnet`命令行工具提供，同时支持`Web UI`操作界面以及`MCP Server`。
 
@@ -60,9 +60,9 @@ dry 命令工具可以帮助开发者根据实体模型(.cs文件)生成常用�
 ### 使用dotnet tool安装工具
 
 ```pwsh
-dotnet tool install --global ater.dry.copilot
+dotnet tool install --global Perigon.CLI
 ```
-可到[nuget](https://www.nuget.org/packages/ater.dry.copilot)中查询最新版本！
+可到[nuget](https://www.nuget.org/packages/Perigon.CLI)中查询最新版本！
 
 > [!NOTE]
 > 当前V10版本正在开发中，预计2025年底在前发布.

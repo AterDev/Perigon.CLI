@@ -10,7 +10,6 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".github/copilot-instructions.md" />
-    <File Path=".github/prompts/form.prompt.md" />
     <File Path=".mcp.json" />
     <File Path="Directory.Packages.props" />
   </Folder>

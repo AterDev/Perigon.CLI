@@ -1,8 +1,8 @@
-# Ater.dry.copilot
+# Perigon.CLI
 
 **[中文](./README.md)**
 
-**Ater.dry.copilot** is an intelligent code assistance tool that helps you quickly build front-end and back-end services based on Asp.Net Core and EF Core. It provides **command line**, **WebUI** and **MCP Server**. In the well-designed project architecture after actual combat, it reduces various template codes through code generation and LLM technology, and intelligently generates simple business implementation logic, which greatly improves development efficiency and improves development experience!
+**Perigon.CLI** is an intelligent code assistance tool that helps you quickly build front-end and back-end services based on Asp.Net Core and EF Core. It provides **command line**, **WebUI** and **MCP Server**. In the well-designed project architecture after actual combat, it reduces various template codes through code generation and LLM technology, and intelligently generates simple business implementation logic, which greatly improves development efficiency and improves development experience!
 
 It is provided as a `dotnet` command-line tool and also supports a `Web UI` and `MCP Server`.
 
