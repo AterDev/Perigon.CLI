@@ -495,20 +495,15 @@ public class SolutionService(
             }
         }
 
-        // 3. 移除模块项目
+
         var moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
         var modulePath = Path.Combine(moduleDir, moduleName);
         var moduleFilePath = Path.Combine(
             modulePath,
             $"{moduleName}{ConstVal.CSharpProjectExtension}"
         );
-        if (Directory.Exists(modulePath))
-        {
-            Directory.Delete(modulePath, true);
-            OutputHelper.Success($"[3] remove module dir: {modulePath}!");
-        }
 
-        // 4. 服务中的项目引用
+        // 3. 服务中的项目引用
         if (entityNames.Count > 0 && Directory.Exists(_projectContext.ServicesPath!))
         {
             var serviceDirs = Directory.GetDirectories(_projectContext.ServicesPath!);
@@ -544,15 +539,20 @@ public class SolutionService(
                         out string _
                     ))
                     {
-                        OutputHelper.Success($"[4] remove project reference ➡️ {serviceProjectFile}!");
+                        OutputHelper.Success($"[3] remove project reference ➡️ {serviceProjectFile}!");
                     }
                 }
             }
         }
-
-        // 5. 从解决方案中移除
+        // 4. 从解决方案中移除
         UpdateSolutionFile(moduleFilePath, true);
-        OutputHelper.Success($"Module {moduleName} deleted!");
+        OutputHelper.Success($"[4] remove {moduleName} from solution");
+        // 5. 删除模块目录
+        if (Directory.Exists(modulePath))
+        {
+            Directory.Delete(modulePath, true);
+            OutputHelper.Success($"[5] delte module dir: {modulePath}!");
+        }
     }
 
     public string GenerateMigrations(string dbContextName, string migrationName)
