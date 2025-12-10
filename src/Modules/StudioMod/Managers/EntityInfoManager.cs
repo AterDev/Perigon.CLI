@@ -195,14 +195,14 @@ public partial class EntityInfoManager(
                 OutputHelper.Error(
                     $"❌ Entity '{entityName}' not found in any DbContext. Please add it to a DbContext."
                 );
-                return files; // 返回空列表而不是抛异常
+                return files;
             }
 
             var entityInfo = dbContextHelper.GetEntityInfo(entityType);
             if (entityInfo == null)
             {
                 OutputHelper.Error("❌ Failed to parse entity information.");
-                return files; // 返回空列表而不是抛异常
+                return files;
             }
             entityInfo.ModuleName = EntityParseHelper.GetEntityModuleName(dto.EntityPath);
 

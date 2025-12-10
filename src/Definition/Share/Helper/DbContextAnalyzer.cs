@@ -1,7 +1,7 @@
-using CodeGenerator.Helper;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System.Collections.Frozen;
 using System.Reflection;
+using CodeGenerator.Helper;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Share.Helper;
 
@@ -75,7 +75,7 @@ public class DbContextAnalyzer : IDisposable
             catch (ReflectionTypeLoadException ex)
             {
                 contextTypes = ex.Types.Where(t => t != null).ToArray()!;
-                OutputHelper.Warning($"⚠️ ReflectionTypeLoadException: {ex.Message}, got {contextTypes.Length} valid types");
+                OutputHelper.Warning($"ReflectionTypeLoadException: {ex.Message}, got {contextTypes.Length} valid types");
             }
 
             contextTypes = contextTypes?.Where(c => dbContextNames.Contains(c.FullName)).ToArray();
@@ -185,11 +185,10 @@ public class DbContextAnalyzer : IDisposable
                 try
                 {
                     dbContextInstance.Dispose();
-                    OutputHelper.Info($"♻️ DbContext instance disposed for: {contextType.Name}");
                 }
                 catch (Exception ex)
                 {
-                    OutputHelper.Warning($"⚠️ Error disposing DbContext for {contextType.Name}: {ex.Message}");
+                    OutputHelper.Warning($"Error disposing DbContext for {contextType.Name}: {ex.Message}");
                 }
             }
         }
@@ -214,12 +213,9 @@ public class DbContextAnalyzer : IDisposable
     {
         try
         {
-            OutputHelper.Info("🧹 Starting force cleanup...");
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-
-            OutputHelper.Info("✅ Force cleanup completed");
         }
         catch (Exception ex)
         {
@@ -256,43 +252,39 @@ public class DbContextAnalyzer : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed && disposing)
+        if (!_disposed)
         {
             try
             {
                 OutputHelper.Info("🧹 DbContextAnalyzer disposing...");
 
-                if (_loadContext != null)
+                if (disposing)
                 {
-                    OutputHelper.Info("🔄 Unloading PluginLoadContext...");
-                    _loadContext.Unload();
+                    _loadContext?.Unload();
                     _loadContext = null;
-                    OutputHelper.Info("✅ PluginLoadContext unloaded");
                 }
 
                 // 尝试多轮 GC 以卸载 ALC
                 if (_alcWeakRef != null)
                 {
-                    for (int i = 0; i < 5 && _alcWeakRef.IsAlive; i++)
+                    for (int i = 0; i < 10 && _alcWeakRef.IsAlive; i++)
                     {
                         GC.Collect();
                         GC.WaitForPendingFinalizers();
-                        GC.Collect();
                         Thread.Sleep(50);
                     }
                 }
 
                 // 删除 shadow 目录
-                if (_shadowDir != null)
+                if (_shadowDir != null && Directory.Exists(_shadowDir))
                 {
                     try
                     {
                         Directory.Delete(_shadowDir, true);
-                        OutputHelper.Info($"🗑️ Deleted shadow directory: {_shadowDir}");
                     }
                     catch (Exception ex)
                     {
-                        OutputHelper.Warning($"⚠️ Failed to delete shadow directory {_shadowDir}: {ex.Message}");
+                        OutputHelper.Warning($"Failed to delete shadow directory {_shadowDir}: {ex.Message}");
                     }
                     _shadowDir = null;
                 }

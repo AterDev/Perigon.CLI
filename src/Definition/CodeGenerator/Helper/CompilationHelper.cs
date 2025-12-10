@@ -51,9 +51,22 @@ public class CompilationHelper
             .Select(g => g.OrderByDescending(f => File.GetLastWriteTimeUtc(f)).First())
             .ToList();
 
-        Compilation = Compilation.AddReferences(
-            dlls.Select(dll => MetadataReference.CreateFromFile(dll))
-        ).WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var references = new List<MetadataReference>();
+        foreach (var dll in dlls)
+        {
+            try
+            {
+                using var stream = File.OpenRead(dll);
+                references.Add(MetadataReference.CreateFromStream(stream));
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
+        Compilation = Compilation.AddReferences(references)
+            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
     }
 
     /// <summary>

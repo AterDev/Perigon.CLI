@@ -48,9 +48,9 @@ public class CodeGenService(
         var globalContent = string.Join(Environment.NewLine, dtoGen.GetGlobalUsings());
         var globalFile    = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
         {
-            IsCover = isCover,
-            FileType = GenFileType.Global,
-            FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
+            IsCover    = isCover,
+            FileType   = GenFileType.Global,
+            FullName   = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
             ModuleName = entityInfo.ModuleName,
         };
 
@@ -94,7 +94,7 @@ public class CodeGenService(
         var content = dto.ToDtoContent(entityInfo.GetDtoNamespace(), entityInfo.Name);
         return new GenFileInfo($"{dto.Name}.cs", content)
         {
-            FullName = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
+            FullName   = Path.Combine(ConstVal.ModelsDir, dirName, $"{dto.Name}.cs"),
             ModuleName = entityInfo.ModuleName,
         };
     }
@@ -122,17 +122,17 @@ public class CodeGenService(
         var globalContent = string.Join(Environment.NewLine, managerGen.GetGlobalUsings());
         var globalFile    = new GenFileInfo(ConstVal.GlobalUsingsFile, globalContent)
         {
-            IsCover = isCover,
-            FileType = GenFileType.Global,
-            FullName = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
+            IsCover    = isCover,
+            FileType   = GenFileType.Global,
+            FullName   = Path.Combine(outputPath, ConstVal.GlobalUsingsFile),
             ModuleName = entityInfo.ModuleName,
         };
 
         var content     = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace());
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
-            IsCover = isCover,
-            FullName = Path.Combine(
+            IsCover    = isCover,
+            FullName   = Path.Combine(
                 outputPath,
                 ConstVal.ManagersDir,
                 $"{entityInfo.Name}{ConstVal.Manager}.cs"
@@ -179,8 +179,8 @@ public class CodeGenService(
         var content        = apiGen.GetRestApiContent(tplContent, serviceName, hasSystemMod);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
-            IsCover = isCover,
-            FullName = Path.Combine(
+            IsCover    = isCover,
+            FullName   = Path.Combine(
                 servicePath,
                 ConstVal.ControllersDir,
                 $"{entityInfo.Name}{ConstVal.Controller}.cs"
@@ -208,9 +208,9 @@ public class CodeGenService(
             string.Join(Environment.NewLine, globalLines)
         )
         {
-            IsCover = isCover,
-            FileType = GenFileType.Global,
-            FullName = globalFilePath,
+            IsCover    = isCover,
+            FileType   = GenFileType.Global,
+            FullName   = globalFilePath,
             ModuleName = entityInfo.ModuleName,
         };
 
@@ -264,7 +264,7 @@ public class CodeGenService(
             new GenFileInfo("base.service.ts", content)
             {
                 FullName = Path.Combine(dir, "base.service.ts"),
-                IsCover = false,
+                IsCover  = false,
             }
         );
 
@@ -304,7 +304,7 @@ public class CodeGenService(
                     new GenFileInfo("enum-text.pipe.ts", pipeContent)
                     {
                         FullName = enumTextPath,
-                        IsCover = true,
+                        IsCover  = true,
                     }
                 );
             }
@@ -467,7 +467,7 @@ public class CodeGenService(
             new GenFileInfo("BaseService", baseContent)
             {
                 FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
-                IsCover = true,
+                IsCover  = true,
             }
         );
 
@@ -475,7 +475,7 @@ public class CodeGenService(
             new GenFileInfo("GlobalUsings", globalUsingContent)
             {
                 FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
-                IsCover = false,
+                IsCover  = false,
             }
         );
 
@@ -499,7 +499,7 @@ public class CodeGenService(
             new GenFileInfo(projectName, csprojContent)
             {
                 FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
-                IsCover = true,
+                IsCover  = true,
             }
         );
 

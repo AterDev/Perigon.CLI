@@ -217,10 +217,10 @@ export class EnumTextPipeModule { }
             global using {ConstVal.CoreLibName}.{ConstVal.ModelsDir};
             global using {ConstVal.CoreLibName}.Utils;
             global using {ConstVal.ExtensionLibName};
-            global using {ConstVal.DefinitionDir}.{ConstVal.EntityName};
-            global using {ConstVal.DefinitionDir}.{ConstVal.EntityName}.{moduleName};
-            global using {ConstVal.DefinitionDir}.{ConstVal.EntityFrameworkName};
-            global using {ConstVal.DefinitionDir}.{ConstVal.EntityFrameworkName}.AppDbContext;
+            global using {ConstVal.EntityName};
+            global using {ConstVal.EntityName}.{moduleName};
+            global using {ConstVal.EntityFrameworkName};
+            global using {ConstVal.EntityFrameworkName}.AppDbContext;
             global using Microsoft.AspNetCore.Authorization;
             global using Microsoft.Extensions.DependencyInjection;
             global using Microsoft.AspNetCore.Mvc;
@@ -247,7 +247,6 @@ export class EnumTextPipeModule { }
                 </PropertyGroup>
                 <ItemGroup>
                     <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
-                    <ProjectReference Include="..\..\Ater\{ConstVal.ExtensionLibName}\{ConstVal.ExtensionLibName}.csproj" />
                 </ItemGroup>
                 <ItemGroup>
                     <Folder Include="Managers\" />
@@ -367,7 +366,7 @@ export class EnumTextPipeModule { }
               </ItemGroup>
               <ItemGroup>
                 <ProjectReference
-                  Include="..\..\Ater\{ConstVal.SourceGenerationLibName}\{ConstVal.SourceGenerationLibName}.csproj"
+                  Include="..\..\Perigon\{ConstVal.SourceGenerationLibName}\{ConstVal.SourceGenerationLibName}.csproj"
                   OutputItemType="Analyzer"
                   ReferenceOutputAssembly="false"
                 />

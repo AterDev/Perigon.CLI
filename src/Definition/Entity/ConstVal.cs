@@ -40,7 +40,7 @@ public static class ConstVal
     public const string TemplateDir = "templates";
     public const string ShareDlls = "ShareDlls.txt";
     public const string ServicesDir = "Services";
-    public const string AterDir = "Ater";
+    public const string AterDir = "Perigon";
     public const string StudioDir = "DryStudio";
     public const string AspireDir = "AspireHost";
 
@@ -79,9 +79,9 @@ public static class ConstVal
     public const string CSharpProjectExtension = ".csproj";
     public const string NodeProjectFile = "package.json";
 
-    public const string CoreLibName = "Ater.AspNetCore";
-    public const string ExtensionLibName = "Ater.AspNetCore.Toolkit";
-    public const string SourceGenerationLibName = "Ater.AspNetCore.SourceGeneration";
+    public const string CoreLibName = "Perigon.AspNetCore";
+    public const string ExtensionLibName = "Perigon.AspNetCore.Toolkit";
+    public const string SourceGenerationLibName = "Perigon.AspNetCore.SourceGeneration";
     public const string GlobalUsingsFile = "GlobalUsings.cs";
     public const string ModSuffix = "Mod";
 }
