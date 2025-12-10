@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
-using System.Text.Json;
-using Microsoft.Extensions.Logging;
 
 namespace AterStudio.McpTools;
 

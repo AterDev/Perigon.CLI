@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Share.Implement;
 
@@ -147,7 +147,7 @@ public class RestControllerBase(Localizer localizer) : ControllerBase
 
         if (detail != null)
         {
-            error = _localizer?.Get(detail, arguments as string[]) ?? detail;
+            error = _localizer?.Get(detail, arguments) ?? detail;
         }
         else if (errorCode != 0)
         {
