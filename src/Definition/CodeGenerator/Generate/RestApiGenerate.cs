@@ -51,6 +51,7 @@ public class RestApiGenerate(
         var model = new ControllerViewModel
         {
             Namespace = serviceName,
+            ModuleName = EntityInfo.ModuleName,
             EntityName = EntityInfo.Name,
             Comment = EntityInfo.Comment,
             Summary = EntityInfo.Summary,
@@ -78,18 +79,12 @@ public class RestApiGenerate(
             foreach (var navigation in navigations)
             {
                 var userNav = navigation
-                    .EntityInfo?.Navigations.Where(n => userEntities.Contains(n.Type))
-                    .FirstOrDefault();
-
+                    .EntityInfo?.Navigations.FirstOrDefault(n => userEntities.Contains(n.Type));
                 if (userNav != null)
                 {
-                    string navigationId = $"{userNav.Name}.Id";
+                    string navigationId = $"{userNav.Name}Id";
                     // Using explicitly defined foreign keys
-                    if (
-                        userNav.ForeignKeyProperties.Any(p =>
-                            !p.IsShadow && p.Name == userNav.ForeignKey
-                        )
-                    )
+                    if (userNav.ForeignKeyProperties.Any(p => !p.IsShadow && p.Name == userNav.ForeignKey))
                     {
                         navigationId = userNav.ForeignKey;
                     }

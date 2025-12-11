@@ -2,7 +2,6 @@ using System.Collections.Frozen;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using CodeGenerator.Helper;
-using CodeGenerator.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Spectre.Console;
@@ -135,10 +134,9 @@ public class DbContextParseHelper : IDisposable
             Summary =
                 _xmlHelper.GetClassSummary(entityType.ClrType.FullName ?? namespaceName)
                 ?? string.Empty,
+            // class xml comment
+            Comment = EntityParseHelper.GetClassComment(_compilation.ClassNode)
         };
-
-        // class xml comment
-        entityInfo.Comment = EntityParseHelper.GetClassComment(_compilation.ClassNode);
         RelationEntityTypes.Add(entityType);
         LoadEntityProperties(entityInfo, entityType);
         LoadEntityNavigations(entityInfo, entityType);
@@ -318,40 +316,43 @@ public class DbContextParseHelper : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed && disposing)
+        if (!_disposed)
         {
-            try
+            if (disposing)
             {
-                OutputHelper.Info("🧹 DbContextParseHelper disposing...");
-
-                // 释放 analyzer
-                if (_analyzer != null)
+                try
                 {
-                    _analyzer.Dispose();
-                    _analyzer = null;
-                    OutputHelper.Info("✅ DbContextAnalyzer disposed");
+                    OutputHelper.Info("🧹 DbContextParseHelper disposing...");
+
+                    // 1. 先清除所有对 ALC 中类型的引用
+                    _modelMap = null;
+                    CurrentModel = null;
+                    DbContextSymbol = null;
+                    RelationEntityTypes?.Clear();
+
+                    // 2. 强制 GC，确保上述引用被回收
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    // 3. 释放 Analyzer (它会触发 ALC Unload)
+                    if (_analyzer != null)
+                    {
+                        _analyzer.Dispose();
+                        _analyzer = null;
+                    }
+
+                    // 4. 再次 GC，确保 ALC 彻底卸载
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    OutputHelper.Info("✅ DbContextParseHelper disposed successfully");
                 }
-
-                // 释放模型引用，便于 ALC 卸载
-                _modelMap = null;
-                CurrentModel = null;
-                DbContextSymbol = null;
-                RelationEntityTypes?.Clear();
-
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
-
-                OutputHelper.Info("✅ DbContextParseHelper disposed successfully");
+                catch (Exception ex)
+                {
+                    OutputHelper.Error($"❌ Error during DbContextParseHelper disposal: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                OutputHelper.Error($"❌ Error during DbContextParseHelper disposal: {ex.Message}");
-            }
-            finally
-            {
-                _disposed = true;
-            }
+            _disposed = true;
         }
     }
 

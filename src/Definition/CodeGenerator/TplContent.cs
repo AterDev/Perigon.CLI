@@ -18,7 +18,7 @@ public class TplContent
                 TenantDbFactory dbContextFactory, 
                 ILogger<@(Model.EntityName)Manager> logger,
                 IUserContext userContext
-            ) : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContextFactory, logger)
+            ) : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContextFactory, userContext, logger)
             {
             @(Model.FilterMethod)
 
@@ -27,10 +27,10 @@ public class TplContent
                 /// <summary>
                 /// edit @(Model.EntitySummary)
                 /// </summary>
-                /// <param name="entity"></param>
+                /// <param name="id"></param>
                 /// <param name="dto"></param>
                 /// <returns></returns>
-                public async Task<bool> EditAsync(Guid id, @(Model.EntityName)UpdateDto dto)
+                public async Task<int> EditAsync(Guid id, @(Model.EntityName)UpdateDto dto)
                 {
                     if (await HasPermissionAsync(id))
                     {
@@ -60,7 +60,7 @@ public class TplContent
                 /// <param name="ids"></param>
                 /// <param name="softDelete"></param>
                 /// <returns></returns>
-                public new async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+                public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
                 {
                     if (!ids.Any())
                     {
@@ -71,7 +71,7 @@ public class TplContent
                         Guid id = ids.First();
                         if (await HasPermissionAsync(id))
                         {
-                            return await DeleteOrUpdateAsync(ids, !isDelete) > 0;
+                            return await DeleteOrUpdateAsync(ids, !softDelete) > 0;
                         }
                         throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
                     }
@@ -80,7 +80,7 @@ public class TplContent
                         var ownedIds = await GetOwnedIdsAsync(ids);
                         if (ownedIds.Any())
                         {
-                            return await DeleteOrUpdateAsync(ownedIds, !isDelete) > 0;
+                            return await DeleteOrUpdateAsync(ownedIds, !softDelete) > 0;
                         }
                         throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
                     }
@@ -95,7 +95,7 @@ public class TplContent
     {
         return $$"""
             using @(Model.ShareNamespace).Models.@(Model.EntityName)Dtos;
-            namespace @(Model.Namespace).Controllers;
+            namespace @(Model.Namespace).Controllers.@(Model.ModuleName);
 
             @Model.Comment
             public class @(Model.EntityName)Controller(
@@ -113,7 +113,7 @@ public class TplContent
                 [HttpPost("filter")]
                 public async Task<ActionResult<PageList<@(Model.EntityName)ItemDto>>> ListAsync(@(Model.EntityName)FilterDto filter)
                 {
-                    return await _manager.ToPageAsync(filter);
+                    return await _manager.FilterAsync(filter);
                 }
 
                 /// <summary>
@@ -260,14 +260,14 @@ export class EnumTextPipeModule { }
     {
         return $$"""
             using Microsoft.Extensions.Hosting;
-            namespace {{moduleName}}Mod;
+            namespace {{moduleName}};
 
             public static class ModuleExtensions
             {
                 /// <summary>
                 /// module services or init task
                 /// </summary>
-                public static IHostApplicationBuilder Add{{moduleName}}Mod(this IHostApplicationBuilder builder)
+                public static IHostApplicationBuilder Add{{moduleName}}(this IHostApplicationBuilder builder)
                 {
                     return builder;
                 }

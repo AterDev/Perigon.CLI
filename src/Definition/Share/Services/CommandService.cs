@@ -39,17 +39,17 @@ public class CommandService(
         var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
         var solutionName = Path.GetFileName(projectFilePath) ?? name;
         var solutionPath = Path.GetDirectoryName(projectFilePath) ?? "";
-        var entity = new Solution()
+        var solution = new Solution()
         {
             DisplayName = name,
             Path = solutionPath,
             Name = solutionName,
             SolutionType = solutionType,
         };
-        entity.Config.SolutionPath = solutionPath;
+        solution.Config.SolutionPath = solutionPath;
 
-        context.Solutions.Add(entity);
-        return await context.SaveChangesAsync() > 0 ? entity.Id : null;
+        context.Solutions.Add(solution);
+        return await context.SaveChangesAsync() > 0 ? solution.Id : null;
     }
 
     /// <summary>

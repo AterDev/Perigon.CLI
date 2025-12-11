@@ -217,10 +217,7 @@ public class CodeTools(
     private async Task SetProjectContextAsync(McpServer server)
     {
         var roots = await server.RequestRootsAsync(
-            new ModelContextProtocol.Protocol.ListRootsRequestParams
-            {
-                ProgressToken = new ModelContextProtocol.Protocol.ProgressToken("CodeTools"),
-            }
+            new ModelContextProtocol.Protocol.ListRootsRequestParams { }
         );
 
         var uri = roots.Roots.FirstOrDefault()?.Uri;

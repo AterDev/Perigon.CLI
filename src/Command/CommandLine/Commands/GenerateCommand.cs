@@ -24,7 +24,7 @@ public class RequestCommand : AsyncCommand<RequestSettings>
         }
         else
         {
-            OutputHelper.Error("Invalid type, only support: axios, csharp, angular");
+            OutputHelper.Error("Invalid type, only support: csharp, angular");
             return Task.FromResult(-1);
         }
     }
@@ -42,13 +42,12 @@ public sealed class RequestSettings : CommandSettings
 
     [CommandOption("-t|--type")]
     [DefaultValue("axios")]
-    [Description("support types: axios, csharp, angular, default: axios")]
-    public string Type { get; set; } = "axios";
+    [Description("support types: csharp, angular, default: angular")]
+    public string Type { get; set; } = "angular";
 }
 
 public enum RequestType
 {
-    Axios,
-    Csharp,
     Angular,
+    Csharp,
 }

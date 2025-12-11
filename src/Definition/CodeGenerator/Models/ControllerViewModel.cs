@@ -11,4 +11,5 @@ public class ControllerViewModel
     public string? Comment { get; set; }
     public string? Summary { get; set; }
     public string? AddCodes { get; set; }
+    public string? ModuleName { get; set; }
 }

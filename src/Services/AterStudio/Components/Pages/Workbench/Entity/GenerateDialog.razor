@@ -33,7 +33,8 @@
                 OnClick="GenerateAsync">
     @Lang(Localizer.Generate)
   </FluentButton>
-  <FluentButton OnClick="CancelAsync">
+  <FluentButton OnClick="CancelAsync"
+                Loading="@IsProcessing">
     @Lang(Localizer.Cancel)
   </FluentButton>
 </FluentDialogFooter>

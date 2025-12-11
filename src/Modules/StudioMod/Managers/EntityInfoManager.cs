@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -177,28 +178,37 @@ public partial class EntityInfoManager(
     public async Task<List<GenFileInfo>> GenerateAsync(GenerateDto dto)
     {
         OutputHelper.Info($"🚀 Starting code generation for: {dto.EntityPath}");
-        SolutionService.BuildProject(projectContext.EntityFrameworkPath!, false);
+        if (!SolutionService.BuildProject(projectContext.EntityFrameworkPath!, false))
+        {
+            throw new Exception("Build EntityFramework project failed.");
+        }
         List<GenFileInfo> files = [];
         try
         {
-            // TODO: 处理文件锁的问题
+            EntityInfo? entityInfo = null;
 
-            using var dbContextHelper = new DbContextParseHelper(
+            //var entityParseHelper = new EntityParseHelper(dto.EntityPath);
+            //entityInfo = await entityParseHelper.ParseEntityAsync();
+
+            using (var dbContextHelper = new DbContextParseHelper(
                 projectContext.EntityPath!,
                 projectContext.EntityFrameworkPath!
-            );
-
-            var entityType = await dbContextHelper.LoadEntityAsync(dto.EntityPath);
-            if (entityType == null)
+            ))
             {
-                var entityName = Path.GetFileNameWithoutExtension(dto.EntityPath);
-                OutputHelper.Error(
-                    $"❌ Entity '{entityName}' not found in any DbContext. Please add it to a DbContext."
-                );
-                return files;
+                var entityType = await dbContextHelper.LoadEntityAsync(dto.EntityPath);
+                if (entityType == null)
+                {
+                    var entityName = Path.GetFileNameWithoutExtension(dto.EntityPath);
+                    OutputHelper.Error(
+                        $"❌ Entity '{entityName}' not found in any DbContext. Please add it to a DbContext."
+                    );
+                    return files;
+                }
+
+                entityInfo = dbContextHelper.GetEntityInfo(entityType);
+                entityType = null;
             }
 
-            var entityInfo = dbContextHelper.GetEntityInfo(entityType);
             if (entityInfo == null)
             {
                 OutputHelper.Error("❌ Failed to parse entity information.");
@@ -220,9 +230,17 @@ public partial class EntityInfoManager(
                     files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
                     break;
                 case CommandType.API:
+                    var dtoSw = Stopwatch.StartNew();
                     files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
+                    _logger.LogInformation("GenerateDtos time: {elapsed} ms", dtoSw.ElapsedMilliseconds);
+
+                    var managerSw = Stopwatch.StartNew();
                     files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
+                    _logger.LogInformation("GenerateManagers time: {elapsed} ms", managerSw.ElapsedMilliseconds);
+
+                    var controllerSw = Stopwatch.StartNew();
                     files.AddRange(await GenerateControllersAsync(entityInfo, dto));
+                    _logger.LogInformation("GenerateControllersAsync time: {elapsed} ms", controllerSw.ElapsedMilliseconds);
                     break;
                 default:
                     break;
@@ -230,19 +248,19 @@ public partial class EntityInfoManager(
 
             codeGenService.ClearCodeGenCache(entityInfo);
             codeGenService.GenerateFiles(files);
-
             OutputHelper.Info($"✅ Code generation completed. Generated {files.Count} files.");
+            return files;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "❌ Error during code generation");
             OutputHelper.Error($"❌ Code generation failed: {ex.Message}");
-            return files;
+            throw;
         }
-
-        // 额外执行一次资源清理，确保 shadow ALC 卸载
-        DbContextAnalyzer.ForceCleanup();
-        return files;
+        finally
+        {
+            DbContextAnalyzer.ForceCleanup();
+        }
     }
 
     private List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string modulePath, bool force)
@@ -290,7 +308,8 @@ public partial class EntityInfoManager(
                     servicePath,
                     Path.GetFileName(servicePath) + ConstVal.CSharpProjectExtension
                 );
-                SolutionService.AddProjectReference(serviceProjectPath, moduleProjectPath);
+
+                _ = SolutionService.AddProjectReferenceAsync(serviceProjectPath, moduleProjectPath);
             }
         }
         return files;

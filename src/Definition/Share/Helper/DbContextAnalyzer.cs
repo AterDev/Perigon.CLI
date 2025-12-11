@@ -29,8 +29,6 @@ public class DbContextAnalyzer : IDisposable
 
         try
         {
-            OutputHelper.Info($"🔍 Starting to analyze DbContext models from: {_helper.DllPath}");
-
             var dbContextNames = _helper.DbContextNamedTypeSymbols.Select(s => s.ToDisplayString()).ToArray();
             OutputHelper.Info($"📋 Found {dbContextNames.Length} DbContext types: {string.Join(", ", dbContextNames)}");
 
@@ -49,8 +47,6 @@ public class DbContextAnalyzer : IDisposable
 
             _loadContext = new PluginLoadContext(shadowDllPath);
             _alcWeakRef = new WeakReference(_loadContext, trackResurrection: false);
-            OutputHelper.Info("🔧 PluginLoadContext (shadow) created");
-
             Assembly assembly;
 
             try
@@ -151,7 +147,6 @@ public class DbContextAnalyzer : IDisposable
                 );
 
                 useSqliteMethod?.Invoke(null, [optionsBuilder, "DataSource=temp", null]);
-                OutputHelper.Info($"🗄️ Configured SQLite for: {contextType.Name}");
             }
 
             var options = optionsBuilder.Options;
@@ -162,7 +157,6 @@ public class DbContextAnalyzer : IDisposable
                 OutputHelper.Info($"✅ DbContext instance created for: {contextType.Name}");
                 // 在释放实例之前获取 Model
                 model = dbContextInstance.Model;
-                OutputHelper.Info($"📊 Model extracted for: {contextType.Name}");
             }
             else
             {
@@ -254,51 +248,56 @@ public class DbContextAnalyzer : IDisposable
     {
         if (!_disposed)
         {
-            try
+            if (disposing)
             {
-                OutputHelper.Info("🧹 DbContextAnalyzer disposing...");
-
-                if (disposing)
-                {
-                    _loadContext?.Unload();
-                    _loadContext = null;
-                }
-
-                // 尝试多轮 GC 以卸载 ALC
-                if (_alcWeakRef != null)
-                {
-                    for (int i = 0; i < 10 && _alcWeakRef.IsAlive; i++)
-                    {
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
-                        Thread.Sleep(50);
-                    }
-                }
-
-                // 删除 shadow 目录
-                if (_shadowDir != null && Directory.Exists(_shadowDir))
-                {
-                    try
-                    {
-                        Directory.Delete(_shadowDir, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        OutputHelper.Warning($"Failed to delete shadow directory {_shadowDir}: {ex.Message}");
-                    }
-                    _shadowDir = null;
-                }
-
-                OutputHelper.Info("✅ DbContextAnalyzer disposed successfully");
+                // 释放托管资源
+                // Unload 包含对 _loadContext (托管对象) 的操作，必须在 disposing=true 时调用
+                Unload();
             }
-            catch (Exception ex)
+
+            // 释放非托管资源
+            // 目前没有纯非托管资源需要释放
+
+            _disposed = true;
+        }
+    }
+
+    private void Unload()
+    {
+        try
+        {
+            _loadContext?.Unload();
+            _loadContext = null;
+
+            // 尝试多轮 GC 以卸载 ALC
+            if (_alcWeakRef != null)
             {
-                OutputHelper.Error($"❌ Error during DbContextAnalyzer disposal: {ex.Message}");
+                for (int i = 0; i < 10 && _alcWeakRef.IsAlive; i++)
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    Thread.Sleep(50);
+                }
             }
-            finally
+
+            // 删除 shadow 目录
+            if (_shadowDir != null && Directory.Exists(_shadowDir))
             {
-                _disposed = true;
+                try
+                {
+                    Directory.Delete(_shadowDir, true);
+                }
+                catch (Exception ex)
+                {
+                    OutputHelper.Warning($"Failed to delete shadow directory {_shadowDir}: {ex.Message}");
+                }
+                _shadowDir = null;
             }
+
+        }
+        catch (Exception ex)
+        {
+            OutputHelper.Error($"❌ Error during DbContextAnalyzer unload: {ex.Message}");
         }
     }
     ~DbContextAnalyzer()

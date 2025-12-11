@@ -22,7 +22,15 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
         {
             $"global using {EntityInfo.AssemblyName};",
             $"global using {EntityInfo.NamespaceName};",
-            $"global using Share.Implement;",
+            $"global using {ConstVal.ShareName}.Implement;",
+            $"global using {ConstVal.EntityFrameworkName}.AppDbFactory;",
+            $"global using Microsoft.AspNetCore.Http;",
+            $"global using Microsoft.EntityFrameworkCore;",
+            $"global using Microsoft.Extensions.Logging;",
+            $"global using {ConstVal.CoreLibName}.Abstraction;",
+            $"global using {ConstVal.CoreLibName}.Utils;",
+            $"global using {ConstVal.ShareName};",
+            $"global using {ConstVal.ShareName}.Exceptions;",
             $"global using {CommonNamespace}.{ConstVal.ManagersDir};",
         };
         if (EntityInfo.DbContextSpaceName != null)
@@ -39,7 +47,7 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
     public string GetManagerContent(string tplContent, string nsp)
     {
         var genContext = new RazorGenContext();
-        var model      = new ManagerViewModel
+        var model = new ManagerViewModel
         {
             Namespace = nsp,
             EntityName = EntityInfo.Name,
@@ -64,9 +72,9 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
-                public async Task{{EntityInfo.Name}}> AddAsync(@(Model.EntityName)AddDto dto)
+                public async Task<{{EntityInfo.Name}}> AddAsync({{EntityInfo.Name}}AddDto dto)
                 {
-                    var entity = dto.MapTo{{EntityInfo.Name}}>();
+                    var entity = dto.MapTo<{{EntityInfo.Name}}>();
                     {{(userId == null ? "" : "entity.UserId = _userContext.UserId;")}}
                     await InsertAsync(entity);
                     return entity;
@@ -100,7 +108,7 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
 
     private string GenPermissionMethods()
     {
-        var userId      = GetUserIdKey();
+        var userId = GetUserIdKey();
         var queryString = string.Empty;
         if (!string.IsNullOrWhiteSpace(userId))
         {
@@ -134,23 +142,20 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
     /// <returns></returns>
     private string GetFilterMethodContent()
     {
-        string              content    = "";
-        string              entityName = EntityInfo?.Name ?? "";
-        List<PropertyInfo>? props      = EntityInfo?.GetFilterProperties();
+        string content = "";
+        string entityName = EntityInfo?.Name ?? "";
+        List<PropertyInfo>? props = EntityInfo?.GetFilterProperties();
         if (props != null && props.Count != 0)
         {
-            content += """
-                        Queryable = Queryable
-
-                """;
+            content += "Queryable = Queryable";
         }
 
         var userId = GetUserIdKey();
         if (!string.IsNullOrWhiteSpace(userId))
         {
-            content = $".Where(q => q.{userId} == _userContext.UserId)";
+            content += $".Where(q => q.{userId} == _userContext.UserId)";
         }
-
+        content += Environment.NewLine;
         var last = props?.LastOrDefault();
         props?.ForEach(p =>
         {
@@ -163,15 +168,16 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
 
             """;
         });
-        content += $$"""
+        return $$"""
                 /// <summary>
                 /// Filter {{EntityInfo?.Summary}} with paging
                 /// </summary>
-                public async Task<PageList{{EntityInfo?.Name}}ItemDto>> FilterAsync(@(Model.EntityName)FilterDto filter)
+                public async Task<PageList<{{EntityInfo?.Name}}ItemDto>> FilterAsync({{EntityInfo?.Name}}FilterDto filter)
                 {        
+                    {{content}}
                     return await PageListAsync<{{entityName + ConstVal.FilterDto}}, {{entityName + ConstVal.ItemDto}}>(filter);
                 }
             """;
-        return content;
+
     }
 }
