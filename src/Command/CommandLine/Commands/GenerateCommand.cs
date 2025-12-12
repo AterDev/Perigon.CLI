@@ -49,5 +49,6 @@ public sealed class RequestSettings : CommandSettings
 public enum RequestType
 {
     Angular,
-    Csharp,
+    Axios,
+    CSharp,
 }

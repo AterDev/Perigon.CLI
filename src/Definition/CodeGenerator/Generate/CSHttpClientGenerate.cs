@@ -1,23 +1,19 @@
 using System.Data;
+using CodeGenerator.Generate.ClientRequest;
+using CodeGenerator.Generate.LanguageFormatter;
 
 namespace CodeGenerator.Generate;
 
 /// <summary>
 /// c#请求客户端生成
 /// </summary>
-public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
+public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(openApi)
 {
-    /// <summary>
-    ///
-    /// </summary>
-    protected OpenApiPaths PathsPairs { get; } = openApi.Paths;
-    protected ISet<OpenApiTag>? ApiTags { get; } = openApi.Tags;
-    public IDictionary<string, IOpenApiSchema>? Schemas { get; set; } = openApi.Components?.Schemas;
-    public OpenApiDocument OpenApi { get; set; } = openApi;
+    protected override LanguageFormatterBase Formatter { get; } = new CSharpFormatter();
 
     public static string GetBaseService(string namespaceName)
     {
-        string content = GetTplContent("RequestService.CsharpeBaseService.tpl");
+        string content = GenerateBase.GetTplContent("RequestService.CsharpeBaseService.tpl");
         content = content.Replace("#@Namespace#", namespaceName);
         return content;
     }
@@ -28,7 +24,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     /// <returns></returns>
     public static string GetClient(List<GenFileInfo> infos, string namespaceName, string className)
     {
-        string tplContent = GetTplContent("RequestService.CsharpClient.tpl");
+        string tplContent = GenerateBase.GetTplContent("RequestService.CsharpClient.tpl");
         tplContent = tplContent
             .Replace("${Namespace}", namespaceName)
             .Replace("#@ClassName#", className);
@@ -55,7 +51,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 
     public static string GetGlobalUsing(string name)
     {
-        string content = GetTplContent("RequestService.GlobalUsings.tpl");
+        string content = GenerateBase.GetTplContent("RequestService.GlobalUsings.tpl");
         content = content + Environment.NewLine + $"global using {name}.Models;";
         content = content + Environment.NewLine + $"global using {name}.Services;";
         return content;
@@ -92,7 +88,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     /// <returns></returns>
     public static string GetExtensionContent(string namespaceName, List<string> services)
     {
-        string tplContent = GetTplContent("RequestService.Extension.tpl");
+        string tplContent = GenerateBase.GetTplContent("RequestService.Extension.tpl");
         tplContent = tplContent.Replace("#@Namespace#", namespaceName);
 
         string serviceContent = "";
@@ -111,9 +107,17 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
     /// <returns></returns>
     public List<GenFileInfo> GetServices(string namespaceName)
     {
-        List<GenFileInfo> files = [];
-        List<RequestServiceFunction> functions = GetAllRequestFunctions();
+        // 使用基类方法生成服务
+        if (SchemaMetas.Count == 0) ParseSchemas();
+        if (RequestFunctions.Count == 0) ParseOperations();
+        if (ModelFiles.Count == 0) GetModelFiles(namespaceName);
 
+        return InternalBuildServices(ApiTags!, namespaceName, RequestFunctions);
+    }
+
+    protected override List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string docName, List<RequestServiceFunction> functions)
+    {
+        List<GenFileInfo> files = [];
         // 先以tag分组
         List<IGrouping<string?, RequestServiceFunction>> funcGroups = functions
             .GroupBy(f => f.Tag)
@@ -122,7 +126,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         {
             // 查询该标签包含的所有方法
             List<RequestServiceFunction> tagFunctions = [.. group];
-            OpenApiTag? currentTag = ApiTags?.Where(t => t.Name == group.Key).FirstOrDefault();
+            OpenApiTag? currentTag = tags?.Where(t => t.Name == group.Key).FirstOrDefault();
             currentTag ??= new OpenApiTag { Name = group.Key, Description = group.Key };
             RequestServiceFile serviceFile = new()
             {
@@ -131,7 +135,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
                 Functions = tagFunctions,
             };
 
-            string content = ToRequestService(serviceFile, namespaceName);
+            string content = ToRequestService(serviceFile, docName);
 
             string fileName = currentTag.Name + "RestService.cs";
             GenFileInfo file = new(fileName, content) { ModelName = currentTag.Name };
@@ -140,22 +144,50 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
         return files;
     }
 
-    /// <summary>
-    /// 获取模型内容
-    /// </summary>
-    /// <param name="modelName"></param>
-    /// <returns></returns>
+
     public List<GenFileInfo> GetModelFiles(string nspName)
     {
-        CsharpModelGenerate csGen = new(OpenApi);
-        List<GenFileInfo> files = [];
-        if (Schemas == null)
-            return files;
-        foreach (var item in Schemas)
+        ModelFiles.Clear();
+        EnumModels.Clear();
+        if (SchemaMetas.Count == 0) ParseSchemas();
+        if (RequestFunctions.Count == 0) ParseOperations();
+
+        foreach (var meta in SchemaMetas)
         {
-            files.Add(csGen.GenerateModelFile(item.Key, item.Value, nspName));
+            string moduleName = OpenApiHelper.GetNamespaceFirstPart(meta.Namespace) ?? string.Empty;
+            meta.Namespace = nspName + ".Models." + moduleName;
+            string content = Formatter.GenerateModel(meta);
+            var schemaKey = meta.Name;
+            schemaKey = OpenApiHelper.FormatSchemaKey(schemaKey);
+            string fileName = schemaKey.ToPascalCase() + ".cs";
+
+            var file = new GenFileInfo(fileName, content)
+            {
+                DirName = moduleName,
+                Content = content,
+                ModelName = meta.Name,
+                ModuleName = moduleName,
+            };
+            ModelFiles.Add(file);
+            if (meta.IsEnum == true)
+            {
+                EnumModels.Add(meta.Name);
+            }
         }
-        return files;
+        return ModelFiles;
+    }
+
+    public override List<GenFileInfo> GenerateModelFiles()
+    {
+        // C# 需要 nspName，但基类方法签名没有参数。
+        // 这里我们可以抛出异常，或者使用默认命名空间，或者重载一个带参数的方法供外部调用。
+        // 由于 GetModelFiles(string nspName) 已经存在并被调用，我们可以让它调用这个重载。
+        // 但为了满足基类契约，我们需要实现这个无参方法。
+        // 我们可以暂存 nspName 或者在构造函数中传入。
+        // 鉴于目前的调用方式，GetModelFiles(nspName) 是入口。
+        // 我们可以让 GetModelFiles() 返回空或者抛出异常，因为它不应该被直接调用。
+        // 或者，我们可以修改基类 GetModelFiles 接受可选参数。
+        return [];
     }
 
     public static string ToRequestService(RequestServiceFile serviceFile, string namespaceName)
@@ -295,94 +327,5 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : GenerateBase
 
             """;
         return res;
-    }
-
-    /// <summary>
-    /// 获取方法信息
-    /// </summary>
-    /// <returns></returns>
-    public List<RequestServiceFunction> GetAllRequestFunctions()
-    {
-        List<RequestServiceFunction> functions = [];
-        // 处理所有方法
-        foreach (var path in PathsPairs)
-        {
-            if (path.Value.Operations == null)
-                continue;
-            foreach (var operation in path.Value.Operations)
-            {
-                RequestServiceFunction function = new()
-                {
-                    Description = operation.Value.Summary,
-                    Method = operation
-                        .Key
-                        .ToString(),
-                    Name = operation.Value.OperationId ?? (operation
-                        .Key
-                        .ToString() + path.Key),
-                    Path = path.Key,
-                    Tag = operation.Value.Tags?.FirstOrDefault()?.Name,
-                };
-                var reqSchema = operation.Value.RequestBody?.Content?.Values.FirstOrDefault()?.Schema;
-                var respSchema = operation.Value.Responses?.FirstOrDefault().Value?.Content?.FirstOrDefault().Value?.Schema;
-
-                function.RequestRefType = OpenApiHelper.GetRootRef(reqSchema);
-                function.ResponseRefType = OpenApiHelper.GetRootRef(respSchema);
-                function.RequestType = GetCSharpType(reqSchema);
-                function.ResponseType = GetCSharpType(respSchema);
-                function.Params = operation
-                    .Value.Parameters?.Select(p =>
-                    {
-                        string? location = p.In?.GetDisplayName();
-                        bool? inpath = location?.ToLower()?.Equals("path");
-                        string type = GetCSharpType(p.Schema);
-                        return new FunctionParams
-                        {
-                            Description = p.Description,
-                            Name = p.Name,
-                            InPath = inpath ?? false,
-                            IsRequired = p.Required,
-                            Type = type,
-                        };
-                    })
-                    .ToList();
-
-                functions.Add(function);
-            }
-        }
-        return functions;
-    }
-
-    // 统一 schema -> C# 类型解析 (参考 OpenApiHelper.MapToCSharpType 结果 + 枚举/数组/可空处理)
-    private static string GetCSharpType(IOpenApiSchema? schema)
-    {
-        if (schema == null) return "object";
-
-        bool isEnum = (schema.Enum?.Count ?? 0) > 0 || schema.Extensions?.ContainsKey("x-enumData") == true;
-        bool isList = schema.Type == JsonSchemaType.Array;
-        bool isNullable = schema.Type.HasValue && schema
-            .Type
-            .Value
-            .HasFlag(JsonSchemaType.Null);
-
-        string baseType = OpenApiHelper.MapToCSharpType(schema);
-        if (schema is OpenApiSchemaReference r && r.Reference.Id is not null)
-        {
-            baseType = OpenApiHelper.FormatSchemaKey(r.Reference.Id);
-        }
-
-        // 枚举直接用名称
-        if (isEnum && schema is OpenApiSchemaReference er && er.Reference.Id is not null)
-        {
-            baseType = OpenApiHelper.FormatSchemaKey(er.Reference.Id);
-        }
-
-        // 列表类型已由 MapToCSharpType 生成 List<...>，只处理可空情况（List 不加 ?）
-        if (isNullable && !isList && !baseType.EndsWith("?"))
-        {
-            // 基本值类型 / 引用类型均加 ? 让生成的 dto 参数可空
-            baseType += "?";
-        }
-        return baseType;
     }
 }

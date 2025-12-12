@@ -1,10 +1,13 @@
+using CodeGenerator.Generate.LanguageFormatter;
+
 namespace CodeGenerator.Generate.ClientRequest;
 
 /// <summary>
 /// Angular Http 客户端生成器
 /// </summary>
-public class AngularClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
+public class AngularClient(OpenApiDocument openApi) : TypeScriptClientBase(openApi)
 {
+    protected override LanguageFormatterBase Formatter { get; } = new TypeScriptFormatter();
     // the rquest service file path
     private readonly string servicePath = "services";
 

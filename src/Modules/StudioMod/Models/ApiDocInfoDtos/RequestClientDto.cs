@@ -10,4 +10,6 @@ public class RequestClientDto
 
     [Required]
     public string? OutputPath { get; set; }
+
+    public bool OnlyModels { get; set; }
 }

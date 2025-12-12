@@ -7,8 +7,10 @@ namespace CodeGenerator.Generate.ClientRequest;
 /// <summary>
 /// Axios 客户端生成器
 /// </summary>
-public class AxiosClient(OpenApiDocument openApi) : ClientRequestBase(openApi)
+public class AxiosClient(OpenApiDocument openApi) : TypeScriptClientBase(openApi)
 {
+    protected override LanguageFormatterBase Formatter { get; } = new TypeScriptFormatter();
+
     protected override List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string docName, List<RequestServiceFunction> functions)
     {
         List<GenFileInfo> files = [];

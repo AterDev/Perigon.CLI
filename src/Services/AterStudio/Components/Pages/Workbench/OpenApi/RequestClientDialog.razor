@@ -20,8 +20,7 @@
                       Items="Enum.GetValues<RequestClientType>()"
                       OptionValue="@(t=>t.ToString())"
                       OptionText="@(t=>t.ToString())"
-                      SelectedOption="Model.ClientType"
-                      OptionSelected="@(p=>p==RequestClientType.NgHttp)"
+                      @bind-SelectedOption="Model.ClientType"
                       Label="@Lang(Localizer.RequestClient)"
                       Required
                       Class="w-100">
@@ -47,6 +46,13 @@
                          Class="w-100"
                          MaxLength="200" />
         <ValidationMessage For="@(() => Model.OutputPath)" />
+      </FluentStack>
+      <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
+        <FluentSwitch @bind-Value=Model.OnlyModels
+                      title="@Lang(Localizer.OnlyModels)"
+                      CheckedMessage="OnlyModels" UncheckedMessage="Models&Requests">
+
+        </FluentSwitch>
       </FluentStack>
     </FluentStack>
   </EditForm>

@@ -1,11 +1,9 @@
-using CodeGenerator.Models;
-
 namespace CodeGenerator.Generate.LanguageFormatter;
 
 /// <summary>
 /// 抽象语言格式化器, 提供公共辅助方法。
 /// </summary>
-public abstract class LanguageFormatter : ILanguageFormatter
+public abstract class LanguageFormatterBase : ILanguageFormatter
 {
     public abstract string FormatType(string csharpType, bool isEnum = false, bool isList = false, bool isNullable = false);
     public abstract string GenerateModel(TypeMeta meta);

@@ -3,7 +3,7 @@ namespace CodeGenerator.Generate.LanguageFormatter;
 /// <summary>
 /// TypeScript 格式化以及模型代码生成。
 /// </summary>
-public class TypeScriptFormatter : LanguageFormatter
+public class TypeScriptFormatter : LanguageFormatterBase
 {
     private static readonly Dictionary<string, string> PrimitiveMap = new()
     {

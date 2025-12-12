@@ -4,5 +4,5 @@ public enum RequestClientType
 {
     [Description("angular http")] NgHttp,
     [Description("axios")] Axios,
-    [Description("csharp")] Csharp,
+    [Description("csharp")] CSharp,
 }

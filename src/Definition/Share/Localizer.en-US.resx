@@ -551,4 +551,8 @@
     <value>Create a WebApi service</value>
     <comment>创建WebApi服务</comment>
   </data>
+  <data name="OnlyModels" xml:space="preserve">
+    <value>Only generate models when selected</value>
+    <comment>仅生成模型类，不包含请求服务</comment>
+  </data>
 </root>

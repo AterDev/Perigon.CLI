@@ -14,9 +14,8 @@
         <FluentNavLink Href="/" Class="align-content-center align-items-center">
           <FluentButton Appearance="Appearance.Neutral"
                         BackgroundColor="rgba(0, 0, 0, 0)">
-            <FluentLabel Typo="Typography.Subject">
+            <FluentLabel Typo="Typography.Header">
               Ater Studio
-
             </FluentLabel>
           </FluentButton>
         </FluentNavLink>
@@ -28,7 +27,9 @@
         <FluentNavLink Href="/">
           <FluentButton Appearance="Appearance.Neutral"
                         BackgroundColor="rgba(0, 0, 0, 0)">
-            @Localizer.Get(Localizer.Solution)
+            <FluentLabel Typo="Typography.Subject">
+              @Localizer.Get(Localizer.Solution)
+            </FluentLabel>
           </FluentButton>
         </FluentNavLink>
         @*         <FluentNavLink Href="/tools">

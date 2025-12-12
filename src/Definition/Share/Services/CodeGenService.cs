@@ -224,17 +224,18 @@ public class CodeGenService(
     /// <param name="url"></param>
     /// <param name="outputPath"></param>
     /// <param name="type"></param>
+    /// <param name="onlyModels"></param>
     /// <returns></returns>
     public async Task<List<GenFileInfo>?> GenerateWebRequestAsync(
         string url = "",
         string outputPath = "",
-        RequestClientType type = RequestClientType.NgHttp
+        RequestClientType type = RequestClientType.NgHttp,
+        bool onlyModels = false
     )
     {
         _logger.LogInformation("🚀 Generating ts models and {type} request services...", type);
         var files = new List<GenFileInfo>();
 
-        string docName = string.Empty;
         var (apiDocument, _) = await OpenApiDocument.LoadAsync(url);
         if (apiDocument == null)
         {
@@ -242,32 +243,21 @@ public class CodeGenService(
             return null;
         }
 
-        var title = apiDocument.Info.Title;
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            var matchName = title
-                .Split('|')
-                .Where(s => s.EndsWith("Service", StringComparison.OrdinalIgnoreCase))
-                .FirstOrDefault();
-            matchName ??= title.Split('|').FirstOrDefault();
-
-            if (matchName != null)
-            {
-                docName = matchName.Trim().Replace("Service", "").ToHyphen();
-            }
-        }
+        string clientName = GetClientName(apiDocument);
+        string dir = Path.Combine(outputPath, "services", clientName);
         // base service
-        string content = RequestClientHelper.GetBaseService(type);
-        content = content.Replace("BASE_URL", docName.ToUpper() + "_BASE_URL");
-        string dir = Path.Combine(outputPath, "services", docName);
-        Directory.CreateDirectory(dir);
-        files.Add(
-            new GenFileInfo("base.service.ts", content)
+        if (!onlyModels)
+        {
+            string content = RequestClientHelper.GetBaseService(type);
+            content = content.Replace("BASE_URL", clientName.ToUpper() + "_BASE_URL");
+
+            Directory.CreateDirectory(dir);
+            files.Add(new GenFileInfo("base.service.ts", content)
             {
                 FullName = Path.Combine(dir, "base.service.ts"),
                 IsCover = false,
-            }
-        );
+            });
+        }
 
         // 枚举pipe
         if (type == RequestClientType.NgHttp)
@@ -275,7 +265,7 @@ public class CodeGenService(
             var schemas = apiDocument.Components?.Schemas;
             if (schemas != null)
             {
-                dir = Path.Combine(outputPath, "pipe", docName);
+                dir = Path.Combine(outputPath, "pipe", clientName);
                 Directory.CreateDirectory(dir);
                 var enumTextPath = Path.Combine(dir, "enum-text.pipe.ts");
                 bool isNgModule = false;
@@ -311,7 +301,7 @@ public class CodeGenService(
             }
         }
         // delete old files
-        var oldPath = Path.Combine(outputPath, "services", docName);
+        var oldPath = Path.Combine(outputPath, "services", clientName);
         try
         {
             if (Directory.Exists(oldPath))
@@ -338,7 +328,7 @@ public class CodeGenService(
             dir = Path.Combine(
                 outputPath,
                 "services",
-                docName,
+                clientName,
                 m.DirName
             );
             m.FullName = Path.Combine(dir, m.Name);
@@ -346,21 +336,93 @@ public class CodeGenService(
         });
         files.AddRange(tsModels);
         // 获取请求服务并生成文件
-        if (apiDocument.Tags != null)
+        if (!onlyModels && apiDocument.Tags != null)
         {
-            var services = client.GenerateServices(apiDocument.Tags, docName);
+            var services = client.GenerateServices(apiDocument.Tags, clientName);
             services.ForEach(s =>
             {
                 dir = Path.Combine(
                     outputPath,
                     "services",
-                    docName,
+                    clientName,
                     s.DirName
                 );
                 s.FullName = Path.Combine(dir, s.Name);
             });
             files.AddRange(services);
         }
+        return files;
+    }
+
+    /// <summary>
+    /// 生成Csharp请求客户端类库
+    /// </summary>
+    /// <param name="docUrl"></param>
+    /// <param name="outputPath"></param>
+    /// <param name="onlyModels"></param>
+    /// <returns></returns>
+    public async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(
+        string docUrl,
+        string outputPath,
+        bool onlyModels = false
+    )
+    {
+        var files = new List<GenFileInfo>();
+        var (apiDocument, _) = await OpenApiDocument.LoadAsync(docUrl);
+        if (apiDocument == null) { return files; }
+
+        var clientName = GetClientName(apiDocument);
+        var projectName = clientName.ToPascalCase() + "Client";
+        outputPath = Path.Combine(outputPath, projectName);
+
+        var gen = new CSHttpClientGenerate(apiDocument!);
+        string baseContent = CSHttpClientGenerate.GetBaseService(projectName);
+        string globalUsingContent = CSHttpClientGenerate.GetGlobalUsing(projectName);
+
+
+        files.Add(new GenFileInfo("GlobalUsings", globalUsingContent)
+        {
+            FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
+            IsCover = false,
+        });
+
+        if (!onlyModels)
+        {
+            files.Add(new GenFileInfo("BaseService", baseContent)
+            {
+                FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
+                IsCover = true,
+            });
+
+
+            // services
+            List<GenFileInfo> services = gen.GetServices(projectName);
+            services.ForEach(s =>
+            {
+                s.FullName = Path.Combine(outputPath, "Services", s.Name);
+                s.IsCover = true;
+            });
+            files.AddRange(services);
+        }
+
+        // models
+        List<GenFileInfo> models = gen.GetModelFiles(projectName);
+        models.ForEach(s =>
+        {
+            s.FullName = Path.Combine(outputPath, "Models", s.DirName, s.Name);
+            s.IsCover = true;
+        });
+        // csproj
+        var csprojContent = CSHttpClientGenerate.GetCsprojContent(ConstVal.NetVersion);
+        files.Add(
+            new GenFileInfo(projectName, csprojContent)
+            {
+                FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
+                IsCover = true,
+            }
+        );
+
+        files.AddRange(models);
         return files;
     }
 
@@ -441,75 +503,36 @@ public class CodeGenService(
         }
     }
 
-    /// <summary>
-    /// 生成Csharp请求客户端类库
-    /// </summary>
-    /// <param name="docUrl"></param>
-    /// <param name="outputPath"></param>
-    /// <returns></returns>
-    public static async Task<List<GenFileInfo>> GenerateCsharpApiClientAsync(
-        string docUrl,
-        string outputPath
-    )
+
+    public void ClearCodeGenCache(EntityInfo entityInfo)
     {
-        var files = new List<GenFileInfo>();
-        var docName = docUrl.Split('/').Reverse().Skip(1).First();
-        var projectName = docName.ToPascalCase() + "API";
-        outputPath = Path.Combine(outputPath, projectName);
 
-        var (apiDocument, _) = await OpenApiDocument.LoadAsync(docUrl);
-        var gen = new CSHttpClientGenerate(apiDocument!);
-
-        string nspName = new DirectoryInfo(outputPath).Name;
-        string baseContent = CSHttpClientGenerate.GetBaseService(nspName);
-        string globalUsingContent = CSHttpClientGenerate.GetGlobalUsing(projectName);
-
-        files.Add(
-            new GenFileInfo("BaseService", baseContent)
-            {
-                FullName = Path.Combine(outputPath, "Services", "BaseService.cs"),
-                IsCover = true,
-            }
-        );
-
-        files.Add(
-            new GenFileInfo("GlobalUsings", globalUsingContent)
-            {
-                FullName = Path.Combine(outputPath, "GlobalUsings.cs"),
-                IsCover = false,
-            }
-        );
-
-        // services
-        List<GenFileInfo> services = gen.GetServices(nspName);
-        services.ForEach(s =>
+        foreach (var dtoType in DtoTypes)
         {
-            s.FullName = Path.Combine(outputPath, "Services", s.Name);
-            s.IsCover = true;
-        });
-        // models
-        List<GenFileInfo> models = gen.GetModelFiles(nspName);
-        models.ForEach(s =>
-        {
-            s.FullName = Path.Combine(outputPath, "Models", s.Name);
-            s.IsCover = true;
-        });
-        // csproj
-        var csprojContent = CSHttpClientGenerate.GetCsprojContent(ConstVal.NetVersion);
-        files.Add(
-            new GenFileInfo(projectName, csprojContent)
-            {
-                FullName = Path.Combine(outputPath, $"{projectName}.csproj"),
-                IsCover = true,
-            }
-        );
-
-        files.AddRange(services);
-        files.AddRange(models);
-
-        return files;
+            var key = entityInfo.Name + dtoType.ToString();
+            _cache.Remove(key);
+        }
     }
+    private static string GetClientName(OpenApiDocument apiDocument)
+    {
+        var clientName = string.Empty;
+        var title = apiDocument.Info.Title;
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            var matchName = title
+                .Split('|')
+                .Where(s => s.EndsWith("Service", StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+            matchName ??= title.Split('|').FirstOrDefault();
 
+            if (matchName != null)
+            {
+                clientName = matchName.Trim().Replace("Service", "").ToHyphen();
+            }
+        }
+
+        return clientName;
+    }
     /// <summary>
     /// get Dto from cache
     /// </summary>
@@ -530,13 +553,4 @@ public class CodeGenService(
         return new ReadOnlyDictionary<string, DtoInfo>(result);
     }
 
-    public void ClearCodeGenCache(EntityInfo entityInfo)
-    {
-
-        foreach (var dtoType in DtoTypes)
-        {
-            var key = entityInfo.Name + dtoType.ToString();
-            _cache.Remove(key);
-        }
-    }
 }
