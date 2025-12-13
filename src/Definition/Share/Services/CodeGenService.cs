@@ -1,9 +1,9 @@
-using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Generate.ClientRequest;
 using Entity;
 using Microsoft.OpenApi;
+using System.Collections.ObjectModel;
 
 namespace Share.Services;
 
@@ -401,6 +401,16 @@ public class CodeGenService(
             {
                 s.FullName = Path.Combine(outputPath, "Services", s.Name);
                 s.IsCover = true;
+            });
+
+            // extentions
+            var extensionsContent = CSHttpClientGenerate.GetExtensionContent(
+                projectName,
+                services.Select(s => Path.GetFileNameWithoutExtension(s.Name)).ToList());
+            files.Add(new GenFileInfo("Extensions", extensionsContent)
+            {
+                FullName = Path.Combine(outputPath, "Extensions.cs"),
+                IsCover = true
             });
             files.AddRange(services);
         }

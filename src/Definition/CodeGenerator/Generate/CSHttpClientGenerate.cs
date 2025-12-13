@@ -278,6 +278,14 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
             dataString = ", data";
             paramsComments += $"    /// <param name=\"data\">{requestType}</param>\n";
         }
+
+        if (!string.IsNullOrWhiteSpace(paramsString))
+        {
+
+            paramsString += ", ";
+        }
+        paramsString += "CancellationToken cancellationToken = default";
+
         // 注释生成
         string comments = $"""
                 /// <summary>
@@ -324,15 +332,16 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
             : OpenApiHelper.FormatSchemaKey(function.ResponseType);
 
         returnType = ReplaceGenericPlaceholders(returnType, function);
+        string cancellation = "cancellationToken: cancellationToken";
 
         string method =
             function.ResponseType == "IFile"
-                ? $"DownloadFileAsync(url{dataString})"
-                : $"{function.Method.ToLower().ToUpperFirst()}JsonAsync<{returnType}?>(url{dataString})";
+                ? $"DownloadFileAsync(url{dataString}, {cancellation})"
+                : $"{function.Method.ToLower().ToUpperFirst()}JsonAsync<{returnType}?>(url{dataString}, {cancellation})";
 
         method =
             function.RequestType == "IFile"
-                ? $"UploadFileAsync<{function.ResponseType}?>(url, new StreamContent(data))"
+                ? $"UploadFileAsync<{function.ResponseType}?>(url, new StreamContent(data), {cancellation})"
                 : method;
         string res = $$"""
             {{comments}}
