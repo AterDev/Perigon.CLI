@@ -212,44 +212,4 @@ public abstract class TypeScriptClientBase(OpenApiDocument openApi) : ClientRequ
 
         return new FunctionBuildResult(name, paramsString, comments, dataString, path) { ResponseType = responseType };
     }
-
-    private string ReplaceGenericPlaceholders(string text, RequestServiceFunction function)
-    {
-        if (string.IsNullOrWhiteSpace(text)) return text;
-        // 支持基于 RequestRefType/ResponseRefType 的泛型替换, 如 PageList<T> -> PageList<EntityDto>
-        var replacements = new Dictionary<string, string>();
-        ExtractGenericConcrete(function.RequestRefType, function.RequestType);
-        ExtractGenericConcrete(function.ResponseRefType, function.ResponseType);
-        foreach (var kv in replacements)
-        {
-            text = text.Replace(kv.Key, kv.Value);
-        }
-        return text;
-
-        void ExtractGenericConcrete(string? refType, string? tsType)
-        {
-            if (string.IsNullOrWhiteSpace(refType) || string.IsNullOrWhiteSpace(tsType)) return;
-            // 只处理形如 TypeName<Something>
-            int lt = tsType.IndexOf('<');
-            int gt = tsType.LastIndexOf('>');
-            if (lt > 0 && gt > lt)
-            {
-                var inner = tsType.Substring(lt + 1, gt - lt - 1);
-                // 如果 inner 看起来是占位 (T/T1/T2) 则用 refType 的泛型参数解析
-                if (inner.All(c => c == 'T' || char.IsDigit(c) || c == ','))
-                {
-                    // 从 refType 提取真实参数: PageList`1[[Namespace.EntityDto,...]]
-                    var realTypes = OpenApiHelper.ExtractAllTypeNames(refType).Skip(1).Select(OpenApiHelper.FormatSchemaKey).ToList();
-                    if (realTypes.Count == 1)
-                    {
-                        replacements[inner] = realTypes[0];
-                    }
-                    else if (realTypes.Count > 1)
-                    {
-                        replacements[inner] = string.Join(",", realTypes);
-                    }
-                }
-            }
-        }
-    }
 }

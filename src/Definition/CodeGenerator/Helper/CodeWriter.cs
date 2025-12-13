@@ -56,9 +56,17 @@ public class CodeWriter
         return this;
     }
 
-    public CodeWriter OpenBlock(string header)
+    public CodeWriter OpenBlock(string header, bool newLine = false)
     {
-        AppendLine(header + " {");
+        if (newLine)
+        {
+            AppendLine(header);
+            AppendLine("{");
+        }
+        else
+        {
+            AppendLine(header + " {");
+        }
         Indent();
         return this;
     }

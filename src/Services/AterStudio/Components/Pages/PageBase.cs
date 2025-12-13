@@ -43,6 +43,9 @@ public class PageBase : ComponentBase
     {
         if (ProjectContext.SolutionId is null)
         {
+#if DEBUG
+            Thread.Sleep(100);
+#endif
             NavigationManager.NavigateTo("/");
         }
     }

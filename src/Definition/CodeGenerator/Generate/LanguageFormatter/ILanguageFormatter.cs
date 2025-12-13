@@ -16,5 +16,5 @@ public interface ILanguageFormatter
     /// </summary>
     /// <param name="meta">类型元数据</param>
     /// <returns>生成后的代码文本</returns>
-    string GenerateModel(TypeMeta meta);
+    string GenerateModel(TypeMeta meta, string nsp = "");
 }

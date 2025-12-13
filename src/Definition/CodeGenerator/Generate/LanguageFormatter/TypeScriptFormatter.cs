@@ -26,7 +26,12 @@ public class TypeScriptFormatter : LanguageFormatterBase
         ["IFile"] = "FormData",
     };
 
-    public override string FormatType(string csharpType, bool isEnum = false, bool isList = false, bool isNullable = false)
+    public override string FormatType(
+        string csharpType,
+        bool isEnum = false,
+        bool isList = false,
+        bool isNullable = false
+    )
     {
         if (string.IsNullOrWhiteSpace(csharpType)) return "any";
         var tsType = Normalize(csharpType);
@@ -54,7 +59,7 @@ public class TypeScriptFormatter : LanguageFormatterBase
         return tsType;
     }
 
-    public override string GenerateModel(TypeMeta meta)
+    public override string GenerateModel(TypeMeta meta, string nsp = "")
     {
         return meta.IsEnum == true ? GenerateEnum(meta) : GenerateInterface(meta);
     }
@@ -90,7 +95,7 @@ public class TypeScriptFormatter : LanguageFormatterBase
             for (int i = 0; i < meta.GenericParams.Count; i++)
             {
                 var gp = meta.GenericParams.ElementAt(i);
-                // 使用统一的占位符命名: T1, T2, ... 以便与前端预期一致
+                // 使用统一的占位符命名: T1, T2, 
                 string placeholder = $"T{i + 1}";
                 genericMap[OpenApiHelper.FormatSchemaKey(gp.Name)] = placeholder;
             }
@@ -124,7 +129,14 @@ public class TypeScriptFormatter : LanguageFormatterBase
                     replacedByGeneric = true;
                 }
             }
-            sbProps.Append(FormatProperty(property.Name, tsPropType, property.IsEnum, property.IsList, isNullable, property.CommentSummary));
+            sbProps.Append(FormatProperty(
+                property.Name,
+                tsPropType,
+                property.IsEnum,
+                property.IsList,
+                isNullable,
+                property.CommentSummary
+            ));
             var reference = property.NavigationName ?? string.Empty;
             if (!replacedByGeneric && !string.IsNullOrWhiteSpace(reference) && reference != meta.FullName)
             {
@@ -164,9 +176,21 @@ public class TypeScriptFormatter : LanguageFormatterBase
         return cw.ToString();
     }
 
-    private string FormatProperty(string name, string csharpType, bool isEnum, bool isList, bool isNullable, string? comment)
+    private string FormatProperty(
+        string name,
+        string csharpType,
+        bool isEnum,
+        bool isList,
+        bool isNullable,
+        string? comment
+    )
     {
-        var tsType = FormatType(csharpType ?? "any", isEnum, isList, isNullable);
+        var tsType = FormatType(
+            csharpType ?? "any",
+            isEnum,
+            isList,
+            isNullable
+        );
         string propName = name + (isNullable ? "?: " : ": ");
         string comments = $"/** {(!string.IsNullOrWhiteSpace(comment) ? comment : name)} */";
         return $"{comments}\n{propName}{tsType};\n";

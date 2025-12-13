@@ -1,6 +1,6 @@
-using System.Data;
 using CodeGenerator.Generate.ClientRequest;
 using CodeGenerator.Generate.LanguageFormatter;
+using System.Data;
 
 namespace CodeGenerator.Generate;
 
@@ -71,9 +71,9 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
                 <Nullable>enable</Nullable>
               </PropertyGroup>
               <ItemGroup>
-                <PackageReference Include="Microsoft.Extensions.Http"/>
-                <PackageReference Include="Microsoft.Extensions.Http.Polly"/>
-                <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+                <PackageReference Include="Microsoft.Extensions.Http" VersionOverride="10.0.1"/>
+                <PackageReference Include="Microsoft.Extensions.Http.Polly" VersionOverride="10.0.1"/>
+                <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="10.0.1"/>
               </ItemGroup>
             </Project>
             """;
@@ -103,19 +103,19 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
     /// <summary>
     /// 请求服务
     /// </summary>
-    /// <param name="namespaceName"></param>
+    /// <param name="projectName"></param>
     /// <returns></returns>
-    public List<GenFileInfo> GetServices(string namespaceName)
+    public List<GenFileInfo> GetServices(string projectName)
     {
         // 使用基类方法生成服务
         if (SchemaMetas.Count == 0) ParseSchemas();
         if (RequestFunctions.Count == 0) ParseOperations();
-        if (ModelFiles.Count == 0) GetModelFiles(namespaceName);
+        if (ModelFiles.Count == 0) GetModelFiles(projectName);
 
-        return InternalBuildServices(ApiTags!, namespaceName, RequestFunctions);
+        return InternalBuildServices(ApiTags!, projectName, RequestFunctions);
     }
 
-    protected override List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string docName, List<RequestServiceFunction> functions)
+    protected override List<GenFileInfo> InternalBuildServices(ISet<OpenApiTag> tags, string nspName, List<RequestServiceFunction> functions)
     {
         List<GenFileInfo> files = [];
         // 先以tag分组
@@ -135,7 +135,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
                 Functions = tagFunctions,
             };
 
-            string content = ToRequestService(serviceFile, docName);
+            string content = ToRequestService(serviceFile, nspName);
 
             string fileName = currentTag.Name + "RestService.cs";
             GenFileInfo file = new(fileName, content) { ModelName = currentTag.Name };
@@ -145,7 +145,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
     }
 
 
-    public List<GenFileInfo> GetModelFiles(string nspName)
+    public List<GenFileInfo> GetModelFiles(string projectName)
     {
         ModelFiles.Clear();
         EnumModels.Clear();
@@ -155,8 +155,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
         foreach (var meta in SchemaMetas)
         {
             string moduleName = OpenApiHelper.GetNamespaceFirstPart(meta.Namespace) ?? string.Empty;
-            meta.Namespace = nspName + ".Models." + moduleName;
-            string content = Formatter.GenerateModel(meta);
+            string content = Formatter.GenerateModel(meta, projectName);
             var schemaKey = meta.Name;
             schemaKey = OpenApiHelper.FormatSchemaKey(schemaKey);
             string fileName = schemaKey.ToPascalCase() + ".cs";
@@ -190,17 +189,29 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
         return [];
     }
 
-    public static string ToRequestService(RequestServiceFile serviceFile, string namespaceName)
+    public string ToRequestService(RequestServiceFile serviceFile, string namespaceName)
     {
         List<RequestServiceFunction>? functions = serviceFile.Functions;
         string functionstr = "";
-        List<string> refTypes = [];
+        List<string> refTypes = functions?.Select(f => f.ResponseRefType)
+            .Concat(functions.Select(f => f.RequestRefType))
+            .Where(r => !string.IsNullOrWhiteSpace(r))
+            .Distinct()
+            .Select(r => OpenApiHelper.GetNamespaceFirstPart(r))
+            .Distinct()
+            .ToList() ?? [];
+
+
+        var usingStrings = refTypes.Select(r => $"using {namespaceName}.Models.{r};")
+            .ToList();
+
         if (functions != null)
         {
             functionstr = string.Join("\n", functions.Select(ToRequestFunction).ToArray());
         }
+
         string result = $$"""
-            using {{namespaceName}}.Models;
+            {{string.Join(Environment.NewLine, usingStrings)}}
             namespace {{namespaceName}}.Services;
             /// <summary>
             /// {{serviceFile.Description}}
@@ -233,25 +244,28 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
 
         if (function.Params?.Count > 0)
         {
-            paramsString = string.Join(
-                ", ",
-                function
-                    .Params.OrderByDescending(p => p.IsRequired)
-                    .Select(p => p.IsRequired ? p.Type + " " + p.Name : p.Type + "? " + p.Name)
-                    .ToArray()
-            );
-            function
-                .Params
-                .ForEach(p =>
+            var orderedParams = function.Params.OrderByDescending(p => p.IsRequired).ToList();
+            foreach (var p in orderedParams)
             {
-                //<param name="dto"></param>
+                if (!string.IsNullOrEmpty(paramsString))
+                {
+                    paramsString += ", ";
+                }
+                var typeName = ReplaceGenericPlaceholders(OpenApiHelper.FormatSchemaKey(p.Type), function);
+                paramsString += p.IsRequired
+                    ? typeName + " " + p.Name
+                    : typeName + "? " + p.Name;
                 paramsComments +=
-                    $"    /// <param name=\"{p.Name}\">{p.Description ?? p.Type} </param>\n";
-            });
+                    $"    /// <param name=\"{p.Name}\">{p.Description ?? typeName} </param>\n";
+            }
         }
         if (!string.IsNullOrEmpty(function.RequestType))
         {
-            string requestType = function.RequestType == "IFile" ? "Stream" : function.RequestType;
+            string requestType = function.RequestType == "IFile"
+                ? "Stream"
+                : OpenApiHelper.FormatSchemaKey(function.RequestType);
+
+            requestType = ReplaceGenericPlaceholders(requestType, function);
             if (function.Params?.Count > 0)
             {
                 paramsString += $", {requestType} data";
@@ -305,12 +319,16 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
             dataString = $", {file.Name}";
         }
 
-        string returnType = function.ResponseType == "IFile" ? "Stream" : function.ResponseType;
+        string returnType = function.ResponseType == "IFile"
+            ? "Stream"
+            : OpenApiHelper.FormatSchemaKey(function.ResponseType);
+
+        returnType = ReplaceGenericPlaceholders(returnType, function);
 
         string method =
             function.ResponseType == "IFile"
                 ? $"DownloadFileAsync(url{dataString})"
-                : $"{function.Method}JsonAsync<{function.ResponseType}?>(url{dataString})";
+                : $"{function.Method.ToLower().ToUpperFirst()}JsonAsync<{returnType}?>(url{dataString})";
 
         method =
             function.RequestType == "IFile"
@@ -318,9 +336,8 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
                 : method;
         string res = $$"""
             {{comments}}
-                public async Task<{{returnType}}?> {{function
-            .Name
-            .ToPascalCase()}}Async({{paramsString}}) {
+                public async Task<{{returnType}}?> {{function.Name.ToPascalCase()}}Async({{paramsString}}) 
+                {
                     var url = $"{{function.Path}}";
                     return await {{method}};
                 }

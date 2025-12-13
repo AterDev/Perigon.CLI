@@ -6,7 +6,7 @@ namespace CodeGenerator.Generate.LanguageFormatter;
 public abstract class LanguageFormatterBase : ILanguageFormatter
 {
     public abstract string FormatType(string csharpType, bool isEnum = false, bool isList = false, bool isNullable = false);
-    public abstract string GenerateModel(TypeMeta meta);
+    public abstract string GenerateModel(TypeMeta meta, string nsp = "");
 
     /// <summary>
     /// 复用 OpenApiHelper.FormatSchemaKey, 便于派生类调用 (包装一层, 方便未来替换/缓存)。
