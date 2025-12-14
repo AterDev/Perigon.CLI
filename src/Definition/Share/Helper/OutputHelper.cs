@@ -7,6 +7,7 @@ public class OutputHelper
     public static void ShowLogo()
     {
         string logo = """
+
             ██████╗ ███████╗██████╗ ██╗ ██████╗  ██████╗ ███╗   ██╗
             ██╔══██╗██╔════╝██╔══██╗██║██╔════╝ ██╔═══██╗████╗  ██║
             ██████╔╝█████╗  ██████╔╝██║██║  ███╗██║   ██║██╔██╗ ██║
@@ -15,12 +16,15 @@ public class OutputHelper
             ╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
             """;
         string sign1 = "                 —→ for freedom 🗽 ←—";
-        string sign2 = "🌐 [link]https://dusi.dev/docs[/]";
+        string docsLine = "[[docs]]:   [link]https://dusi.dev/docs[/]";
+        string gitHubLine = "[[GitHub]]: [link]https://github.com/AterDev/Perigon.CLI[/]";
 
         AnsiConsole.MarkupLine($"[bold green]{logo}[/]");
         AnsiConsole.MarkupLine($"[yellow]{sign1}[/]");
+        AnsiConsole.MarkupLine($"[blue]{docsLine}[/]");
+        AnsiConsole.MarkupLine($"[blue]{gitHubLine}[/]");
         AnsiConsole.MarkupLine("");
-        AnsiConsole.MarkupLine($"[blue]{sign2}[/]");
+
     }
 
     public static void Error(string message)

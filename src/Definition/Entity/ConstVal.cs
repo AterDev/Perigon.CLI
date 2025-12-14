@@ -8,7 +8,7 @@ public static class ConstVal
     public const string CommandName = "perigon";
     public const string Version = "10.0.0";
     public const string NetVersion = "net10.0";
-    public const string PackageId = "Perigon.template";
+    public const string PackageId = "Perigon.cli";
 
     public const string Mini = "mini";
     public const string WebApi = "perigon-webapi";
