@@ -549,4 +549,10 @@
     <value>选中时，仅生成模型类</value>
     <comment>仅生成模型类，不包含请求服务</comment>
   </data>
+  <data name="SelectATemplate" xml:space="preserve">
+    <value>选择模板文件</value>
+  </data>
+  <data name="SelectSteps" xml:space="preserve">
+    <value>选择任务步骤</value>
+  </data>
 </root>

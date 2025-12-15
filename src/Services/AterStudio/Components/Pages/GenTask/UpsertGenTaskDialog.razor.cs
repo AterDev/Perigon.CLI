@@ -63,8 +63,7 @@ public partial class UpsertGenTaskDialog : IDisposable
 
     public void Dispose()
     {
-        if (editContext != null)
-            editContext.OnFieldChanged -= EditContext_OnFieldChanged;
+        editContext?.OnFieldChanged -= EditContext_OnFieldChanged;
     }
 
     private void AddVariable()
@@ -156,10 +155,10 @@ public class StepItemComparer : IEqualityComparer<GenStepItemDto>
     public bool Equals(GenStepItemDto? x, GenStepItemDto? y)
     {
         return ReferenceEquals(x, y)
-            || x is not null
+            || (x is not null
                 && y is not null
                 && x.Name == y.Name
-                && x.TemplatePath == y.TemplatePath;
+                && x.TemplatePath == y.TemplatePath);
     }
 
     public int GetHashCode(GenStepItemDto obj) => HashCode.Combine(obj.Name, obj.TemplatePath);

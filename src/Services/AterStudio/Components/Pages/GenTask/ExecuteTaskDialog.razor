@@ -13,6 +13,7 @@
     @if (Content.SourceType == GenSourceType.OpenAPI)
     {
       <FluentAutocomplete TOption="ApiDocInfo"
+                          autocorrect="off"
                           Label="@Lang(Localizer.Select,Localizer.OpenApiEndpoint)"
                           Placeholder="@Lang(Localizer.Select,Localizer.OpenApiEndpoint)"
                           OnOptionsSearch="OnOpenApiSearch"
@@ -28,6 +29,7 @@
     else
     {
       <FluentAutocomplete TOption="ModelFileItemDto"
+                          autocorrect="off"
                           Label="@Lang(Localizer.Select,Localizer.Model)"
                           Placeholder="@Lang(Localizer.Select,Localizer.Model)"
                           OnOptionsSearch="OnModelSearch"
@@ -126,17 +128,17 @@
       RunDto.SourceFilePath = SelectedModel?.FullName ?? string.Empty;
     }
 
-      var res = await GenActionManager.ExecuteActionAsync(RunDto);
-      if (res.IsSuccess)
-      {
-        await Dialog.CloseAsync(res.OutputFiles);
-      }
-      else
-      {
-        ToastService.ShowError(res.ErrorMsg ?? "");
-      }
-      IsProcessing = false;
-    
+    var res = await GenActionManager.ExecuteActionAsync(RunDto);
+    if (res.IsSuccess)
+    {
+      await Dialog.CloseAsync(res.OutputFiles);
+    }
+    else
+    {
+      ToastService.ShowError(res.ErrorMsg ?? "");
+    }
+    IsProcessing = false;
+
 
   }
 }

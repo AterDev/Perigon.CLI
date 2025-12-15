@@ -5,7 +5,7 @@
 @implements IDialogContentComponent<UpsertFileDto>
 
 <FluentDialogHeader ShowDismiss="false">
-  <FluentLabel Typo="Typography.Subject">
+  <FluentLabel Typo="Typography.PaneHeader">
     @if (IsEdit)
     {
       <span>@Lang(Localizer.Edit, Localizer.File): @Content.FileName</span>
