@@ -22,11 +22,11 @@ try {
     $csproj.Save($csprojPath);
 
     # Template
-    $csprojPath = Join-Path $location "../../Perigon.template/Pack.csproj"
-    $csproj = [xml](Get-Content $csprojPath)
-    $node = $csproj.SelectSingleNode("//PackageVersion")
-    $node.InnerText = $version
-    $csproj.Save($csprojPath);
+#     $csprojPath = Join-Path $location "../../Perigon.template/Pack.csproj"
+#     $csproj = [xml](Get-Content $csprojPath)
+#     $node = $csproj.SelectSingleNode("//Version")
+#     $node.InnerText = $version
+#     $csproj.Save($csprojPath);
 }
 catch {
     Write-Host $_.Exception.Message -ForegroundColor Red

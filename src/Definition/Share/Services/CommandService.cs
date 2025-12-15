@@ -11,10 +11,12 @@ namespace Share.Services;
 /// <param name="context"></param>
 /// <param name="projectContext"></param>
 /// <param name="solutionService"></param>
+/// <param name="codeGenService"></param>
 public class CommandService(
     DefaultDbContext context,
     IProjectContext projectContext,
-    SolutionService solutionService
+    SolutionService solutionService,
+    CodeGenService codeGenService
 )
 {
     public string? ErrorMsg { get; set; }
@@ -125,7 +127,12 @@ public class CommandService(
         // 前端项目处理
         if (dto.FrontType == FrontType.None)
         {
-            string appPath = Path.Combine(solutionPath, "src", "ClientApp", "WebApp");
+            string appPath = Path.Combine(
+                solutionPath,
+                "src",
+                "ClientApp",
+                "WebApp"
+            );
             if (Directory.Exists(appPath))
             {
                 Directory.Delete(appPath, true);
@@ -159,6 +166,38 @@ public class CommandService(
 
         OutputHelper.Success($"Create solution {dto.Name} completed!");
         return true;
+    }
+
+
+    public async Task GenerateRequestClientAsync(
+        string url,
+        string outputPath,
+        RequestClientType type,
+        bool onlyModels = false
+    )
+    {
+        try
+        {
+            List<GenFileInfo> genFiles = [];
+            if (type == RequestClientType.CSharp)
+            {
+                genFiles = await codeGenService.GenerateCsharpApiClientAsync(url, outputPath, onlyModels);
+            }
+            else
+            {
+                genFiles = await codeGenService.GenerateWebRequestAsync(
+                   url,
+                   outputPath,
+                   type,
+                   onlyModels
+               ) ?? [];
+            }
+            codeGenService.GenerateFiles(genFiles);
+        }
+        catch (Exception ex)
+        {
+            OutputHelper.Error(ex.Message + ex.StackTrace);
+        }
     }
 
     /// <summary>

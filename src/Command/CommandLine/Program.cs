@@ -17,10 +17,13 @@ OutputHelper.ShowLogo();
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddLocalization();
-builder.Services.AddScoped<Localizer>();
-
 builder.AddDbContext();
+builder.Services.AddMemoryCache();
 
+builder.Services.AddScoped<Localizer>();
+builder.Services.AddScoped<IProjectContext, ProjectContext>();
+builder.Services.AddScoped<CacheService>();
+builder.Services.AddScoped<SolutionService>();
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
@@ -28,8 +31,7 @@ builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<NewCommand>();
 builder.Services.AddScoped<StudioCommand>();
 builder.Services.AddScoped<AddCommand>();
-
-builder.Services.AddMemoryCache();
+builder.Services.AddScoped<RequestCommand>();
 
 var host = builder.Build();
 

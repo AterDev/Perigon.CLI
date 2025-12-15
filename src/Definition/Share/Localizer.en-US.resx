@@ -159,12 +159,6 @@
   <data name="GenerateDes" xml:space="preserve">
     <value>Code generate</value>
   </data>
-  <data name="InputCacheConnectionString" xml:space="preserve">
-    <value>👉 Input cache connectionString</value>
-  </data>
-  <data name="InputDbConnectionString" xml:space="preserve">
-    <value>👉 Input database ConnectionString or skip with enter</value>
-  </data>
   <data name="InputDirectory" xml:space="preserve">
     <value>👉 Input solution root path</value>
   </data>

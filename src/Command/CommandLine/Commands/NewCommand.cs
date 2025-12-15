@@ -24,48 +24,31 @@ public class NewCommand(Localizer localizer, CommandService commandService)
     {
         AnsiConsole.WriteLine();
         // 1. 选择项目类型
-        var solutionType = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title(localizer.Get(Localizer.SelectSolutionType))
-                .AddChoices([Localizer.SolutionTypeStandard])
-        );
-
+        //var solutionType = AnsiConsole.Prompt(
+        //    new SelectionPrompt<string>()
+        //        .Title(localizer.Get(Localizer.SelectSolutionType))
+        //        .AddChoices([Localizer.SolutionTypeStandard])
+        //);
+        var solutionType = localizer.Get(Localizer.SolutionTypeStandard);
         // 2. 选择数据库类型
         var dbType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title(localizer.Get(Localizer.SelectDatabaseProvider))
-                .AddChoices(Localizer.DatabasePostgreSql, Localizer.DatabaseSqlServer)
+                .AddChoices(
+                localizer.Get(Localizer.DatabasePostgreSql),
+                localizer.Get(Localizer.DatabaseSqlServer))
         );
-
-        // 3. 输入数据库连接字符串
-        var dbConnectionString = AnsiConsole.Prompt(
-            new TextPrompt<string?>(localizer.Get(Localizer.InputDbConnectionString))
-                .AllowEmpty()
-                .PromptStyle("green")
-        );
-
-        OutputHelper.ClearLine();
 
         // 4. 选择缓存类型
         var cacheType = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title(localizer.Get(Localizer.SelectCacheType))
-                .AddChoices(
-                    [Localizer.CacheTypeHybrid, Localizer.CacheTypeMemory, Localizer.CacheTypeRedis]
-                )
+                .AddChoices([
+                    localizer.Get(Localizer.CacheTypeHybrid),
+                    localizer.Get(Localizer.CacheTypeMemory),
+                    localizer.Get(Localizer.CacheTypeRedis)
+                ])
         );
-
-        string? cacheConnectionString = null;
-        // 如果缓存类型不是内存，则要求输入连接字符串
-        if (cacheType != Localizer.CacheTypeMemory)
-        {
-            cacheConnectionString = AnsiConsole.Prompt(
-                new TextPrompt<string?>(localizer.Get(Localizer.InputCacheConnectionString))
-                    .AllowEmpty()
-                    .PromptStyle("green")
-            );
-            OutputHelper.ClearLine();
-        }
 
         // 5. 选择队列类型 (暂不支持)
         // 6. 选择授权类型 (暂不支持)
@@ -121,9 +104,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
             .AddColumn(localizer.Get(Localizer.Values))
             .AddRow(localizer.Get(Localizer.SolutionType), solutionType)
             .AddRow(localizer.Get(Localizer.DatabaseProvider), dbType)
-            .AddRow(localizer.Get(Localizer.DbConnectionString), dbConnectionString ?? "")
             .AddRow(localizer.Get(Localizer.CacheType), cacheType)
-            .AddRow(localizer.Get(Localizer.CacheConnectionString), cacheConnectionString ?? "")
             //.AddRow(localizer.Get(Localizer.Modules), string.Join(", ", selectModules))
             .AddRow(localizer.Get(Localizer.FrontEnd), frontType)
             .AddRow(localizer.Get(Localizer.Directory), targetDirectory);
@@ -138,7 +119,7 @@ public class NewCommand(Localizer localizer, CommandService commandService)
 
         if (confirm)
         {
-            OutputHelper.Info("creating solution!");
+            OutputHelper.Info("creating solution...");
 
             // 具体创建逻辑
             var dto = new CreateSolutionDto
@@ -147,20 +128,16 @@ public class NewCommand(Localizer localizer, CommandService commandService)
                 Path = targetDirectory,
                 IsLight = solutionType == Localizer.SolutionTypeMini,
                 DBType =
-                    dbType == Localizer.DatabasePostgreSql ? DBType.PostgreSQL : DBType.SQLServer,
+                    dbType == localizer.Get(Localizer.DatabasePostgreSql) ? DBType.PostgreSQL : DBType.SQLServer,
                 CacheType =
-                    cacheType == Localizer.CacheTypeHybrid ? CacheType.Hybrid
-                    : cacheType == Localizer.CacheTypeMemory ? CacheType.Memory
+                    cacheType == localizer.Get(Localizer.CacheTypeHybrid) ? CacheType.Hybrid
+                    : cacheType == localizer.Get(Localizer.CacheTypeMemory) ? CacheType.Memory
                     : CacheType.Redis,
-                CommandDbConnStrings = dbConnectionString,
-                QueryDbConnStrings = dbConnectionString,
-                CacheConnStrings = cacheConnectionString,
+                CommandDbConnStrings = string.Empty,
+                QueryDbConnStrings = string.Empty,
+                CacheConnStrings = string.Empty,
                 FrontType = frontType == Localizer.None ? FrontType.None : FrontType.Angular,
             };
-            //if (selectModules.Count > 0)
-            //{
-            //    dto.Modules = selectModules.Select(m => m.Name).ToList();
-            //}
             await commandService.CreateSolutionAsync(dto);
             OutputHelper.Success(localizer.Get(Localizer.CreateSolutionSuccess));
         }

@@ -159,12 +159,6 @@
   <data name="GenerateDes" xml:space="preserve">
     <value>代码生成</value>
   </data>
-  <data name="InputCacheConnectionString" xml:space="preserve">
-    <value>👉 输入缓存连接字符串或按Enter跳过</value>
-  </data>
-  <data name="InputDbConnectionString" xml:space="preserve">
-    <value>👉 输入数据库连接字符串或按Enter跳过</value>
-  </data>
   <data name="InputDirectory" xml:space="preserve">
     <value>👉 输入解决方案根目录</value>
   </data>
