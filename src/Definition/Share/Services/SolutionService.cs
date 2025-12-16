@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
+using EfCoreContext.DBProvider;
 using Entity;
 using Humanizer;
 

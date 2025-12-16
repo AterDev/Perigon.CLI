@@ -13,7 +13,6 @@
     @if (Content.SourceType == GenSourceType.OpenAPI)
     {
       <FluentAutocomplete TOption="ApiDocInfo"
-                          autocorrect="off"
                           Label="@Lang(Localizer.Select,Localizer.OpenApiEndpoint)"
                           Placeholder="@Lang(Localizer.Select,Localizer.OpenApiEndpoint)"
                           OnOptionsSearch="OnOpenApiSearch"
@@ -29,7 +28,6 @@
     else
     {
       <FluentAutocomplete TOption="ModelFileItemDto"
-                          autocorrect="off"
                           Label="@Lang(Localizer.Select,Localizer.Model)"
                           Placeholder="@Lang(Localizer.Select,Localizer.Model)"
                           OnOptionsSearch="OnModelSearch"
@@ -93,7 +91,7 @@
   {
     if (Content.SourceType == GenSourceType.OpenAPI)
     {
-      ApiDocs = await ApiDocInfoManager.ToListAsync();
+      ApiDocs = await ApiDocInfoManager.ToListAsync(a => a.ProjectId == ProjectContext.SolutionId);
     }
     else
     {

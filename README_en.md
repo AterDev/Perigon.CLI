@@ -8,7 +8,7 @@ It is provided as a `dotnet` command-line tool and also supports a `Web UI` and 
 
 ## 🚀 Features
 
-- Seamless integration for ater.web.templates templates (ASP.NET Core projects)
+- Seamless integration for perigon.templates templates (ASP.NET Core projects)
   - Start by creating a new solution or adding an existing project
   - Intelligently generate DTO files, including common DTOs such as add, update, query, list, etc.
   - Intelligently generate data operations and business logic implementations, including common add, update, and filter functions
@@ -52,7 +52,7 @@ You can add other web project types, such as JAVA, Python, Go, etc., and you can
 
 ## Project Template Support
 
-You can use the [ater.web.templates](https://www.nuget.org/packages/ater.web.templates) project template, which is recommended for use in conjunction!
+You can use the [perigon.templates](https://www.nuget.org/packages/perigon.templates) project template, which is recommended for use in conjunction!
 
 ## Install
 
@@ -63,7 +63,7 @@ You can use the [ater.web.templates](https://www.nuget.org/packages/ater.web.tem
 Use the `dotnet tool` command to install:
 
 ```pwsh
-dotnet tool install --global ater.dry.cli
+dotnet tool install --global perigon.cli
 ```
 
 You can check the latest version on [nuget](https://www.nuget.org/packages/ater.dry.cli)!
@@ -78,7 +78,7 @@ You can check the latest version on [nuget](https://www.nuget.org/packages/ater.
 Start the UI interface with one command!
 
 ```pwsh
-ater studio
+perigon studio
 ```
 
 This command will automatically open the browser page, the port is `19160`.
@@ -90,11 +90,10 @@ This command will automatically open the browser page, the port is `19160`.
 
 ### Using the Command Line
 
-You can use `ater --help` to view command help information.
+You can use `perigon --help` to view command help information.
 
-Or use `ater [command] --help` to view specific command help information.
+Or use `perigon [command] --help` to view specific command help information.
 
 ## Documentation
 
-[in progress](https://www.dusi.dev/docs/Ater.Dry)
-
+[in progress](https://www.dusi.dev/docs)

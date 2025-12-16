@@ -1,3 +1,4 @@
+using EfCoreContext.DBProvider;
 using Microsoft.EntityFrameworkCore;
 
 namespace AterStudio.Worker;

@@ -1,4 +1,3 @@
-using Entity;
 using Entity.StudioMod;
 using RazorEngineCore;
 
@@ -58,7 +57,7 @@ public class RazorGenContext
 
     public string GenTemplate(string templateContent, ActionRunModel model)
     {
-        templateContent = $"@using {ConstVal.CoreLibName}.Utils;" + Environment.NewLine + templateContent;
+        templateContent = $"@using Core.Utils;" + Environment.NewLine + templateContent;
         var dictionary = model
             .Variables.DistinctBy(v => v.Key)
             .ToDictionary(v => v.Key, v => v.Value);
@@ -69,7 +68,7 @@ public class RazorGenContext
             {
                 builder.AddAssemblyReferenceByName("System.Collections");
                 builder.AddAssemblyReferenceByName("System");
-                builder.AddAssemblyReferenceByName($"{ConstVal.CoreLibName}");
+                builder.AddAssemblyReferenceByName("Core");
                 builder.AddAssemblyReferenceByName("Entity");
             }
         );

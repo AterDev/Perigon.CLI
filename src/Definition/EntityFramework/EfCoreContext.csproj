@@ -5,8 +5,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+
     <ItemGroup>
-        <PackageReference Include="Ater.Web.Convention" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"></PackageReference>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />

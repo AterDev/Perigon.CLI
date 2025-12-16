@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AterStudio.Components;
+namespace AterStudio.Components.Shared.Models;
 
 public class AddProjectDto
 {

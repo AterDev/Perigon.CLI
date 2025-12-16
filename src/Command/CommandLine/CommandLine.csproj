@@ -64,6 +64,6 @@
     <Folder Include="nupkg\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Command.Share\Command.Share.csproj" />
+    <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
   </ItemGroup>
 </Project>

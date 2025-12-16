@@ -12,6 +12,7 @@
     <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Core/Core.csproj" Id="1e7bec10-4ecd-4d6e-b653-40de55162da2" />
   </Folder>
 
   <Folder Name="/src/Definition/">
@@ -22,7 +23,6 @@
   </Folder>
 
   <Folder Name="/src/Command/">
-    <Project Path="src\Command\Command.Share\Command.Share.csproj" />
     <Project Path="src\Command\CommandLine\CommandLine.csproj" />
   </Folder>
   <Folder Name="/src/Modules/">

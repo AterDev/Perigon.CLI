@@ -1,3 +1,5 @@
+using Share.Services;
+
 namespace CommandLine.Commands;
 
 /// <summary>
@@ -13,7 +15,7 @@ public class StudioCommand : AsyncCommand<StudioCommand.Settings>
         CancellationToken cancellationToken
     )
     {
-        await StudioRunner.RunStudioAsync();
+        await CommandService.RunStudioAsync();
         return 0;
     }
 }
@@ -25,7 +27,7 @@ public class StudioUpdateCommand : AsyncCommand
         CancellationToken cancellationToken
     )
     {
-        StudioRunner.UpdateStudio();
+        CommandService.UpdateStudio();
         return Task.FromResult(0);
     }
 }

@@ -8,7 +8,7 @@
 
 ## 🚀 特性
 
-- 针对ater.web.templates模板(ASP.NET Core项目)的无缝集成
+- 针对perigon.templates模板(ASP.NET Core项目)的无缝集成
   - 从创建新解决方案，或添加现有项目开始
   - 智能生成DTO文件，包括增加、更新、查询、列表等常用DTO
   - 智能生成数据操作及业务逻辑实现，包括常见的新增、更新、筛选功能
@@ -28,7 +28,7 @@
 
 ### 对ASP.NET Core的支持
 
-dry 命令工具可以帮助开发者根据实体模型(.cs文件)生成常用的代码模板，包括：
+perigon 命令工具可以帮助开发者根据实体模型(.cs文件)生成常用的代码模板，包括：
 
 - Dto文件，增加、更新、查询、列表等Dto文件
 - 仓储文件，数据仓储层代码
@@ -51,7 +51,7 @@ dry 命令工具可以帮助开发者根据实体模型(.cs文件)生成常用�
 
 ## 项目模板支持
 
-集成[ater.web.templates](https://www.nuget.org/packages/ater.web.templates)项目模板。
+集成[perigon.templates](https://www.nuget.org/packages/perigon.templates)项目模板。
 
 ## 安装
 
@@ -74,7 +74,7 @@ dotnet tool install --global Perigon.CLI
 一条命令启动UI界面!
 
 ```pwsh
-ater studio
+perigon studio
 ```
 
 该命令将自动开浏览器页面，端口为`19160`。
@@ -86,9 +86,9 @@ ater studio
 
 ### 使用命令行
 
-你可以使用`ater --help` 查看命令帮助信息。
+你可以使用`perigon --help` 查看命令帮助信息。
 
-或者使用`ater [command] --help` 查看具体命令帮助信息。
+或者使用`perigon [command] --help` 查看具体命令帮助信息。
 
 ## 📄 文档
 

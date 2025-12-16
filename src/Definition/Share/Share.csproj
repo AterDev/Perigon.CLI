@@ -22,8 +22,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
-        <PackageReference Include="Ater.Web.SourceGeneration" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Perigon.AspNetCore.SourceGeneration" />
         <PackageReference Include="Spectre.Console.Cli" />
+        <PackageReference Include="Microsoft.Extensions.Localization" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />

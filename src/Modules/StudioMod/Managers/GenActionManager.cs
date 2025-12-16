@@ -1,4 +1,5 @@
 using CodeGenerator;
+using Mapster;
 using StudioMod.Models.GenActionDtos;
 using StudioMod.Models.GenStepDtos;
 
@@ -67,7 +68,7 @@ public class GenActionManager(
         var data = await Queryable
             .Where(q => q.Id == actionId)
             .SelectMany(q => q.GenSteps)
-            .ProjectTo<GenStepItemDto>()
+            .ProjectToType<GenStepItemDto>()
             .ToListAsync();
         return data;
     }

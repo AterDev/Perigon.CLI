@@ -1,4 +1,3 @@
-using Ater.Web.Convention.Abstraction;
 using AterStudio;
 using AterStudio.Components.Pages;
 using AterStudio.McpTools;
@@ -33,7 +32,6 @@ builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<SolutionService>();
 builder.Services.AddSingleton<StorageService>();
 
-builder.Services.AddSingleton<EntityTaskQueue<EventQueueModel<McpTool>>>();
 
 // add MCP Server
 builder.Services.AddSingleton<McpToolsHandler>();
