@@ -1,5 +1,6 @@
 using CodeGenerator;
 using Mapster;
+using Microsoft.OpenApi;
 using StudioMod.Models.GenActionDtos;
 using StudioMod.Models.GenStepDtos;
 
@@ -272,6 +273,13 @@ public class GenActionManager(
             }
         }
 
+
+        if (action.SourceType is GenSourceType.OpenAPI && dto.SourceFilePath != null)
+        {
+            var (apiDocument, _) = await OpenApiDocument.LoadAsync(dto.SourceFilePath);
+            actionRunModel.OpenApiPaths = apiDocument?.Paths ?? [];
+
+        }
         if (action.GenSteps.Count > 0)
         {
             try
@@ -295,19 +303,17 @@ public class GenActionManager(
                         var outputPath = step.OutputPathFormat(actionRunModel.Variables);
                         outputPath = Path.Combine(_projectContext.SolutionPath!, outputPath);
 
-                        if (dto.OnlyOutput)
+                        res.OutputFiles.Add(
+                             new ModelFileItemDto
+                             {
+                                 Name = Path.GetFileName(outputPath),
+                                 FullName = outputPath,
+                                 Content = outputContent,
+                             }
+                         );
+                        if (!dto.OnlyOutput)
                         {
-                            res.OutputFiles.Add(
-                                new ModelFileItemDto
-                                {
-                                    Name = Path.GetFileName(outputPath),
-                                    FullName = outputPath,
-                                    Content = outputContent,
-                                }
-                            );
-                        }
-                        else
-                        {
+
                             if (!Directory.Exists(Path.GetDirectoryName(outputPath)))
                             {
                                 Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);

@@ -18,8 +18,8 @@ public class CodeTools(
     IProjectContext projectContext
 )
 {
-    [McpServerTool, Description("创建实体模型类")]
-    public string? NewEntity([Description("用户输入的提示词内容")] string prompt)
+    [McpServerTool, Description("create entity model class")]
+    public string? NewEntity([Description("the prompt from user input")] string prompt)
     {
         var message = Prompts.CreateEntity();
 
@@ -35,12 +35,13 @@ public class CodeTools(
         return res;
     }
 
-    [McpServerTool, Description("根据实体模型生成Dto")]
+    [McpServerTool, Description("generate DTO model class from entity")]
     public async Task<string?> GenerateDtoAsync(
         McpServer server,
         [Description("实体模型文件的绝对路径")] string entityPath
     )
     {
+
         return await GenerateAsync(server, entityPath, CommandType.Dto);
     }
 

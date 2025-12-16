@@ -70,6 +70,8 @@ public class RazorGenContext
                 builder.AddAssemblyReferenceByName("System");
                 builder.AddAssemblyReferenceByName("Core");
                 builder.AddAssemblyReferenceByName("Entity");
+                builder.AddAssemblyReferenceByName("Microsoft.OpenApi");
+                builder.AddAssemblyReferenceByName("System.Net.Http");
             }
         );
 
@@ -85,6 +87,7 @@ public class RazorGenContext
             instance.DetailPropertyInfos = model.DetailPropertyInfos;
             instance.ItemPropertyInfos = model.ItemPropertyInfos;
             instance.FilterPropertyInfos = model.FilterPropertyInfos;
+            instance.OpenApiPaths = model.OpenApiPaths;
         });
         return result;
     }
@@ -117,6 +120,7 @@ public class CustomTemplate : RazorEngineTemplateBase
     public List<PropertyInfo> DetailPropertyInfos { get; set; } = [];
     public List<PropertyInfo> ItemPropertyInfos { get; set; } = [];
     public List<PropertyInfo> FilterPropertyInfos { get; set; } = [];
+    public OpenApiPaths OpenApiPaths { get; set; } = [];
 }
 
 public class ActionRunModel
@@ -143,4 +147,5 @@ public class ActionRunModel
     public List<PropertyInfo> DetailPropertyInfos { get; set; } = [];
     public List<PropertyInfo> ItemPropertyInfos { get; set; } = [];
     public List<PropertyInfo> FilterPropertyInfos { get; set; } = [];
+    public OpenApiPaths OpenApiPaths { get; set; } = [];
 }

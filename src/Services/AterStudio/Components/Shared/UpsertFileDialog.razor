@@ -8,7 +8,7 @@
   <FluentLabel Typo="Typography.PaneHeader">
     @if (IsEdit)
     {
-      <span>@Lang(Localizer.Edit, Localizer.File): @Content.FileName</span>
+      <span>@Lang(Localizer.Edit, Localizer.File): @Content.FileName@Content.Suffix</span>
     }
     else
     {
@@ -66,6 +66,7 @@
     if (IsEdit)
     {
       FileName = Content.FileName!;
+      FileContent = File.ReadAllText(Content.FullPath);
     }
   }
 
