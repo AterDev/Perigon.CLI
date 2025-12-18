@@ -37,41 +37,44 @@
     </FluentStack>
   </FluentToolbar>
 
-  <FluentDataGrid Class="w-100"
-                  Items="@McpTools.AsQueryable()"
-                  RowSize="DataGridRowSize.Medium"
-                  MultiLine="true"
-                  @bind-SelectedItem="SelectedMcpTool">
-    <PropertyColumn Property="@(t => t.Name)" Title="@Lang(Localizer.Name)" />
-    <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Description)" />
-    <TemplateColumn Title="@Lang(Localizer.Prompt, Localizer.Path)">
-      @context.PromptPath?.Replace(ProjectContext.SolutionPath ?? "", "")
-    </TemplateColumn>
+  @if (@McpTools.Any())
+  {
+    <FluentDataGrid Class="w-100"
+                    Items="@McpTools.AsQueryable()"
+                    RowSize="DataGridRowSize.Medium"
+                    MultiLine="true"
+                    @bind-SelectedItem="SelectedMcpTool">
+      <PropertyColumn Property="@(t => t.Name)" Title="@Lang(Localizer.Name)" />
+      <PropertyColumn Property="@(t => t.Description)" Title="@Lang(Localizer.Description)" />
+      <TemplateColumn Title="@Lang(Localizer.Prompt, Localizer.Path)">
+        @context.PromptPath?.Replace(ProjectContext.SolutionPath ?? "", "")
+      </TemplateColumn>
 
-    <TemplateColumn Title="@Lang(Localizer.Template, Localizer.Path)">
-      <div class="flex items-center">
-        @if (context.TemplatePaths.Count() > 0)
-        {
-          foreach (var item in context.TemplatePaths)
+      <TemplateColumn Title="@Lang(Localizer.Template, Localizer.Path)">
+        <div class="flex items-center">
+          @if (context.TemplatePaths.Count() > 0)
           {
-            <span>@item.Replace(ProjectContext.SolutionPath ?? "", "") </span>
-            <br>
+            foreach (var item in context.TemplatePaths)
+            {
+              <span>@item.Replace(ProjectContext.SolutionPath ?? "", "") </span>
+              <br>
+            }
           }
-        }
-      </div>
+        </div>
 
-    </TemplateColumn>
-    <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
-      <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
-        <FluentButton Appearance="Appearance.Stealth"
-                      OnClick="@(() => OpenEditDialogAsync(context))"
-                      IconStart="@(new Icons.Regular.Size20.Edit())"
-                      Title="@Lang(Localizer.Edit)" />
-        <FluentButton Appearance="Appearance.Stealth"
-                      OnClick="@(() => DeleteMcpTool(context))"
-                      IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
-                      Title="@Lang(Localizer.Delete)" />
-      </FluentStack>
-    </TemplateColumn>
-  </FluentDataGrid>
+      </TemplateColumn>
+      <TemplateColumn Title="@Lang(Localizer.Operate)" Align="Align.Start">
+        <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+          <FluentButton Appearance="Appearance.Stealth"
+                        OnClick="@(() => OpenEditDialogAsync(context))"
+                        IconStart="@(new Icons.Regular.Size20.Edit())"
+                        Title="@Lang(Localizer.Edit)" />
+          <FluentButton Appearance="Appearance.Stealth"
+                        OnClick="@(() => DeleteMcpTool(context))"
+                        IconStart="@(new Icons.Regular.Size20.Delete().WithColor(Color.Warning))"
+                        Title="@Lang(Localizer.Delete)" />
+        </FluentStack>
+      </TemplateColumn>
+    </FluentDataGrid>
+  }
 </FluentStack>

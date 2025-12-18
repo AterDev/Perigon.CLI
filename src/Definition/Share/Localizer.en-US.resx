@@ -527,7 +527,7 @@
     <value>Used to identify user entities, such as User, to distinguish them from ordinary entities, such as user Id obtained from IUserContext</value>
   </data>
   <data name="UserEntityName" xml:space="preserve">
-    <value>User Entity Class Name</value>
+    <value>User ForeignKey</value>
   </data>
   <data name="UserEntityExample" xml:space="preserve">
     <value>like User;SystemUser</value>

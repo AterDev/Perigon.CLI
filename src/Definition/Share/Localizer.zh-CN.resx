@@ -527,7 +527,7 @@
     <value>用来标识用户实体，如User，以区分与普通实体的处理，如用户Id从IUserContext中获取</value>
   </data>
   <data name="UserEntityName" xml:space="preserve">
-    <value>用户实体类名称</value>
+    <value>用户外键名</value>
   </data>
   <data name="UserEntityExample" xml:space="preserve">
     <value>如User;SystemUser</value>
