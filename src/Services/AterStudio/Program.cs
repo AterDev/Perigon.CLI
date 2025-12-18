@@ -44,7 +44,7 @@ builder
             opts.Handlers = new McpServerHandlers
             {
                 ListToolsHandler = (req, ct) => handler.ListToolsHandler(req, ct),
-                CallToolHandler = (req, ct) => handler.CallToolsHandler(req, ct),
+                CallToolHandler = (req, ct) => handler.CallToolHandler(req, ct),
             };
         }
     );

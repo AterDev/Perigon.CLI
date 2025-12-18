@@ -38,34 +38,65 @@ public class CodeTools(
     [McpServerTool, Description("generate DTO model class from entity")]
     public async Task<string?> GenerateDtoAsync(
         McpServer server,
-        [Description("实体模型文件的绝对路径")] string entityPath
+        [Description("the entity model file absolute path")] string entityPath
     )
     {
+        var prompt = Prompts.GenerateDto();
+        var example = await GenerateAsync(server, entityPath, CommandType.Dto);
 
-        return await GenerateAsync(server, entityPath, CommandType.Dto);
+        return $"""
+            {example}
+            {prompt}
+            """;
     }
 
-    [McpServerTool, Description("根据实体模型生成Manager")]
+    [McpServerTool, Description("generate Manager class from entity")]
     public async Task<string?> GenerateManagerAsync(
-        [Description("实体模型文件的绝对路径")] string entityPath,
-        McpServer server
+        McpServer server,
+        [Description("the entity model file absolute path")] string entityPath,
+        [Description("the prompt from user input")] string? prompt = ""
     )
     {
-        return await GenerateAsync(server, entityPath, CommandType.Manager);
+        prompt ??= "";
+        var rules = Prompts.GenerateManager();
+        prompt += Environment.NewLine + rules;
+
+        var example = await GenerateAsync(server, entityPath, CommandType.Manager);
+        return $"""
+            {example}
+            {prompt}
+            """;
     }
 
-    [McpServerTool, Description("根据实体模型生成Controller/API接口")]
+    [McpServerTool, Description("generate Controller API from entity")]
     public async Task<string?> GenerateControllerAsync(
-        [Description("实体模型文件的绝对路径")] string entityPath,
-        McpServer server
+        McpServer server,
+        [Description("the entity model file absolute path, required")] string entityPath,
+        [Description("the target service absolute path, required")] string servicePath,
+        [Description("the prompt from user input")] string? prompt = ""
     )
     {
-        return await GenerateAsync(server, entityPath, CommandType.API);
+        prompt ??= "";
+        var rules = Prompts.GenerateController();
+        prompt += Environment.NewLine + rules;
+
+        if (servicePath.NotEmpty())
+        {
+            if (servicePath.EndsWith(".csproj"))
+            {
+                servicePath = Path.GetDirectoryName(servicePath) ?? servicePath;
+            }
+        }
+        var example = await GenerateAsync(server, entityPath, CommandType.API, [servicePath]);
+        return $"""
+            {example}
+            {prompt}
+            """;
     }
 
-    [McpServerTool, Description("创建或添加新的模块")]
+    [McpServerTool, Description("add or create new module")]
     public async Task<string> CreateModuleAsync(
-        [Description("模块名称")] string moduleName,
+        [Description("module name,required")] string moduleName,
         McpServer server
     )
     {
@@ -84,7 +115,20 @@ public class CodeTools(
         }
     }
 
-    [McpServerTool, Description("生成前端请求服务")]
+
+    [McpServerTool, Description("create razor tempalte from entity or openapi")]
+    public async Task<string> CreateRazorTemplateAsync(McpServer server)
+    {
+        var rules = Prompts.GenerateRazorTemplate();
+
+        return $"""
+            {rules}
+            """;
+
+    }
+
+
+    //[McpServerTool, Description("生成前端请求服务")]
     public async Task<string?> GenerateServiceAsync(
         [Description("openapi的url地址或本地路径")] string openApiPath,
         [Description("代码生成的输出路径")] string outputPath,
@@ -119,7 +163,7 @@ public class CodeTools(
     }
 
 
-    [McpServerTool, Description("根据指定DbContext生成数据库迁移")]
+    //[McpServerTool, Description("根据指定DbContext生成数据库迁移")]
 
     public async Task<string?> GenerateDBMigrationAsync(
         McpServer server,
@@ -151,7 +195,12 @@ public class CodeTools(
     /// 生成服务
     /// </summary>
     /// <returns></returns>
-    private async Task<string> GenerateAsync(McpServer server, string entityPath, CommandType type)
+    private async Task<string> GenerateAsync(
+        McpServer server,
+        string entityPath,
+        CommandType type,
+        string[]? servicePath = null
+    )
     {
         await SetProjectContextAsync(server);
         try
@@ -161,28 +210,18 @@ public class CodeTools(
                 EntityPath = entityPath,
                 CommandType = type,
                 Force = true,
-                OnlyContent = true
+                OnlyContent = true,
+                ServicePath = servicePath ?? []
             };
 
             var res = await manager.GenerateAsync(dto);
-            var resDes = new StringBuilder("<result>");
-            resDes.AppendLine("受影响的文件路径:");
+            var resDes = new StringBuilder("<example>");
             foreach (var file in res)
             {
-                resDes.AppendLine(file.FullName);
+                resDes.AppendLine(file.ToMarkdown());
             }
-            resDes.AppendLine("在对话中列出以上文件，标记出新增或修改的文件");
-            resDes.AppendLine("</result>");
 
-            if (manager.ModuleName.NotEmpty())
-            {
-                resDes.AppendLine("生成后的操作：");
-                resDes.AppendLine("<prompt>");
-                resDes.AppendLine(
-                    $"检查src/Modules目录下是否包含{manager.ModuleName}/{manager.ModuleName}.csproj 程序集，如果不包含 则调用 添加新模块工具"
-                );
-                resDes.AppendLine("</prompt>");
-            }
+            resDes.AppendLine("</example>");
             return resDes.ToString();
         }
         catch (Exception ex)

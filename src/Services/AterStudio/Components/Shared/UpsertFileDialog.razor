@@ -56,6 +56,7 @@
 
   string FileName { get; set; } = string.Empty;
   string FileContent { get; set; } = string.Empty;
+  string EditFilePath { get; set; }  = string.Empty;
 
   bool IsEdit => !string.IsNullOrEmpty(Content.FileName);
 
@@ -67,14 +68,14 @@
     {
       FileName = Content.FileName!;
       FileContent = File.ReadAllText(Content.FullPath);
+      EditFilePath = Path.Combine(Content.RootPath, Content.DirectoryName, Content.FileName + Content.Suffix);
     }
   }
 
   private async Task SaveAsync()
   {
 
-    if (FileName.IsEmpty() || FileContent.IsEmpty()
-    || FileName.Length > 100)
+    if (FileName.IsEmpty() || FileContent.IsEmpty() || FileName.Length > 100)
     {
       ToastService.ShowError(Lang(Localizer.FormValidFailed));
       return;
@@ -83,7 +84,7 @@
     var filePath = Path.Combine(Content.RootPath, Content.DirectoryName, FileName + Content.Suffix);
     if (IsEdit)
     {
-      LocalFileHelper.UpdateFileContent(filePath, FileContent);
+      LocalFileHelper.UpdateFileContent(EditFilePath, FileContent, filePath);
     }
     else
     {

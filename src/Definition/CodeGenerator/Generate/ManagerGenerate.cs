@@ -44,7 +44,7 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
     /// Manager默认代码内容
     /// </summary>
     /// <returns></returns>
-    public string GetManagerContent(string tplContent, string nsp)
+    public string GetManagerContent(string tplContent, string nsp, bool isMultiTenant = false)
     {
         var genContext = new RazorGenContext();
         var model = new ManagerViewModel
@@ -57,7 +57,7 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
             Comment = EntityInfo.Comment,
             AddMethod = GetAddMethodContent(),
             FilterMethod = GetFilterMethodContent(),
-            AdditionMethods = GetUserRelateMethods(),
+            AdditionMethods = GetUserRelateMethods(isMultiTenant),
         };
 
         return genContext.GenManager(tplContent, model);
@@ -96,17 +96,17 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
     /// 额外方法
     /// </summary>
     /// <returns></returns>
-    private string GetUserRelateMethods()
+    private string GetUserRelateMethods(bool isMultiTenant = false)
     {
         var methods = new List<string>
         {
-            GenPermissionMethods(),
+            GenPermissionMethods(isMultiTenant),
         };
 
         return string.Join(Environment.NewLine, methods);
     }
 
-    private string GenPermissionMethods()
+    private string GenPermissionMethods(bool isMultiTenant)
     {
         var userId = GetUserIdKey();
         var queryString = string.Empty;
@@ -114,11 +114,15 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
         {
             queryString = $".Where(q => q.{userId} == _userContext.UserId)";
         }
+
+        string tenantWhere = isMultiTenant
+            ? " && q.TenantId == _userContext.TenantId"
+            : string.Empty;
         return $$"""
                 public override async Task<bool> HasPermissionAsync(Guid id)
                 {
                     var query = _dbSet{{queryString}}
-                        .Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
+                        .Where(q => q.Id == id{{tenantWhere}});
                     return await query.AnyAsync();
                 }
 
@@ -129,7 +133,7 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
                         return [];
                     }
                     var query = _dbSet{{queryString}}
-                        .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
+                        .Where(q => ids.Contains(q.Id){{tenantWhere}})
                         .Select(q => q.Id);
                     return await query.ToListAsync();
                 }

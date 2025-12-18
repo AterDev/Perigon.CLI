@@ -124,11 +124,13 @@ public class LocalFileHelper
     /// <summary>
     /// 更新文件内容（覆盖）
     /// </summary>
-    public static void UpdateFileContent(string filePath, string content)
+    public static void UpdateFileContent(string filePath, string content, string newFilePath = "")
     {
-        if (!File.Exists(filePath))
-            throw new FileNotFoundException($"File not found: {filePath}");
-        File.WriteAllText(filePath, content);
+        if (filePath != newFilePath)
+        {
+            File.Move(filePath, newFilePath);
+        }
+        File.WriteAllText(newFilePath, content);
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
-using EfCoreContext.DBProvider;
 using Entity;
 using Humanizer;
 
@@ -16,8 +15,8 @@ public class SolutionService(
     DefaultDbContext context
 )
 {
-    private readonly IProjectContext          _projectContext = projectContext;
-    private readonly ILogger<SolutionService> _logger         = logger;
+    private readonly IProjectContext _projectContext = projectContext;
+    private readonly ILogger<SolutionService> _logger = logger;
 
     /// <summary>
     /// 保存解决方案
@@ -50,11 +49,11 @@ public class SolutionService(
 
         var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
         var solutionName = Path.GetFileName(projectFilePath) ?? name;
-        var entity       = new Solution()
+        var entity = new Solution()
         {
-            DisplayName  = name,
-            Path         = solutionPath,
-            Name         = solutionName,
+            DisplayName = name,
+            Path = solutionPath,
+            Name = solutionName,
             SolutionType = solutionType,
         };
         entity.Config.SolutionPath = solutionPath;
@@ -99,7 +98,7 @@ public class SolutionService(
 
         // project file
         string targetVersion = ConstVal.NetVersion;
-        var    csprojFile    = Directory
+        var csprojFile = Directory
             .GetFiles(
                 _projectContext.ServicesPath!,
                 $"*{ConstVal.CSharpProjectExtension}",
@@ -194,16 +193,16 @@ public class SolutionService(
     /// <returns></returns>
     public async Task<bool> SaveSyncDataLocalAsync()
     {
-        var actions  = await context.GenActions.AsNoTracking().ToListAsync();
-        var steps    = await context.GenSteps.AsNoTracking().ToListAsync();
+        var actions = await context.GenActions.AsNoTracking().ToListAsync();
+        var steps = await context.GenSteps.AsNoTracking().ToListAsync();
         var relation = await context.GenActionGenSteps.AsNoTracking().ToListAsync();
 
         var data = new SyncModel
         {
             TemplateSync = new TemplateSync
             {
-                GenActions        = actions,
-                GenSteps          = steps,
+                GenActions = actions,
+                GenSteps = steps,
                 GenActionGenSteps = relation,
             },
         };
@@ -287,7 +286,7 @@ public class SolutionService(
     {
         var existService = GetServices().FirstOrDefault();
 
-        var serviceDir      = Path.Combine(_projectContext.ServicesPath!, serviceName);
+        var serviceDir = Path.Combine(_projectContext.ServicesPath!, serviceName);
         var serviceFilePath = Path.Combine(
             serviceDir,
             $"{serviceName}{ConstVal.CSharpProjectExtension}"
@@ -398,8 +397,8 @@ public class SolutionService(
             {
                 SubProjectInfo moduleInfo = new()
                 {
-                    Name        = Path.GetFileNameWithoutExtension(path),
-                    Path        = path,
+                    Name = Path.GetFileNameWithoutExtension(path),
+                    Path = path,
                     ProjectType = ProjectType.WebAPI,
                 };
                 if (content.Contains("<Project Sdk=\"Microsoft.NET.Sdk.Web\">"))
@@ -497,8 +496,8 @@ public class SolutionService(
         }
 
 
-        var moduleDir      = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
-        var modulePath     = Path.Combine(moduleDir, moduleName);
+        var moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
+        var modulePath = Path.Combine(moduleDir, moduleName);
         var moduleFilePath = Path.Combine(
             modulePath,
             $"{moduleName}{ConstVal.CSharpProjectExtension}"
@@ -614,8 +613,8 @@ public class SolutionService(
             return;
         }
 
-        string modulePath   = Path.Combine(solutionPath, PathConst.ModulesPath, moduleName);
-        string entityPath   = Path.Combine(solutionPath, PathConst.EntityPath, moduleName);
+        string modulePath = Path.Combine(solutionPath, PathConst.ModulesPath, moduleName);
+        string entityPath = Path.Combine(solutionPath, PathConst.EntityPath, moduleName);
         string databasePath = Path.Combine(solutionPath, PathConst.EntityFrameworkPath);
 
         // copy entities
@@ -624,7 +623,7 @@ public class SolutionService(
         // copy module files
         CopyModuleFiles(sourcePath, modulePath);
 
-        string dbContextFile    = Path.Combine(databasePath, "DBProvider", "DefaultDbContext.cs");
+        string dbContextFile = Path.Combine(databasePath, "DBProvider", "DefaultDbContext.cs");
         string dbContextContent = File.ReadAllText(dbContextFile);
 
         CompilationHelper compilation = new(databasePath);
@@ -651,7 +650,7 @@ public class SolutionService(
         dbContextContent = compilation.SyntaxRoot!.ToFullString();
         File.WriteAllText(dbContextFile, dbContextContent);
         // update globalUsings.cs
-        string globalUsingsFile    = Path.Combine(databasePath, "GlobalUsings.cs");
+        string globalUsingsFile = Path.Combine(databasePath, "GlobalUsings.cs");
         string globalUsingsContent = File.ReadAllText(globalUsingsFile);
 
         string newLine = @$"global using Entity.{moduleName};";
@@ -820,5 +819,26 @@ public class SolutionService(
 
         var searchText = $"\\{referenceName}\\{referenceName}{ConstVal.CSharpProjectExtension}";
         return lines.Any(line => line.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static bool IsMultiTenant(string solutionPath)
+    {
+        bool isMultiTenant = false;
+        var settingPath = Path.Combine(
+            solutionPath,
+            PathConst.AppHostPath,
+            ConstVal.AppSettingDevelopmentJson
+        );
+
+        if (File.Exists(settingPath))
+        {
+
+            var content = File.ReadAllText(settingPath);
+            if (content.Contains("\"IsMultiTenant\": true"))
+            {
+                isMultiTenant = true;
+            }
+        }
+        return isMultiTenant;
     }
 }

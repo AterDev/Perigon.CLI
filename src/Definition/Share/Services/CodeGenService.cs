@@ -1,9 +1,9 @@
+using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Generate.ClientRequest;
 using Entity;
 using Microsoft.OpenApi;
-using System.Collections.ObjectModel;
 
 namespace Share.Services;
 
@@ -128,7 +128,8 @@ public class CodeGenService(
             ModuleName = entityInfo.ModuleName,
         };
 
-        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace());
+        var isMultiTenant = SolutionService.IsMultiTenant(_projectContext.SolutionPath!);
+        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace(), isMultiTenant);
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
             IsCover = isCover,

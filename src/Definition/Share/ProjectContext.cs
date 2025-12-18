@@ -1,4 +1,3 @@
-using EfCoreContext.DBProvider;
 using Entity;
 
 namespace Share;
@@ -49,10 +48,16 @@ public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) 
 
     public async Task SetProjectAsync(string solutionPath)
     {
+        if (solutionPath.IndexOf("/") > 0)
+        {
+            solutionPath = solutionPath.Replace("/", "\\");
+        }
+
         SolutionPath = solutionPath;
         var solution = await _context
             .Solutions.Where(p => p.Path.Equals(solutionPath))
             .FirstOrDefaultAsync();
+
         SolutionConfig = solution?.Config;
         SharePath = Path.Combine(SolutionPath, SolutionConfig?.SharePath ?? PathConst.SharePath);
         CommonModPath = Path.Combine(

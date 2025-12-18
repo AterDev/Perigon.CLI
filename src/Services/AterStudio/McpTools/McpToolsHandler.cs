@@ -1,4 +1,3 @@
-using EfCoreContext.DBProvider;
 using Microsoft.EntityFrameworkCore;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
@@ -38,7 +37,7 @@ public class McpToolsHandler(
         return result;
     }
 
-    public ValueTask<CallToolResult> CallToolsHandler(
+    public ValueTask<CallToolResult> CallToolHandler(
         RequestContext<CallToolRequestParams> request,
         CancellationToken cancellationToken
     )
@@ -65,15 +64,17 @@ public class McpToolsHandler(
             McpServerTool.Create(
                 () =>
                 {
+                    var promptContent = File.ReadAllText(tool.PromptPath);
+                    var templateContents = tool.TemplatePaths
+                        .Select(path => File.ReadAllText(path));
+
                     var prompt = $"""
-                    根据以下 prompt和 template 内容生成代码，下面将提供prompt和tempalte的本地路径：
-                        <prompt>
-                        {tool.PromptPath}
-                        </prompt>
-                        <template>
-                        {string.Join(Environment.NewLine, tool.TemplatePaths)}
-                        </template>
+                    {promptContent}，提供良好的代码格式和规范。
+                    <example>
+                    {string.Join(Environment.NewLine, templateContents)}
+                    </example>
                     """;
+                    return prompt;
                 },
                 new McpServerToolCreateOptions
                 {

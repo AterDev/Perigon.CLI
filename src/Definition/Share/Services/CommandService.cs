@@ -126,7 +126,7 @@ public class CommandService(
             }
         }
         // 更新Aspire Host配置文件
-        var aspirePath = Path.Combine(solutionPath, PathConst.AspirePath);
+        var aspirePath = Path.Combine(solutionPath, PathConst.AppHostPath);
         UpdateAppSettings(dto, aspirePath);
 
         // 前端项目处理

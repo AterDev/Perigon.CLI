@@ -36,7 +36,20 @@ public class GenFileInfo(string name, string content)
     public string FullName { get; set; } = string.Empty;
 
 
+    public string ToMarkdown()
+    {
+        return $"""
 
+            ## {Name}
+
+            - Path: {FullName}
+            - Content: 
+            ```csharp
+            {Content}
+            ```            
+            ---
+            """;
+    }
 }
 
 public enum GenFileType

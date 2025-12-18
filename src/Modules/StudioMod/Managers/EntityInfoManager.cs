@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -230,17 +229,9 @@ public partial class EntityInfoManager(
                     files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
                     break;
                 case CommandType.API:
-                    var dtoSw = Stopwatch.StartNew();
                     files.AddRange(GenerateDtos(entityInfo, modulePath, dto.Force));
-                    _logger.LogInformation("GenerateDtos time: {elapsed} ms", dtoSw.ElapsedMilliseconds);
-
-                    var managerSw = Stopwatch.StartNew();
                     files.AddRange(GenerateManagers(entityInfo, modulePath, dto.Force));
-                    _logger.LogInformation("GenerateManagers time: {elapsed} ms", managerSw.ElapsedMilliseconds);
-
-                    var controllerSw = Stopwatch.StartNew();
                     files.AddRange(await GenerateControllersAsync(entityInfo, dto));
-                    _logger.LogInformation("GenerateControllersAsync time: {elapsed} ms", controllerSw.ElapsedMilliseconds);
                     break;
                 default:
                     break;
