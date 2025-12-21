@@ -7,126 +7,128 @@
 @using AterStudio.Services
 
 <FluentLayout>
-  <FluentHeader Class="header" Height="56" Style="background:var(--neutral-layer-2)">
-    <ChildContent>
-      <FluentStack Orientation="Orientation.Horizontal"
-                   VerticalAlignment="VerticalAlignment.Center">
-        <FluentNavLink Href="/" Class="align-content-center align-items-center">
-          <FluentButton Appearance="Appearance.Neutral"
-                        BackgroundColor="rgba(0, 0, 0, 0)">
-            <FluentLabel Typo="Typography.Header">
-              Ater Studio
-            </FluentLabel>
-          </FluentButton>
-        </FluentNavLink>
-      </FluentStack>
-      <FluentSpacer />
-      <FluentStack Orientation="Orientation.Horizontal"
-                   VerticalAlignment="VerticalAlignment.Center"
-                   HorizontalAlignment="HorizontalAlignment.Center">
-        <FluentNavLink Href="/">
-          <FluentButton Appearance="Appearance.Neutral"
-                        BackgroundColor="rgba(0, 0, 0, 0)">
-            <FluentLabel Typo="Typography.Subject">
-              @Localizer.Get(Localizer.Solution)
-            </FluentLabel>
-          </FluentButton>
-        </FluentNavLink>
-        @*         <FluentNavLink Href="/tools">
+    <FluentHeader Class="header" Height="56" Style="background:var(--neutral-layer-2)">
+        <ChildContent>
+            <FluentStack Orientation="Orientation.Horizontal"
+                         HorizontalGap="2"
+                         VerticalAlignment="VerticalAlignment.Center">
+                <img src="/favicon.png" width="32" alt="perigon" />
+                <FluentNavLink Href="/" Class="align-content-center align-items-center">
+                    <FluentButton Appearance="Appearance.Neutral"
+                                  BackgroundColor="rgba(0, 0, 0, 0)">
+                        <FluentLabel Typo="Typography.Header">
+                            Ater Studio
+                        </FluentLabel>
+                    </FluentButton>
+                </FluentNavLink>
+            </FluentStack>
+            <FluentSpacer />
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.Center">
+                <FluentNavLink Href="/">
+                    <FluentButton Appearance="Appearance.Neutral"
+                                  BackgroundColor="rgba(0, 0, 0, 0)">
+                        <FluentLabel Typo="Typography.Subject">
+                            @Localizer.Get(Localizer.Solution)
+                        </FluentLabel>
+                    </FluentButton>
+                </FluentNavLink>
+                @*         <FluentNavLink Href="/tools">
           <FluentButton Appearance="Appearance.Neutral"
                         BackgroundColor="rgba(0, 0, 0, 0)">
             @Localizer.Get(Localizer.Tools)
           </FluentButton>
         </FluentNavLink> *@
-      </FluentStack>
-      <FluentSpacer />
-      <FluentStack Orientation="Orientation.Horizontal"
-                   VerticalAlignment="VerticalAlignment.Center"
-                   HorizontalAlignment="HorizontalAlignment.End"
-                   HorizontalGap="4">
-        <FluentButton BackgroundColor="var(--neutral-layer-2)"
-                      Id="languageSwitch"
-                      Title="Switch Language"
-                      @onclick="() => _visable = !_visable">
-          <FluentIcon Value="@(new Icons.Regular.Size24.LocalLanguage())" Color="Color.Neutral" />
-        </FluentButton>
-        <FluentPopover AnchorId="languageSwitch" @bind-Open="_visable"
-                       HorizontalPosition="HorizontalPosition.End">
-          <Body>
-            <FluentStack Orientation="Orientation.Vertical">
-              <FluentLabel @onclick='() => SetLanguage("zh-CN")' Class="cursor">
-                中文
-              </FluentLabel>
-              <FluentLabel @onclick='() => SetLanguage("en-US")' Class="cursor">
-                English
-              </FluentLabel>
             </FluentStack>
-          </Body>
-        </FluentPopover>
-        <a href="https://dusi.dev/docs/Ater.Dry" target="_blank">
-          <FluentButton BackgroundColor="var(--neutral-layer-2)"
-                        Title="Document">
-            <FluentIcon Value="@(new Icons.Regular.Size24.DocumentOnePageSparkle())" Color="Color.Neutral" />
-          </FluentButton>
-        </a>
-        <a href="https://github.com/AterDev/Perigon.CLI"
-           target="_blank"
-           title="GitHub"
-           style="line-height:16px;padding:0 8px">
-          @if (isDarkMode)
-          {
-            <img src="assets/github-mark-white.svg" width="20" alt="github" />
-          }
-          else
-          {
-            <img src="assets/github-mark.svg" width="20" alt="github" />
-          }
-        </a>
-        <FluentButton OnClick="OpenNotificationCenterAsync"
-                      BackgroundColor="var(--neutral-layer-2)"
-                      Title="Notification center">
+            <FluentSpacer />
+            <FluentStack Orientation="Orientation.Horizontal"
+                         VerticalAlignment="VerticalAlignment.Center"
+                         HorizontalAlignment="HorizontalAlignment.End"
+                         HorizontalGap="4">
+                <FluentButton BackgroundColor="var(--neutral-layer-2)"
+                              Id="languageSwitch"
+                              Title="Switch Language"
+                              @onclick="() => _visable = !_visable">
+                    <FluentIcon Value="@(new Icons.Regular.Size24.LocalLanguage())" Color="Color.Neutral" />
+                </FluentButton>
+                <FluentPopover AnchorId="languageSwitch" @bind-Open="_visable"
+                               HorizontalPosition="HorizontalPosition.End">
+                    <Body>
+                        <FluentStack Orientation="Orientation.Vertical">
+                            <FluentLabel @onclick='() => SetLanguage("zh-CN")' Class="cursor">
+                                中文
+                            </FluentLabel>
+                            <FluentLabel @onclick='() => SetLanguage("en-US")' Class="cursor">
+                                English
+                            </FluentLabel>
+                        </FluentStack>
+                    </Body>
+                </FluentPopover>
+                <a href="https://dusi.dev/docs/Ater.Dry" target="_blank">
+                    <FluentButton BackgroundColor="var(--neutral-layer-2)"
+                                  Title="Document">
+                        <FluentIcon Value="@(new Icons.Regular.Size24.DocumentOnePageSparkle())" Color="Color.Neutral" />
+                    </FluentButton>
+                </a>
+                <a href="https://github.com/AterDev/Perigon.CLI"
+                   target="_blank"
+                   title="GitHub"
+                   style="line-height:16px;padding:0 8px">
+                    @if (isDarkMode)
+                    {
+                        <img src="assets/github-mark-white.svg" width="20" alt="github" />
+                    }
+                    else
+                    {
+                        <img src="assets/github-mark.svg" width="20" alt="github" />
+                    }
+                </a>
+                <FluentButton OnClick="OpenNotificationCenterAsync"
+                              BackgroundColor="var(--neutral-layer-2)"
+                              Title="Notification center">
 
-          @if (MessageService.Count(App.MESSAGES_NOTIFICATION_CENTER) > 0)
-          {
-            <FluentCounterBadge Count="@MessageService.Count(App.MESSAGES_NOTIFICATION_CENTER)"
-                                Max="9"
-                                ShowOverflow="true"
-                                BackgroundColor="@Color.Error"
-                                Color="Color.Fill"
-                                Appearance="Appearance.Accent">
-              <ChildContent>
-                <FluentIcon Value="@(new Icons.Regular.Size24.Alert())"
-                            Color="Color.Neutral"
-                            Title="Notification center" />
-              </ChildContent>
-            </FluentCounterBadge>
-          }
-          else
-          {
-            <FluentIcon Value="@(new Icons.Regular.Size24.Alert())"
-                        Color="Color.Neutral"
-                        Title="Notification center" />
-          }
-        </FluentButton>
+                    @if (MessageService.Count(App.MESSAGES_NOTIFICATION_CENTER) > 0)
+                    {
+                        <FluentCounterBadge Count="@MessageService.Count(App.MESSAGES_NOTIFICATION_CENTER)"
+                                            Max="9"
+                                            ShowOverflow="true"
+                                            BackgroundColor="@Color.Error"
+                                            Color="Color.Fill"
+                                            Appearance="Appearance.Accent">
+                            <ChildContent>
+                                <FluentIcon Value="@(new Icons.Regular.Size24.Alert())"
+                                            Color="Color.Neutral"
+                                            Title="Notification center" />
+                            </ChildContent>
+                        </FluentCounterBadge>
+                    }
+                    else
+                    {
+                        <FluentIcon Value="@(new Icons.Regular.Size24.Alert())"
+                                    Color="Color.Neutral"
+                                    Title="Notification center" />
+                    }
+                </FluentButton>
 
-      </FluentStack>
-    </ChildContent>
-  </FluentHeader>
-  <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
-    <FluentBodyContent Class="main-content">
-      <div class="main-body-content">
-        <FluentMessageBarProvider Section="MESSAGES_TOP" />
-        <ErrorBoundary Context="ex" @ref="_errorBoundary">
-          <ChildContent>
-            @Body
-          </ChildContent>
-          <ErrorContent>
-            <Error Message="@ex.Message" Details="@ex.StackTrace"></Error>
-          </ErrorContent>
-        </ErrorBoundary>
-      </div>
-    </FluentBodyContent>
-  </FluentStack>
+            </FluentStack>
+        </ChildContent>
+    </FluentHeader>
+    <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
+        <FluentBodyContent Class="main-content">
+            <div class="main-body-content">
+                <FluentMessageBarProvider Section="MESSAGES_TOP" />
+                <ErrorBoundary Context="ex" @ref="_errorBoundary">
+                    <ChildContent>
+                        @Body
+                    </ChildContent>
+                    <ErrorContent>
+                        <Error Message="@ex.Message" Details="@ex.StackTrace"></Error>
+                    </ErrorContent>
+                </ErrorBoundary>
+            </div>
+        </FluentBodyContent>
+    </FluentStack>
 </FluentLayout>
 
 <FluentToastProvider />
@@ -135,9 +137,9 @@
 <FluentMenuProvider />
 
 <div id="blazor-error-ui" data-nosnippet>
-  An unhandled error has occurred.
-  <a href="." class="reload">Reload</a>
-  <span class="dismiss">🗙</span>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
 </div>
 
 <FluentDesignTheme @bind-Mode="@Mode"

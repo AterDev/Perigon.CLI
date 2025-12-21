@@ -1,8 +1,12 @@
 # Perigon.CLI
 
+![perigon](./perigon_logo320.png)
+
 **[中文](./README.md)**
 
-**Perigon.CLI** is an intelligent code assistance tool that helps you quickly build front-end and back-end services based on Asp.Net Core and EF Core. It provides **command line**, **WebUI** and **MCP Server**. In the well-designed project architecture after actual combat, it reduces various template codes through code generation and LLM technology, and intelligently generates simple business implementation logic, which greatly improves development efficiency and improves development experience!
+**Perigon.CLI** is an fast development assistance tool that helps you quickly build front-end and back-end services based on `Aspire/AspNetCore/EF Core`. 
+It provides **command line**, **WebUI** and **MCP Server**. In the well-designed project architecture after actual combat, it reduces various template codes through code generation and LLM technology, 
+and intelligently generates simple business implementation logic, which greatly improves development efficiency and improves development experience!
 
 It is provided as a `dotnet` command-line tool and also supports a `Web UI` and `MCP Server`.
 
@@ -13,7 +17,6 @@ It is provided as a `dotnet` command-line tool and also supports a `Web UI` and 
   - Intelligently generate DTO files, including common DTOs such as add, update, query, list, etc.
   - Intelligently generate data operations and business logic implementations, including common add, update, and filter functions
   - Generate controller interfaces, etc.
-  - Special support for Angular projects
 
 - Provide command line tools to quickly generate client request code, including
   - Csharp HttpClient request service
@@ -68,8 +71,6 @@ dotnet tool install --global perigon.cli
 
 You can check the latest version on [nuget](https://www.nuget.org/packages/ater.dry.cli)!
 
-> [!NOTE]
-> The current V10 version is under development and is expected to be released before the end of 2025.
 
 ## Usage
 
@@ -96,4 +97,4 @@ Or use `perigon [command] --help` to view specific command help information.
 
 ## Documentation
 
-[in progress](https://www.dusi.dev/docs)
+[in progress](https://www.dusi.dev/docs/perigon.html)

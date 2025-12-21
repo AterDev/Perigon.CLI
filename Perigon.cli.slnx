@@ -10,6 +10,8 @@
     <File Path=".github/copilot-instructions.md" />
     <File Path=".mcp.json" />
     <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+    <File Path="README_en.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Core/Core.csproj" Id="1e7bec10-4ecd-4d6e-b653-40de55162da2" />

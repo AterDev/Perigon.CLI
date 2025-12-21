@@ -7,8 +7,12 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <AssemblyVersion>10.0.0</AssemblyVersion>
     <PackageId>Perigon.CLI</PackageId>
-    <Version>10.0.0-beta6</Version>
-    <Description>为AspNetCore提供编程助手命令行工具</Description>
+    <Version>10.0.0-rc1</Version>
+    <Description>The Perigon CLI tool  for .NET Web developer. It provider:
+1. Well-Designed AspNetCore Template 
+2. Code Generator include MCP Server support
+3. Custom Code generation and MCP Tool.
+4. More productive function.</Description>
     <Authors>NilTor</Authors>
     <Company>Atersoft</Company>
     <Copyright>Atersoft</Copyright>
@@ -17,9 +21,9 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AterDev/Perigon.CLI</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>
-    </PackageReleaseNotes>
-    <PackageIcon>logo.jpg</PackageIcon>
+    <PackageReleaseNotes>New Version based on  .NET 10.
+Add MCP Server suppport.</PackageReleaseNotes>
+    <PackageIcon>logo.png</PackageIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -54,16 +58,17 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="logo.jpg">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="nupkg\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>
