@@ -16,7 +16,7 @@ public class OutputHelper
             ╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
             """;
         string sign1 = "                 —→ for freedom 🗽 ←—";
-        string docsLine = "[[docs]]:   [link]https://dusi.dev/docs[/]";
+        string docsLine = "[[docs]]:   [link]https://dusi.dev/docs/Perigon.html[/]";
         string gitHubLine = "[[GitHub]]: [link]https://github.com/AterDev/Perigon.CLI[/]";
 
         AnsiConsole.MarkupLine($"[bold green]{logo}[/]");
