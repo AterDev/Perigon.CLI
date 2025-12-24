@@ -97,4 +97,4 @@ Or use `perigon [command] --help` to view specific command help information.
 
 ## Documentation
 
-[in progress](https://www.dusi.dev/docs/perigon.html)
+[Official Document](https://www.dusi.dev/docs/Perigon.html)

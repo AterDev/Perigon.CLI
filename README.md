@@ -92,4 +92,4 @@ perigon studio
 
 ## 📄 文档
 
-[进行中](https://www.dusi.dev/docs/perigon.html)
+[官方文档](https://www.dusi.dev/docs/Perigon.html)
