@@ -7,7 +7,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <AssemblyVersion>10.0.0</AssemblyVersion>
     <PackageId>Perigon.CLI</PackageId>
-    <Version>10.0.0-rc1</Version>
+    <Version>10.0.0</Version>
     <Description>The Perigon CLI tool  for .NET Web developer. It provider:
 1. Well-Designed AspNetCore Template 
 2. Code Generator include MCP Server support
