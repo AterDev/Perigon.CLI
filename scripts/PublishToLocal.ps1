@@ -24,6 +24,7 @@ try {
 
     # 支持的runtimes
     $supportRuntimes = @(
+        "win",
         "linux-arm64",
         "linux-x64",
         "win-x64",
@@ -49,8 +50,6 @@ try {
     }
     $xml.Save($studioProjectPath)
 
-    # pack modules
-    # & "./PackModules.ps1"
 
     # build web project
     if ($withStudio -eq $true) {

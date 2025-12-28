@@ -1,12 +1,12 @@
+using CodeGenerator.Helper;
+using Entity;
+using Share.Models.CommandDtos;
+using Spectre.Console;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
-using CodeGenerator.Helper;
-using Entity;
-using Share.Models.CommandDtos;
-using Spectre.Console;
 
 namespace Share.Services;
 
@@ -80,7 +80,7 @@ public class CommandService(
         {
             ProcessHelper.RunCommand(
                 "dotnet",
-                $"new install Perigon.template::{version}",
+                $"new install {ConstVal.TemplatePackageId}::{ConstVal.TemplateVersion}",
                 out string msg
             );
             OutputHelper.Info(msg);
