@@ -1,6 +1,6 @@
+using System.Data;
 using CodeGenerator.Generate.ClientRequest;
 using CodeGenerator.Generate.LanguageFormatter;
-using System.Data;
 
 namespace CodeGenerator.Generate;
 
@@ -197,7 +197,7 @@ public class CSHttpClientGenerate(OpenApiDocument openApi) : ClientRequestBase(o
             .Concat(functions.Select(f => f.RequestRefType))
             .Where(r => !string.IsNullOrWhiteSpace(r))
             .Distinct()
-            .Select(r => OpenApiHelper.GetNamespaceFirstPart(r))
+            .Select(r => OpenApiHelper.GetNamespaceFirstPart(r!))
             .Distinct()
             .ToList() ?? [];
 

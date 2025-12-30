@@ -4,10 +4,7 @@ using ModelContextProtocol.Server;
 
 namespace AterStudio.McpTools;
 
-public class McpToolsHandler(
-    IDbContextFactory<DefaultDbContext> dbContext,
-    ILogger<McpToolsHandler> logger
-)
+public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
 {
     public async ValueTask<ListToolsResult> ListToolsHandler(
         RequestContext<ListToolsRequestParams> request,
