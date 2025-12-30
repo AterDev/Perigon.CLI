@@ -5,9 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Perigon.MiniDb" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core.csproj" />
+	  <ProjectReference Include="..\..\..\..\Perigon.minidb\src\Perigon.MiniDb\Perigon.MiniDb.csproj" />
+	  <ProjectReference Include="..\..\Core\Core.csproj" />
   </ItemGroup>
 </Project>

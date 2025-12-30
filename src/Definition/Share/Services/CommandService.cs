@@ -1,5 +1,4 @@
 using CodeGenerator.Helper;
-using DataContext.DBProvider;
 using Entity;
 using Share.Models.CommandDtos;
 using Spectre.Console;
@@ -59,28 +58,6 @@ public class CommandService(
         context.Solutions.Add(solution);
         await context.SaveChangesAsync();
         return solution.Id;
-    }
-
-    /// <summary>
-    /// 创建解决方案
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<bool> CreateSolutionAsync(CreateSolutionDto dto)
-    {
-        var id = await _commandService.AddProjectAsync(dto.SolutionName, dto.Path);
-        if (id.HasValue)
-        {
-            await projectContext.SetProjectByIdAsync(ConvertIntToGuid(id.Value));
-            return true;
-        }
-        return false;
-    }
-
-    private static Guid ConvertIntToGuid(int value)
-    {
-        // 简单的int到Guid转换
-        return new Guid(0, 0, 0, 0, 0, 0, 0, (byte)((value >> 24) & 0xFF), (byte)((value >> 16) & 0xFF), (byte)((value >> 8) & 0xFF), (byte)(value & 0xFF));
     }
 
     public async Task<bool> CreateSolutionAsync(CreateSolutionDto dto)

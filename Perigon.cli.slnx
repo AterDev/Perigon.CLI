@@ -18,6 +18,7 @@
   </Folder>
 
   <Folder Name="/src/Definition/">
+    <Project Path="../Perigon.minidb/src/Perigon.MiniDb/Perigon.MiniDb.csproj" />
     <Project Path="src/Definition/DataContext/DataContext.csproj" />
     <Project Path="src\Definition\CodeGenerator\CodeGenerator.csproj" />
     <Project Path="src\Definition\Entity\Entity.csproj" />

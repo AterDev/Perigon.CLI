@@ -21,7 +21,7 @@
         <PackageReference Include="Microsoft.Extensions.Localization" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
         <PackageReference Include="Perigon.AspNetCore.SourceGeneration" />
-        <PackageReference Include="Perigon.MiniDb" />
+        <!--<PackageReference Include="Perigon.MiniDb" />-->
         <PackageReference Include="Spectre.Console.Cli" />
     </ItemGroup>
     <ItemGroup>

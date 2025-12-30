@@ -1,4 +1,3 @@
-using Entity;
 using Mapster;
 using Perigon.MiniDb;
 
@@ -20,7 +19,7 @@ public abstract class ManagerBase(ILogger logger)
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : MicroDbContext
-    where TEntity : EntityBase
+    where TEntity : IMicroEntity
 {
     #region Properties and Fields
 
@@ -36,16 +35,18 @@ public abstract class ManagerBase<TDbContext, TEntity>
     #endregion
 
     protected readonly TDbContext _dbContext;
-    protected IEnumerable<TEntity> Queryable { get; set; }
+    protected IQueryable<TEntity> Queryable { get; set; }
+
+    protected DbSet<TEntity> _dbSet;
     protected readonly ILogger _logger;
 
-    protected abstract IEnumerable<TEntity> GetCollection();
 
     public ManagerBase(TDbContext dbContext, ILogger logger)
     {
         _dbContext = dbContext;
         _logger = logger;
-        Queryable = GetCollection();
+        _dbSet = _dbContext.Set<TEntity>();
+        Queryable = _dbSet.AsQueryable();
     }
 
     /// <summary>
@@ -55,8 +56,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> GetCurrentAsync(int id)
     {
-        var collection = GetCollection();
-        return collection.FirstOrDefault(e => e.Id == id);
+        return _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary>
@@ -65,24 +65,14 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>The DTO if found; otherwise, null.</returns>
-    public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
+    public async Task<TDto?> GetCurrentAsync<TDto>(Func<TEntity, bool>? whereExp = null)
         where TDto : class
     {
-        var collection = GetCollection();
-        if (typeof(TDto) == typeof(TEntity))
-        {
+        var data = _dbSet.Where(whereExp ?? (e => true))
+            .FirstOrDefault();
+        return data?.MapTo<TDto>();
 
-            var model = collection.Where(whereExp ?? (e => true)).FirstOrDefault();
-            return model as TDto;
-        }
-        else
-        {
-            return collection
-                .Where(whereExp ?? (e => true))
-                .AsQueryable()
-                .ProjectToType<TDto>()
-                .FirstOrDefault();
-        }
+
     }
 
     /// <summary>
@@ -92,8 +82,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> FindAsync(int id)
     {
-        var collection = GetCollection();
-        return collection.FirstOrDefault(e => e.Id == id);
+        return _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary>
@@ -102,16 +91,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>The DTO if found; otherwise, null.</returns>
-    public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
+    public async Task<TDto?> FindAsync<TDto>(Func<TEntity, bool>? whereExp = null)
         where TDto : class
     {
-        var collection = GetCollection();
-        var model = collection
-            .Where(whereExp ?? (e => true))
-            .AsQueryable()
-            .ProjectToType<TDto>()
+        var data = _dbSet.Where(whereExp ?? (e => true))
             .FirstOrDefault();
-        return model;
+        return data?.MapTo<TDto>();
     }
 
     /// <summary>
@@ -121,7 +106,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if exists; otherwise, false.</returns>
     public virtual async Task<bool> ExistAsync(int id)
     {
-        return GetCollection().Any(q => q.Id == id);
+        return _dbContext.Set<TEntity>().Any(q => q.Id == id);
     }
 
     /// <summary>
@@ -129,9 +114,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>True if any entity matches; otherwise, false.</returns>
-    public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
+    public async Task<bool> ExistAsync(Func<TEntity, bool> whereExp)
     {
-        return GetCollection().Any(whereExp);
+        return _dbSet.Any(whereExp);
     }
 
     /// <summary>
@@ -141,12 +126,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>List of DTOs.</returns>
     public async Task<List<TDto>> ToListAsync<TDto>(
-        Expression<Func<TEntity, bool>>? whereExp = null
-    )
-        where TDto : class
+        Func<TEntity, bool>? whereExp = null
+    ) where TDto : class
     {
-        var collection = GetCollection();
-        return collection
+
+        return _dbSet
             .Where(whereExp ?? (e => true))
             .AsQueryable()
             .ProjectToType<TDto>()
@@ -158,10 +142,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>List of entities.</returns>
-    public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
+    public async Task<List<TEntity>> ToListAsync(Func<TEntity, bool>? whereExp = null)
     {
-        var collection = GetCollection();
-        return collection.Where(whereExp ?? (e => true)).ToList();
+        return _dbSet.Where(whereExp ?? (e => true)).ToList();
     }
 
     /// <summary>
@@ -175,13 +158,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
         where TFilter : FilterBase
         where TItem : class
     {
-        var collection = GetCollection();
-        var queryable = Queryable.AsQueryable() ?? collection.AsQueryable();
+        var queryable = Queryable.AsQueryable() ?? _dbSet.AsQueryable();
 
         queryable =
             filter.OrderBy != null
                 ? queryable.OrderBy(filter.OrderBy)
-                : queryable.OrderByDescending(t => t.CreatedTime);
+                : queryable;
 
         var count = queryable.Count();
         List<TItem> data = queryable
@@ -205,8 +187,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> AddAsync(TEntity entity)
     {
-        var collection = GetCollection();
-        collection.Add(entity);
+
+        _dbContext.Set<TEntity>().Add(entity);
         await _dbContext.SaveChangesAsync();
         return true;
     }
@@ -218,12 +200,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-        var collection = GetCollection();
-        var existing = collection.FirstOrDefault(e => e.Id == entity.Id);
+
+        var existing = _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == entity.Id);
         if (existing != null)
         {
-            collection.Remove(existing);
-            collection.Add(entity);
+            _dbContext.Set<TEntity>().Remove(existing);
+            _dbContext.Set<TEntity>().Add(entity);
         }
         await _dbContext.SaveChangesAsync();
         return true;
@@ -237,51 +219,13 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(List<int> ids, bool softDelete = true)
     {
-        var collection = GetCollection();
-        var entities = collection.Where(d => ids.Contains(d.Id)).ToList();
-
-        if (softDelete)
+        var entities = _dbSet.Where(d => ids.Contains(d.Id)).ToList();
+        foreach (var entity in entities)
         {
-            foreach (var entity in entities)
-            {
-                entity.IsDeleted = true;
-                collection.Remove(entity);
-                collection.Add(entity);
-            }
-        }
-        else
-        {
-            foreach (var entity in entities)
-            {
-                collection.Remove(entity);
-            }
-        }
-
-        await _dbContext.SaveChangesAsync();
-        return true;
-    }
-
-    /// <summary>
-    /// Deletes a single entity, with optional soft delete.
-    /// </summary>
-    /// <param name="entity">Entity to delete</param>
-    /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
-    /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
-    {
-        var collection = GetCollection();
-
-        if (softDelete)
-        {
-            entity.IsDeleted = true;
-            collection.Remove(entity);
-            collection.Add(entity);
-        }
-        else
-        {
-            collection.Remove(entity);
+            _dbContext.Set<TEntity>().Remove(entity);
         }
         await _dbContext.SaveChangesAsync();
         return true;
     }
+
 }
