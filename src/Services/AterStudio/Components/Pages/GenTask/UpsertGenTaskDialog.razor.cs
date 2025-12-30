@@ -21,15 +21,6 @@ public partial class UpsertGenTaskDialog : IDisposable
     [Inject]
     GenStepManager GenStepManager { get; set; } = null!;
 
-    [Inject]
-    ProjectContext ProjectContext { get; set; } = null!;
-
-    [Inject]
-    IMessageService ToastService { get; set; } = null!;
-
-    [Inject]
-    Localizer Localizer { get; set; } = null!;
-
     EditContext? editContext;
 
     List<GenStepItemDto> GenSteps { get; set; } = [];
@@ -91,11 +82,6 @@ public partial class UpsertGenTaskDialog : IDisposable
             .OrderBy(i => i.Name);
     }
 
-    private string Lang(string key, string? arg = null)
-    {
-        return arg != null ? Localizer.Get(key, arg) : Localizer.Get(key);
-    }
-
     private async Task SaveAsync()
     {
         if (!editContext!.Validate())
@@ -104,16 +90,18 @@ public partial class UpsertGenTaskDialog : IDisposable
         }
         if (!SelectedGenSteps.Any())
         {
-            ToastService.ShowMessage(new MessageContent { Content = Localizer.Get(Localizer.MustSelectItem, Localizer.Step), Severity = MessageSeverity.Warning });
+            ToastService.ShowError(Localizer.Get(Localizer.MustSelectItem, Localizer.Step));
             return;
         }
-        Model.ProjectId = (int)ProjectContext.SolutionId!.Value.GetHashCode();
+        Model.ProjectId = ProjectContext.SolutionId!.Value;
         if (IsEdit)
         {
             var entity = await GenActionManager.GetCurrentAsync(Model.Id);
             if (entity == null)
             {
-                ToastService.ShowMessage(new MessageContent { Content = Localizer.Get(Localizer.NotFoundWithName, Model.Id.ToString()), Severity = MessageSeverity.Error });
+                ToastService.ShowError(
+                    Localizer.Get(Localizer.NotFoundWithName, Model.Id.ToString())
+                );
                 return;
             }
             entity.Merge(Model);
@@ -127,7 +115,7 @@ public partial class UpsertGenTaskDialog : IDisposable
             }
             else
             {
-                ToastService.ShowMessage(new MessageContent { Content = Lang(Localizer.Edit, Localizer.Failed), Severity = MessageSeverity.Error });
+                ToastService.ShowError(Lang(Localizer.Edit, Localizer.Failed));
             }
         }
         else
@@ -148,7 +136,7 @@ public partial class UpsertGenTaskDialog : IDisposable
             }
             else
             {
-                ToastService.ShowMessage(new MessageContent { Content = Lang(Localizer.Add, Localizer.Failed), Severity = MessageSeverity.Error });
+                ToastService.ShowError(Lang(Localizer.Add, Localizer.Failed));
             }
         }
     }

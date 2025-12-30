@@ -18,7 +18,7 @@ public abstract class ManagerBase(ILogger logger)
 /// <typeparam name="TDbContext">Database context type</typeparam>
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
-    where TDbContext : MicroDbContext
+    where TDbContext : MiniDbContext
     where TEntity : IMicroEntity
 {
     #region Properties and Fields

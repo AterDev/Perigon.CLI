@@ -1,7 +1,6 @@
 using AterStudio;
 using AterStudio.Components.Pages;
 using AterStudio.McpTools;
-using AterStudio.Worker;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Localization;
@@ -116,9 +115,4 @@ lifetime.ApplicationStopping.Register(() =>
     }
 });
 
-using (app)
-{
-    IServiceScope scope = app.Services.CreateScope();
-    await InitDataTask.InitDataAsync(scope.ServiceProvider);
-    app.Run();
-}
+await app.RunAsync();

@@ -1,4 +1,3 @@
-using DataContext.DBProvider;
 using StudioMod.Models.GenStepDtos;
 
 namespace StudioMod.Managers;
@@ -13,8 +12,6 @@ public class GenStepManager(
 ) : ManagerBase<DefaultDbContext, GenStep>(dbContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
-
-    protected override ICollection<GenStep> GetCollection() => _dbContext.GenSteps;
 
     /// <summary>
     /// 添加实体
@@ -48,24 +45,23 @@ public class GenStepManager(
 
     public async Task<PageList<GenStepItemDto>> ToPageAsync(GenStepFilterDto filter)
     {
-        var query = GetCollection().AsQueryable();
-        
+
         if (!string.IsNullOrEmpty(filter.Name))
         {
-            query = query.Where(q => q.Name.Contains(filter.Name));
-        }
-        
-        if (!string.IsNullOrEmpty(filter.FileType))
-        {
-            query = query.Where(q => q.FileType == filter.FileType);
-        }
-        
-        if (filter.ProjectId.HasValue)
-        {
-            query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
+            Queryable = Queryable.Where(q => q.Name.Contains(filter.Name));
         }
 
-        Queryable = query;
+        if (!string.IsNullOrEmpty(filter.FileType))
+        {
+            Queryable = Queryable.Where(q => q.FileType == filter.FileType);
+        }
+
+        if (filter.ProjectId.HasValue)
+        {
+            Queryable = Queryable.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
+        }
+
+
         return await ToPageAsync<GenStepFilterDto, GenStepItemDto>(filter);
     }
 
@@ -88,14 +84,33 @@ public class GenStepManager(
     public async Task<bool> IsUniqueAsync(string unique, int? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        var query = GetCollection()
-            .Where(q => q.Id.ToString() == unique);
-        
+        var query = _dbSet.Where(q => q.Id.ToString() == unique);
+
         if (id.HasValue)
         {
             query = query.Where(q => q.Id != id.Value);
         }
-        
+
         return !query.Any();
+    }
+
+    /// <summary>
+    /// 删除实体
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <param name="softDelete"></param>
+    /// <returns></returns>
+    public new async Task<bool> DeleteAsync(List<int> ids, bool softDelete = true)
+    {
+        // remove relation
+        var relations = _dbContext.GenActionGenSteps
+            .Where(q => ids.Contains(q.GenStepId))
+            .ToList();
+
+        foreach (var relation in relations)
+        {
+            _dbContext.GenActionGenSteps.Remove(relation);
+        }
+        return await base.DeleteAsync(ids, softDelete);
     }
 }

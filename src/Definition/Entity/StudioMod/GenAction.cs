@@ -71,6 +71,12 @@ public class GenAction : EntityBase
     /// 操作状态
     /// </summary>
     public ActionStatus ActionStatus { get; set; } = ActionStatus.NotStarted;
+
+    /// <summary>
+    /// 关联的步骤
+    /// </summary>
+    [NotMapped]
+    public List<GenStep> GenSteps { get; set; } = [];
 }
 
 public enum ActionStatus

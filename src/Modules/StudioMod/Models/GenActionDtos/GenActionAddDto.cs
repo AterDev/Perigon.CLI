@@ -30,4 +30,8 @@ public class GenActionAddDto
     /// </summary>
     public ActionStatus ActionStatus { get; set; } = ActionStatus.NotStarted;
 
+    /// <summary>
+    /// 步骤Id
+    /// </summary>
+    public List<int>? StepIds { get; set; }
 }

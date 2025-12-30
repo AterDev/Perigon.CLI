@@ -10,5 +10,5 @@ public class ApiDocInfoFilterDto : FilterBase
     /// </summary>
     [MaxLength(100)]
     public string? Name { get; set; }
-    public Guid? ProjectId { get; set; }
+    public int? ProjectId { get; set; }
 }

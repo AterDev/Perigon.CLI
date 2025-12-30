@@ -1,4 +1,3 @@
-using DataContext.DBProvider;
 using Share.Models.CommandDtos;
 
 namespace StudioMod.Managers;
@@ -18,8 +17,6 @@ public class SolutionManager(
     private readonly CommandService _commandService = commandService;
     private readonly SolutionService _solution = solution;
 
-    protected override ICollection<Solution> GetCollection() => _dbContext.Solutions;
-
     /// <summary>
     /// 创建新解决方案
     /// </summary>
@@ -35,15 +32,14 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<List<Solution>> ListAsync()
     {
-        var collection = GetCollection();
-        var projects = collection.ToList();
+        var projects = _dbSet.ToList();
         for (int i = projects.Count - 1; i >= 0; i--)
         {
             var p = projects[i];
             // 移除不存在的项目
             if (!Directory.Exists(p.Path))
             {
-                collection.Remove(p);
+                _dbSet.Remove(p);
                 projects.RemoveAt(i);
             }
         }

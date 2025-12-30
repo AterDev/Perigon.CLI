@@ -1,5 +1,4 @@
 using CodeGenerator;
-using DataContext.DBProvider;
 using Mapster;
 using Microsoft.OpenApi;
 using StudioMod.Models.GenActionDtos;
@@ -22,8 +21,6 @@ public class GenActionManager(
     private readonly CodeGenService _codeGen = codeGenService;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
 
-    protected override ICollection<GenAction> GetCollection() => _dbContext.GenActions;
-
     /// <summary>
     /// 添加实体
     /// </summary>
@@ -33,7 +30,12 @@ public class GenActionManager(
     {
         var entity = dto.MapTo<GenAction>();
         entity.ProjectId = (int)_projectContext.SolutionId!.Value.GetHashCode();
-        return await AddAsync(entity) ? entity.Id : null;
+        var res = await AddAsync(entity);
+        if (res && dto.StepIds != null && dto.StepIds.Count > 0)
+        {
+            await AddStepsAsync(entity.Id, dto.StepIds);
+        }
+        return res ? entity.Id : null;
     }
 
     /// <summary>
@@ -45,24 +47,27 @@ public class GenActionManager(
     public async Task<bool> UpdateAsync(GenAction entity, GenActionUpdateDto dto)
     {
         entity.Merge(dto);
-        // TODO:完善更新逻辑
+        if (dto.StepIds != null)
+        {
+            await AddStepsAsync(entity.Id, dto.StepIds);
+        }
         return await UpdateAsync(entity);
     }
 
     public async Task<PageList<GenActionItemDto>> ToPageAsync(GenActionFilterDto filter)
     {
         var query = Queryable;
-        
+
         if (!string.IsNullOrEmpty(filter.Name))
         {
             query = query.Where(q => q.Name.ToLower().Contains(filter.Name.Trim().ToLower()));
         }
-        
+
         if (filter.SourceType.HasValue)
         {
             query = query.Where(q => q.SourceType == filter.SourceType);
         }
-        
+
         if (filter.ProjectId.HasValue)
         {
             query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
@@ -82,12 +87,12 @@ public class GenActionManager(
         var actionSteps = _dbContext.GenActionGenSteps
             .Where(gs => gs.GenActionId == actionId)
             .ToList();
-        
+
         var stepIds = actionSteps.Select(gs => gs.GenStepId).ToList();
         var steps = _dbContext.GenSteps
             .Where(s => stepIds.Contains(s.Id))
             .ToList();
-        
+
         return steps.Adapt<List<GenStepItemDto>>();
     }
 
@@ -109,7 +114,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<bool> IsUniqueAsync(string name, int? id = null)
     {
-        var exists = GetCollection().Any(q => q.Name == name && (id == null || q.Id != id));
+        var exists = _dbSet.Any(q => q.Name == name && (id == null || q.Id != id));
         return !exists;
     }
 
@@ -121,6 +126,15 @@ public class GenActionManager(
     /// <returns></returns>
     public new async Task<bool> DeleteAsync(List<int> ids, bool softDelete = true)
     {
+        // remove relation
+        var relations = _dbContext.GenActionGenSteps
+            .Where(q => ids.Contains(q.GenActionId))
+            .ToList();
+
+        foreach (var relation in relations)
+        {
+            _dbContext.GenActionGenSteps.Remove(relation);
+        }
         return await base.DeleteAsync(ids, softDelete);
     }
 
@@ -131,7 +145,7 @@ public class GenActionManager(
     /// <returns></returns>
     public async Task<GenAction?> GetOwnedAsync(int id)
     {
-        var query = GetCollection().Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserIdKeys);
         return query.FirstOrDefault();
@@ -150,7 +164,7 @@ public class GenActionManager(
             var existingSteps = _dbContext.GenActionGenSteps
                 .Where(q => q.GenActionId == id)
                 .ToList();
-            
+
             foreach (var step in existingSteps)
             {
                 _dbContext.GenActionGenSteps.Remove(step);
@@ -161,12 +175,12 @@ public class GenActionManager(
                 GenActionId = id,
                 GenStepId = q,
             });
-            
+
             foreach (var step in actionSteps)
             {
                 _dbContext.GenActionGenSteps.Add(step);
             }
-            
+
             await _dbContext.SaveChangesAsync();
             return true;
         }
@@ -188,10 +202,14 @@ public class GenActionManager(
         var action = await GetCurrentAsync(dto.Id);
         if (action == null)
         {
-            res.Success = false;
-            res.Message = $"Action {dto.Id} not found";
+            res.IsSuccess = false;
+            res.ErrorMsg = $"Action {dto.Id} not found";
             return res;
         }
+
+        // manually load steps
+        var steps = await GetStepsAsync(action.Id);
+        action.GenSteps = steps.Adapt<List<GenStep>>();
 
         action.ActionStatus = ActionStatus.InProgress;
         await UpdateAsync(action);
@@ -300,8 +318,8 @@ public class GenActionManager(
         {
             var (apiDocument, _) = await OpenApiDocument.LoadAsync(dto.SourceFilePath);
             actionRunModel.OpenApiPaths = apiDocument?.Paths ?? [];
-
         }
+
         if (action.GenSteps.Count > 0)
         {
             try
@@ -353,18 +371,18 @@ public class GenActionManager(
                 // TODO: 记录执行情况
                 logger.LogError(ex, "Execute action failed");
                 res.ErrorMsg = ex.Message;
-                await context.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync();
                 res.IsSuccess = false;
             }
         }
         else
         {
             action.ActionStatus = ActionStatus.Failed;
-            await context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             res.IsSuccess = false;
             res.Equals("未找到任务步骤");
         }
-        await context.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
         return res;
     }
 

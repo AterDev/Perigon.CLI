@@ -10,7 +10,6 @@
     <None Remove="Services\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Perigon.MiniDb" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" />
   </ItemGroup>
   <ItemGroup>

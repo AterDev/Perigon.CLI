@@ -73,7 +73,7 @@ public partial class Home
         await GetProjectListAsync();
     }
 
-    private async Task ToSolution(Guid id)
+    private async Task ToSolution(int id)
     {
         await ProjectContext.SetProjectByIdAsync(id);
         NavigationManager.NavigateTo($"/workbench/entity");

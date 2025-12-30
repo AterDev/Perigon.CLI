@@ -30,4 +30,8 @@ public class GenActionUpdateDto
     /// </summary>
     public ActionStatus? ActionStatus { get; set; }
 
+    /// <summary>
+    /// 步骤Id
+    /// </summary>
+    public List<int>? StepIds { get; set; }
 }

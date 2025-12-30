@@ -10,7 +10,7 @@ public class GenActionRunDto
     /// <summary>
     /// 操作id
     /// </summary>
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// 源文件路径

@@ -186,8 +186,8 @@ public partial class EntityInfoManager(
         {
             EntityInfo? entityInfo = null;
 
-            //var entityParseHelper = new EntityParseHelper(dto.EntityPath);
-            //entityInfo = await entityParseHelper.ParseEntityAsync();
+            var entityParseHelper = new EntityParseHelper(dto.EntityPath);
+            entityInfo = await entityParseHelper.ParseEntityAsync();
 
             // MiniDb doesn't require EFCore context analysis
             // Load entity directly from the file path
@@ -199,14 +199,6 @@ public partial class EntityInfoManager(
                 );
                 return files;
             }
-
-            // TODO: Implement entity analysis without DbContextParseHelper
-            // For now, create a basic entity info structure
-            entityInfo = new EntityInfo
-            {
-                EntityName = entityName,
-                // Other properties can be set based on the file content
-            };
 
             if (entityInfo == null)
             {

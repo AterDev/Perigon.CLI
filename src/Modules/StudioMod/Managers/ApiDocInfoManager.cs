@@ -1,5 +1,4 @@
 using CodeGenerator.Models;
-using DataContext.DBProvider;
 using Microsoft.OpenApi;
 using StudioMod.Models.ApiDocInfoDtos;
 
@@ -19,7 +18,6 @@ public class ApiDocInfoManager(
     Localizer localizer
 ) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContext, logger)
 {
-    protected override ICollection<ApiDocInfo> GetCollection() => _dbContext.ApiDocInfos;
 
     /// <summary>
     /// 创建待添加实体
@@ -42,12 +40,12 @@ public class ApiDocInfoManager(
     public async Task<PageList<ApiDocInfoItemDto>> FilterAsync(ApiDocInfoFilterDto filter)
     {
         var query = Queryable;
-        
+
         if (filter.ProjectId.HasValue)
         {
             query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
         }
-        
+
         if (!string.IsNullOrEmpty(filter.Name))
         {
             query = query.Where(q => q.Name == filter.Name);
@@ -177,7 +175,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<bool> IsConflictAsync(string unique)
     {
-        return GetCollection().Any(q => q.Id == int.Parse(unique));
+        return _dbSet.Any(q => q.Id == int.Parse(unique));
     }
 
     /// <summary>
@@ -187,7 +185,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<ApiDocInfo?> GetOwnedAsync(int id)
     {
-        var query = GetCollection().Where(q => q.Id == id);
+        var query = _dbSet.Where(q => q.Id == id);
         return query.FirstOrDefault();
     }
 
@@ -201,8 +199,7 @@ public class ApiDocInfoManager(
         RequestClientDto dto
     )
     {
-        var doc = GetCollection()
-            .FirstOrDefault(d => d.Id == openApiDocId);
+        var doc = _dbSet.FirstOrDefault(d => d.Id == openApiDocId);
         if (doc == null)
         {
             ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId.ToString());

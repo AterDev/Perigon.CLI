@@ -1,5 +1,3 @@
-using DataContext.DBProvider;
-
 namespace StudioMod.Managers;
 
 public class McpToolManager(
@@ -7,7 +5,6 @@ public class McpToolManager(
     ILogger<McpToolManager> logger
 ) : ManagerBase<DefaultDbContext, McpTool>(dbContext, logger)
 {
-    protected override ICollection<McpTool> GetCollection() => _dbContext.McpTools;
 
     /// <summary>
     /// 获取工具列表
