@@ -1,6 +1,5 @@
-Ater.Common.dll
-Ater.Web.Convention.dll
 CodeGenerator.dll
+Core.dll
 EfCoreContext.dll
 Entity.dll
 Humanizer.dll
@@ -20,10 +19,6 @@ Microsoft.EntityFrameworkCore.dll
 Microsoft.EntityFrameworkCore.Relational.dll
 Microsoft.EntityFrameworkCore.Sqlite.dll
 Microsoft.Extensions.DependencyModel.dll
-Microsoft.IdentityModel.Abstractions.dll
-Microsoft.IdentityModel.JsonWebTokens.dll
-Microsoft.IdentityModel.Logging.dll
-Microsoft.IdentityModel.Tokens.dll
 Microsoft.OpenApi.dll
 Microsoft.VisualStudio.SolutionPersistence.dll
 Newtonsoft.Json.dll
@@ -39,4 +34,3 @@ System.Composition.Convention.dll
 System.Composition.Hosting.dll
 System.Composition.Runtime.dll
 System.Composition.TypedParts.dll
-System.IdentityModel.Tokens.Jwt.dll
