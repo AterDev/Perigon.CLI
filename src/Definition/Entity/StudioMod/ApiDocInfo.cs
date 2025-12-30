@@ -9,7 +9,7 @@ public class ApiDocInfo : EntityBase
     /// 文档名称
     /// </summary>
     [MaxLength(100)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     [MaxLength(10000)]
     public string? Content { get; set; }
@@ -24,7 +24,7 @@ public class ApiDocInfo : EntityBase
     /// 文档地址
     /// </summary>
     [MaxLength(300)]
-    public required string Path { get; set; }
+    public string Path { get; set; } = string.Empty;
 
     /// <summary>
     /// 生成路径
@@ -32,6 +32,8 @@ public class ApiDocInfo : EntityBase
     [MaxLength(200)]
     public string? LocalPath { get; set; }
 
-    public Solution Project { get; set; } = null!;
-    public Guid ProjectId { get; set; } = default!;
+    /// <summary>
+    /// project id
+    /// </summary>
+    public int ProjectId { get; set; }
 }

@@ -9,7 +9,7 @@ public class GenStep : EntityBase
     /// 模板名称
     /// </summary>
     [MaxLength(100)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 生成内容
@@ -35,11 +35,10 @@ public class GenStep : EntityBase
     [MaxLength(20)]
     public string? FileType { get; set; }
 
-    public ICollection<GenAction> GenActions { get; set; } = [];
-
-    [ForeignKey(nameof(ProjectId))]
-    public Solution Project { get; set; } = null!;
-    public Guid ProjectId { get; set; } = default!;
+    /// <summary>
+    /// project id
+    /// </summary>
+    public int ProjectId { get; set; }
 
     /// <summary>
     /// 格式化路径
@@ -51,7 +50,6 @@ public class GenStep : EntityBase
         string format = OutputPath ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(format))
         {
-            // 循环将vriables中的key 匹配的@{key}替换 成value
             foreach (var variable in variables)
             {
                 format = format.Replace($"@{{{variable.Key}}}", variable.Value);

@@ -143,14 +143,13 @@ public class IOHelper
     }
 }
 
-[Index(nameof(UserName), IsUnique = true)]
 public class User
 {
     [Key]
     public Guid Id { get; set; }
 
     [MaxLength(20)]
-    public required string UserName { get; set; }
+    public string UserName { get; set; } = string.Empty;
 
     /// <summary>
     /// 拥有的博客
@@ -161,7 +160,6 @@ public class User
 /// <summary>
 /// 博客
 /// </summary>
-[Index(nameof(Title), IsUnique = true)]
 public class Blog
 {
     [Key]
@@ -171,7 +169,7 @@ public class Blog
     /// 标题
     /// </summary>
     [MaxLength(100)]
-    public required string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     [MaxLength(10_000)]
     public string? Content { get; set; }
@@ -185,5 +183,5 @@ public class Blog
     /// <summary>
     /// 所属用户
     /// </summary>
-    public required User User { get; set; }
+    public User User { get; set; } = null!;
 }

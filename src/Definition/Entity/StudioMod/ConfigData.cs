@@ -8,12 +8,12 @@ public class ConfigData : EntityBase
     /// 键
     /// </summary>
     [MaxLength(100)]
-    public required string Key { get; set; }
+    public string Key { get; set; } = string.Empty;
     /// <summary>
     /// 值 
     /// </summary>
     [MaxLength(2000)]
-    public required string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 
     public ValueType ValueType { get; set; } = ValueType.String;
 }

@@ -1,5 +1,5 @@
 using CodeGenerator.Models;
-using EfCoreContext.DBProvider;
+using DataContext.DBProvider;
 using Microsoft.OpenApi;
 using StudioMod.Models.ApiDocInfoDtos;
 
@@ -9,16 +9,18 @@ namespace StudioMod.Managers;
 /// 接口文档
 /// </summary>
 /// <remarks>
-/// Constructor for DbContextFactory pattern
+/// Constructor for DbContext pattern
 /// </remarks>
 public class ApiDocInfoManager(
-    IDbContextFactory<DefaultDbContext> dbContextFactory,
+    DefaultDbContext dbContext,
     IProjectContext project,
     ILogger<ApiDocInfoManager> logger,
     CodeGenService codeGenService,
     Localizer localizer
-) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContextFactory, logger)
+) : ManagerBase<DefaultDbContext, ApiDocInfo>(dbContext, logger)
 {
+    protected override ICollection<ApiDocInfo> GetCollection() => _dbContext.ApiDocInfos;
+
     /// <summary>
     /// 创建待添加实体
     /// </summary>
@@ -27,7 +29,7 @@ public class ApiDocInfoManager(
     public async Task<ApiDocInfo> CreateNewEntityAsync(ApiDocInfoAddDto dto)
     {
         ApiDocInfo entity = dto.MapTo<ApiDocInfo>();
-        entity.ProjectId = project.SolutionId!.Value;
+        entity.ProjectId = (int)project.SolutionId!.Value.GetHashCode();
         return await Task.FromResult(entity);
     }
 
@@ -39,10 +41,19 @@ public class ApiDocInfoManager(
 
     public async Task<PageList<ApiDocInfoItemDto>> FilterAsync(ApiDocInfoFilterDto filter)
     {
-        Queryable = Queryable
-            .WhereNotNull(filter.ProjectId, q => q.ProjectId == filter.ProjectId)
-            .WhereNotNull(filter.Name, q => q.Name == filter.Name);
+        var query = Queryable;
+        
+        if (filter.ProjectId.HasValue)
+        {
+            query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
+        }
+        
+        if (!string.IsNullOrEmpty(filter.Name))
+        {
+            query = query.Where(q => q.Name == filter.Name);
+        }
 
+        Queryable = query;
         return await ToPageAsync<ApiDocInfoFilterDto, ApiDocInfoItemDto>(filter);
     }
 
@@ -51,7 +62,7 @@ public class ApiDocInfoManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<ApiDocContent?> GetContentAsync(Guid id, bool isFresh)
+    public async Task<ApiDocContent?> GetContentAsync(int id, bool isFresh)
     {
         ApiDocInfo? apiDocInfo = await GetCurrentAsync(id);
         string path = apiDocInfo!.Path;
@@ -84,7 +95,7 @@ public class ApiDocInfoManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<string?> ExportDocAsync(Guid id)
+    public async Task<string?> ExportDocAsync(int id)
     {
         ApiDocInfo? apiDocInfo = await FindAsync(id);
         if (apiDocInfo == null)
@@ -166,8 +177,7 @@ public class ApiDocInfoManager(
     /// <returns></returns>
     public async Task<bool> IsConflictAsync(string unique)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        return await context.Set<ApiDocInfo>().AnyAsync(q => q.Id == new Guid(unique));
+        return GetCollection().Any(q => q.Id == int.Parse(unique));
     }
 
     /// <summary>
@@ -175,13 +185,10 @@ public class ApiDocInfoManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<ApiDocInfo?> GetOwnedAsync(Guid id)
+    public async Task<ApiDocInfo?> GetOwnedAsync(int id)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var query2 = context.Set<ApiDocInfo>().Where(q => q.Id == id);
-        // 获取用户所属的对象
-        // query2 = query2.Where(q => q.User.Id == _userContext.UserIdKeys);
-        return await query2.FirstOrDefaultAsync();
+        var query = GetCollection().Where(q => q.Id == id);
+        return query.FirstOrDefault();
     }
 
     /// <summary>
@@ -190,22 +197,19 @@ public class ApiDocInfoManager(
     /// <param name="dto"></param>
     /// <returns></returns>
     public async Task<List<GenFileInfo>?> GenerateRequestClientAsync(
-        Guid openApiDocId,
+        int openApiDocId,
         RequestClientDto dto
     )
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var doc = await context
-            .Set<ApiDocInfo>()
-            .Where(d => d.Id == openApiDocId)
-            .FirstOrDefaultAsync();
+        var doc = GetCollection()
+            .FirstOrDefault(d => d.Id == openApiDocId);
         if (doc == null)
         {
             ErrorMsg = localizer.Get(Localizer.NotFoundWithName, openApiDocId.ToString());
             return null;
         }
         doc.LocalPath = dto.OutputPath;
-        await context.SaveChangesAsync();
+        await UpdateAsync(doc);
 
         var files = new List<GenFileInfo>();
         switch (dto.ClientType)

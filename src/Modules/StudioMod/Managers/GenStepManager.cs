@@ -1,4 +1,4 @@
-using EfCoreContext.DBProvider;
+using DataContext.DBProvider;
 using StudioMod.Models.GenStepDtos;
 
 namespace StudioMod.Managers;
@@ -7,22 +7,24 @@ namespace StudioMod.Managers;
 /// task step
 /// </summary>
 public class GenStepManager(
-    IDbContextFactory<DefaultDbContext> dbContextFactory,
+    DefaultDbContext dbContext,
     ILogger<GenStepManager> logger,
     IProjectContext projectContext
-) : ManagerBase<DefaultDbContext, GenStep>(dbContextFactory, logger)
+) : ManagerBase<DefaultDbContext, GenStep>(dbContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
+
+    protected override ICollection<GenStep> GetCollection() => _dbContext.GenSteps;
 
     /// <summary>
     /// 添加实体
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<Guid?> CreateNewEntityAsync(GenStepAddDto dto)
+    public async Task<int?> CreateNewEntityAsync(GenStepAddDto dto)
     {
         var entity = dto.MapTo<GenStep>();
-        entity.ProjectId = _projectContext.SolutionId!.Value;
+        entity.ProjectId = (int)_projectContext.SolutionId!.Value.GetHashCode();
 
         var fileExt = Path.GetExtension(dto.OutputPath ?? "");
         entity.FileType = fileExt;
@@ -41,16 +43,29 @@ public class GenStepManager(
         entity.Merge(dto);
         var fileExt = Path.GetExtension(dto.OutputPath ?? "");
         entity.FileType = fileExt;
-        return await UpdateAsync(entity);
+        return await base.UpdateAsync(entity);
     }
 
     public async Task<PageList<GenStepItemDto>> ToPageAsync(GenStepFilterDto filter)
     {
-        Queryable = Queryable
-            .WhereNotNull(filter.Name, q => q.Name.Contains(filter.Name!))
-            .WhereNotNull(filter.FileType, q => q.FileType == filter.FileType)
-            .WhereNotNull(filter.ProjectId, q => q.ProjectId == filter.ProjectId);
+        var query = GetCollection().AsQueryable();
+        
+        if (!string.IsNullOrEmpty(filter.Name))
+        {
+            query = query.Where(q => q.Name.Contains(filter.Name));
+        }
+        
+        if (!string.IsNullOrEmpty(filter.FileType))
+        {
+            query = query.Where(q => q.FileType == filter.FileType);
+        }
+        
+        if (filter.ProjectId.HasValue)
+        {
+            query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
+        }
 
+        Queryable = query;
         return await ToPageAsync<GenStepFilterDto, GenStepItemDto>(filter);
     }
 
@@ -59,7 +74,7 @@ public class GenStepManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<GenStepDetailDto?> GetDetailAsync(Guid id)
+    public async Task<GenStepDetailDto?> GetDetailAsync(int id)
     {
         return await FindAsync<GenStepDetailDto>(e => e.Id == id);
     }
@@ -70,39 +85,17 @@ public class GenStepManager(
     /// <param name="unique">唯一标识</param>
     /// <param name="id">排除当前</param>
     /// <returns></returns>
-    public async Task<bool> IsUniqueAsync(string unique, Guid? id = null)
+    public async Task<bool> IsUniqueAsync(string unique, int? id = null)
     {
         // 自定义唯一性验证参数和逻辑
-        using var context = _dbContextFactory.CreateDbContext();
-        return await context
-            .Set<GenStep>()
-            .Where(q => q.Id.ToString() == unique)
-            .WhereNotNull(id, q => q.Id != id)
-            .AnyAsync();
-    }
-
-    /// <summary>
-    /// 删除实体
-    /// </summary>
-    /// <param name="ids"></param>
-    /// <param name="softDelete"></param>
-    /// <returns></returns>
-    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
-    {
-        return await base.DeleteAsync(ids, softDelete);
-    }
-
-    /// <summary>
-    /// 数据权限验证
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public async Task<GenStep?> GetOwnedAsync(Guid id)
-    {
-        using var context = _dbContextFactory.CreateDbContext();
-        var query = context.Set<GenStep>().Where(q => q.Id == id);
-        // TODO:自定义数据权限验证
-        // query = query.Where(q => q.User.Id == _userContext.UserIdKeys);
-        return await query.FirstOrDefaultAsync();
+        var query = GetCollection()
+            .Where(q => q.Id.ToString() == unique);
+        
+        if (id.HasValue)
+        {
+            query = query.Where(q => q.Id != id.Value);
+        }
+        
+        return !query.Any();
     }
 }

@@ -1,5 +1,5 @@
 using CodeGenerator.Models;
-using EfCoreContext.DBProvider;
+using DataContext.DBProvider;
 
 namespace StudioMod.Managers;
 

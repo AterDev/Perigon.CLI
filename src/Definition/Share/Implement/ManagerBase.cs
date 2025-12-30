@@ -1,5 +1,6 @@
 using Entity;
 using Mapster;
+using Perigon.MiniDb;
 
 namespace Share.Implement;
 
@@ -13,16 +14,12 @@ public abstract class ManagerBase(ILogger logger)
 }
 
 /// <summary>
-/// Generic manager base class for entity operations.
+/// Generic manager base class for entity operations with MiniDb.
 /// </summary>
 /// <typeparam name="TDbContext">Database context type</typeparam>
 /// <typeparam name="TEntity">Entity type</typeparam>
-/// <remarks>
-/// Initializes a new instance of the ManagerBase class with DbContextFactory.
-/// </remarks>
 public abstract class ManagerBase<TDbContext, TEntity>
-
-    where TDbContext : DbContext
+    where TDbContext : MicroDbContext
     where TEntity : EntityBase
 {
     #region Properties and Fields
@@ -38,32 +35,32 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public int ErrorStatus { get; set; }
     #endregion
 
-    public TDbContext _dbContext;
-    protected IQueryable<TEntity> Queryable { get; set; }
+    protected readonly TDbContext _dbContext;
+    protected IEnumerable<TEntity> Queryable { get; set; }
     protected readonly ILogger _logger;
 
-    protected readonly IDbContextFactory<TDbContext> _dbContextFactory;
+    protected abstract IEnumerable<TEntity> GetCollection();
 
-    public ManagerBase(IDbContextFactory<TDbContext> dbContextFactory, ILogger logger)
+    public ManagerBase(TDbContext dbContext, ILogger logger)
     {
-        _dbContextFactory = dbContextFactory;
-        _dbContext = dbContextFactory.CreateDbContext();
+        _dbContext = dbContext;
         _logger = logger;
-        Queryable = _dbContext.Set<TEntity>().AsNoTracking();
+        Queryable = GetCollection();
     }
 
     /// <summary>
-    /// Gets the current entity by id without tracking.
+    /// Gets the current entity by id.
     /// </summary>
     /// <param name="id">Entity id</param>
     /// <returns>The entity if found; otherwise, null.</returns>
-    public virtual async Task<TEntity?> GetCurrentAsync(Guid id)
+    public virtual async Task<TEntity?> GetCurrentAsync(int id)
     {
-        return await _dbContext.Set<TEntity>().FindAsync(id);
+        var collection = GetCollection();
+        return collection.FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary>
-    /// Gets the current entity or DTO by condition without tracking.
+    /// Gets the current entity or DTO by condition.
     /// </summary>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
@@ -71,33 +68,36 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public async Task<TDto?> GetCurrentAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        var dbSet = _dbContext.Set<TEntity>();
+        var collection = GetCollection();
         if (typeof(TDto) == typeof(TEntity))
         {
-            var model = await dbSet.Where(whereExp ?? (e => true)).FirstOrDefaultAsync();
+
+            var model = collection.Where(whereExp ?? (e => true)).FirstOrDefault();
             return model as TDto;
         }
         else
         {
-            return await dbSet
+            return collection
                 .Where(whereExp ?? (e => true))
+                .AsQueryable()
                 .ProjectToType<TDto>()
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
     }
 
     /// <summary>
-    /// Finds and attaches the entity by id for tracking.
+    /// Finds the entity by id.
     /// </summary>
     /// <param name="id">Entity id</param>
     /// <returns>The entity if found; otherwise, null.</returns>
-    public virtual async Task<TEntity?> FindAsync(Guid id)
+    public virtual async Task<TEntity?> FindAsync(int id)
     {
-        return await _dbContext.Set<TEntity>().FindAsync(id);
+        var collection = GetCollection();
+        return collection.FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary>
-    /// Finds a DTO by condition without tracking. If TDto is TEntity, attaches the entity.
+    /// Finds a DTO by condition.
     /// </summary>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
@@ -105,17 +105,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        var dbSet = _dbContext.Set<TEntity>();
-        var model = await dbSet
-            .AsNoTracking()
+        var collection = GetCollection();
+        var model = collection
             .Where(whereExp ?? (e => true))
+            .AsQueryable()
             .ProjectToType<TDto>()
-            .FirstOrDefaultAsync();
-
-        if (typeof(TDto) is TEntity && model != null)
-        {
-            dbSet.Attach((model as TEntity)!);
-        }
+            .FirstOrDefault();
         return model;
     }
 
@@ -124,9 +119,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// </summary>
     /// <param name="id">Entity id</param>
     /// <returns>True if exists; otherwise, false.</returns>
-    public virtual async Task<bool> ExistAsync(Guid id)
+    public virtual async Task<bool> ExistAsync(int id)
     {
-        return await _dbContext.Set<TEntity>().AnyAsync(q => q.Id == id);
+        return GetCollection().Any(q => q.Id == id);
     }
 
     /// <summary>
@@ -136,11 +131,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if any entity matches; otherwise, false.</returns>
     public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> whereExp)
     {
-        return await _dbContext.Set<TEntity>().AnyAsync(whereExp);
+        return GetCollection().Any(whereExp);
     }
 
     /// <summary>
-    /// Gets a list of DTOs matching the condition without tracking.
+    /// Gets a list of DTOs matching the condition.
     /// </summary>
     /// <typeparam name="TDto">DTO type</typeparam>
     /// <param name="whereExp">Filter expression</param>
@@ -150,23 +145,23 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
         where TDto : class
     {
-        var dbSet = _dbContext.Set<TEntity>();
-        return await dbSet
-            .AsNoTracking()
+        var collection = GetCollection();
+        return collection
             .Where(whereExp ?? (e => true))
+            .AsQueryable()
             .ProjectToType<TDto>()
-            .ToListAsync();
+            .ToList();
     }
 
     /// <summary>
-    /// Gets a list of entities matching the condition without tracking.
+    /// Gets a list of entities matching the condition.
     /// </summary>
     /// <param name="whereExp">Filter expression</param>
     /// <returns>List of entities.</returns>
     public async Task<List<TEntity>> ToListAsync(Expression<Func<TEntity, bool>>? whereExp = null)
     {
-        var dbSet = _dbContext.Set<TEntity>();
-        return await dbSet.AsNoTracking().Where(whereExp ?? (e => true)).ToListAsync();
+        var collection = GetCollection();
+        return collection.Where(whereExp ?? (e => true)).ToList();
     }
 
     /// <summary>
@@ -180,8 +175,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
         where TFilter : FilterBase
         where TItem : class
     {
-        var dbSet = _dbContext.Set<TEntity>();
-        var queryable = Queryable ?? dbSet.AsNoTracking().AsQueryable();
+        var collection = GetCollection();
+        var queryable = Queryable.AsQueryable() ?? collection.AsQueryable();
 
         queryable =
             filter.OrderBy != null
@@ -189,12 +184,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
                 : queryable.OrderByDescending(t => t.CreatedTime);
 
         var count = queryable.Count();
-        List<TItem> data = await queryable
-            .AsNoTracking()
+        List<TItem> data = queryable
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ProjectToType<TItem>()
-            .ToListAsync();
+            .ToList();
 
         return new PageList<TItem>
         {
@@ -211,21 +205,28 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> AddAsync(TEntity entity)
     {
-        await _dbContext.Set<TEntity>().AddAsync(entity);
-        return await _dbContext.SaveChangesAsync() > 0;
+        var collection = GetCollection();
+        collection.Add(entity);
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>
-    /// Updates an existing tracked entity.
+    /// Updates an existing entity.
     /// </summary>
-    /// <param name="entity">Tracked entity to update</param>
+    /// <param name="entity">Entity to update</param>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-        var _dbSet = _dbContext.Set<TEntity>();
-
-        _dbSet!.Update(entity);
-        return await _dbContext.SaveChangesAsync() > 0;
+        var collection = GetCollection();
+        var existing = collection.FirstOrDefault(e => e.Id == entity.Id);
+        if (existing != null)
+        {
+            collection.Remove(existing);
+            collection.Add(entity);
+        }
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>
@@ -234,15 +235,30 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="ids">List of entity ids</param>
     /// <param name="softDelete">If true, performs soft delete; otherwise, hard delete</param>
     /// <returns>True if successful; otherwise, false.</returns>
-    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<int> ids, bool softDelete = true)
     {
-        var _dbSet = _dbContext.Set<TEntity>();
-        var res = softDelete
-            ? await _dbSet!
-                .Where(d => ids.Contains(d.Id))
-                .ExecuteUpdateAsync(d => d.SetProperty(d => d.IsDeleted, true))
-            : await _dbSet.Where(d => ids.Contains(d.Id)).ExecuteDeleteAsync();
-        return res > 0;
+        var collection = GetCollection();
+        var entities = collection.Where(d => ids.Contains(d.Id)).ToList();
+
+        if (softDelete)
+        {
+            foreach (var entity in entities)
+            {
+                entity.IsDeleted = true;
+                collection.Remove(entity);
+                collection.Add(entity);
+            }
+        }
+        else
+        {
+            foreach (var entity in entities)
+            {
+                collection.Remove(entity);
+            }
+        }
+
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 
     /// <summary>
@@ -253,16 +269,19 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> DeleteAsync(TEntity entity, bool softDelete = true)
     {
-        var _dbSet = _dbContext.Set<TEntity>();
+        var collection = GetCollection();
 
         if (softDelete)
         {
             entity.IsDeleted = true;
+            collection.Remove(entity);
+            collection.Add(entity);
         }
         else
         {
-            _dbSet!.Remove(entity);
+            collection.Remove(entity);
         }
-        return await _dbContext.SaveChangesAsync() > 0;
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 }

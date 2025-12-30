@@ -34,7 +34,7 @@ public class GenActionItemDto
     /// 操作状态
     /// </summary>
     public ActionStatus ActionStatus { get; set; } = ActionStatus.NotStarted;
-    public Guid Id { get; set; }
-    public DateTimeOffset CreatedTime { get; set; }
+    public int Id { get; set; }
+    public DateTime CreatedTime { get; set; }
     public List<Variable> Variables { get; set; } = [];
 }

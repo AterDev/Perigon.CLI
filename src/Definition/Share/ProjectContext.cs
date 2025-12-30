@@ -5,9 +5,9 @@ namespace Share;
 /// <summary>
 /// 项目上下文
 /// </summary>
-public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) : IProjectContext
+public class ProjectContext(DefaultDbContext context) : IProjectContext
 {
-    public Guid? SolutionId { get; set; }
+    public int? SolutionId { get; set; }
     public string? ProjectName { get; set; }
     public string? SolutionPath { get; set; }
     public string? SharePath { get; set; }
@@ -20,17 +20,18 @@ public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) 
 
     public SolutionConfig? SolutionConfig { get; set; }
 
-    private readonly DefaultDbContext _context = contextFactory.CreateDbContext();
+    private readonly DefaultDbContext _context = context;
 
     /// <summary>
-    ///
+    /// 根据ID设置项目
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task SetProjectByIdAsync(Guid id)
+    public Task SetProjectByIdAsync(int id)
     {
         SolutionId = id;
-        var solution = await _context.Solutions.FindAsync(id);
+        var intId = id.GetHashCode();
+        var solution = _context.Solutions.FirstOrDefault(s => s.Id == intId);
         if (solution != null)
         {
             ProjectName = solution.Name;
@@ -44,9 +45,10 @@ public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) 
             ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
             ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
         }
+        return Task.CompletedTask;
     }
 
-    public async Task SetProjectAsync(string solutionPath)
+    public Task SetProjectAsync(string solutionPath)
     {
         if (solutionPath.IndexOf("/") > 0)
         {
@@ -54,9 +56,8 @@ public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) 
         }
 
         SolutionPath = solutionPath;
-        var solution = await _context
-            .Solutions.Where(p => p.Path.Equals(solutionPath))
-            .FirstOrDefaultAsync();
+        var solution = _context
+            .Solutions.FirstOrDefault(p => p.Path.Equals(solutionPath));
 
         SolutionConfig = solution?.Config;
         SharePath = Path.Combine(SolutionPath, SolutionConfig?.SharePath ?? PathConst.SharePath);
@@ -72,6 +73,8 @@ public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) 
         );
         ModulesPath = Path.Combine(SolutionPath, PathConst.ModulesPath);
         ServicesPath = Path.Combine(SolutionPath, PathConst.ServicesPath);
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -136,4 +139,5 @@ public class ProjectContext(IDbContextFactory<DefaultDbContext> contextFactory) 
             ? Path.Combine(ApiPath ?? PathConst.APIPath)
             : Path.Combine(ModulesPath ?? PathConst.ModulesPath, moduleName);
     }
+
 }

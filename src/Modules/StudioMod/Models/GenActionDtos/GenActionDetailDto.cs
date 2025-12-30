@@ -30,14 +30,13 @@ public class GenActionDetailDto
     /// source type
     /// </summary>
     public GenSourceType? SourceType { get; set; }
-    public Solution Project { get; set; } = default!;
-    public Guid ProjectId { get; set; } = default!;
+    public int ProjectId { get; set; }
 
     /// <summary>
     /// 操作状态
     /// </summary>
     public ActionStatus ActionStatus { get; set; } = ActionStatus.NotStarted;
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTimeOffset CreatedTime { get; set; }
-    public DateTimeOffset UpdatedTime { get; set; }
+    public int Id { get; set; }
+    public DateTime CreatedTime { get; set; }
+    public DateTime UpdatedTime { get; set; }
 }

@@ -1,34 +1,21 @@
-using EfCoreContext.DBProvider;
-using Microsoft.EntityFrameworkCore;
+using DataContext.DBProvider;
+using Microsoft.Extensions.Hosting;
 
 namespace AterStudio.Worker;
 
-public class InitDataTask
+public class InitDataTask(DefaultDbContext context) : BackgroundService
 {
-    /// <summary>
-    /// 初始化应用数据
-    /// </summary>
-    /// <param name="provider"></param>
-    /// <returns></returns>
-    public static async Task InitDataAsync(IServiceProvider provider)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        DefaultDbContext context = provider.GetRequiredService<DefaultDbContext>();
-        ILoggerFactory loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        ILogger<InitDataTask> logger = loggerFactory.CreateLogger<InitDataTask>();
-        try
-        {
-            var connectionString = context.Database.GetConnectionString();
-            logger.LogInformation("ℹ️ Using db file: {connectionString}", connectionString);
+        // 初始化数据库
+        // MiniDb不需要migration，但我们可以在这里初始化数据
+        await InitializeDataAsync();
+    }
 
-            // 输出当前启动端口
-            CancellationTokenSource source = new(10000);
-            await context.Database.MigrateAsync(source.Token);
-        }
-        catch (Exception e)
-        {
-            logger.LogError("❌ Init db failed:{message}", e.Message);
-            await context.Database.EnsureDeletedAsync();
-            await context.Database.MigrateAsync();
-        }
+    private async Task InitializeDataAsync()
+    {
+        // 自定义初始化逻辑
+        // 例如：创建默认配置、添加示例数据等
+        await Task.CompletedTask;
     }
 }

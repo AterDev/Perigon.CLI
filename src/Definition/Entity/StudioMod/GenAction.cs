@@ -1,10 +1,10 @@
+using System.Text.Json;
+
 namespace Entity.StudioMod;
 
 /// <summary>
 /// 生成操作
 /// </summary>
-[Index(nameof(Name))]
-[Index(nameof(Description))]
 public class GenAction : EntityBase
 {
     /// <summary>
@@ -12,7 +12,7 @@ public class GenAction : EntityBase
     /// </summary>
     [MaxLength(40)]
     [Required]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     [MaxLength(200)]
     public string? Description { get; set; }
@@ -29,7 +29,33 @@ public class GenAction : EntityBase
     [MaxLength(1024)]
     public string? OpenApiPath { get; set; }
 
-    public List<Variable> Variables { get; set; } = [];
+    /// <summary>
+    /// Variables stored as JSON string
+    /// </summary>
+    [MaxLength(5000)]
+    public string VariablesJsonString { get; set; } = string.Empty;
+
+    /// <summary>
+    /// action variables
+    /// </summary>
+    [NotMapped]
+    public List<Variable> Variables
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(VariablesJsonString))
+                return [];
+
+            return JsonSerializer.Deserialize<List<Variable>>(VariablesJsonString) ?? [];
+        }
+        set
+        {
+            if (value == null || value.Count == 0)
+                VariablesJsonString = string.Empty;
+            else
+                VariablesJsonString = JsonSerializer.Serialize(value);
+        }
+    }
 
     /// <summary>
     /// source type
@@ -37,13 +63,9 @@ public class GenAction : EntityBase
     public GenSourceType SourceType { get; set; }
 
     /// <summary>
-    /// action step
+    /// project id
     /// </summary>
-    public ICollection<GenStep> GenSteps { get; set; } = [];
-
-    [ForeignKey(nameof(ProjectId))]
-    public Solution Project { get; set; } = null!;
-    public Guid ProjectId { get; set; } = default!;
+    public int ProjectId { get; set; }
 
     /// <summary>
     /// 操作状态
@@ -105,8 +127,8 @@ public enum GenSourceType
 public class Variable
 {
     [MaxLength(100)]
-    public required string Key { get; set; }
+    public string Key { get; set; } = string.Empty;
 
     [MaxLength(1000)]
-    public required string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 }

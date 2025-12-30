@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Entity.StudioMod;
 
 /// <summary>
@@ -9,19 +11,19 @@ public class Solution : EntityBase
     /// 项目名称
     /// </summary>
     [MaxLength(100)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 显示名
     /// </summary>
     [MaxLength(100)]
-    public required string DisplayName { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
 
     /// <summary>
     /// 路径
     /// </summary>
     [MaxLength(200)]
-    public required string Path { get; set; }
+    public string Path { get; set; } = string.Empty;
 
     /// <summary>
     /// 版本
@@ -35,17 +37,35 @@ public class Solution : EntityBase
     public SolutionType? SolutionType { get; set; }
 
     /// <summary>
+    /// project config - stored as JSON string
+    /// </summary>
+    [MaxLength(2000)]
+    public string ConfigJsonString { get; set; } = string.Empty;
+
+    /// <summary>
     /// project config
     /// </summary>
-    public SolutionConfig Config { get; set; } = new SolutionConfig();
+    [NotMapped]
+    public SolutionConfig Config
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(ConfigJsonString))
+                return new SolutionConfig();
 
+            return JsonSerializer.Deserialize<SolutionConfig>(ConfigJsonString) ?? new SolutionConfig();
+        }
+        set
+        {
+            if (value == null)
+                ConfigJsonString = string.Empty;
+            else
+                ConfigJsonString = JsonSerializer.Serialize(value);
+        }
+    }
+
+    [NotMapped]
     public List<ApiDocInfo> ApiDocInfos { get; set; } = [];
-
-    public ICollection<GenAction> GenActions { get; set; } = [];
-
-    public ICollection<GenStep> GenSteps { get; set; } = [];
-
-    public ICollection<McpTool> McpTools { get; set; } = [];
 }
 
 /// <summary>

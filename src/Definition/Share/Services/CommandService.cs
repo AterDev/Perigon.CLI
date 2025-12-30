@@ -1,4 +1,5 @@
 using CodeGenerator.Helper;
+using DataContext.DBProvider;
 using Entity;
 using Share.Models.CommandDtos;
 using Spectre.Console;
@@ -26,7 +27,7 @@ public class CommandService(
 {
     public string? ErrorMsg { get; set; }
 
-    public async Task<Guid?> AddProjectAsync(string name, string path)
+    public async Task<int?> AddProjectAsync(string name, string path)
     {
         var projectFilePath = Directory
             .GetFiles(path, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
@@ -56,7 +57,8 @@ public class CommandService(
         solution.Config.SolutionPath = solutionPath;
 
         context.Solutions.Add(solution);
-        return await context.SaveChangesAsync() > 0 ? solution.Id : null;
+        await context.SaveChangesAsync();
+        return solution.Id;
     }
 
     /// <summary>
@@ -64,6 +66,23 @@ public class CommandService(
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
+    public async Task<bool> CreateSolutionAsync(CreateSolutionDto dto)
+    {
+        var id = await _commandService.AddProjectAsync(dto.SolutionName, dto.Path);
+        if (id.HasValue)
+        {
+            await projectContext.SetProjectByIdAsync(ConvertIntToGuid(id.Value));
+            return true;
+        }
+        return false;
+    }
+
+    private static Guid ConvertIntToGuid(int value)
+    {
+        // 简单的int到Guid转换
+        return new Guid(0, 0, 0, 0, 0, 0, 0, (byte)((value >> 24) & 0xFF), (byte)((value >> 16) & 0xFF), (byte)((value >> 8) & 0xFF), (byte)(value & 0xFF));
+    }
+
     public async Task<bool> CreateSolutionAsync(CreateSolutionDto dto)
     {
         // 生成项目

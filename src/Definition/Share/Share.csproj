@@ -17,18 +17,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
-        <PackageReference Include="Perigon.AspNetCore.SourceGeneration" />
-        <PackageReference Include="Spectre.Console.Cli" />
         <PackageReference Include="Microsoft.Extensions.Localization" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="Perigon.AspNetCore.SourceGeneration" />
+        <PackageReference Include="Perigon.MiniDb" />
+        <PackageReference Include="Spectre.Console.Cli" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
-        <ProjectReference Include="..\EntityFramework\EfCoreContext.csproj" />
+        <ProjectReference Include="..\DataContext\DataContext.csproj" />
+        <ProjectReference Include="..\Entity\Entity.csproj" />
     </ItemGroup>
 </Project>

@@ -1,10 +1,13 @@
+using DataContext.DBProvider;
+
 namespace StudioMod.Managers;
 
 public class McpToolManager(
-    IDbContextFactory<DefaultDbContext> dbContextFactory,
+    DefaultDbContext dbContext,
     ILogger<McpToolManager> logger
-) : ManagerBase<DefaultDbContext, McpTool>(dbContextFactory, logger)
+) : ManagerBase<DefaultDbContext, McpTool>(dbContext, logger)
 {
+    protected override ICollection<McpTool> GetCollection() => _dbContext.McpTools;
 
     /// <summary>
     /// 获取工具列表
@@ -16,9 +19,9 @@ public class McpToolManager(
         return tools;
     }
 
-    public override Task<bool> ExistAsync(Guid id)
+    public override async Task<bool> ExistAsync(int id)
     {
-        return base.ExistAsync(id);
+        return await base.ExistAsync(id);
     }
 
     /// <summary>
@@ -50,7 +53,7 @@ public class McpToolManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(int id)
     {
         var entity = await FindAsync(id);
         var res = await base.DeleteAsync([id]);

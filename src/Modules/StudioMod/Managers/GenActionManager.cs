@@ -1,4 +1,5 @@
 using CodeGenerator;
+using DataContext.DBProvider;
 using Mapster;
 using Microsoft.OpenApi;
 using StudioMod.Models.GenActionDtos;
@@ -10,26 +11,28 @@ namespace StudioMod.Managers;
 /// The project's generate action
 /// </summary>
 public class GenActionManager(
-    IDbContextFactory<DefaultDbContext> dbContextFactory,
+    DefaultDbContext dbContext,
     CodeGenService codeGenService,
     ILogger<GenActionManager> logger,
     IProjectContext projectContext,
     CodeAnalysisService codeAnalysis
-) : ManagerBase<DefaultDbContext, GenAction>(dbContextFactory, logger)
+) : ManagerBase<DefaultDbContext, GenAction>(dbContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeGenService _codeGen = codeGenService;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
+
+    protected override ICollection<GenAction> GetCollection() => _dbContext.GenActions;
 
     /// <summary>
     /// 添加实体
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<Guid?> CreateNewEntityAsync(GenActionAddDto dto)
+    public async Task<int?> CreateNewEntityAsync(GenActionAddDto dto)
     {
         var entity = dto.MapTo<GenAction>();
-        entity.ProjectId = _projectContext.SolutionId!.Value;
+        entity.ProjectId = (int)_projectContext.SolutionId!.Value.GetHashCode();
         return await AddAsync(entity) ? entity.Id : null;
     }
 
@@ -48,30 +51,44 @@ public class GenActionManager(
 
     public async Task<PageList<GenActionItemDto>> ToPageAsync(GenActionFilterDto filter)
     {
-        Queryable = Queryable
-            .WhereNotNull(
-                filter.Name,
-                q => q.Name.ToLower().Contains(filter.Name!.Trim().ToLower())
-            )
-            .WhereNotNull(filter.SourceType, q => q.SourceType == filter.SourceType)
-            .WhereNotNull(filter.ProjectId, q => q.ProjectId == filter.ProjectId);
+        var query = Queryable;
+        
+        if (!string.IsNullOrEmpty(filter.Name))
+        {
+            query = query.Where(q => q.Name.ToLower().Contains(filter.Name.Trim().ToLower()));
+        }
+        
+        if (filter.SourceType.HasValue)
+        {
+            query = query.Where(q => q.SourceType == filter.SourceType);
+        }
+        
+        if (filter.ProjectId.HasValue)
+        {
+            query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
+        }
 
+        Queryable = query;
         return await ToPageAsync<GenActionFilterDto, GenActionItemDto>(filter);
     }
 
     /// <summary>
-    /// 获取步骤
+    /// 获取步骤 - 需要手动查询，因为不支持Include
     /// </summary>
     /// <param name="actionId"></param>
     /// <returns></returns>
-    public async Task<List<GenStepItemDto>> GetStepsAsync(Guid actionId)
+    public async Task<List<GenStepItemDto>> GetStepsAsync(int actionId)
     {
-        var data = await Queryable
-            .Where(q => q.Id == actionId)
-            .SelectMany(q => q.GenSteps)
-            .ProjectToType<GenStepItemDto>()
-            .ToListAsync();
-        return data;
+        var actionSteps = _dbContext.GenActionGenSteps
+            .Where(gs => gs.GenActionId == actionId)
+            .ToList();
+        
+        var stepIds = actionSteps.Select(gs => gs.GenStepId).ToList();
+        var steps = _dbContext.GenSteps
+            .Where(s => stepIds.Contains(s.Id))
+            .ToList();
+        
+        return steps.Adapt<List<GenStepItemDto>>();
     }
 
     /// <summary>
@@ -79,7 +96,7 @@ public class GenActionManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<GenActionDetailDto?> GetDetailAsync(Guid id)
+    public async Task<GenActionDetailDto?> GetDetailAsync(int id)
     {
         return await FindAsync<GenActionDetailDto>(e => e.Id == id);
     }
@@ -90,14 +107,10 @@ public class GenActionManager(
     /// <param name="name">唯一标识</param>
     /// <param name="id">排除当前</param>
     /// <returns></returns>
-    public async Task<bool> IsUniqueAsync(string name, Guid? id = null)
+    public async Task<bool> IsUniqueAsync(string name, int? id = null)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        return await context
-            .Set<GenAction>()
-            .Where(q => q.Name == name)
-            .WhereNotNull(id, q => q.Id != id)
-            .AnyAsync();
+        var exists = GetCollection().Any(q => q.Name == name && (id == null || q.Id != id));
+        return !exists;
     }
 
     /// <summary>
@@ -106,7 +119,7 @@ public class GenActionManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public new async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public new async Task<bool> DeleteAsync(List<int> ids, bool softDelete = true)
     {
         return await base.DeleteAsync(ids, softDelete);
     }
@@ -116,13 +129,12 @@ public class GenActionManager(
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<GenAction?> GetOwnedAsync(Guid id)
+    public async Task<GenAction?> GetOwnedAsync(int id)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var query = context.Set<GenAction>().Where(q => q.Id == id);
+        var query = GetCollection().Where(q => q.Id == id);
         // TODO:自定义数据权限验证
         // query = query.Where(q => q.User.Id == _userContext.UserIdKeys);
-        return await query.FirstOrDefaultAsync();
+        return query.FirstOrDefault();
     }
 
     /// <summary>
@@ -131,27 +143,35 @@ public class GenActionManager(
     /// <param name="id"></param>
     /// <param name="stepIds"></param>
     /// <returns></returns>
-    public async Task<bool> AddStepsAsync(Guid id, List<Guid> stepIds)
+    public async Task<bool> AddStepsAsync(int id, List<int> stepIds)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        await context.Database.BeginTransactionAsync();
         try
         {
-            await context.GenActionGenSteps.Where(q => q.GenActionsId == id).ExecuteDeleteAsync();
+            var existingSteps = _dbContext.GenActionGenSteps
+                .Where(q => q.GenActionId == id)
+                .ToList();
+            
+            foreach (var step in existingSteps)
+            {
+                _dbContext.GenActionGenSteps.Remove(step);
+            }
 
             var actionSteps = stepIds.Select(q => new GenActionGenStep
             {
-                GenActionsId = id,
-                GenStepsId = q,
+                GenActionId = id,
+                GenStepId = q,
             });
-            await context.GenActionGenSteps.AddRangeAsync(actionSteps);
-            await context.SaveChangesAsync();
-            await context.Database.CommitTransactionAsync();
+            
+            foreach (var step in actionSteps)
+            {
+                _dbContext.GenActionGenSteps.Add(step);
+            }
+            
+            await _dbContext.SaveChangesAsync();
             return true;
         }
         catch (Exception ex)
         {
-            await context.Database.RollbackTransactionAsync();
             logger.LogError(ex, "Add steps failed");
             return false;
         }
@@ -165,14 +185,16 @@ public class GenActionManager(
     public async Task<GenActionResultDto> ExecuteActionAsync(GenActionRunDto dto)
     {
         var res = new GenActionResultDto();
-        using var context = _dbContextFactory.CreateDbContext();
-        var action = await context
-            .Set<GenAction>()
-            .Where(a => a.Id == dto.Id)
-            .Include(a => a.GenSteps)
-            .SingleAsync();
+        var action = await GetCurrentAsync(dto.Id);
+        if (action == null)
+        {
+            res.Success = false;
+            res.Message = $"Action {dto.Id} not found";
+            return res;
+        }
+
         action.ActionStatus = ActionStatus.InProgress;
-        await context.SaveChangesAsync();
+        await UpdateAsync(action);
 
         // 构建任务执行需要的内容
         var variables = action.Variables;
@@ -180,7 +202,7 @@ public class GenActionManager(
         {
             variables = variables
                 .Concat(dto.Variables)
-                .DistinctBy(variables => variables.Key)
+                .DistinctBy(v => v.Key)
                 .ToList();
         }
         var actionRunModel = new ActionRunModel { Variables = [.. variables] };

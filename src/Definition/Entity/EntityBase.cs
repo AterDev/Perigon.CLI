@@ -1,10 +1,12 @@
+using Perigon.MiniDb;
+
 namespace Entity;
 
-public abstract class EntityBase 
+public abstract class EntityBase : IMicroEntity
 {
     [Key]
-    public Guid Id { get; set; } = Guid.CreateVersion7();
-    public DateTimeOffset CreatedTime { get; set; }
-    public DateTimeOffset UpdatedTime { get; set; }
+    public int Id { get; set; }
+    public DateTime CreatedTime { get; set; }
+    public DateTime UpdatedTime { get; set; }
     public bool IsDeleted { get; set; }
 }

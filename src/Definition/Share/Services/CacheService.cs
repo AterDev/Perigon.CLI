@@ -3,45 +3,34 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Share.Services;
 
 /// <summary>
-/// 内存缓存服务
+/// 简单内存缓存服务
 /// </summary>
-public class CacheService(IMemoryCache cache)
+public class CacheService
 {
-    private readonly IMemoryCache _cache = cache;
-    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(5);
+    private readonly IMemoryCache _cache;
 
-    /// <summary>
-    /// 设置缓存（默认过期时间5分钟）
-    /// </summary>
+    public CacheService(IMemoryCache cache)
+    {
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+    }
+
     public void Set<T>(string key, T value, TimeSpan? expiration = null)
     {
         ArgumentNullException.ThrowIfNull(key);
-
-        if (value is null)
+        var options = new MemoryCacheEntryOptions();
+        if (expiration.HasValue)
         {
-            _cache.Remove(key);
-            return;
+            options.SetSlidingExpiration(expiration.Value);
         }
-
-        var options = new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = expiration ?? DefaultExpiration,
-        };
         _cache.Set(key, value, options);
     }
 
-    /// <summary>
-    /// 获取缓存
-    /// </summary>
     public T? Get<T>(string key)
     {
         ArgumentNullException.ThrowIfNull(key);
         return _cache.TryGetValue(key, out var obj) && obj is T val ? val : default;
     }
 
-    /// <summary>
-    /// 删除缓存
-    /// </summary>
     public void Remove(string key)
     {
         ArgumentNullException.ThrowIfNull(key);

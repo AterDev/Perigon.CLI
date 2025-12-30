@@ -1,4 +1,4 @@
-using CodeGenerator.Helper;
+using DataContext.DBProvider;
 using Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +13,7 @@ namespace Share;
 public static partial class FrameworkExtensions
 {
     /// <summary>
-    /// 添加默认应用组件
-    /// pgsql/redis/otlp
+    /// 添加默认应用组件 for MiniDb
     /// </summary>
     /// <returns></returns>
     public static IHostApplicationBuilder AddFrameworkServices(this IHostApplicationBuilder builder)
@@ -28,28 +27,21 @@ public static partial class FrameworkExtensions
     }
 
     /// <summary>
-    /// 添加数据库上下文
+    /// 添加数据库上下文 - MiniDb
     /// </summary>
     /// <returns></returns>
     public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder)
     {
-        var dir = AssemblyHelper.GetStudioPath();
+        var dir = Path.Combine(AppContext.BaseDirectory, "Data");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        var path = Path.Combine(dir, ConstVal.DbName);
-
-        builder.Services.AddDbContextFactory<DefaultDbContext>(options =>
-        {
-            options.UseSqlite(
-                $"DataSource={path}",
-                _ =>
-                {
-                    _.MigrationsAssembly("AterStudio");
-                }
-            );
-        });
+        
+        var dbPath = Path.Combine(dir, "app.db");
+        builder.Services.AddSingleton(new DefaultDbContext(dbPath));
+        builder.Services.AddScoped<IProjectContext, ProjectContext>();
+        
         return builder;
     }
 }

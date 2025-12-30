@@ -6,7 +6,7 @@ global using AterStudio.Components.Shared;
 global using AterStudio.Components.Shared.Models;
 global using AterStudio.Extension;
 global using Core.Utils;
-global using EfCoreContext.DBProvider;
+global using DataContext.DBProvider;
 global using Entity.StudioMod;
 global using Microsoft.FluentUI.AspNetCore.Components;
 global using Share;

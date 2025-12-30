@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
+using DataContext.DBProvider;
 using Entity;
 using Humanizer;
 
@@ -24,7 +25,7 @@ public class SolutionService(
     /// <param name="solutionPath"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public async Task<Guid> SaveSolutionAsync(string solutionPath, string name)
+    public async Task<int> SaveSolutionAsync(string solutionPath, string name)
     {
         var projectFilePath = Directory
             .GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
@@ -57,7 +58,7 @@ public class SolutionService(
             SolutionType = solutionType,
         };
         entity.Config.SolutionPath = solutionPath;
-        await context.Solutions.AddAsync(entity);
+        context.Solutions.Add(entity);
         await context.SaveChangesAsync();
         return entity.Id;
     }
@@ -193,9 +194,9 @@ public class SolutionService(
     /// <returns></returns>
     public async Task<bool> SaveSyncDataLocalAsync()
     {
-        var actions = await context.GenActions.AsNoTracking().ToListAsync();
-        var steps = await context.GenSteps.AsNoTracking().ToListAsync();
-        var relation = await context.GenActionGenSteps.AsNoTracking().ToListAsync();
+        var actions = context.GenActions.ToList();
+        var steps = context.GenSteps.ToList();
+        var relation = context.GenActionGenSteps.ToList();
 
         var data = new SyncModel
         {

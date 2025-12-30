@@ -52,6 +52,7 @@ Add MCP Server suppport.</PackageReleaseNotes>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Spectre.Console.Cli" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md">

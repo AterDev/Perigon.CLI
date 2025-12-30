@@ -3,15 +3,15 @@ namespace Entity.StudioMod;
 /// <summary>
 /// 操作与步骤中间表
 /// </summary>
-public class GenActionGenStep
+public class GenActionGenStep : EntityBase
 {
-    public Guid GenActionsId { get; set; } = default!;
+    /// <summary>
+    /// GenAction id
+    /// </summary>
+    public int GenActionId { get; set; }
 
-    [ForeignKey(nameof(GenActionsId))]
-    public GenAction GenAction { get; set; } = null!;
-
-    public Guid GenStepsId { get; set; } = default!;
-
-    [ForeignKey(nameof(GenStepsId))]
-    public GenStep GenStep { get; set; } = null!;
+    /// <summary>
+    /// GenStep id
+    /// </summary>
+    public int GenStepId { get; set; }
 }

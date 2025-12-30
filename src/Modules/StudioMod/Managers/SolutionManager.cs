@@ -1,4 +1,4 @@
-using EfCoreContext.DBProvider;
+using DataContext.DBProvider;
 using Share.Models.CommandDtos;
 
 namespace StudioMod.Managers;
@@ -7,16 +7,18 @@ namespace StudioMod.Managers;
 /// Solution manager
 /// </summary>
 public class SolutionManager(
-    IDbContextFactory<DefaultDbContext> dbContextFactory,
+    DefaultDbContext dbContext,
     IProjectContext projectContext,
     ILogger<SolutionManager> logger,
     CommandService commandService,
     SolutionService solution
-) : ManagerBase<DefaultDbContext, Solution>(dbContextFactory, logger)
+) : ManagerBase<DefaultDbContext, Solution>(dbContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CommandService _commandService = commandService;
     private readonly SolutionService _solution = solution;
+
+    protected override ICollection<Solution> GetCollection() => _dbContext.Solutions;
 
     /// <summary>
     /// 创建新解决方案
@@ -33,20 +35,19 @@ public class SolutionManager(
     /// <returns></returns>
     public async Task<List<Solution>> ListAsync()
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var dbSet = context.Set<Solution>();
-        var projects = await dbSet.ToListAsync();
-        for (int i = 0; i < projects.Count; i++)
+        var collection = GetCollection();
+        var projects = collection.ToList();
+        for (int i = projects.Count - 1; i >= 0; i--)
         {
             var p = projects[i];
             // 移除不存在的项目
             if (!Directory.Exists(p.Path))
             {
-                dbSet.Remove(p);
-                projects.Remove(p);
+                collection.Remove(p);
+                projects.RemoveAt(i);
             }
-            await context.SaveChangesAsync();
         }
+        await _dbContext.SaveChangesAsync();
         return projects;
     }
 
@@ -61,7 +62,7 @@ public class SolutionManager(
     /// <param name="name"></param>
     /// <param name="projectPath"></param>
     /// <returns></returns>
-    public async Task<Guid?> AddProjectAsync(string name, string projectPath)
+    public async Task<int?> AddProjectAsync(string name, string projectPath)
     {
         return await _commandService.AddProjectAsync(name, projectPath);
     }

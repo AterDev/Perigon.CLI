@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Entity.StudioMod;
 
 /// <summary>
@@ -8,19 +10,45 @@ public class McpTool : EntityBase
     [Required]
     [MaxLength(40)]
     [RegularExpression("^[a-z0-9_-]+$")]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(300)]
-    public required string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     [MaxLength(300)]
-    public required string PromptPath { get; set; }
+    public string PromptPath { get; set; } = string.Empty;
 
-    public string[] TemplatePaths { get; set; } = [];
+    /// <summary>
+    /// TemplatePaths stored as JSON string
+    /// </summary>
+    [MaxLength(1000)]
+    public string TemplatePathsJsonString { get; set; } = string.Empty;
 
-    public Solution Project { get; set; } = default!;
+    /// <summary>
+    /// template paths
+    /// </summary>
+    [NotMapped]
+    public string[] TemplatePaths
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(TemplatePathsJsonString))
+                return [];
 
-    [ForeignKey(nameof(Project))]
-    public Guid ProjectId { get; set; }
+            return JsonSerializer.Deserialize<string[]>(TemplatePathsJsonString) ?? [];
+        }
+        set
+        {
+            if (value == null || value.Length == 0)
+                TemplatePathsJsonString = string.Empty;
+            else
+                TemplatePathsJsonString = JsonSerializer.Serialize(value);
+        }
+    }
+
+    /// <summary>
+    /// project id
+    /// </summary>
+    public int ProjectId { get; set; }
 }

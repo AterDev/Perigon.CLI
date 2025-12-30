@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
+using DataContext.DBProvider;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
 namespace AterStudio.McpTools;
 
-public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
+public class McpToolsHandler(DefaultDbContext dbContext)
 {
     public async ValueTask<ListToolsResult> ListToolsHandler(
         RequestContext<ListToolsRequestParams> request,
@@ -13,8 +13,7 @@ public class McpToolsHandler(IDbContextFactory<DefaultDbContext> dbContext)
     {
         var result = new ListToolsResult();
         var defaultTools = request.Server.ServerOptions.ToolCollection ?? [];
-        using var context = dbContext.CreateDbContext();
-        var tools = await context.McpTools.ToListAsync();
+        var tools = dbContext.McpTools.ToList();
 
         foreach (var tool in tools)
         {

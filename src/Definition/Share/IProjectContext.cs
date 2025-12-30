@@ -5,7 +5,7 @@ namespace Share;
 /// </summary>
 public interface IProjectContext
 {
-    Guid? SolutionId { get; set; }
+    int? SolutionId { get; set; }
     string? SolutionPath { get; set; }
     string? SharePath { get; set; }
     string? CommonModPath { get; set; }
@@ -35,5 +35,5 @@ public interface IProjectContext
     string GetModulePath(string? moduleName = null);
 
     Task SetProjectAsync(string solutionPath);
-    Task SetProjectByIdAsync(Guid id);
+    Task SetProjectByIdAsync(int id);
 }
