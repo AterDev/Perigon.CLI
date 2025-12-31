@@ -25,8 +25,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\StudioMod\StudioMod.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-    <Folder Include="Worker\" />
-  </ItemGroup>
 </Project>

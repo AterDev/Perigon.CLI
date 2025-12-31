@@ -1,8 +1,6 @@
-﻿using Perigon.MiniDb;
+﻿namespace DataContext.DBProvider;
 
-namespace DataContext.DBProvider;
-
-public class DefaultDbContext(string dbPath) : MicroDbContext(dbPath)
+public class DefaultDbContext() : MiniDbContext()
 {
     public DbSet<Solution> Solutions { get; set; } = null!;
     public DbSet<GenAction> GenActions { get; set; } = null!;

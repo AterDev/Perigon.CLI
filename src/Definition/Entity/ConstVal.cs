@@ -20,7 +20,7 @@ public static class ConstVal
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public const string DbName = "perigon.db";
+    public const string DbName = "perigon.mds";
     public const string StudioFileName = "AterStudio.dll";
 
     // assembly name
@@ -42,8 +42,8 @@ public static class ConstVal
     public const string TemplateDir = "templates";
     public const string ShareDlls = "ShareDlls.txt";
     public const string ServicesDir = "Services";
-    public const string AterDir = "Perigon";
-    public const string StudioDir = "DryStudio";
+    public const string PerigonDir = "Perigon";
+    public const string StudioDir = "PerigonStudio";
     public const string AppHostDir = "AppHost";
 
     // names
@@ -129,6 +129,6 @@ public static class PathConst
         ConstVal.ServicesDir
     );
     public static readonly string AppHostPath = Path.Combine(ConstVal.SrcDir, ConstVal.AppHostDir);
-    public static readonly string AterPath = Path.Combine(ConstVal.SrcDir, ConstVal.AterDir);
+    public static readonly string AterPath = Path.Combine(ConstVal.SrcDir, ConstVal.PerigonDir);
     public static readonly string PromptPath = Path.Combine(".github", "prompts");
 }

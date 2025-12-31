@@ -1,8 +1,9 @@
-using DataContext.DBProvider;
+using CodeGenerator.Helper;
 using Entity;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Perigon.MiniDb;
 using Share.Services;
 
 namespace Share;
@@ -32,15 +33,18 @@ public static partial class FrameworkExtensions
     /// <returns></returns>
     public static IHostApplicationBuilder AddDbContext(this IHostApplicationBuilder builder)
     {
-        var dir = Path.Combine(AppContext.BaseDirectory, "Data");
+        var dir = AssemblyHelper.GetStudioPath();
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        
-        var dbPath = Path.Combine(dir, "app.db");
-        builder.Services.AddSingleton(new DefaultDbContext(dbPath));
-        builder.Services.AddScoped<IProjectContext, ProjectContext>();
+        var path = Path.Combine(dir, ConstVal.DbName);
+
+        MiniDbConfiguration.AddDbContext<DefaultDbContext>(config =>
+        {
+            config.UseMiniDb(path);
+        });
+        builder.Services.AddSingleton<DefaultDbContext>();
         
         return builder;
     }
