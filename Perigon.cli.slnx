@@ -34,7 +34,8 @@
   <Folder Name="/src/Services/">
     <Project Path="src\Services\AterStudio\AterStudio.csproj" />
   </Folder>
-
-  <Folder Name="/test/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/StudioMod.Tests/StudioMod.Tests.csproj" />
+  </Folder>
 
 </Solution>

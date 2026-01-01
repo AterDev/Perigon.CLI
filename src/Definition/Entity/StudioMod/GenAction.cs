@@ -33,7 +33,24 @@ public class GenAction : EntityBase
     /// Variables stored as JSON string
     /// </summary>
     [MaxLength(5000)]
-    public string VariablesJsonString { get; set; } = string.Empty;
+    public string VariablesJsonString
+    {
+        get
+        {
+            if (_variables != null)
+            {
+                return JsonSerializer.Serialize(_variables);
+            }
+            return field;
+        }
+        set
+        {
+            field = value;
+            _variables = null;
+        }
+    } = string.Empty;
+
+    private List<Variable>? _variables;
 
     /// <summary>
     /// action variables
@@ -43,17 +60,18 @@ public class GenAction : EntityBase
     {
         get
         {
-            if (string.IsNullOrEmpty(VariablesJsonString))
-                return [];
-
-            return JsonSerializer.Deserialize<List<Variable>>(VariablesJsonString) ?? [];
+            if (_variables == null)
+            {
+                if (string.IsNullOrEmpty(VariablesJsonString))
+                    _variables = [];
+                else
+                    _variables = JsonSerializer.Deserialize<List<Variable>>(VariablesJsonString) ?? [];
+            }
+            return _variables;
         }
         set
         {
-            if (value == null || value.Count == 0)
-                VariablesJsonString = string.Empty;
-            else
-                VariablesJsonString = JsonSerializer.Serialize(value);
+            _variables = value;
         }
     }
 

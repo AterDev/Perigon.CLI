@@ -189,10 +189,7 @@ public partial class OpenApi
 
     private void OpenModelInfoDialog(string modelName)
     {
-        Console.WriteLine("modelName:" + modelName);
         var model = ModelList.Where(m => m.FullName == modelName).FirstOrDefault();
-
-        Console.WriteLine(model?.Name);
         if (model != null)
         {
             SelectedModel = model;

@@ -29,7 +29,7 @@ It is provided as a `dotnet` command-line tool and also supports a `Web UI` and 
 
 ### Support for ASP.NET Core
 
-The dry command-line tool can assist developers in generating common code templates based on entity models (.cs files), including:
+The command-line tool can assist developers in generating common code templates based on entity models (.cs files), including:
 
 - DTO files, such as create, update, query, list DTO files
 - Repository files, data repository layer code
@@ -67,7 +67,7 @@ Use the `dotnet tool` command to install:
 dotnet tool install --global perigon.cli
 ```
 
-You can check the latest version on [nuget](https://www.nuget.org/packages/ater.dry.cli)!
+You can check the latest version on [nuget](https://www.nuget.org/packages/perigon.cli)!
 
 
 ## Usage

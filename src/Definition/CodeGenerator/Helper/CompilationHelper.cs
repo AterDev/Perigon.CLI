@@ -13,6 +13,7 @@ public class CompilationHelper
     public CompilationUnitSyntax? SyntaxRoot { get; set; }
 
     public string EntityPath { get; set; }
+    private List<string>? _enumClasses;
 
     /// <summary>
     /// ctor
@@ -189,12 +190,17 @@ public class CompilationHelper
     /// <returns></returns>
     public List<string> GetAllEnumClasses()
     {
-        // TODO:枚举可以存储，不用每次获取
-        return AllClass
+        if (_enumClasses != null)
+        {
+            return _enumClasses;
+        }
+
+        _enumClasses = AllClass
             .Where(c => c.BaseType != null && c.BaseType.Name.Equals("Enum"))
             .Select(c => c.Name)
             .Distinct()
             .ToList();
+        return _enumClasses;
     }
 
     public INamedTypeSymbol? GetEnum(string name)

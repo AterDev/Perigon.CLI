@@ -205,7 +205,7 @@
     <value>解决方案类型</value>
   </data>
   <data name="StudioDes" xml:space="preserve">
-    <value>开启Dry Studio</value>
+    <value>启动Perigon Studio</value>
   </data>
   <data name="Tools" xml:space="preserve">
     <value>工具</value>

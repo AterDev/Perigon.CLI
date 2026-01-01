@@ -5,14 +5,10 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>perigon</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <AssemblyVersion>10.0.0</AssemblyVersion>
     <PackageId>Perigon.CLI</PackageId>
-    <Version>10.0.0</Version>
-    <Description>The Perigon CLI tool  for .NET Web developer. It provider:
-1. Well-Designed AspNetCore Template 
-2. Code Generator include MCP Server support
-3. Custom Code generation and MCP Tool.
-4. More productive function.</Description>
+    <Version>10.0.1</Version>
+    <Description>1. fix studio doc url;
+2. remove sqlite and ef core，reduce package from 17mb to 10mb</Description>
     <Authors>NilTor</Authors>
     <Company>Atersoft</Company>
     <Copyright>Atersoft</Copyright>

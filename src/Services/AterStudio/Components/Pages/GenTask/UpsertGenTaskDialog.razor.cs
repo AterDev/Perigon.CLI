@@ -68,11 +68,13 @@ public partial class UpsertGenTaskDialog : IDisposable
     private void AddVariable()
     {
         Model.Variables.Add(new Variable { Key = string.Empty, Value = string.Empty });
+        StateHasChanged();
     }
 
     private void RemoveVariable(Variable variable)
     {
         Model.Variables.Remove(variable);
+        StateHasChanged();
     }
 
     private void OnStepSearch(OptionsSearchEventArgs<GenStepItemDto> e)
