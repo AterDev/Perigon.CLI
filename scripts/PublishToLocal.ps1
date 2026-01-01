@@ -22,17 +22,6 @@ try {
     $Version = $VersionNode.Node.InnerText
     $PackageId = $PackageNode.Node.InnerText
 
-    # 支持的runtimes
-    $supportRuntimes = @(
-        "win",
-        "linux-arm64",
-        "linux-x64",
-        "win-x64",
-        "win-arm64",
-        "osx-x64",
-        "osx-arm64"
-    );
-
     # sync studio version
     Set-Location $location
     $studioProjectPath = Join-Path $studioPath "AterStudio.csproj";
@@ -110,16 +99,6 @@ try {
     $zipPackName = $newPackName.Replace(".nupkg", ".zip")
     Rename-Item -Path "./nupkg/$newPackName" -NewName "$zipPackName"
     Expand-Archive -Path "./nupkg/$zipPackName" -DestinationPath "./nupkg/$Version"
-
-    # remove some runtimes
-    if (Test-Path -Path "./nupkg/$Version/tools/$dotnetVersion/any/runtimes") {
-        $runtimes = Get-ChildItem -Path "./nupkg/$Version/tools/$dotnetVersion/any/runtimes" -Directory
-        foreach ($runtime in $runtimes) {
-            if ($supportRuntimes -notcontains $runtime.Name) {
-                Remove-Item -Path $runtime.FullName -Recurse -Force
-            }
-        }
-    }
 
     ## 移除pdb文件
     $files = Get-ChildItem -Path "./nupkg/$Version/tools/$dotnetVersion/any" -Recurse -Include *.pdb
