@@ -46,6 +46,10 @@ public class OutputHelper
     {
         AnsiConsole.MarkupLineInterpolated($"{message}");
     }
+    public static void Debug(string message)
+    {
+        AnsiConsole.MarkupLineInterpolated($"[[Dbg]] [gray]{message}[/]");
+    }
 
     public static void Important(string message)
     {
