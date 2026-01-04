@@ -1,71 +1,74 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>perigon</ToolCommandName>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
-    <PackageId>Perigon.CLI</PackageId>
-    <Version>10.0.1</Version>
-    <Description>1. fix studio doc url;
-2. remove sqlite and ef core，reduce package from 17mb to 10mb</Description>
-    <Authors>NilTor</Authors>
-    <Company>Atersoft</Company>
-    <Copyright>Atersoft</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AterDev/Perigon.CLI</PackageProjectUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/AterDev/Perigon.CLI</RepositoryUrl>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>New Version based on  .NET 10.
-Add MCP Server suppport.</PackageReleaseNotes>
-    <PackageIcon>logo.png</PackageIcon>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>ater;cli;code generate;angular;webapi;asp.net core</PackageTags>
-    <Nullable>enable</Nullable>
-    <Title>Perigon.CLI</Title>
-    <PublishTrimmed>False</PublishTrimmed>
-    <SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>None</DebugType>
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="studio.zip" Condition="Exists('studio.zip')">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ShareDlls.txt" Condition="Exists('ShareDlls.txt')">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Spectre.Console.Cli" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="nupkg\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="logo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>perigon</ToolCommandName>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <PackageId>Perigon.CLI</PackageId>
+        <Version>10.0.1</Version>
+        <Description>
+            1. fix studio doc url;
+            2. remove sqlite and ef core，reduce package from 17mb to 10mb
+        </Description>
+        <Authors>NilTor</Authors>
+        <Company>Atersoft</Company>
+        <Copyright>Atersoft</Copyright>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/AterDev/Perigon.CLI</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/AterDev/Perigon.CLI</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes>
+            New Version based on  .NET 10.
+            Add MCP Server suppport.
+        </PackageReleaseNotes>
+        <PackageIcon>logo.png</PackageIcon>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>ater;cli;code generate;angular;webapi;asp.net core</PackageTags>
+        <Nullable>enable</Nullable>
+        <Title>Perigon.CLI</Title>
+        <SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>None</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="studio.zip" Condition="Exists('studio.zip')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="ShareDlls.txt" Condition="Exists('ShareDlls.txt')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Spectre.Console.Cli" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="nupkg\" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="logo.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

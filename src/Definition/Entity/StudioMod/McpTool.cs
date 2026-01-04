@@ -23,7 +23,24 @@ public class McpTool : EntityBase
     /// TemplatePaths stored as JSON string
     /// </summary>
     [MaxLength(1000)]
-    public string TemplatePathsJsonString { get; set; } = string.Empty;
+    public string TemplatePathsJsonString
+    {
+        get
+        {
+            if (_templatePaths != null)
+            {
+                return JsonSerializer.Serialize(_templatePaths);
+            }
+            return field;
+        }
+        set
+        {
+            field = value;
+            _templatePaths = null;
+        }
+    } = string.Empty;
+
+    private string[]? _templatePaths;
 
     /// <summary>
     /// template paths
@@ -33,17 +50,18 @@ public class McpTool : EntityBase
     {
         get
         {
-            if (string.IsNullOrEmpty(TemplatePathsJsonString))
-                return [];
-
-            return JsonSerializer.Deserialize<string[]>(TemplatePathsJsonString) ?? [];
+            if (_templatePaths == null)
+            {
+                if (string.IsNullOrEmpty(TemplatePathsJsonString))
+                    _templatePaths = [];
+                else
+                    _templatePaths = JsonSerializer.Deserialize<string[]>(TemplatePathsJsonString) ?? [];
+            }
+            return _templatePaths;
         }
         set
         {
-            if (value == null || value.Length == 0)
-                TemplatePathsJsonString = string.Empty;
-            else
-                TemplatePathsJsonString = JsonSerializer.Serialize(value);
+            _templatePaths = value;
         }
     }
 

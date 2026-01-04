@@ -12,7 +12,6 @@ public class CompilationHelper
     public IEnumerable<INamedTypeSymbol> AllClass { get; set; }
     public CompilationUnitSyntax? SyntaxRoot { get; set; }
 
-    public string EntityPath { get; set; }
     private List<string>? _enumClasses;
 
     /// <summary>
@@ -24,7 +23,6 @@ public class CompilationHelper
     {
         string suffix = DateTime.Now.ToString("HHmmss");
         Compilation = CSharpCompilation.Create("tmp" + suffix);
-        EntityPath = path;
         AddDllReferences(path, dllFilter);
         AllClass = GetAllClasses();
     }

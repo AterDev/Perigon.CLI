@@ -1,12 +1,8 @@
-using Entity;
-
 namespace CodeGenerator.Helper;
 
 public class DbContextAnalysisHelper
 {
     public CompilationHelper CompilationHelper { get; init; }
-    public string ProjectName { get; init; }
-    public string DllPath { get; init; }
     public string? BaseDbContextName { get; init; }
     public List<INamedTypeSymbol> DbContextNamedTypeSymbols { get; init; }
 
@@ -17,24 +13,7 @@ public class DbContextAnalysisHelper
     /// <exception cref="FileNotFoundException"></exception>
     public DbContextAnalysisHelper(string path)
     {
-        var csproj = Directory
-            .GetFiles(path, $"*{ConstVal.CSharpProjectExtension}")
-            .FirstOrDefault();
-        if (csproj == null)
-        {
-            throw new FileNotFoundException("No .csproj file found in the specified path.", path);
-        }
-        ProjectName = Path.GetFileNameWithoutExtension(csproj);
-        DllPath = GetProjectDllPath(path, ProjectName);
-        if (string.IsNullOrEmpty(DllPath))
-        {
-            throw new FileNotFoundException(
-                "Could not find project output DLL. Make sure the project is built in Debug configuration.",
-                $"{ProjectName}.dll"
-            );
-        }
-
-        CompilationHelper = new CompilationHelper(Path.GetDirectoryName(DllPath)!);
+        CompilationHelper = new CompilationHelper(path);
         BaseDbContextName = GetBaseDbContextName();
         DbContextNamedTypeSymbols = GetDbContextTypes();
     }

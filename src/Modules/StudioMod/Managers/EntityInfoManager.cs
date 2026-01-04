@@ -184,13 +184,6 @@ public partial class EntityInfoManager(
         List<GenFileInfo> files = [];
         try
         {
-            EntityInfo? entityInfo = null;
-
-            var entityParseHelper = new EntityParseHelper(dto.EntityPath);
-            entityInfo = await entityParseHelper.ParseEntityAsync();
-
-            // MiniDb doesn't require EFCore context analysis
-            // Load entity directly from the file path
             var entityName = Path.GetFileNameWithoutExtension(dto.EntityPath);
             if (string.IsNullOrEmpty(entityName))
             {
@@ -199,6 +192,10 @@ public partial class EntityInfoManager(
                 );
                 return files;
             }
+
+            var entityParseHelper = new EntityParseHelper(dto.EntityPath);
+            var entityInfo = await entityParseHelper.ParseEntityAsync();
+            entityParseHelper.LoadEntityDbContext(projectContext.EntityFrameworkPath!, entityInfo!);
 
             if (entityInfo == null)
             {

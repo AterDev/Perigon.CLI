@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
-using DataContext.DBProvider;
 using Entity;
 using Humanizer;
 
@@ -842,4 +841,5 @@ public class SolutionService(
         }
         return isMultiTenant;
     }
+
 }

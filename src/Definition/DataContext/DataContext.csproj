@@ -5,10 +5,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-
-    <ItemGroup>
-        <!--<PackageReference Include="Perigon.MiniDb" />-->
-    </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Entity\Entity.csproj" />
     </ItemGroup>

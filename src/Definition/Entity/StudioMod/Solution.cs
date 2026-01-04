@@ -40,7 +40,24 @@ public class Solution : EntityBase
     /// project config - stored as JSON string
     /// </summary>
     [MaxLength(2000)]
-    public string ConfigJsonString { get; set; } = string.Empty;
+    public string ConfigJsonString
+    {
+        get
+        {
+            if (_config != null)
+            {
+                return JsonSerializer.Serialize(_config);
+            }
+            return field;
+        }
+        set
+        {
+            field = value;
+            _config = null;
+        }
+    } = string.Empty;
+
+    private SolutionConfig? _config;
 
     /// <summary>
     /// project config
@@ -50,17 +67,18 @@ public class Solution : EntityBase
     {
         get
         {
-            if (string.IsNullOrEmpty(ConfigJsonString))
-                return new SolutionConfig();
-
-            return JsonSerializer.Deserialize<SolutionConfig>(ConfigJsonString) ?? new SolutionConfig();
+            if (_config == null)
+            {
+                if (string.IsNullOrEmpty(ConfigJsonString))
+                    _config = new SolutionConfig();
+                else
+                    _config = JsonSerializer.Deserialize<SolutionConfig>(ConfigJsonString) ?? new SolutionConfig();
+            }
+            return _config;
         }
         set
         {
-            if (value == null)
-                ConfigJsonString = string.Empty;
-            else
-                ConfigJsonString = JsonSerializer.Serialize(value);
+            _config = value;
         }
     }
 

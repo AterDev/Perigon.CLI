@@ -172,6 +172,13 @@ public class EntityParseHelper
         return null;
     }
 
+    public void LoadEntityDbContext(string entityFrameworkPath, EntityInfo entityInfo)
+    {
+        var helper = new DbContextAnalysisHelper(entityFrameworkPath);
+        entityInfo.DbContextName = helper.GetDbContextType(entityInfo.Name)?.Name;
+        entityInfo.DbContextSpaceName = $"{ConstVal.EntityFrameworkName}.{ConstVal.AppDbContextName}";
+    }
+
     /// <summary>
     /// 获取枚举members
     /// </summary>
@@ -716,7 +723,7 @@ public class EntityParseHelper
         return baseType != null
             && (
                 baseType.Name == baseName
-                || baseType.BaseType != null && HasBaseType(baseType.BaseType, baseName)
+                || (baseType.BaseType != null && HasBaseType(baseType.BaseType, baseName))
             );
     }
 }
