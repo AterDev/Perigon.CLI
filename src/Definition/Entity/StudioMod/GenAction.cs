@@ -32,7 +32,7 @@ public class GenAction : EntityBase
     /// <summary>
     /// Variables stored as JSON string
     /// </summary>
-    [MaxLength(5000)]
+    [MaxLength(2000)]
     public string VariablesJsonString
     {
         get

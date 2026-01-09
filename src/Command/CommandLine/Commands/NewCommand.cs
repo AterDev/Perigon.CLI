@@ -1,8 +1,8 @@
-using System.ComponentModel;
 using Share;
 using Share.Helper;
 using Share.Models.CommandDtos;
 using Share.Services;
+using System.ComponentModel;
 
 namespace CommandLine.Commands;
 
@@ -138,6 +138,11 @@ public class NewCommand(Localizer localizer, CommandService commandService)
                 CacheConnStrings = string.Empty,
                 FrontType = frontType == Localizer.None ? FrontType.None : FrontType.Angular,
             };
+
+            if (dto.Path == "./")
+            {
+                dto.Path = Path.Combine(Environment.CurrentDirectory, dto.Path);
+            }
             await commandService.CreateSolutionAsync(dto);
             OutputHelper.Success(localizer.Get(Localizer.CreateSolutionSuccess));
         }

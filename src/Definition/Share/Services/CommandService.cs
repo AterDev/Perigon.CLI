@@ -106,8 +106,17 @@ public class CommandService(
         }
         OutputHelper.Success($"Created new solution {solutionPath}");
 
-        var id = await solutionService.SaveSolutionAsync(solutionPath, dto.Name);
-        await projectContext.SetProjectByIdAsync(id);
+        try
+        {
+            var id = await solutionService.SaveSolutionAsync(solutionPath, dto.Name);
+            await projectContext.SetProjectByIdAsync(id);
+        }
+        catch (Exception ex)
+        {
+            OutputHelper.Error($"Failed to save solution: {ex.Message}");
+            ErrorMsg = $"Failed to save solution: {ex.Message}";
+            return false;
+        }
 
         OutputHelper.Important($"Apply settings...");
 

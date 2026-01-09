@@ -12,12 +12,6 @@ public class GenStep : EntityBase
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// 生成内容
-    /// </summary>
-    [MaxLength(100_000)]
-    public string? OutputContent { get; set; }
-
-    /// <summary>
     /// 模板路径
     /// </summary>
     [MaxLength(400)]
