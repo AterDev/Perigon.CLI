@@ -68,19 +68,13 @@ public class CommandService(
 
         string version = AssemblyHelper.GetCurrentToolVersion();
 
-        if (ProcessHelper.RunCommand("dotnet", $"new list {templateType}", out _))
-        {
-            ProcessHelper.RunCommand("dotnet", $"new update", out _);
-        }
-        else
-        {
-            ProcessHelper.RunCommand(
-                "dotnet",
-                $"new install {ConstVal.TemplatePackageId}::{ConstVal.TemplateVersion}",
-                out string msg
-            );
-            OutputHelper.Info(msg);
-        }
+        ProcessHelper.RunCommand(
+            "dotnet",
+            $"new install {ConstVal.TemplatePackageId}",
+            out string msg
+        );
+        OutputHelper.Info(msg);
+
 
         if (!Directory.Exists(dto.Path))
         {
