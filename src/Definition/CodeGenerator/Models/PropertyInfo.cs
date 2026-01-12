@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CodeGenerator.Models;
 
-public class PropertyInfo
+public record PropertyInfo
 {
     /// <summary>
     /// 类型

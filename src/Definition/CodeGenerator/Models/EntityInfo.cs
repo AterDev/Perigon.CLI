@@ -122,6 +122,7 @@ public class EntityInfo
                 .Where(p => p.IsRequired || p.IsIndex || p.IsEnum || p.Type.Equals("bool"))
                 .Where(p => !IgnoreProperties.Contains(p.Name) && !IgnoreTypes.Contains(p.Type))
                 .Where(p => p.MaxLength is not (not null and > 100))
+                .Select(p => p with { })
                 .ToList() ?? [];
     }
 }

@@ -6,11 +6,11 @@ namespace Entity;
 public static class ConstVal
 {
     public const string CommandName = "perigon";
-    public const string Version = "10.0.0";
+    public const string Version = "10.0.5";
     public const string NetVersion = "net10.0";
     public const string PackageId = "perigon.cli";
     public const string TemplatePackageId = "Perigon.templates";
-    public const string TemplateVersion = "1.0.1";
+    public const string TemplateVersion = "1.0.3";
 
     public const string Mini = "mini";
     public const string WebApi = "perigon-webapi";

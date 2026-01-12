@@ -74,6 +74,7 @@ public partial class DtoCodeGenerate
                     .Where(p => !p.IsJsonIgnore && !p.IsNavigation)
                     .Where(p => !EntityInfo.IgnoreTypes.Contains(p.Type))
                     .Where(p => !(p.IsList && p.IsNavigation))
+                    .Select(p => p with { })
                     .ToList() ?? [],
         };
 
@@ -105,6 +106,7 @@ public partial class DtoCodeGenerate
                         && (!p.Name.EndsWith("Id") || p.Name.Equals("Id"))
                         && !p.IsNavigation
                     )
+                    .Select(p => p with { })
                     .ToList() ?? [],
         };
 
@@ -163,6 +165,7 @@ public partial class DtoCodeGenerate
                         && !EntityInfo.IgnoreTypes.Contains(p.Type)
                         && !EntityInfo.IgnoreProperties.Contains(p.Name)
                     )
+                    .Select(p => p with { })
                     .ToList() ?? [],
         };
 
@@ -201,6 +204,7 @@ public partial class DtoCodeGenerate
                     && !EntityInfo.IgnoreTypes.Contains(p.Type)
                     && !EntityInfo.IgnoreProperties.Contains(p.Name)
                 )
+                .Select(p => p with { })
                 .ToList(),
         };
 

@@ -6,11 +6,10 @@
         <ToolCommandName>perigon</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <PackageId>Perigon.CLI</PackageId>
-        <Version>10.0.3</Version>
+        <Version>10.0.4</Version>
         <Description>
-            1. fix path when create solution using cli.
-            2. fix mds file too large size.
-        </Description>
+			1. fix property generation bug.
+		</Description>
         <Authors>NilTor</Authors>
         <Company>Atersoft</Company>
         <Copyright>Atersoft</Copyright>

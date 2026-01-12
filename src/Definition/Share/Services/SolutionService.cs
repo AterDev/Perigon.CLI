@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using CodeGenerator;
 using CodeGenerator.Helper;
 using Entity;
 using Humanizer;
+using System.Diagnostics;
 
 namespace Share.Services;
 
@@ -516,6 +516,7 @@ public class SolutionService(
                     {
                         var controllerFile = Path.Combine(
                             controllersDir,
+                            moduleName,
                             $"{entityName}{ConstVal.Controller}.cs"
                         );
                         if (File.Exists(controllerFile))

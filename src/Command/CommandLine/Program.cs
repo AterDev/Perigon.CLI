@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using CommandLine;
 using CommandLine.Commands;
 using Entity;
@@ -8,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Share;
 using Share.Helper;
 using Share.Services;
+using System.Globalization;
+using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 

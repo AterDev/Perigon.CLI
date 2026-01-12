@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Server;
+using System.ComponentModel;
 
 namespace AterStudio.McpTools;
 
@@ -21,6 +21,7 @@ public static class Prompts
             如果模块不存在(`src/Modules`下没有对应模块)，则调用创建模块的工具先创建模块，再创建实体模型；
 
             创建一个C#实体模型类，要遵循以下规范:
+            0 要遵循EF Core实体定义规范，包括关联关系的定义；
             1 命名空间必须使用文件范围命名空间;
             2 继承`EntityBase`类，它包含了Id/IsDelete/CreatedTime/UpdatedTime/TenantId等基础属性;
             3 所有属性要添加 xml 注释，注释语言根据用户输入决定；
@@ -30,6 +31,7 @@ public static class Prompts
             7 所有string类型，都要添加[MaxLength]标签，请根据字段含义自行设定；
             8 如果是List类型，默认使用默认值`= []`;
             9 将枚举类型定义跟实体类型定义放在同一个文件中，枚举类型放在实体类型的后面；
+            10 多对多的关系要添加中间表实体类，并定义导航属性外键，EF Core会自动创建外键，无需手动添加Index特性；
             
             </rules>
             """

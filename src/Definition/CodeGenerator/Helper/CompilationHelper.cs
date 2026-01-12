@@ -469,7 +469,7 @@ public class CompilationHelper
                 .FirstOrDefault(p => p.ToString().Contains(propertyContent));
             if (propertyNode != null)
             {
-                SyntaxRoot = SyntaxRoot.RemoveNode(propertyNode, SyntaxRemoveOptions.KeepNoTrivia);
+                SyntaxRoot = SyntaxRoot.RemoveNode(propertyNode, SyntaxRemoveOptions.KeepExteriorTrivia);
                 ClassNode = SyntaxRoot!
                     .DescendantNodes()
                     .OfType<ClassDeclarationSyntax>()

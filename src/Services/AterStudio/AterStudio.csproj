@@ -6,7 +6,7 @@
     <SpaProxyServerUrl>http://localhost:9160</SpaProxyServerUrl>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>10.0.3</Version>
+    <Version>10.0.4</Version>
     <SatelliteResourceLanguages>zh-CN;en-US</SatelliteResourceLanguages>
     <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
     <CompressionEnabled>false</CompressionEnabled>
