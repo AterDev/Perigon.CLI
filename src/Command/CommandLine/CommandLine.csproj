@@ -6,7 +6,7 @@
 		<ToolCommandName>perigon</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 		<PackageId>Perigon.CLI</PackageId>
-		<Version>10.0.5</Version>
+		<Version>10.0.6</Version>
 		<Description>
 			1. fix property generation bug.
 		</Description>
@@ -18,10 +18,7 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/AterDev/Perigon.CLI</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageReleaseNotes>
-			New Version based on  .NET 10.
-			Add MCP Server suppport.
-		</PackageReleaseNotes>
+		<PackageReleaseNotes>improve module remove</PackageReleaseNotes>
 		<PackageIcon>logo.png</PackageIcon>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AssemblyName>$(MSBuildProjectName)</AssemblyName>
