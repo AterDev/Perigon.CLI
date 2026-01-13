@@ -126,7 +126,7 @@ public class TplContent
                 {
                     @(Model.AddCodes)
                     var entity = await _manager.AddAsync(dto);
-                    return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
+                    return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
                 }
 
                 /// <summary>
