@@ -483,7 +483,9 @@ public class SolutionService(
                                     $"[2] remove DbSet<{entityName}> {plural} from {dbContextFileName}!"
                                 );
                             }
+                            compilation.RemoveOnModelCreating(entityName);
                         }
+
 
                         dbContextContent = compilation.SyntaxRoot!.ToFullString();
                         // 命名空间移除
@@ -524,6 +526,16 @@ public class SolutionService(
                             File.Delete(controllerFile);
                         }
                     }
+                }
+                var globalUsingsFile = Path.Combine(
+                    serviceDir,
+                    ConstVal.GlobalUsingsFile
+                );
+                if (File.Exists(globalUsingsFile))
+                {
+                    var lines = File.ReadAllLines(globalUsingsFile).ToList();
+                    lines = lines.Where(line => !line.Contains($"{moduleName}")).ToList();
+                    File.WriteAllLines(globalUsingsFile, lines);
                 }
                 // 移除引用
                 var serviceProjectFile = Directory.GetFiles(

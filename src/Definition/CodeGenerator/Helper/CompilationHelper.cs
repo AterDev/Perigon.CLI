@@ -479,9 +479,41 @@ public class CompilationHelper
     }
 
     /// <summary>
+    /// 移除 OnModelCreating 中的配置
+    /// </summary>
+    /// <param name="entityName"></param>
+    public void RemoveOnModelCreating(string entityName)
+    {
+        if (SyntaxTree != null && SyntaxRoot != null)
+        {
+            var method = SyntaxRoot.DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .FirstOrDefault(m => m.Identifier.Text == "OnModelCreating");
+
+            if (method != null)
+            {
+                var statementsToRemove = method.DescendantNodes()
+                    .OfType<ExpressionStatementSyntax>()
+                    .Where(s => s.ToString().Contains($"<{entityName}>") || s.ToString().Contains($"{entityName}Configuration"))
+                    .ToList();
+
+                if (statementsToRemove.Any())
+                {
+                    SyntaxRoot = SyntaxRoot.RemoveNodes(statementsToRemove, SyntaxRemoveOptions.KeepExteriorTrivia);
+                    ClassNode = SyntaxRoot!
+                        .DescendantNodes()
+                        .OfType<ClassDeclarationSyntax>()
+                        .FirstOrDefault();
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 添加字段
     /// </summary>
     /// <param name="fieldContent"></param>
+
     public void AddClassField(string fieldContent)
     {
         if (SyntaxTree != null && SyntaxRoot != null)
