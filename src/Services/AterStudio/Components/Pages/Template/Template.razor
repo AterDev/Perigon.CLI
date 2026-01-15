@@ -1,5 +1,7 @@
 @using AterStudio.Components.Layout
+@using CodeGenerator.Helper
 @using Humanizer
+@using Microsoft.FluentUI.AspNetCore.Components
 
 @page "/data/template"
 @layout MenuLayout
@@ -81,11 +83,19 @@
                             OnClick="OpenHelpDialogAsync"
                             IconStart="@(new Icons.Regular.Size24.ChatHelp())"
                             Title="@Lang(Localizer.Template, Localizer.Description)" />
+
               @* 添加新文件 *@
               <FluentButton Appearance="Appearance.Stealth"
                             OnClick="OpenAddFileDialogAsync"
                             IconStart="@(new Icons.Regular.Size24.Add())"
                             Title="@Lang(Localizer.Add, Localizer.File)" />
+
+              <FluentButton Appearance="Appearance.Neutral"
+                            OnClick="OpenGenerateStepsDialogAsync"
+                            Disabled="!SelectedFiles.Any()"
+                            IconStart="@(new Icons.Regular.Size24.AddSquareMultiple())">
+                @Lang(Localizer.GenerateSteps)
+              </FluentButton>
             </FluentStack>
           </FluentStack>
         </FluentToolbar>
@@ -94,7 +104,14 @@
                         Items="@Files.AsQueryable()"
                         RowSize="DataGridRowSize.Medium"
                         AutoFit="true"
-                        @bind-SelectedItem="SelectedFile">
+                        ResizableColumns="true">
+
+          <SelectColumn TGridItem="CodeGenerator.Helper.DataFile"
+                        SelectMode="DataGridSelectMode.Multiple"
+                        SelectFromEntireRow="false"
+                        SelectedItems="@SelectedFiles"
+                        SelectedItemsChanged="@(EventCallback.Factory.Create<IEnumerable<CodeGenerator.Helper.DataFile>>(this, OnSelectedFilesChanged))" />
+
           <PropertyColumn Property="@(f => f.Name)"
                           Title="@Lang(Localizer.File, Localizer.Name)" />
 

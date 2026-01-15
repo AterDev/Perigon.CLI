@@ -1,15 +1,20 @@
 using CodeGenerator.Helper;
 using Entity;
+using Microsoft.AspNetCore.Components;
 
 namespace AterStudio.Components.Pages.Template;
 
 public partial class Template
 {
+    [Inject]
+    private GenStepManager GenStepManager { get; set; } = null!;
+
     private LocalFileHelper FileHelper { get; set; } = default!;
     private List<DataFile> Directories { get; set; } = [];
     private List<DataFile> Files { get; set; } = [];
     private string? SelectedDirectory { get; set; }
     private DataFile? SelectedFile { get; set; }
+    private IEnumerable<DataFile> SelectedFiles { get; set; } = [];
 
     private bool DialogHidden { get; set; } = true;
     private string? NewDirectoryName { get; set; }
@@ -71,6 +76,56 @@ public partial class Template
             Files.Clear();
         }
         SelectedFile = null;
+        SelectedFiles = [];
+    }
+
+    private void OnSelectedFilesChanged(IEnumerable<DataFile> files)
+    {
+        SelectedFiles = files ?? [];
+    }
+
+    private async Task OpenGenerateStepsDialogAsync()
+    {
+        if (!SelectedFiles.Any())
+        {
+            ToastService.ShowError(Lang(Localizer.MustSelectOption));
+            return;
+        }
+
+        var dialog = await DialogService.ShowDialogAsync<GenerateStepsDialog>(
+            new GenerateStepsDialog.Model(),
+            new DialogParameters { Width = "460px", Modal = true }
+        );
+
+        var result = await dialog.Result;
+        if (result.Cancelled)
+            return;
+
+        var model = (GenerateStepsDialog.Model?)result.Data;
+        if (model is null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(ProjectContext.SolutionPath))
+        {
+            ToastService.ShowError(Lang(Localizer.DirectoryNotFound));
+            return;
+        }
+
+        if (ProjectContext.SolutionId is null)
+        {
+            ToastService.ShowError(Lang(Localizer.DirectoryNotFound));
+            return;
+        }
+
+        var res = await GenStepManager.UpsertStepsFromTemplatesAsync(
+            SelectedFiles,
+            SelectedDirectory,
+            ProjectContext.SolutionPath,
+            ProjectContext.SolutionId.Value,
+            model.RelativeOutputDir
+        );
+
+        ToastService.ShowSuccess(Lang(Localizer.Success));
     }
 
     private void OpenAddDirectoryDialog()

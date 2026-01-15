@@ -1,3 +1,4 @@
+using Entity;
 using Mapster;
 using Perigon.MiniDb;
 
@@ -19,7 +20,7 @@ public abstract class ManagerBase(ILogger logger)
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : MiniDbContext
-    where TEntity : IMicroEntity
+    where TEntity : EntityBase
 {
     #region Properties and Fields
 
@@ -56,7 +57,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> GetCurrentAsync(int id)
     {
-        return _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == id);
+        return _dbSet.FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary>
@@ -82,7 +83,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public virtual async Task<TEntity?> FindAsync(int id)
     {
-        return _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == id);
+        return _dbSet.FirstOrDefault(e => e.Id == id);
     }
 
     /// <summary>
@@ -106,7 +107,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if exists; otherwise, false.</returns>
     public virtual async Task<bool> ExistAsync(int id)
     {
-        return _dbContext.Set<TEntity>().Any(q => q.Id == id);
+        return _dbSet.Any(q => q.Id == id);
     }
 
     /// <summary>
@@ -188,7 +189,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     public async Task<bool> AddAsync(TEntity entity)
     {
 
-        _dbContext.Set<TEntity>().Add(entity);
+        _dbSet.Add(entity);
+        entity.CreatedTime = DateTime.Now;
         await _dbContext.SaveChangesAsync();
         return true;
     }
@@ -200,13 +202,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if successful; otherwise, false.</returns>
     public async Task<bool> UpdateAsync(TEntity entity)
     {
-
-        var existing = _dbContext.Set<TEntity>().FirstOrDefault(e => e.Id == entity.Id);
-        if (existing != null)
-        {
-            _dbContext.Set<TEntity>().Remove(existing);
-            _dbContext.Set<TEntity>().Add(entity);
-        }
+        _dbSet.Update(entity);
+        entity.UpdatedTime = DateTime.Now;
         await _dbContext.SaveChangesAsync();
         return true;
     }
@@ -222,7 +219,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         var entities = _dbSet.Where(d => ids.Contains(d.Id)).ToList();
         foreach (var entity in entities)
         {
-            _dbContext.Set<TEntity>().Remove(entity);
+            _dbSet.Remove(entity);
         }
         await _dbContext.SaveChangesAsync();
         return true;

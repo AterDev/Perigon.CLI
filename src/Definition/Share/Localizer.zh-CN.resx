@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="GenerateSteps" xml:space="preserve">
+    <value>生成步骤</value>
+  </data>
+  <data name="GenerateStep" xml:space="preserve">
+    <value>生成步骤</value>
+  </data>
+  <data name="RelativeOutputDir" xml:space="preserve">
+    <value>生成目录</value>
+  </data>
   <data name="Add" xml:space="preserve">
     <value>添加</value>
   </data>
@@ -554,5 +563,14 @@
   </data>
   <data name="SelectSteps" xml:space="preserve">
     <value>选择任务步骤</value>
+  </data>
+  <data name="OutputFilePath" xml:space="preserve">
+    <value>文件输出路径</value>
+  </data>
+  <data name="RelativeRootPath" xml:space="preserve">
+    <value>相对于根目录</value>
+  </data>
+  <data name="SnakeNameValidation" xml:space="preserve">
+    <value>仅支持 [a-z0-9_-]</value>
   </data>
 </root>

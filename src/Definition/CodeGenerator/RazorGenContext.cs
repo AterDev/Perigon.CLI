@@ -34,30 +34,14 @@ public class RazorGenContext
         return result;
     }
 
-    /// <summary>
-    /// 变量模板替换
-    /// </summary>
-    /// <param name="templateContent"></param>
-    /// <param name="model"></param>
-    /// <returns></returns> 
-    public string GenTemplate(string templateContent, List<Variable> model)
-    {
-        // model to dictionary
-        var dictionary = model.ToDictionary(v => v.Key, v => v.Value);
-        var template = RazorEngine.Compile<RazorEngineTemplateBase<Dictionary<string, string>>>(
-            templateContent
-        );
-
-        string result = template.Run(instance =>
-        {
-            instance.Model = dictionary;
-        });
-        return result;
-    }
-
     public string GenTemplate(string templateContent, ActionRunModel model)
     {
-        templateContent = $"@using Core.Utils;" + Environment.NewLine + templateContent;
+        templateContent = $"""
+            @using Core.Utils;
+            @using CodeGenerator.Models;
+            
+            {templateContent}
+            """;
         var dictionary = model
             .Variables.DistinctBy(v => v.Key)
             .ToDictionary(v => v.Key, v => v.Value);
@@ -70,6 +54,7 @@ public class RazorGenContext
                 builder.AddAssemblyReferenceByName("System");
                 builder.AddAssemblyReferenceByName("Core");
                 builder.AddAssemblyReferenceByName("Entity");
+                builder.AddAssemblyReferenceByName("CodeGenerator");
                 builder.AddAssemblyReferenceByName("Microsoft.OpenApi");
                 builder.AddAssemblyReferenceByName("System.Net.Http");
             }

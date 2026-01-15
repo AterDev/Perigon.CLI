@@ -555,4 +555,22 @@
   <data name="SelectSteps" xml:space="preserve">
     <value>Select task steps</value>
   </data>
+  <data name="OutputFilePath" xml:space="preserve">
+    <value>The File Output Path</value>
+  </data>
+  <data name="RelativeRootPath" xml:space="preserve">
+    <value>Relative to the root dir</value>
+  </data>
+  <data name="GenerateSteps" xml:space="preserve">
+    <value>Generate Steps</value>
+  </data>
+  <data name="GenerateStep" xml:space="preserve">
+    <value>Generate Step</value>
+  </data>
+  <data name="RelativeOutputDir" xml:space="preserve">
+    <value>Relative output directory</value>
+  </data>
+  <data name="SnakeNameValidation" xml:space="preserve">
+    <value>only support [a-z0-9_-]</value>
+  </data>
 </root>

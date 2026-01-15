@@ -1,10 +1,13 @@
 using AterStudio;
 using AterStudio.Components.Pages;
 using AterStudio.McpTools;
+using CodeGenerator.Helper;
+using Entity;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Localization;
 using ModelContextProtocol.Server;
+using Perigon.MiniDb;
 using Share.Helper;
 using Share.Services;
 
@@ -84,8 +87,7 @@ app.MapGet("/Culture/SetCulture", (string culture, string? redirectUri, HttpCont
     return Results.LocalRedirect(redirectUri);
 });
 
-var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-lifetime.ApplicationStarted.Register(() =>
+app.Lifetime.ApplicationStarted.Register(() =>
 {
     var server = app.Services.GetRequiredService<IServer>();
     var addressesFeature = server.Features.Get<IServerAddressesFeature>();
@@ -99,7 +101,7 @@ lifetime.ApplicationStarted.Register(() =>
 });
 
 // 添加应用程序关闭时的清理处理
-lifetime.ApplicationStopping.Register(() =>
+app.Lifetime.ApplicationStopping.Register(() =>
 {
     try
     {
@@ -107,6 +109,9 @@ lifetime.ApplicationStopping.Register(() =>
         // 正常垃圾回收以释放程序集引用
         GC.Collect();
         GC.WaitForPendingFinalizers();
+        var dir = AssemblyHelper.GetStudioPath();
+        var path = Path.Combine(dir, ConstVal.DbName);
+        MiniDbContext.ReleaseSharedCache(path);
         OutputHelper.Info("✅ Application resources cleaned up.");
     }
     catch (Exception ex)
@@ -115,4 +120,7 @@ lifetime.ApplicationStopping.Register(() =>
     }
 });
 
+
 await app.RunAsync();
+
+

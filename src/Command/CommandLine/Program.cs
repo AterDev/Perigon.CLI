@@ -1,3 +1,4 @@
+using CodeGenerator.Helper;
 using CommandLine;
 using CommandLine.Commands;
 using Entity;
@@ -45,8 +46,9 @@ app.Configure(config =>
     config.PropagateExceptions();
     config.ValidateExamples();
 #endif
+    var version = AssemblyHelper.GetCurrentToolVersion();
     config.SetApplicationName(ConstVal.CommandName);
-    config.SetApplicationVersion(ConstVal.Version);
+    config.SetApplicationVersion(version);
     config.SetApplicationCulture(systemCulture);
 
     config

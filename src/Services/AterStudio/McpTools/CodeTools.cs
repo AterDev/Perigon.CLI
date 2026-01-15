@@ -1,8 +1,10 @@
-using System.ComponentModel;
-using System.Text;
+using CodeGenerator;
 using ModelContextProtocol.Server;
 using Share.Helper;
 using Share.Services;
+using StudioMod.Models.GenActionDtos;
+using System.ComponentModel;
+using System.Text;
 
 namespace AterStudio.McpTools;
 
@@ -14,7 +16,8 @@ public class CodeTools(
     ILogger<CodeTools> logger,
     EntityInfoManager manager,
     SolutionService solutionService,
-    CodeGenService codeGenService,
+    GenActionManager genAction,
+    DefaultDbContext dbContext,
     IProjectContext projectContext
 )
 {
@@ -128,33 +131,85 @@ public class CodeTools(
     }
 
 
-    //[McpServerTool, Description("生成前端请求服务")]
-    public async Task<string?> GenerateServiceAsync(
-        [Description("openapi的url地址或本地路径")] string openApiPath,
-        [Description("代码生成的输出路径")] string outputPath,
-        [Description("前端请求类型,NgHttp或Axios")] RequestClientType clientType
-    )
+    [McpServerTool, Description("verify razor tempalte using entity")]
+    public async Task<string> VerifyRazorTemplateAsync(McpServer server,
+        [Description("the entity model file absolute path")] string entityPath,
+        [Description("the razor template content")] string razorTemplate)
     {
+
+        await SetProjectContextAsync(server);
+        var genContext = new RazorGenContext();
         try
         {
-            var genFiles = await codeGenService.GenerateWebRequestAsync(
-                openApiPath,
-                outputPath,
-                clientType
-            );
-            if (genFiles != null)
+            var entityInfo = (
+                   await CodeAnalysisService.GetEntityInfosAsync([entityPath])
+               ).FirstOrDefault();
+            if (entityInfo == null)
             {
-                codeGenService.GenerateFiles(genFiles);
-                var resDes = new StringBuilder();
-                resDes.AppendLine("生成的文件如下:");
-                foreach (var file in genFiles)
-                {
-                    resDes.AppendLine(file.FullName);
-                }
-                resDes.AppendLine("");
-                return resDes.ToString();
+                return "can't find entity info from path:" + entityPath;
             }
-            return "No validate files generated!";
+            var actionRunModel = new ActionRunModel
+            {
+                ModelName = entityInfo.Name,
+                Namespace = entityInfo.NamespaceName,
+                PropertyInfos = entityInfo.PropertyInfos,
+                Description = entityInfo.Summary
+            };
+            // 添加变量
+            actionRunModel.Variables.Add(
+                new Variable { Key = "ModelName", Value = entityInfo.Name }
+            );
+            actionRunModel.Variables.Add(
+                new Variable { Key = "ModelNameHyphen", Value = entityInfo.Name.ToHyphen() }
+            );
+            // 解析dto
+            var dtoPath = projectContext.GetDtoPath(
+                entityInfo.Name,
+                entityInfo.ModuleName
+            );
+            if (Directory.Exists(dtoPath))
+            {
+                var matchFiles = new string[]
+                {
+                            "AddDto.cs",
+                            "UpdateDto.cs",
+                            "DetailDto.cs",
+                            "ItemDto.cs",
+                            "FilterDto.cs",
+                };
+
+                var dtoFiles = Directory
+                    .GetFiles(dtoPath, "*Dto.cs", SearchOption.AllDirectories)
+                    .Where(q => matchFiles.Any(m => Path.GetFileName(q).EndsWith(m)))
+                    .ToList();
+
+                var dtoInfos = await CodeAnalysisService.GetEntityInfosAsync(dtoFiles);
+
+                actionRunModel.AddPropertyInfos =
+                    dtoInfos.FirstOrDefault(q => q.Name.EndsWith("AddDto"))?.PropertyInfos
+                    ?? [];
+
+                actionRunModel.UpdatePropertyInfos =
+                    dtoInfos
+                        .FirstOrDefault(q => q.Name.EndsWith("UpdateDto"))
+                        ?.PropertyInfos ?? [];
+
+                actionRunModel.DetailPropertyInfos =
+                    dtoInfos
+                        .FirstOrDefault(q => q.Name.EndsWith("DetailDto"))
+                        ?.PropertyInfos ?? [];
+
+                actionRunModel.ItemPropertyInfos =
+                    dtoInfos.FirstOrDefault(q => q.Name.EndsWith("ItemDto"))?.PropertyInfos
+                    ?? [];
+
+                actionRunModel.FilterPropertyInfos =
+                    dtoInfos
+                        .FirstOrDefault(q => q.Name.EndsWith("FilterDto"))
+                        ?.PropertyInfos ?? [];
+            }
+            genContext.GenTemplate(razorTemplate, actionRunModel);
+            return "sucess";
         }
         catch (Exception ex)
         {
@@ -163,32 +218,48 @@ public class CodeTools(
     }
 
 
-    //[McpServerTool, Description("根据指定DbContext生成数据库迁移")]
-
-    public async Task<string?> GenerateDBMigrationAsync(
-        McpServer server,
-        [Description("用户指定的DbContext文件路径")] string? dbContextFilePath = null,
-        [Description("迁移名称标识, 留空将自动生成")] string? migrationName = null
-    )
+    [McpServerTool, Description("execute generate task")]
+    public async Task<string> ExecuteGenerateTaskAsync(McpServer server,
+        [Description("the generate task id")] int? taskId,
+        [Description("the entity model file absolute path")] string entityPath
+        )
     {
+        if (taskId == null)
+        {
+            var actions = dbContext.GenActions.Select(s => new
+            {
+                s.Id,
+                s.Name,
+                s.Description
+            }).ToList();
+            var actionJson = JsonSerializer.Serialize(actions);
+            return "需要提供任务id，请根据用户描述选择对应的任务，选择对应的任务id后重试:" + actionJson;
+        }
+        await SetProjectContextAsync(server);
         try
         {
-            if (string.IsNullOrWhiteSpace(dbContextFilePath))
+            var dto = new GenActionRunDto
             {
-                return NotSupportClient(server, "can't get dbContextFilePath param");
-            }
-
-            migrationName ??= "AutoMigrate" + DateTime.Now.ToString("yyyyMMddHHmmss");
-            await SetProjectContextAsync(server);
-            string dbContextName = Path.GetFileNameWithoutExtension(dbContextFilePath);
-            var result = solutionService.GenerateMigrations(dbContextName, migrationName);
-            return result;
+                Id = taskId.Value,
+                SourceFilePath = entityPath,
+                OnlyOutput = false
+            };
+            var res = await genAction.ExecuteActionAsync(dto);
+            return res.ErrorMsg ?? "generate success";
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "GenerateDBMigrationAsync error");
-            return "生成迁移失败: " + ex.Message;
+            logger.LogError("{ex}", ex);
+            return "generate error:：" + ex.Message;
         }
+        finally
+        {
+            // 生成完成后简单的垃圾回收
+            OutputHelper.Info("🧹 Cleaning up after code generation...");
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
     }
 
     /// <summary>

@@ -13,7 +13,7 @@
     }
     else
     {
-      <span>@Lang(Localizer.Add)@Lang(Localizer.MCP, Localizer.Tools)</span>
+      <span>@Lang(Localizer.Add) @Lang(Localizer.MCP, Localizer.Tools)</span>
     }
   </FluentLabel>
 </FluentDialogHeader>
@@ -25,7 +25,7 @@
     <FluentStack Orientation="Orientation.Vertical" VerticalGap="2">
       <FluentTextField @bind-Value="Model.Name"
                        Label="@Lang(Localizer.Name)"
-                       Placeholder="@Lang(Localizer.Name)"
+                       Placeholder="@Lang(Localizer.SnakeNameValidation)"
                        Class="w-100"
                        Maxlength="40"
                        Required />
@@ -61,7 +61,7 @@
                           AutoComplete="off"
                           Autofocus="true"
                           KeepOpen="true"
-                          MaximumSelectedOptions="5"
+                          MaximumSelectedOptions="12"
                           MaximumSelectedOptionsMessage="MaxMessage"
                           Label="@Lang(Localizer.Select,Localizer.Template)"
                           Multiple="true"
@@ -88,7 +88,8 @@
   </FluentButton>
 </FluentDialogFooter>
 
-@code {
+@code
+{
   [CascadingParameter]
   FluentDialog Dialog { get; set; } = null!;
 
@@ -98,7 +99,7 @@
   [Inject]
   private McpToolManager McpToolManager { get; set; } = null!;
 
-  RenderFragment MaxMessage =>@<span>only select 5 template</span>;
+  RenderFragment MaxMessage => @<span>only select 5 template</span>;
 
   List<DataFile> PromptFiles = [];
   List<DataFile> TemplateFiles = [];

@@ -45,7 +45,7 @@ public static partial class FrameworkExtensions
             config.UseMiniDb(path);
         });
         builder.Services.AddSingleton<DefaultDbContext>();
-        
+
         return builder;
     }
 }

@@ -1,0 +1,77 @@
+@inherits PageBase
+@implements IDialogContentComponent<AterStudio.Components.Pages.Template.GenerateStepsDialog.Model>
+
+<FluentDialogHeader ShowDismiss="false">
+  <FluentLabel Typo="Typography.PaneHeader">
+    @Lang(Localizer.GenerateSteps)
+  </FluentLabel>
+</FluentDialogHeader>
+
+<FluentBodyContent>
+  <EditForm EditContext="editContext">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+
+    <FluentStack Orientation="Orientation.Vertical"
+                 VerticalGap="2">
+      <FluentTextField @bind-Value="Content.RelativeOutputDir"
+                       Label="@Lang(Localizer.RelativeOutputDir)"
+                       Placeholder="@Lang(Localizer.RelativeRootPath)"
+                       Class="w-100"
+                       Maxlength="400" />
+
+      <FluentLabel Typo="Typography.Body"
+                   Color="Color.Neutral"
+                   Class="mt-1">
+        Support @Lang(Localizer.Variable): <span>@@{ModelName} or @@{ModelNameHyphen}</span>
+      </FluentLabel>
+    </FluentStack>
+  </EditForm>
+</FluentBodyContent>
+
+<FluentDialogFooter>
+  <FluentButton Appearance="Appearance.Accent"
+                OnClick="GenerateAsync">
+    @Lang(Localizer.Generate)
+  </FluentButton>
+  <FluentButton Appearance="Appearance.Neutral"
+                OnClick="CancelAsync">
+    @Lang(Localizer.Cancel)
+  </FluentButton>
+</FluentDialogFooter>
+
+@code
+{
+  [CascadingParameter] FluentDialog Dialog { get; set; } = null!;
+
+  [Parameter]
+  public Model Content { get; set; } = new();
+
+  private EditContext? editContext;
+
+  protected override void OnInitialized()
+  {
+    editContext = new EditContext(Content);
+  }
+
+  private async Task GenerateAsync()
+  {
+    if (!editContext!.Validate())
+    {
+      ToastService.ShowError(Lang(Localizer.FormValidFailed));
+      return;
+    }
+
+    await Dialog.CloseAsync(Content);
+  }
+
+  private async Task CancelAsync()
+  {
+    await Dialog.CancelAsync();
+  }
+
+  public sealed class Model
+  {
+    public string RelativeOutputDir { get; set; } = "src/";
+  }
+}

@@ -11,7 +11,7 @@
     <PackageVersion Include="Microsoft.Extensions.Localization" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
     <!-- Console / CLI -->
-    <PackageVersion Include="Perigon.MiniDb" Version="0.0.6" />
+    <PackageVersion Include="Perigon.MiniDb" Version="0.0.8" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Spectre.Console" Version="0.53.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.53.1" />
