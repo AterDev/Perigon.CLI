@@ -208,8 +208,8 @@ public class CodeTools(
                         .FirstOrDefault(q => q.Name.EndsWith("FilterDto"))
                         ?.PropertyInfos ?? [];
             }
-            genContext.GenTemplate(razorTemplate, actionRunModel);
-            return "sucess";
+            string resContent = genContext.GenTemplate(razorTemplate, actionRunModel);
+            return resContent;
         }
         catch (Exception ex)
         {

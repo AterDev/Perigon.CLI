@@ -157,6 +157,7 @@ public static class Prompts
              - 不要添加@inherits和@using指令，引擎会自动添加必要的引用
              - 模板文件通常在`src/templates/`目录下
              - 逻辑实现可利用C# SDK提供的功能，包括:System.Collections/System/Microsoft.OpenApi/System.Net.Http等程序集
+             - 充分利用razor语法带来的csharp逻辑功能，如：变量定义，定义方法然后调用。在复杂的生成逻辑中，可利用csharp方法调用，替代直接在模板中进行复杂的拼接，以及产生的冲突问题。
             </rules>
             """
         );

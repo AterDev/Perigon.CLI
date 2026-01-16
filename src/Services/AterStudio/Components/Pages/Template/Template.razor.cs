@@ -120,7 +120,6 @@ public partial class Template
         var res = await GenStepManager.UpsertStepsFromTemplatesAsync(
             SelectedFiles,
             SelectedDirectory,
-            ProjectContext.SolutionPath,
             ProjectContext.SolutionId.Value,
             model.RelativeOutputDir
         );
