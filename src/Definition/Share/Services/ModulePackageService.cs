@@ -184,14 +184,112 @@ public class ModulePackageService(
     /// </summary>
     private async Task<bool> ValidateDependenciesAsync(string moduleName, string serviceName)
     {
-        // This is a simplified validation
-        // In a real implementation, you would use Roslyn to analyze the code
-        // and check for dependencies outside the module scope
+        var hasErrors = false;
 
-        // For now, we'll just log a warning
-        OutputHelper.Warning("Dependency validation not fully implemented yet.");
+        // Validate Entity dependencies
+        var entityModulePath = Path.Combine(_projectContext.EntityPath!, moduleName);
+        if (!await ValidateDirectoryDependenciesAsync(
+                entityModulePath,
+                moduleName,
+                "Entity",
+                ["CommonMod", "Share"]
+            ))
+        {
+            hasErrors = true;
+        }
 
-        return await Task.FromResult(true);
+        // Validate Module dependencies
+        var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
+        if (!await ValidateDirectoryDependenciesAsync(
+                modulePath,
+                moduleName,
+                "Module",
+                ["CommonMod", "Share"]
+            ))
+        {
+            hasErrors = true;
+        }
+
+        // Validate Controller dependencies
+        var controllerPath = Path.Combine(
+            _projectContext.ServicesPath!,
+            serviceName,
+            ConstVal.ControllersDir,
+            moduleName
+        );
+        if (Directory.Exists(controllerPath))
+        {
+            if (!await ValidateDirectoryDependenciesAsync(
+                    controllerPath,
+                    moduleName,
+                    "Controller",
+                    [moduleName, "CommonMod", "Share"]
+                ))
+            {
+                hasErrors = true;
+            }
+        }
+
+        return !hasErrors;
+    }
+
+    /// <summary>
+    /// Validate dependencies in a directory
+    /// </summary>
+    private async Task<bool> ValidateDirectoryDependenciesAsync(
+        string directoryPath,
+        string moduleName,
+        string componentType,
+        List<string> allowedDependencies
+    )
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            return true;
+        }
+
+        var hasErrors = false;
+        var files = Directory.GetFiles(directoryPath, "*.cs", SearchOption.AllDirectories);
+
+        foreach (var file in files)
+        {
+            var content = await File.ReadAllTextAsync(file);
+            var tree = CSharpSyntaxTree.ParseText(content);
+            var root = await tree.GetRootAsync();
+
+            // Check using directives
+            var usingDirectives = root.DescendantNodes().OfType<UsingDirectiveSyntax>();
+
+            foreach (var usingDirective in usingDirectives)
+            {
+                var namespaceName = usingDirective.Name?.ToString();
+                if (namespaceName == null)
+                {
+                    continue;
+                }
+
+                // Check if it's a module reference (ends with Mod)
+                if (namespaceName.Contains(".") && namespaceName.Split('.').Any(part => part.EndsWith("Mod")))
+                {
+                    var referencedModule = namespaceName.Split('.').First(part => part.EndsWith("Mod"));
+                    
+                    // Check if it's an allowed dependency
+                    if (!allowedDependencies.Contains(referencedModule) && referencedModule != moduleName)
+                    {
+                        OutputHelper.Error(
+                            _localizer.Get(
+                                Localizer.ModuleDependencyError,
+                                componentType,
+                                $"{namespaceName} in {Path.GetFileName(file)}"
+                            )
+                        );
+                        hasErrors = true;
+                    }
+                }
+            }
+        }
+
+        return !hasErrors;
     }
 
     /// <summary>
