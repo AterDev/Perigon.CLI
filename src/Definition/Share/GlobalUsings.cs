@@ -6,6 +6,7 @@ global using CodeGenerator.Models;
 global using Core.Models;
 global using Core.Utils;
 global using DataContext.DBProvider;
+global using Entity;
 global using Entity.StudioMod;
 global using Microsoft.CodeAnalysis;
 global using Microsoft.Extensions.Logging;

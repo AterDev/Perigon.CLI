@@ -354,3 +354,5 @@ MigrationBackup/
 /src/Studio/AterStudio/swagger.json
 /.idea/
 
+# Module packages
+package_modules/

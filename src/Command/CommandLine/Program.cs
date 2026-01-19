@@ -28,11 +28,15 @@ builder.Services.AddScoped<SolutionService>();
 builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
+builder.Services.AddScoped<ModulePackageService>();
+builder.Services.AddScoped<ModuleInstallService>();
 
 builder.Services.AddScoped<NewCommand>();
 builder.Services.AddScoped<StudioCommand>();
 builder.Services.AddScoped<AddCommand>();
 builder.Services.AddScoped<RequestCommand>();
+builder.Services.AddScoped<PackCommand>();
+builder.Services.AddScoped<InstallCommand>();
 
 var host = builder.Build();
 
@@ -86,6 +90,16 @@ app.Configure(config =>
             }
         )
         .WithAlias("g");
+
+    config
+        .AddCommand<PackCommand>(SubCommand.Pack)
+        .WithDescription(localizer.Get(Localizer.PackDes))
+        .WithExample(["pack", "FileManagerMod", "AdminService"]);
+
+    config
+        .AddCommand<InstallCommand>(SubCommand.Install)
+        .WithDescription(localizer.Get(Localizer.InstallDes))
+        .WithExample(["install", "./package_modules/FileManagerMod.zip", "AdminService"]);
 
     config.SetExceptionHandler(
         (ex, resolver) =>

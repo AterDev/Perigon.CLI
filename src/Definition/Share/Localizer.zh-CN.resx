@@ -573,4 +573,40 @@
   <data name="SnakeNameValidation" xml:space="preserve">
     <value>仅支持 [a-z0-9_-]</value>
   </data>
+  <data name="PackDes" xml:space="preserve">
+    <value>打包模块为zip文件</value>
+  </data>
+  <data name="InstallDes" xml:space="preserve">
+    <value>安装模块包到项目</value>
+  </data>
+  <data name="ModuleNotFound" xml:space="preserve">
+    <value>未找到模块: {0}</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>未找到服务: {0}</value>
+  </data>
+  <data name="EntityModuleNotFound" xml:space="preserve">
+    <value>未找到模块实体: {0}</value>
+  </data>
+  <data name="ModuleExtensionsNotFound" xml:space="preserve">
+    <value>需要在模块中定义 ModuleExtensions.cs 文件</value>
+  </data>
+  <data name="DisplayNameAttributeNotFound" xml:space="preserve">
+    <value>需要在 ModuleExtensions.cs 中添加 DisplayName 特性</value>
+  </data>
+  <data name="ModuleDependencyError" xml:space="preserve">
+    <value>模块 {0} 依赖于模块外部的代码: {1}</value>
+  </data>
+  <data name="PackageCreated" xml:space="preserve">
+    <value>模块包已创建: {0}</value>
+  </data>
+  <data name="PackageInstalled" xml:space="preserve">
+    <value>模块包已安装: {0}</value>
+  </data>
+  <data name="PackageFileNotFound" xml:space="preserve">
+    <value>未找到包文件: {0}</value>
+  </data>
+  <data name="InvalidPackageStructure" xml:space="preserve">
+    <value>无效的包结构</value>
+  </data>
 </root>
