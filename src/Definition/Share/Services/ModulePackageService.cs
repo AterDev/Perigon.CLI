@@ -67,14 +67,14 @@ public class ModulePackageService(
     /// <summary>
     /// Validate module existence
     /// </summary>
-    private async Task<bool> ValidateModuleAsync(string moduleName, string serviceName)
+    private Task<bool> ValidateModuleAsync(string moduleName, string serviceName)
     {
         // Check module directory
         var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
         if (!Directory.Exists(modulePath))
         {
             OutputHelper.Error(_localizer.Get(Localizer.ModuleNotFound, moduleName));
-            return false;
+            return Task.FromResult(false);
         }
 
         // Check service directory
@@ -82,7 +82,7 @@ public class ModulePackageService(
         if (!Directory.Exists(servicePath))
         {
             OutputHelper.Error(_localizer.Get(Localizer.ServiceNotFound, serviceName));
-            return false;
+            return Task.FromResult(false);
         }
 
         // Check Entity module directory
@@ -90,7 +90,7 @@ public class ModulePackageService(
         if (!Directory.Exists(entityModulePath))
         {
             OutputHelper.Error(_localizer.Get(Localizer.EntityModuleNotFound, moduleName));
-            return false;
+            return Task.FromResult(false);
         }
 
         // Check ModuleExtensions.cs
@@ -98,10 +98,10 @@ public class ModulePackageService(
         if (!File.Exists(moduleExtensionsPath))
         {
             OutputHelper.Error(_localizer.Get(Localizer.ModuleExtensionsNotFound));
-            return false;
+            return Task.FromResult(false);
         }
 
-        return await Task.FromResult(true);
+        return Task.FromResult(true);
     }
 
     /// <summary>
@@ -269,21 +269,25 @@ public class ModulePackageService(
                 }
 
                 // Check if it's a module reference (ends with Mod)
-                if (namespaceName.Contains(".") && namespaceName.Split('.').Any(part => part.EndsWith("Mod")))
+                if (namespaceName.Contains("."))
                 {
-                    var referencedModule = namespaceName.Split('.').First(part => part.EndsWith("Mod"));
-                    
-                    // Check if it's an allowed dependency
-                    if (!allowedDependencies.Contains(referencedModule) && referencedModule != moduleName)
+                    var namespaceParts = namespaceName.Split('.');
+                    if (namespaceParts.Any(part => part.EndsWith("Mod")))
                     {
-                        OutputHelper.Error(
-                            _localizer.Get(
-                                Localizer.ModuleDependencyError,
-                                componentType,
-                                $"{namespaceName} in {Path.GetFileName(file)}"
-                            )
-                        );
-                        hasErrors = true;
+                        var referencedModule = namespaceParts.First(part => part.EndsWith("Mod"));
+                        
+                        // Check if it's an allowed dependency
+                        if (!allowedDependencies.Contains(referencedModule) && referencedModule != moduleName)
+                        {
+                            OutputHelper.Error(
+                                _localizer.Get(
+                                    Localizer.ModuleDependencyError,
+                                    componentType,
+                                    $"{namespaceName} in {Path.GetFileName(file)}"
+                                )
+                            );
+                            hasErrors = true;
+                        }
                     }
                 }
             }
@@ -331,7 +335,7 @@ public class ModulePackageService(
 
             // Add Entity files
             var entityModulePath = Path.Combine(_projectContext.EntityPath!, moduleName);
-            await AddDirectoryToArchiveAsync(
+            AddDirectoryToArchive(
                 archive,
                 entityModulePath,
                 $"Entity/{moduleName}"
@@ -339,7 +343,7 @@ public class ModulePackageService(
 
             // Add Module files
             var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
-            await AddDirectoryToArchiveAsync(archive, modulePath, $"Module/{moduleName}");
+            AddDirectoryToArchive(archive, modulePath, $"Module/{moduleName}");
 
             // Add Controller files
             var controllerPath = Path.Combine(
@@ -350,7 +354,7 @@ public class ModulePackageService(
             );
             if (Directory.Exists(controllerPath))
             {
-                await AddDirectoryToArchiveAsync(
+                AddDirectoryToArchive(
                     archive,
                     controllerPath,
                     $"Controller/{moduleName}"
@@ -365,7 +369,7 @@ public class ModulePackageService(
     /// <summary>
     /// Add directory to archive recursively
     /// </summary>
-    private async Task AddDirectoryToArchiveAsync(
+    private void AddDirectoryToArchive(
         ZipArchive archive,
         string sourceDir,
         string entryPrefix
@@ -378,7 +382,5 @@ public class ModulePackageService(
 
             archive.CreateEntryFromFile(file, entryName);
         }
-
-        await Task.CompletedTask;
     }
 }

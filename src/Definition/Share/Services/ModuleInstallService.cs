@@ -102,7 +102,7 @@ public class ModuleInstallService(
                     _projectContext.EntityPath!,
                     metadata.ModuleName
                 );
-                await CopyDirectoryAsync(entitySourceDir, entityTargetDir);
+                CopyDirectory(entitySourceDir, entityTargetDir);
             }
 
             // Install Module files
@@ -113,7 +113,7 @@ public class ModuleInstallService(
                     _projectContext.ModulesPath!,
                     metadata.ModuleName
                 );
-                await CopyDirectoryAsync(moduleSourceDir, moduleTargetDir);
+                CopyDirectory(moduleSourceDir, moduleTargetDir);
             }
 
             // Install Controller files
@@ -126,7 +126,7 @@ public class ModuleInstallService(
                     ConstVal.ControllersDir,
                     metadata.ModuleName
                 );
-                await CopyDirectoryAsync(controllerSourceDir, controllerTargetDir);
+                CopyDirectory(controllerSourceDir, controllerTargetDir);
             }
 
             return metadata;
@@ -144,16 +144,31 @@ public class ModuleInstallService(
     /// <summary>
     /// Copy directory recursively
     /// </summary>
-    private async Task CopyDirectoryAsync(string sourceDir, string targetDir)
+    private void CopyDirectory(string sourceDir, string targetDir)
     {
         // Create target directory
         Directory.CreateDirectory(targetDir);
+
+        // Validate target directory is within expected bounds
+        var fullTargetDir = Path.GetFullPath(targetDir);
+        var solutionPath = Path.GetFullPath(_projectContext.SolutionPath!);
+        if (!fullTargetDir.StartsWith(solutionPath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Target directory is outside solution path");
+        }
 
         // Copy files
         foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
         {
             var relativePath = Path.GetRelativePath(sourceDir, file);
             var targetPath = Path.Combine(targetDir, relativePath);
+
+            // Validate target path to prevent directory traversal
+            var fullTargetPath = Path.GetFullPath(targetPath);
+            if (!fullTargetPath.StartsWith(fullTargetDir, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Target path is outside target directory");
+            }
 
             // Create subdirectories if needed
             var targetFileDir = Path.GetDirectoryName(targetPath);
@@ -165,7 +180,5 @@ public class ModuleInstallService(
             // Copy file
             File.Copy(file, targetPath, overwrite: true);
         }
-
-        await Task.CompletedTask;
     }
 }
