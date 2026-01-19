@@ -72,4 +72,6 @@ public class SubCommand
     public const string Update = "update";
     public const string Generate = "generate";
     public const string Request = "request";
+    public const string Pack = "pack";
+    public const string Install = "install";
 }
