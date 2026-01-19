@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using CodeGenerator.Helper;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -124,9 +123,11 @@ public class ModulePackageService(
             .DescendantNodes()
             .OfType<AttributeSyntax>()
             .FirstOrDefault(a =>
-                a.Name.ToString().Contains("DisplayName")
-                || a.Name.ToString().Contains("Display")
-            );
+            {
+                var attributeName = a.Name.ToString();
+                return attributeName == "DisplayName"
+                    || attributeName == "DisplayNameAttribute";
+            });
 
         if (displayNameAttr == null)
         {
@@ -157,7 +158,12 @@ public class ModulePackageService(
         var descriptionAttr = root
             .DescendantNodes()
             .OfType<AttributeSyntax>()
-            .FirstOrDefault(a => a.Name.ToString().Contains("Description"));
+            .FirstOrDefault(a =>
+            {
+                var attributeName = a.Name.ToString();
+                return attributeName == "Description"
+                    || attributeName == "DescriptionAttribute";
+            });
 
         string? description = null;
         if (
@@ -217,17 +223,15 @@ public class ModulePackageService(
             ConstVal.ControllersDir,
             moduleName
         );
-        if (Directory.Exists(controllerPath))
+        if (Directory.Exists(controllerPath) &&
+            !await ValidateDirectoryDependenciesAsync(
+                controllerPath,
+                moduleName,
+                "Controller",
+                [moduleName, "CommonMod", "Share"]
+            ))
         {
-            if (!await ValidateDirectoryDependenciesAsync(
-                    controllerPath,
-                    moduleName,
-                    "Controller",
-                    [moduleName, "CommonMod", "Share"]
-                ))
-            {
-                hasErrors = true;
-            }
+            hasErrors = true;
         }
 
         return !hasErrors;
@@ -258,38 +262,35 @@ public class ModulePackageService(
             var root = await tree.GetRootAsync();
 
             // Check using directives
-            var usingDirectives = root.DescendantNodes().OfType<UsingDirectiveSyntax>();
+            var invalidDependencies = root
+                .DescendantNodes()
+                .OfType<UsingDirectiveSyntax>()
+                .Select(usingDirective => usingDirective.Name?.ToString())
+                .Where(namespaceName => namespaceName != null && namespaceName.Contains("."))
+                .Select(namespaceName =>
+                {
+                    var namespaceParts = namespaceName!.Split('.');
+                    return namespaceParts.Any(part => part.EndsWith("Mod"))
+                        ? namespaceParts.First(part => part.EndsWith("Mod"))
+                        : null;
+                })
+                .Where(referencedModule =>
+                    referencedModule != null &&
+                    !allowedDependencies.Contains(referencedModule) &&
+                    referencedModule != moduleName
+                )
+                .Select(referencedModule => $"{referencedModule} in {Path.GetFileName(file)}");
 
-            foreach (var usingDirective in usingDirectives)
+            foreach (var dependency in invalidDependencies)
             {
-                var namespaceName = usingDirective.Name?.ToString();
-                if (namespaceName == null)
-                {
-                    continue;
-                }
-
-                // Check if it's a module reference (ends with Mod)
-                if (namespaceName.Contains("."))
-                {
-                    var namespaceParts = namespaceName.Split('.');
-                    if (namespaceParts.Any(part => part.EndsWith("Mod")))
-                    {
-                        var referencedModule = namespaceParts.First(part => part.EndsWith("Mod"));
-                        
-                        // Check if it's an allowed dependency
-                        if (!allowedDependencies.Contains(referencedModule) && referencedModule != moduleName)
-                        {
-                            OutputHelper.Error(
-                                _localizer.Get(
-                                    Localizer.ModuleDependencyError,
-                                    componentType,
-                                    $"{namespaceName} in {Path.GetFileName(file)}"
-                                )
-                            );
-                            hasErrors = true;
-                        }
-                    }
-                }
+                OutputHelper.Error(
+                    _localizer.Get(
+                        Localizer.ModuleDependencyError,
+                        componentType,
+                        dependency
+                    )
+                );
+                hasErrors = true;
             }
         }
 

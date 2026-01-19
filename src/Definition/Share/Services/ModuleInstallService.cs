@@ -75,8 +75,38 @@ public class ModuleInstallService(
 
         try
         {
-            // Extract package
-            ZipFile.ExtractToDirectory(packagePath, tempDir);
+            // Extract package with zip slip protection
+            using (var archive = ZipFile.OpenRead(packagePath))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    // Validate entry path to prevent zip slip attacks
+                    var entryPath = Path.GetFullPath(Path.Combine(tempDir, entry.FullName));
+                    if (!entryPath.StartsWith(tempDir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException(
+                            $"Zip entry '{entry.FullName}' attempts to extract outside temp directory"
+                        );
+                    }
+
+                    // Extract entry
+                    if (entry.FullName.EndsWith("/"))
+                    {
+                        // Directory entry
+                        Directory.CreateDirectory(entryPath);
+                    }
+                    else
+                    {
+                        // File entry
+                        var entryDir = Path.GetDirectoryName(entryPath);
+                        if (entryDir != null)
+                        {
+                            Directory.CreateDirectory(entryDir);
+                        }
+                        entry.ExtractToFile(entryPath, overwrite: true);
+                    }
+                }
+            }
 
             // Read metadata
             var metadataPath = Path.Combine(tempDir, "metadata.json");
@@ -91,6 +121,17 @@ public class ModuleInstallService(
             if (metadata == null)
             {
                 OutputHelper.Error(_localizer.Get(Localizer.InvalidPackageStructure));
+                return null;
+            }
+
+            // Validate ModuleName to prevent path traversal
+            if (string.IsNullOrWhiteSpace(metadata.ModuleName) ||
+                metadata.ModuleName.Contains("..") ||
+                metadata.ModuleName.Contains("/") ||
+                metadata.ModuleName.Contains("\\") ||
+                Path.GetInvalidFileNameChars().Any(c => metadata.ModuleName.Contains(c)))
+            {
+                OutputHelper.Error("Invalid module name in package metadata");
                 return null;
             }
 
