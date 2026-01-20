@@ -1,6 +1,7 @@
-using System.ComponentModel;
 using Share;
+using Share.Helper;
 using Share.Services;
+using System.ComponentModel;
 
 namespace CommandLine.Commands;
 
@@ -29,10 +30,12 @@ public class InstallCommand(
         CancellationToken cancellationToken
     )
     {
+        var currentDirectory = Environment.CurrentDirectory;
+        await projectContext.SetProjectAsync(currentDirectory);
         // Ensure we have a valid project context
         if (string.IsNullOrEmpty(projectContext.SolutionPath))
         {
-            AnsiConsole.MarkupLine("[red]Error: Not in a valid solution directory[/]");
+            OutputHelper.Error("Error: Not in a valid solution directory");
             return 1;
         }
 

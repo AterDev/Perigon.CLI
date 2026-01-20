@@ -1,11 +1,6 @@
-using System.IO.Compression;
-using System.Text.Json;
-using CodeGenerator.Helper;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Share.Helper;
-using Share.Models;
+using System.IO.Compression;
 
 namespace Share.Services;
 
@@ -329,7 +324,7 @@ public class ModulePackageService(
             {
                 var json = JsonSerializer.Serialize(
                     metadata,
-                    new JsonSerializerOptions { WriteIndented = true }
+                    ConstVal.DefaultJsonSerializerOptions
                 );
                 await writer.WriteAsync(json);
             }
@@ -376,9 +371,22 @@ public class ModulePackageService(
         string entryPrefix
     )
     {
+        if (!Directory.Exists(sourceDir))
+        {
+            return;
+        }
+
         foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
         {
             var relativePath = Path.GetRelativePath(sourceDir, file);
+
+            // Skip files that are under 'bin' or 'obj' folders
+            var segments = relativePath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Any(s => string.Equals(s, "bin", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "obj", StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
             var entryName = Path.Combine(entryPrefix, relativePath).Replace("\\", "/");
 
             archive.CreateEntryFromFile(file, entryName);

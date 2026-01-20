@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,6 +19,7 @@ public static class ConstVal
     public static JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     public const string DbName = "perigon.mds";

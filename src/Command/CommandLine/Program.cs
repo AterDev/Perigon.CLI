@@ -33,7 +33,6 @@ builder.Services.AddScoped<ModuleInstallService>();
 
 builder.Services.AddScoped<NewCommand>();
 builder.Services.AddScoped<StudioCommand>();
-builder.Services.AddScoped<AddCommand>();
 builder.Services.AddScoped<RequestCommand>();
 builder.Services.AddScoped<PackCommand>();
 builder.Services.AddScoped<InstallCommand>();

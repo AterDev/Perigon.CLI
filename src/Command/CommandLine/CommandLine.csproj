@@ -6,9 +6,9 @@
 		<ToolCommandName>perigon</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 		<PackageId>Perigon.CLI</PackageId>
-		<Version>10.0.6</Version>
+		<Version>10.1.0</Version>
 		<Description>
-			1. fix property generation bug.
+			1. add module pack and install command
 		</Description>
 		<Authors>NilTor</Authors>
 		<Company>Atersoft</Company>
