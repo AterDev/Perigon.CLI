@@ -1,6 +1,5 @@
 using CodeGenerator;
 using CodeGenerator.Helper;
-using Entity;
 using Humanizer;
 using System.Diagnostics;
 
@@ -231,7 +230,7 @@ public class SolutionService(
     /// </summary>
     /// <param name="projectPath"></param>
     /// <param name="isRemove">remove</param>
-    private void UpdateSolutionFile(string projectPath, bool isRemove = false)
+    public void UpdateSolutionFile(string projectPath, bool isRemove = false)
     {
         FileInfo? slnFile = AssemblyHelper.GetSlnFile(
             new DirectoryInfo(_projectContext.SolutionPath!)
@@ -636,7 +635,7 @@ public class SolutionService(
         // copy module files
         CopyModuleFiles(sourcePath, modulePath);
 
-        string dbContextFile = Path.Combine(databasePath, "DBProvider", "DefaultDbContext.cs");
+        string dbContextFile = Path.Combine(databasePath, ConstVal.AppDbContextName, "DefaultDbContext.cs");
         string dbContextContent = File.ReadAllText(dbContextFile);
 
         CompilationHelper compilation = new(databasePath);
