@@ -1,9 +1,8 @@
-using System.Collections.ObjectModel;
 using CodeGenerator;
 using CodeGenerator.Generate;
 using CodeGenerator.Generate.ClientRequest;
-using Entity;
 using Microsoft.OpenApi;
+using System.Collections.ObjectModel;
 
 namespace Share.Services;
 
@@ -252,7 +251,11 @@ public class CodeGenService(
             string content = RequestClientHelper.GetBaseService(type);
             content = content.Replace("BASE_URL", clientName.ToUpper() + "_BASE_URL");
 
-            Directory.CreateDirectory(dir);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+
+            }
             files.Add(new GenFileInfo("base.service.ts", content)
             {
                 FullName = Path.Combine(dir, "base.service.ts"),

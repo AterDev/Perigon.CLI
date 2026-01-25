@@ -199,6 +199,9 @@ public class ApiDocInfoManager(
         RequestClientDto dto
     )
     {
+        dto.OutputPath = dto.OutputPath?.Trim();
+        dto.OpenApiEndpoint = dto.OpenApiEndpoint?.Trim();
+
         var doc = _dbSet.FirstOrDefault(d => d.Id == openApiDocId);
         if (doc == null)
         {
