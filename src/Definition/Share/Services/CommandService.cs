@@ -1,5 +1,4 @@
 using CodeGenerator.Helper;
-using Entity;
 using Share.Models.CommandDtos;
 using Spectre.Console;
 using System.Diagnostics;
@@ -65,15 +64,17 @@ public class CommandService(
         // 生成项目
         string solutionPath = Path.Combine(dto.Path, dto.Name);
         string templateType = dto.IsLight ? ConstVal.Mini : ConstVal.WebApi;
-
         string version = AssemblyHelper.GetCurrentToolVersion();
 
-        ProcessHelper.RunCommand(
-            "dotnet",
-            $"new install {ConstVal.TemplatePackageId}",
-            out string msg
-        );
-        OutputHelper.Info(msg);
+        if (!ProcessHelper.RunCommand("dotnet", $"new list {ConstVal.WebApi}", out string _))
+        {
+            ProcessHelper.RunCommand(
+              "dotnet",
+              $"new install {ConstVal.TemplatePackageId}",
+              out string msg
+            );
+            OutputHelper.Info(msg);
+        }
 
 
         if (!Directory.Exists(dto.Path))
