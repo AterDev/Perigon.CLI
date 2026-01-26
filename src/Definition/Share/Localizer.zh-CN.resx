@@ -595,7 +595,7 @@
     <value>需要在 ModuleExtensions.cs 中添加 DisplayName 特性</value>
   </data>
   <data name="ModuleDependencyError" xml:space="preserve">
-    <value>模块 {0} 依赖于模块外部的代码: {1}</value>
+    <value>{0} 依赖于模块外部的代码: {1}</value>
   </data>
   <data name="PackageCreated" xml:space="preserve">
     <value>模块包已创建: {0}</value>

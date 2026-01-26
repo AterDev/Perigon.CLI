@@ -171,12 +171,20 @@ public class ModulePackageService(
                 .Trim('"');
         }
 
+        var expectedMethodName = $"Use{moduleName}Services";
+        var hasMethod = root
+            .DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .Any(method => method.Identifier.Text == expectedMethodName);
+
+
         return new ModulePackageMetadata
         {
             ModuleName = moduleName,
             Author = author,
             DisplayName = displayName,
             Description = description,
+            UseSelfServices = hasMethod
         };
     }
 
@@ -192,8 +200,8 @@ public class ModulePackageService(
         if (!await ValidateDirectoryDependenciesAsync(
                 entityModulePath,
                 moduleName,
-                "Entity",
-                ["CommonMod", "Share"]
+                ConstVal.EntityName,
+                ["Share"]
             ))
         {
             hasErrors = true;
@@ -204,8 +212,8 @@ public class ModulePackageService(
         if (!await ValidateDirectoryDependenciesAsync(
                 modulePath,
                 moduleName,
-                "Module",
-                ["CommonMod", "Share"]
+                ConstVal.ModulesDir,
+                ["Share"]
             ))
         {
             hasErrors = true;
@@ -334,12 +342,12 @@ public class ModulePackageService(
             AddDirectoryToArchive(
                 archive,
                 entityModulePath,
-                $"Entity/{moduleName}"
+                $"{ConstVal.EntityName}/{moduleName}"
             );
 
             // Add Module files
             var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
-            AddDirectoryToArchive(archive, modulePath, $"Module/{moduleName}");
+            AddDirectoryToArchive(archive, modulePath, $"{ConstVal.ModulesDir}/{moduleName}");
 
             // Add Controller files
             var controllerPath = Path.Combine(
@@ -353,7 +361,7 @@ public class ModulePackageService(
                 AddDirectoryToArchive(
                     archive,
                     controllerPath,
-                    $"Controller/{moduleName}"
+                    $"{ConstVal.ControllersDir}/{moduleName}"
                 );
             }
         }

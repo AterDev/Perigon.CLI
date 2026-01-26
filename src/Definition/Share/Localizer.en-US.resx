@@ -595,7 +595,7 @@
     <value>DisplayName attribute is required in ModuleExtensions.cs</value>
   </data>
   <data name="ModuleDependencyError" xml:space="preserve">
-    <value>Module {0} depends on external code: {1}</value>
+    <value>{0} depends on external code: {1}</value>
   </data>
   <data name="PackageCreated" xml:space="preserve">
     <value>Module package created: {0}</value>

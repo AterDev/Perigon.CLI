@@ -31,6 +31,11 @@ public class ModulePackageMetadata
     public string Version { get; set; } = "1.0.0";
 
     /// <summary>
+    /// use the module DI services instead of default services
+    /// </summary>
+    public bool UseSelfServices { get; set; }
+
+    /// <summary>
     /// Creation time
     /// </summary>
     public DateTime CreatedTime { get; set; } = DateTime.UtcNow;

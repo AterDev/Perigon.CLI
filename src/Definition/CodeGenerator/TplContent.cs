@@ -246,7 +246,7 @@ export class EnumTextPipeModule { }
                     <NoWarn>1701;1702;1591</NoWarn>
                 </PropertyGroup>
                 <ItemGroup>
-                    <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
+                    <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
                 </ItemGroup>
                 <ItemGroup>
                     <Folder Include="Managers\" />
@@ -296,10 +296,10 @@ export class EnumTextPipeModule { }
             // this service's custom cors, auth, rateLimiter etc.
 
             // add Managers, auto generate by source generator
-            // builder.Services.AddManagers();
+            builder.Services.AddManagers();
 
             // add modules, auto generate by source generator
-            // builder.AddModules();
+            builder.AddModules();
 
             WebApplication app = builder.Build();
 
