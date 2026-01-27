@@ -256,12 +256,54 @@ export class EnumTextPipeModule { }
             """;
     }
 
+    public static string ModuleInitHostService(string moduleName)
+    {
+        return $$"""
+            using Microsoft.Extensions.DependencyInjection;
+            using Microsoft.Extensions.Hosting;
+
+            namespace {{moduleName}}.Services;
+
+            /// <summary>
+            /// module init host service
+            /// </summary>
+            public class Init{{moduleName}}Service(
+                IServiceProvider serviceProvider,
+                IHostApplicationLifetime hostLifetime,
+                ILogger<Init{{moduleName}}Service> logger
+            ) : BackgroundService
+            {
+                protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+                {
+                    // using var scope = serviceProvider.CreateScope();
+
+                    try
+                    {
+                        logger.LogInformation("{{moduleName}} initializing...");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "{{moduleName}} initialization failed");
+                        hostLifetime.StopApplication();
+                        return;
+                    }
+                    finally
+                    {
+                        hostLifetime.StopApplication();
+                    }
+                }
+            }
+            """;
+    }
+
     public static string ModuleExtension(string moduleName)
     {
         return $$"""
             using Microsoft.Extensions.Hosting;
             namespace {{moduleName}};
 
+            [DisplayName("AuthorName::ModuleDisplayName")]
+            [Description("Module Description")]
             public static class ModuleExtensions
             {
                 /// <summary>
@@ -269,9 +311,23 @@ export class EnumTextPipeModule { }
                 /// </summary>
                 public static IHostApplicationBuilder Add{{moduleName}}(this IHostApplicationBuilder builder)
                 {
+                    builder.AddModServices();
                     return builder;
                 }
-            }
+
+                // The module services registration
+                private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
+                {
+                    // custom services registration
+                    return builder;
+                }
+
+                // The module middlewares registration
+                public static WebApplication Use{{moduleName}}Services(this WebApplication app)
+                {
+                   // custom middlewares and init task
+                   return app;
+                }
             """;
     }
 

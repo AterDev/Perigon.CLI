@@ -88,7 +88,7 @@ public class ModulePackageService(
         }
 
         // Check ModuleExtensions.cs
-        var moduleExtensionsPath = Path.Combine(modulePath, "ModuleExtensions.cs");
+        var moduleExtensionsPath = Path.Combine(modulePath, ConstVal.ModuleExtensionFile);
         if (!File.Exists(moduleExtensionsPath))
         {
             OutputHelper.Error(_localizer.Get(Localizer.ModuleExtensionsNotFound));
@@ -106,7 +106,7 @@ public class ModulePackageService(
         var moduleExtensionsPath = Path.Combine(
             _projectContext.ModulesPath!,
             moduleName,
-            "ModuleExtensions.cs"
+            ConstVal.ModuleExtensionFile
         );
 
         var content = await File.ReadAllTextAsync(moduleExtensionsPath);

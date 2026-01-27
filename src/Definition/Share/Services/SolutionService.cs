@@ -119,11 +119,18 @@ public class SolutionService(
         // create dirs
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ModelsDir));
         Directory.CreateDirectory(Path.Combine(projectPath, ConstVal.ManagersDir));
+
+        // extension and init files
         await AssemblyHelper.GenerateFileAsync(
             projectPath,
-            "ModuleExtensions.cs",
+            ConstVal.ModuleExtensionFile,
             TplContent.ModuleExtension(moduleName)
         );
+        await AssemblyHelper.GenerateFileAsync(
+            Path.Combine(projectPath, ConstVal.ServicesDir),
+           $"Init{moduleName}Service.cs",
+           TplContent.ModuleInitHostService(moduleName)
+       );
 
         // update solution file
         UpdateSolutionFile(

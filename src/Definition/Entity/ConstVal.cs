@@ -24,6 +24,7 @@ public static class ConstVal
 
     public const string DbName = "perigon.mds";
     public const string StudioFileName = "AterStudio.dll";
+    public const string ModuleExtensionFile = "ModuleExtensions.cs";
 
     // assembly name
     public const string CommonMod = "CommonMod";
