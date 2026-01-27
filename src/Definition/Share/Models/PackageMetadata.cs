@@ -3,7 +3,7 @@ namespace Share.Models;
 /// <summary>
 /// Module package metadata
 /// </summary>
-public class ModulePackageMetadata
+public class PackageMetadata
 {
     /// <summary>
     /// Module name
@@ -25,6 +25,8 @@ public class ModulePackageMetadata
     /// </summary>
     public string? Description { get; set; }
 
+    public PackageType PackageType { get; set; }
+
     /// <summary>
     /// Package version
     /// </summary>
@@ -40,3 +42,17 @@ public class ModulePackageMetadata
     /// </summary>
     public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
 }
+public enum PackageType
+{
+    /// <summary>
+    /// Module package
+    /// </summary>
+    Module,
+    /// <summary>
+    /// Service package
+    /// </summary>
+    Service
+}
+
+
+

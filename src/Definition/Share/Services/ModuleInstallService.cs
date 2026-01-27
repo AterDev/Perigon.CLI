@@ -71,7 +71,7 @@ public class ModuleInstallService(
     /// <summary>
     /// Handle solution/project/global usings updates after files are copied
     /// </summary>
-    private async Task PostInstallAdjustmentsAsync(ModulePackageMetadata metadata, string serviceName)
+    private async Task PostInstallAdjustmentsAsync(PackageMetadata metadata, string serviceName)
     {
 
         // Compose module project path
@@ -189,7 +189,7 @@ public class ModuleInstallService(
         await EnsureDbSetsForModuleEntitiesAsync(metadata);
     }
 
-    private async Task SetSelfServices(ModulePackageMetadata metadata, string servicePath)
+    private async Task SetSelfServices(PackageMetadata metadata, string servicePath)
     {
         if (metadata.UseSelfServices)
         {
@@ -275,7 +275,7 @@ public class ModuleInstallService(
     /// <summary>
     /// Ensure DefaultDbContext contains DbSet properties for entities of the module
     /// </summary>
-    private async Task EnsureDbSetsForModuleEntitiesAsync(ModulePackageMetadata metadata)
+    private async Task EnsureDbSetsForModuleEntitiesAsync(PackageMetadata metadata)
     {
         OutputHelper.Debug("Ensuring DbSet properties for module entities...");
         try
@@ -430,7 +430,7 @@ public class ModuleInstallService(
     /// <summary>
     /// Extract package and install files
     /// </summary>
-    private async Task<ModulePackageMetadata?> ExtractPackageAsync(
+    private async Task<PackageMetadata?> ExtractPackageAsync(
         string packagePath,
         string serviceName
     )
@@ -483,7 +483,7 @@ public class ModuleInstallService(
             }
 
             var metadataJson = await File.ReadAllTextAsync(metadataPath);
-            var metadata = JsonSerializer.Deserialize<ModulePackageMetadata>(metadataJson);
+            var metadata = JsonSerializer.Deserialize<PackageMetadata>(metadataJson);
             if (metadata == null)
             {
                 OutputHelper.Error(_localizer.Get(Localizer.InvalidPackageStructure));

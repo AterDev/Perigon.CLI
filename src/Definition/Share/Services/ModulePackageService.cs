@@ -101,7 +101,7 @@ public class ModulePackageService(
     /// <summary>
     /// Get module metadata from ModuleExtensions.cs
     /// </summary>
-    private async Task<ModulePackageMetadata?> GetModuleMetadataAsync(string moduleName)
+    private async Task<PackageMetadata?> GetModuleMetadataAsync(string moduleName)
     {
         var moduleExtensionsPath = Path.Combine(
             _projectContext.ModulesPath!,
@@ -178,7 +178,7 @@ public class ModulePackageService(
             .Any(method => method.Identifier.Text == expectedMethodName);
 
 
-        return new ModulePackageMetadata
+        return new PackageMetadata
         {
             ModuleName = moduleName,
             Author = author,
@@ -306,7 +306,7 @@ public class ModulePackageService(
     private async Task<string> CreatePackageAsync(
         string moduleName,
         string serviceName,
-        ModulePackageMetadata metadata
+        PackageMetadata metadata
     )
     {
         // Create package_modules directory

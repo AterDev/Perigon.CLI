@@ -269,7 +269,6 @@ export class EnumTextPipeModule { }
             /// </summary>
             public class Init{{moduleName}}Service(
                 IServiceProvider serviceProvider,
-                IHostApplicationLifetime hostLifetime,
                 ILogger<Init{{moduleName}}Service> logger
             ) : BackgroundService
             {
@@ -284,12 +283,10 @@ export class EnumTextPipeModule { }
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "{{moduleName}} initialization failed");
-                        hostLifetime.StopApplication();
                         return;
                     }
                     finally
                     {
-                        hostLifetime.StopApplication();
                     }
                 }
             }
