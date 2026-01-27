@@ -50,6 +50,7 @@ public class ModuleInstallService(
             var metadata = await ExtractPackageAsync(packagePath, serviceName);
             if (metadata == null)
             {
+                OutputHelper.Error("metadata is null");
                 return false;
             }
 
@@ -72,6 +73,7 @@ public class ModuleInstallService(
     /// </summary>
     private async Task PostInstallAdjustmentsAsync(ModulePackageMetadata metadata, string serviceName)
     {
+
         // Compose module project path
         var moduleProjectPath = Path.Combine(
             _projectContext.ModulesPath!,
@@ -94,6 +96,7 @@ public class ModuleInstallService(
         var serviceProjectPath = Directory
             .GetFiles(servicePath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly)
             .FirstOrDefault();
+
         if (!string.IsNullOrEmpty(serviceProjectPath))
         {
             try
@@ -274,18 +277,23 @@ public class ModuleInstallService(
     /// </summary>
     private async Task EnsureDbSetsForModuleEntitiesAsync(ModulePackageMetadata metadata)
     {
+        OutputHelper.Debug("Ensuring DbSet properties for module entities...");
         try
         {
             // Locate entity directory for the module
             var entityDir = Path.Combine(_projectContext.EntityPath!, metadata.ModuleName);
             if (!Directory.Exists(entityDir))
             {
+
+                OutputHelper.Warning($"Entity directory not found for module {metadata.ModuleName}");
                 return;
             }
 
             // Collect entity class names from .cs files
             var entityFiles = Directory.GetFiles(entityDir, "*.cs", SearchOption.AllDirectories);
             var entityNames = new List<string>();
+
+            OutputHelper.Debug($"Found {entityFiles.Length} entity files for module {metadata.ModuleName}");
             foreach (var ef in entityFiles)
             {
                 try
@@ -305,12 +313,14 @@ public class ModuleInstallService(
                 }
                 catch
                 {
+                    OutputHelper.Debug($"Failed to parse entity file: {ef}");
                     // ignore parse errors for individual files
                 }
             }
 
             if (entityNames.Count == 0)
             {
+                OutputHelper.Warning($"No entity classes found for module {metadata.ModuleName}");
                 return;
             }
 
@@ -324,6 +334,7 @@ public class ModuleInstallService(
                 ConstVal.AppDbContextName,
                 "DefaultDbContext.cs"
             );
+
             if (File.Exists(candidate))
             {
                 dbContextPath = candidate;
@@ -338,8 +349,12 @@ public class ModuleInstallService(
                 }
             }
 
+            OutputHelper.Debug($"{dbContextPath}");
+
             if (string.IsNullOrEmpty(dbContextPath) || !File.Exists(dbContextPath))
             {
+
+                OutputHelper.Warning("DefaultDbContext.cs not found");
                 return;
             }
 
@@ -359,6 +374,8 @@ public class ModuleInstallService(
                     {
                         var propContent = $"public DbSet<{entity}> {propName} {{ get; set; }}";
                         helper.AddClassProperty(propContent);
+
+                        OutputHelper.Debug($"add  prop {propContent}");
                         dbChanged = true;
                     }
                 }
@@ -366,11 +383,13 @@ public class ModuleInstallService(
                 if (dbChanged && helper.SyntaxRoot != null)
                 {
                     var newDbText = helper.SyntaxRoot.NormalizeWhitespace().ToFullString();
+                    OutputHelper.Debug($"{newDbText}");
                     await File.WriteAllTextAsync(dbContextPath, newDbText);
                 }
             }
             catch (Exception ex)
             {
+                OutputHelper.Error($"Error updating DefaultDbContext: {ex.Message}");
                 _logger.LogWarning(ex, "Failed to update DefaultDbContext with new DbSet properties for module {Module}", metadata.ModuleName);
             }
 
@@ -397,11 +416,13 @@ public class ModuleInstallService(
             }
             catch (Exception ex)
             {
+                OutputHelper.Error($"Error updating EntityFramework GlobalUsings: {ex.Message}");
                 _logger.LogWarning(ex, "Failed to update EntityFramework GlobalUsings for module {Module}", metadata.ModuleName);
             }
         }
         catch (Exception ex)
         {
+            OutputHelper.Error($"Error ensuring DbSet properties: {ex.Message}");
             _logger.LogWarning(ex, "Error while adding DbSet properties for module {Module}", metadata.ModuleName);
         }
     }

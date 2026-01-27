@@ -444,7 +444,29 @@ public class CompilationHelper
                 .DescendantNodes()
                 .OfType<PropertyDeclarationSyntax>()
                 .LastOrDefault();
-            if (lastPropertyDeclaration != null)
+
+            if (lastPropertyDeclaration == null)
+            {
+                // get first method declaration
+                var firstMethodDeclaration = SyntaxRoot!
+                    .DescendantNodes()
+                    .OfType<MethodDeclarationSyntax>()
+                    .FirstOrDefault();
+
+                if (firstMethodDeclaration != null)
+                {
+                    SyntaxRoot = SyntaxRoot.InsertNodesBefore(
+                        firstMethodDeclaration,
+                        [propertyNode]
+                    );
+                    ClassNode = SyntaxRoot
+                        .DescendantNodes()
+                        .OfType<ClassDeclarationSyntax>()
+                        .FirstOrDefault();
+                    return;
+                }
+            }
+            else
             {
                 SyntaxRoot = SyntaxRoot.InsertNodesAfter(lastPropertyDeclaration, [propertyNode]);
                 ClassNode = SyntaxRoot

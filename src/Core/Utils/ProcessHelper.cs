@@ -134,6 +134,7 @@ public static class ProcessHelper
                 UseShellExecute = false,
                 CreateNoWindow = true,
             },
+
             EnableRaisingEvents = false,
         };
 

@@ -4,6 +4,7 @@ using CommandLine.Commands;
 using Entity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Share;
 using Share.Helper;
 using Share.Services;
@@ -17,6 +18,8 @@ var systemCulture = CultureInfo.CurrentCulture;
 OutputHelper.ShowLogo();
 
 var builder = Host.CreateApplicationBuilder(args);
+builder.Logging.AddConsole();
+
 builder.Services.AddLocalization();
 builder.AddDbContext();
 builder.Services.AddMemoryCache();

@@ -201,6 +201,8 @@ public class SolutionManager(
     public static string OpenSolution(string path)
     {
         string res = ProcessHelper.ExecuteCommands($"start {path}");
+
+        OutputHelper.Debug(res);
         return res;
     }
 }
