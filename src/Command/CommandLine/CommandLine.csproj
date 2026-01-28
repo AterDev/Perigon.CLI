@@ -8,7 +8,7 @@
 		<PackageId>Perigon.CLI</PackageId>
 		<Version>10.1.0</Version>
 		<Description>
-			1. add module pack and install command
+			Your Copilot for Web Developer - Code generation and AI assistant tool.
 		</Description>
 		<Authors>NilTor</Authors>
 		<Company>Atersoft</Company>
@@ -18,7 +18,8 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/AterDev/Perigon.CLI</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageReleaseNotes>improve module remove</PackageReleaseNotes>
+		<PackageReleaseNotes>1. module pack and install command.
+2. some bug fix.</PackageReleaseNotes>
 		<PackageIcon>logo.png</PackageIcon>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AssemblyName>$(MSBuildProjectName)</AssemblyName>

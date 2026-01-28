@@ -24,7 +24,7 @@ public class GenStepManager(
     {
         ArgumentNullException.ThrowIfNull(templates);
 
-        var projectId = (int)solutionId.GetHashCode();
+
         var outputDir = (relativeOutputDir ?? string.Empty).Trim();
         outputDir = outputDir.Replace('\\', '/').TrimStart('/');
 
@@ -38,7 +38,7 @@ public class GenStepManager(
             return new UpsertFromTemplatesResult(0, 0, 0);
 
         var existing = Queryable
-            .Where(s => s.ProjectId == projectId && s.TemplatePath != null)
+            .Where(s => s.ProjectId == solutionId && s.TemplatePath != null)
             .Where(s => templatePaths.Contains(s.TemplatePath!))
             .ToList();
 
@@ -72,7 +72,7 @@ public class GenStepManager(
                 Name = stepName,
                 TemplatePath = tpl.FullPath,
                 OutputPath = outputPath,
-                ProjectId = projectId,
+                ProjectId = solutionId,
             };
             var addRes = await AddAsync(newStep);
             if (!addRes)
@@ -112,6 +112,7 @@ public class GenStepManager(
 
     public async Task<PageList<GenStepItemDto>> ToPageAsync(GenStepFilterDto filter)
     {
+        Queryable = Queryable.Where(q => q.ProjectId == _projectContext.SolutionId);
 
         if (!string.IsNullOrEmpty(filter.Name))
         {
@@ -122,13 +123,6 @@ public class GenStepManager(
         {
             Queryable = Queryable.Where(q => q.FileType == filter.FileType);
         }
-
-        if (filter.ProjectId.HasValue)
-        {
-            Queryable = Queryable.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
-        }
-
-
         return await ToPageAsync<GenStepFilterDto, GenStepItemDto>(filter);
     }
 

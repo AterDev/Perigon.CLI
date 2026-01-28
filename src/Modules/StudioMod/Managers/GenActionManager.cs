@@ -56,7 +56,7 @@ public class GenActionManager(
 
     public async Task<PageList<GenActionItemDto>> ToPageAsync(GenActionFilterDto filter)
     {
-        var query = Queryable;
+        var query = Queryable.Where(q => q.ProjectId == _projectContext.SolutionId);
 
         if (!string.IsNullOrEmpty(filter.Name))
         {
@@ -66,11 +66,6 @@ public class GenActionManager(
         if (filter.SourceType.HasValue)
         {
             query = query.Where(q => q.SourceType == filter.SourceType);
-        }
-
-        if (filter.ProjectId.HasValue)
-        {
-            query = query.Where(q => q.ProjectId == (int)filter.ProjectId.Value.GetHashCode());
         }
 
         Queryable = query;

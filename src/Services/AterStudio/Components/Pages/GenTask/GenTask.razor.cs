@@ -60,6 +60,7 @@ public partial class GenTask : PageBase
         var page = await GenStepManager.ToPageAsync(
             new GenStepFilterDto { PageIndex = 1, PageSize = 100 }
         );
+
         GenSteps = page.Data ?? [];
     }
 
@@ -184,7 +185,8 @@ public partial class GenTask : PageBase
         if (res)
         {
             ToastService.ShowSuccess(Lang(Localizer.Delete, Localizer.Success));
-            await LoadActionsAsync();
+            await LoadStepsAsync();
+
         }
     }
 }

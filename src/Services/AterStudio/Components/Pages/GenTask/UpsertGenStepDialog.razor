@@ -145,6 +145,8 @@
     }
     else
     {
+
+      Console.WriteLine(JsonSerializer.Serialize(Model));
       var res = await GenStepManager.AddAsync(Model);
       if (res)
       {

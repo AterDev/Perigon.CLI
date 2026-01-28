@@ -31,4 +31,5 @@ public class GenStepItemDto
     /// </summary>
     [MaxLength(400)]
     public string? TemplatePath { get; set; }
+    public int ProjectId { get; set; }
 }

@@ -2,6 +2,7 @@ namespace StudioMod.Managers;
 
 public class McpToolManager(
     DefaultDbContext dbContext,
+    IProjectContext projectContext,
     ILogger<McpToolManager> logger
 ) : ManagerBase<DefaultDbContext, McpTool>(dbContext, logger)
 {
@@ -12,7 +13,7 @@ public class McpToolManager(
     /// <returns></returns>
     public async Task<List<McpTool>> ListAsync()
     {
-        var tools = await ToListAsync();
+        var tools = await ToListAsync(m => m.ProjectId == projectContext.SolutionId);
         return tools;
     }
 
