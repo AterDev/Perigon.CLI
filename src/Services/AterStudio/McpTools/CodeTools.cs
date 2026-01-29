@@ -131,13 +131,11 @@ public class CodeTools(
 
     }
 
-
-    [McpServerTool, Description("verify razor tempalte using entity")]
-    public async Task<string> VerifyRazorTemplateAsync(McpServer server,
+    [McpServerTool, Description("generate code using razor tempalte from entity")]
+    public async Task<string> GenerateCodeUsingRazorTemplateAsync(McpServer server,
         [Description("the entity model file absolute path")] string entityPath,
         [Description("the razor template content")] string razorTemplate)
     {
-
         await SetProjectContextAsync(server);
         var genContext = new RazorGenContext();
         try
@@ -172,11 +170,11 @@ public class CodeTools(
             {
                 var matchFiles = new string[]
                 {
-                            "AddDto.cs",
-                            "UpdateDto.cs",
-                            "DetailDto.cs",
-                            "ItemDto.cs",
-                            "FilterDto.cs",
+                    "AddDto.cs",
+                    "UpdateDto.cs",
+                    "DetailDto.cs",
+                    "ItemDto.cs",
+                    "FilterDto.cs",
                 };
 
                 var dtoFiles = Directory

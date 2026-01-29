@@ -6,7 +6,7 @@
 		<ToolCommandName>perigon</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 		<PackageId>Perigon.CLI</PackageId>
-		<Version>10.1.0</Version>
+		<Version>10.1.1</Version>
 		<Description>
 			Your Copilot for Web Developer - Code generation and AI assistant tool.
 		</Description>

@@ -38,8 +38,9 @@ builder.Services.AddSingleton<StorageService>();
 // add MCP Server
 builder.Services.AddSingleton<McpToolsHandler>();
 
-builder
-    .Services.AddOptions<McpServerOptions>()
+builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
+
+builder.Services.AddOptions<McpServerOptions>()
     .Configure<McpToolsHandler>(
         (opts, handler) =>
         {
@@ -51,7 +52,6 @@ builder
         }
     );
 
-builder.Services.AddMcpServer().WithHttpTransport();
 
 WebApplication app = builder.Build();
 app.MapMcp("mcp");
