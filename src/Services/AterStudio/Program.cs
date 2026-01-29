@@ -51,9 +51,7 @@ builder
         }
     );
 
-builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
-
-//builder.Services.AddHostedService<McpHandlerService>();
+builder.Services.AddMcpServer().WithHttpTransport();
 
 WebApplication app = builder.Build();
 app.MapMcp("mcp");
@@ -122,5 +120,6 @@ app.Lifetime.ApplicationStopping.Register(() =>
 
 
 await app.RunAsync();
+
 
 

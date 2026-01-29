@@ -6,10 +6,10 @@
   <ItemGroup>
     <!-- Core runtime / logging -->
     <PackageVersion Include="Mapster" Version="7.4.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Localization" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Localization" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
     <!-- Console / CLI -->
     <PackageVersion Include="Perigon.MiniDb" Version="0.0.8" />
     <PackageVersion Include="Moq" Version="4.20.72" />
@@ -25,10 +25,10 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <!-- Codegen / helpers -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="3.0.2" />
-    <PackageVersion Include="RazorEngineCore" Version="2024.4.1" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="3.3.1" />
+    <PackageVersion Include="RazorEngineCore" Version="2026.1.1" />
     <!-- Model / protocol libs -->
-    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.5.0-preview.1" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.7.0-preview.1" />
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />

@@ -18,7 +18,8 @@ public class CodeTools(
     SolutionService solutionService,
     GenActionManager genAction,
     DefaultDbContext dbContext,
-    IProjectContext projectContext
+    IProjectContext projectContext,
+    CommandService commandService
 )
 {
     [McpServerTool, Description("create entity model class")]
@@ -262,6 +263,8 @@ public class CodeTools(
 
     }
 
+
+
     /// <summary>
     /// 生成服务
     /// </summary>
@@ -309,19 +312,83 @@ public class CodeTools(
         }
     }
 
-    private string NotSupportClient(McpServer server, string msg)
+    [McpServerTool, Description("generate request client from api document")]
+    public async Task<string> GenerateRequestClientAsync(
+        McpServer server,
+        [Description("request client type: NgHttp, Axios, or CSharp")] string clientType,
+        [Description("the output directory path")] string outputPath,
+        [Description("only generate models, not client code")] bool onlyModels = false,
+        [Description("the api document id")] int? apiDocId = null
+    )
     {
-        var result = string.Empty;
-        var client = server.ClientInfo;
-        if (client != null)
+        try
         {
-            result = $"The {client.Name} {client.Version} may don't support this tool:{msg}";
+            await SetProjectContextAsync(server);
+
+            if (projectContext.SolutionId == null || projectContext.SolutionId <= 0)
+            {
+                return "❌ Can't find solution, please add solution first!";
+            }
+            var currentProjectId = projectContext.SolutionId;
+
+            if (apiDocId == null)
+            {
+                var apiDocs = dbContext.ApiDocInfos
+                    .Where(x => x.ProjectId == currentProjectId)
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                        x.Description,
+                        x.Path
+                    })
+                    .ToList();
+
+                if (apiDocs.Count == 0)
+                {
+                    return "No API documents found in current project. Please create or import an API document first.";
+                }
+
+                var docJson = JsonSerializer.Serialize(apiDocs);
+                return $"Please let User select an API document by providing its ID:\n{docJson}\n\nCall this method again with the apiDocId parameter.";
+            }
+
+            var apiDoc = dbContext.ApiDocInfos
+                .FirstOrDefault(x => x.Id == apiDocId && x.ProjectId == currentProjectId);
+
+            if (apiDoc == null)
+            {
+                return $"API document with ID {apiDocId} not found in current project.";
+            }
+
+            if (!Enum.TryParse<RequestClientType>(clientType, true, out var requestClientType))
+            {
+                var validTypes = string.Join(", ", Enum.GetNames(typeof(RequestClientType)));
+                return $"Invalid client type. Valid types are: {validTypes}";
+            }
+
+            OutputHelper.Info($"Generating {clientType} client from API: {apiDoc.Name}");
+
+            await commandService.GenerateRequestClientAsync(
+                apiDoc.Path,
+                outputPath,
+                requestClientType,
+                onlyModels
+            );
+
+            return $"Successfully generated {clientType} request client from '{apiDoc.Name}' to '{outputPath}'";
         }
-        else
+        catch (Exception ex)
         {
-            result = $"The client can't support this tool:{msg}";
+            logger.LogError("{ex}", ex);
+            return $"Generate client error: {ex.Message}";
         }
-        return result;
+        finally
+        {
+            OutputHelper.Info("🧹 Cleaning up after code generation...");
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
     }
 
     private async Task SetProjectContextAsync(McpServer server)

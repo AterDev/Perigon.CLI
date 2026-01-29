@@ -137,8 +137,7 @@ public record PropertyInfo
             @$"    public {requiredKeyword}{Type}{nullableMark} {Name} {{ get; set; }}{defaultValue}";
         if (!isInput && Name.Contains("password", StringComparison.OrdinalIgnoreCase))
         {
-            attributeText = attributeText?.Replace("    ", "    // ");
-            content = @$"    // public {Type}{nullableMark} {Name} {{ get; set; }}{defaultValue}";
+            return "";
         }
         return $@"{CommentXml}{attributeText}{content}{SuffixContent}
 ";
