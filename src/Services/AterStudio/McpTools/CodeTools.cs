@@ -314,7 +314,7 @@ public class CodeTools(
     public async Task<string> GenerateRequestClientAsync(
         McpServer server,
         [Description("request client type: NgHttp, Axios, or CSharp")] string clientType,
-        [Description("the output directory path")] string outputPath,
+        [Description("the output directory path")] string? outputPath = null,
         [Description("only generate models, not client code")] bool onlyModels = false,
         [Description("the api document id")] int? apiDocId = null
     )
@@ -367,9 +367,14 @@ public class CodeTools(
 
             OutputHelper.Info($"Generating {clientType} client from API: {apiDoc.Name}");
 
+            if (outputPath.IsEmpty() && apiDoc.LocalPath.IsEmpty())
+            {
+                return "❌ Please provide an output path or set a local path in the API document.";
+            }
+
             await commandService.GenerateRequestClientAsync(
                 apiDoc.Path,
-                outputPath,
+                apiDoc.LocalPath ?? outputPath ?? "",
                 requestClientType,
                 onlyModels
             );

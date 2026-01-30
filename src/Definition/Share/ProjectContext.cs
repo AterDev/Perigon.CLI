@@ -57,6 +57,7 @@ public class ProjectContext(DefaultDbContext context) : IProjectContext
         var solution = _context
             .Solutions.FirstOrDefault(p => p.Path.Equals(solutionPath));
 
+        SolutionId = solution?.Id;
         SolutionConfig = solution?.Config;
         SharePath = Path.Combine(SolutionPath, SolutionConfig?.SharePath ?? PathConst.SharePath);
         CommonModPath = Path.Combine(
