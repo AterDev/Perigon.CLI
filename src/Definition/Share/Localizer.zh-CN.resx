@@ -609,4 +609,13 @@
   <data name="InvalidPackageStructure" xml:space="preserve">
     <value>无效的包结构</value>
   </data>
+  <data name="McpDes" xml:space="preserve">
+    <value>Model Context Protocol 工具</value>
+  </data>
+  <data name="McpConfigDes" xml:space="preserve">
+    <value>输出 MCP stdio 配置 JSON</value>
+  </data>
+  <data name="McpStartDes" xml:space="preserve">
+    <value>通过 stdio 传输启动 MCP 服务</value>
+  </data>
 </root>

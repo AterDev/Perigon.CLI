@@ -14,12 +14,14 @@ public class GenActionManager(
     CodeGenService codeGenService,
     ILogger<GenActionManager> logger,
     IProjectContext projectContext,
-    CodeAnalysisService codeAnalysis
+    CodeAnalysisService codeAnalysis,
+    ActionRunModelService actionRunModelService
 ) : ManagerBase<DefaultDbContext, GenAction>(dbContext, logger)
 {
     private readonly IProjectContext _projectContext = projectContext;
     private readonly CodeGenService _codeGen = codeGenService;
     private readonly CodeAnalysisService _codeAnalysis = codeAnalysis;
+    private readonly ActionRunModelService _actionRunModelService = actionRunModelService;
 
     /// <summary>
     /// 添加实体
@@ -210,15 +212,7 @@ public class GenActionManager(
         await UpdateAsync(action);
 
         // 构建任务执行需要的内容
-        var variables = action.Variables;
-        if (dto.Variables != null)
-        {
-            variables = variables
-                .Concat(dto.Variables)
-                .DistinctBy(v => v.Key)
-                .ToList();
-        }
-        var actionRunModel = new ActionRunModel { Variables = [.. variables] };
+        var actionRunModel = _actionRunModelService.Create(action.Variables, dto.Variables);
 
         // 解析模型
         if (action.SourceType is GenSourceType.EntityClass or GenSourceType.DtoModel)
@@ -226,85 +220,11 @@ public class GenActionManager(
             // 兼容dto名称
             if (action.SourceType is GenSourceType.DtoModel && dto.ModelInfo != null)
             {
-                actionRunModel.ModelName = dto.ModelInfo.Name;
-                actionRunModel.PropertyInfos = dto.ModelInfo.PropertyInfos;
-                actionRunModel.Description = dto.ModelInfo.CommentSummary ?? dto.ModelInfo.Comment;
-
-                // 添加变量
-                actionRunModel.Variables.Add(
-                    new Variable { Key = "ModelName", Value = dto.ModelInfo.Name }
-                );
-                actionRunModel.Variables.Add(
-                    new Variable { Key = "ModelNameHyphen", Value = dto.ModelInfo.Name.ToHyphen() }
-                );
+                _actionRunModelService.ApplyModelInfo(actionRunModel, dto.ModelInfo);
             }
             else if (dto.SourceFilePath.NotEmpty())
             {
-                var entityInfo = (
-                    await CodeAnalysisService.GetEntityInfosAsync([dto.SourceFilePath])
-                ).FirstOrDefault();
-
-                if (entityInfo != null)
-                {
-                    actionRunModel.ModelName = entityInfo.Name;
-                    actionRunModel.Namespace = entityInfo.NamespaceName;
-                    actionRunModel.PropertyInfos = entityInfo.PropertyInfos;
-                    actionRunModel.Description = entityInfo.Summary;
-
-                    // 添加变量
-                    actionRunModel.Variables.Add(
-                        new Variable { Key = "ModelName", Value = entityInfo.Name }
-                    );
-                    actionRunModel.Variables.Add(
-                        new Variable { Key = "ModelNameHyphen", Value = entityInfo.Name.ToHyphen() }
-                    );
-                    // 解析dto
-                    var dtoPath = _projectContext.GetDtoPath(
-                        entityInfo.Name,
-                        entityInfo.ModuleName
-                    );
-                    if (Directory.Exists(dtoPath))
-                    {
-                        var matchFiles = new string[]
-                        {
-                            "AddDto.cs",
-                            "UpdateDto.cs",
-                            "DetailDto.cs",
-                            "ItemDto.cs",
-                            "FilterDto.cs",
-                        };
-
-                        var dtoFiles = Directory
-                            .GetFiles(dtoPath, "*Dto.cs", SearchOption.AllDirectories)
-                            .Where(q => matchFiles.Any(m => Path.GetFileName(q).EndsWith(m)))
-                            .ToList();
-
-                        var dtoInfos = await CodeAnalysisService.GetEntityInfosAsync(dtoFiles);
-
-                        actionRunModel.AddPropertyInfos =
-                            dtoInfos.FirstOrDefault(q => q.Name.EndsWith("AddDto"))?.PropertyInfos
-                            ?? [];
-
-                        actionRunModel.UpdatePropertyInfos =
-                            dtoInfos
-                                .FirstOrDefault(q => q.Name.EndsWith("UpdateDto"))
-                                ?.PropertyInfos ?? [];
-
-                        actionRunModel.DetailPropertyInfos =
-                            dtoInfos
-                                .FirstOrDefault(q => q.Name.EndsWith("DetailDto"))
-                                ?.PropertyInfos ?? [];
-
-                        actionRunModel.ItemPropertyInfos =
-                            dtoInfos.FirstOrDefault(q => q.Name.EndsWith("ItemDto"))?.PropertyInfos
-                            ?? [];
-
-                        actionRunModel.FilterPropertyInfos =
-                            dtoInfos
-                                .FirstOrDefault(q => q.Name.EndsWith("FilterDto"))
-                                ?.PropertyInfos ?? [];
-                    }
-                }
+                await _actionRunModelService.TryApplyEntityInfoAsync(actionRunModel, dto.SourceFilePath);
             }
         }
 

@@ -609,4 +609,13 @@
   <data name="InvalidPackageStructure" xml:space="preserve">
     <value>Invalid package structure</value>
   </data>
+  <data name="McpDes" xml:space="preserve">
+    <value>Model Context Protocol tools</value>
+  </data>
+  <data name="McpConfigDes" xml:space="preserve">
+    <value>Print MCP stdio config JSON</value>
+  </data>
+  <data name="McpStartDes" xml:space="preserve">
+    <value>Start MCP server with stdio transport</value>
+  </data>
 </root>

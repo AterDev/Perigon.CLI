@@ -61,6 +61,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+		<ProjectReference Include="..\..\Modules\StudioMod\StudioMod.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="logo.png">

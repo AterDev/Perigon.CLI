@@ -13,9 +13,26 @@ using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var systemCulture = CultureInfo.CurrentCulture;
+var cultureName = Environment.GetEnvironmentVariable("DOTNET_CLI_UI_LANGUAGE");
+var systemCulture = !string.IsNullOrWhiteSpace(cultureName)
+    ? new CultureInfo(cultureName)
+    : CultureInfo.CurrentUICulture;
 
-OutputHelper.ShowLogo();
+CultureInfo.DefaultThreadCurrentCulture = systemCulture;
+CultureInfo.DefaultThreadCurrentUICulture = systemCulture;
+CultureInfo.CurrentCulture = systemCulture;
+CultureInfo.CurrentUICulture = systemCulture;
+var isMcpRawCommand = args.Length >= 2
+    && args[0].Equals(SubCommand.Mcp, StringComparison.OrdinalIgnoreCase)
+    && (
+        args[1].Equals(SubCommand.Config, StringComparison.OrdinalIgnoreCase)
+        || args[1].Equals(SubCommand.Start, StringComparison.OrdinalIgnoreCase)
+    );
+
+if (!isMcpRawCommand)
+{
+    OutputHelper.ShowLogo();
+}
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole();
@@ -39,6 +56,8 @@ builder.Services.AddScoped<StudioCommand>();
 builder.Services.AddScoped<RequestCommand>();
 builder.Services.AddScoped<PackCommand>();
 builder.Services.AddScoped<InstallCommand>();
+builder.Services.AddScoped<McpConfigCommand>();
+builder.Services.AddScoped<McpStartCommand>();
 
 var host = builder.Build();
 
@@ -92,6 +111,21 @@ app.Configure(config =>
             }
         )
         .WithAlias("g");
+
+    ConfiguratorExtensions.AddBranch(
+        config,
+        SubCommand.Mcp,
+        mcp =>
+        {
+            mcp.SetDescription(localizer.Get(Localizer.McpDes));
+            mcp
+                .AddCommand<McpConfigCommand>(SubCommand.Config)
+                .WithDescription(localizer.Get(Localizer.McpConfigDes));
+            mcp
+                .AddCommand<McpStartCommand>(SubCommand.Start)
+                .WithDescription(localizer.Get(Localizer.McpStartDes));
+        }
+    );
 
     config
         .AddCommand<PackCommand>(SubCommand.Pack)

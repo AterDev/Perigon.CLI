@@ -4,8 +4,16 @@ namespace Share.Helper;
 
 public class OutputHelper
 {
+    private static bool IsMcpStdioMode =>
+        Environment.GetEnvironmentVariable("PERIGON_MCP_STDIO") == "1";
+
     public static void ShowLogo()
     {
+        if (IsMcpStdioMode)
+        {
+            return;
+        }
+
         string logo = """
 
             ██████┐ ███████┐██████┐ ██┐ ██████┐  ██████┐ ███┐   ██┐
@@ -29,30 +37,60 @@ public class OutputHelper
 
     public static void Error(string message)
     {
+        if (IsMcpStdioMode)
+        {
+            Console.Error.WriteLine($"✖️ {message}");
+            return;
+        }
         AnsiConsole.MarkupLineInterpolated($"[red]✖️ {message}[/]");
     }
 
     public static void Success(string message)
     {
+        if (IsMcpStdioMode)
+        {
+            Console.Error.WriteLine($"✅ {message}");
+            return;
+        }
         AnsiConsole.MarkupLineInterpolated($"[green]✅ {message}[/]");
     }
 
     public static void Warning(string message)
     {
+        if (IsMcpStdioMode)
+        {
+            Console.Error.WriteLine($"⚠️ {message}");
+            return;
+        }
         AnsiConsole.MarkupLineInterpolated($"[yellow]⚠️ {message}[/]");
     }
 
     public static void Info(string message)
     {
+        if (IsMcpStdioMode)
+        {
+            Console.Error.WriteLine(message);
+            return;
+        }
         AnsiConsole.MarkupLineInterpolated($"{message}");
     }
     public static void Debug(string message)
     {
+        if (IsMcpStdioMode)
+        {
+            Console.Error.WriteLine($"[Dbg] {message}");
+            return;
+        }
         AnsiConsole.MarkupLineInterpolated($"[[Dbg]] [gray]{message}[/]");
     }
 
     public static void Important(string message)
     {
+        if (IsMcpStdioMode)
+        {
+            Console.Error.WriteLine(message);
+            return;
+        }
         AnsiConsole.MarkupLineInterpolated($"[blue]{message}[/]");
     }
 
@@ -74,4 +112,7 @@ public class SubCommand
     public const string Request = "request";
     public const string Pack = "pack";
     public const string Install = "install";
+    public const string Mcp = "mcp";
+    public const string Config = "config";
+    public const string Start = "start";
 }

@@ -2,7 +2,7 @@ using Microsoft.Extensions.AI;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 
-namespace AterStudio.McpTools;
+namespace StudioMod.McpTools;
 
 [McpServerPromptType]
 public static class Prompts

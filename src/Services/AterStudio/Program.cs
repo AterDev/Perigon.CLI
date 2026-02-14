@@ -1,12 +1,10 @@
 using AterStudio;
 using AterStudio.Components.Pages;
-using AterStudio.McpTools;
 using CodeGenerator.Helper;
 using Entity;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Localization;
-using ModelContextProtocol.Server;
 using Perigon.MiniDb;
 using Share.Helper;
 using Share.Services;
@@ -32,29 +30,11 @@ builder.Services.AddScoped<CodeAnalysisService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<SolutionService>();
+builder.Services.AddScoped<ActionRunModelService>();
 builder.Services.AddSingleton<StorageService>();
 
 
-// add MCP Server
-builder.Services.AddSingleton<McpToolsHandler>();
-
-builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
-
-builder.Services.AddOptions<McpServerOptions>()
-    .Configure<McpToolsHandler>(
-        (opts, handler) =>
-        {
-            opts.Handlers = new McpServerHandlers
-            {
-                ListToolsHandler = (req, ct) => handler.ListToolsHandler(req, ct),
-                CallToolHandler = (req, ct) => handler.CallToolHandler(req, ct),
-            };
-        }
-    );
-
-
 WebApplication app = builder.Build();
-app.MapMcp("mcp");
 app.UseMiddlewareServices();
 
 // 使用 Minimal API 处理语言切换
@@ -93,7 +73,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
     {
         if (address.StartsWith("http://"))
         {
-            OutputHelper.Success($"🤖 Mcp Server: {address}/mcp");
+            OutputHelper.Success($"🌐 Studio: {address}");
         }
     }
 });

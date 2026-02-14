@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\StudioMod\StudioMod.csproj" />
+    <ProjectReference Include="..\..\src\Command\CommandLine\CommandLine.csproj" />
   </ItemGroup>
 
 </Project>

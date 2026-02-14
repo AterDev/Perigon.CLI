@@ -1,12 +1,11 @@
 using CodeGenerator;
 using ModelContextProtocol.Server;
-using Share.Helper;
-using Share.Services;
+using StudioMod.Managers;
 using StudioMod.Models.GenActionDtos;
 using System.ComponentModel;
 using System.Text;
 
-namespace AterStudio.McpTools;
+namespace StudioMod.McpTools;
 
 /// <summary>
 /// 代码生成MCP工具
@@ -19,7 +18,8 @@ public class CodeTools(
     GenActionManager genAction,
     DefaultDbContext dbContext,
     IProjectContext projectContext,
-    CommandService commandService
+    CommandService commandService,
+    ActionRunModelService actionRunModelService
 )
 {
     [McpServerTool, Description("create entity model class")]
@@ -35,7 +35,6 @@ public class CodeTools(
             {message}
             """;
 
-        //logger.LogInformation(res);
         return res;
     }
 
@@ -140,73 +139,13 @@ public class CodeTools(
         var genContext = new RazorGenContext();
         try
         {
-            var entityInfo = (
-                   await CodeAnalysisService.GetEntityInfosAsync([entityPath])
-               ).FirstOrDefault();
-            if (entityInfo == null)
+            var actionRunModel = actionRunModelService.Create();
+            var hasEntityInfo = await actionRunModelService.TryApplyEntityInfoAsync(actionRunModel, entityPath);
+            if (!hasEntityInfo)
             {
                 return "can't find entity info from path:" + entityPath;
             }
-            var actionRunModel = new ActionRunModel
-            {
-                ModelName = entityInfo.Name,
-                Namespace = entityInfo.NamespaceName,
-                PropertyInfos = entityInfo.PropertyInfos,
-                Description = entityInfo.Summary
-            };
-            // 添加变量
-            actionRunModel.Variables.Add(
-                new Variable { Key = "ModelName", Value = entityInfo.Name }
-            );
-            actionRunModel.Variables.Add(
-                new Variable { Key = "ModelNameHyphen", Value = entityInfo.Name.ToHyphen() }
-            );
-            // 解析dto
-            var dtoPath = projectContext.GetDtoPath(
-                entityInfo.Name,
-                entityInfo.ModuleName
-            );
-            if (Directory.Exists(dtoPath))
-            {
-                var matchFiles = new string[]
-                {
-                    "AddDto.cs",
-                    "UpdateDto.cs",
-                    "DetailDto.cs",
-                    "ItemDto.cs",
-                    "FilterDto.cs",
-                };
 
-                var dtoFiles = Directory
-                    .GetFiles(dtoPath, "*Dto.cs", SearchOption.AllDirectories)
-                    .Where(q => matchFiles.Any(m => Path.GetFileName(q).EndsWith(m)))
-                    .ToList();
-
-                var dtoInfos = await CodeAnalysisService.GetEntityInfosAsync(dtoFiles);
-
-                actionRunModel.AddPropertyInfos =
-                    dtoInfos.FirstOrDefault(q => q.Name.EndsWith("AddDto"))?.PropertyInfos
-                    ?? [];
-
-                actionRunModel.UpdatePropertyInfos =
-                    dtoInfos
-                        .FirstOrDefault(q => q.Name.EndsWith("UpdateDto"))
-                        ?.PropertyInfos ?? [];
-
-                actionRunModel.DetailPropertyInfos =
-                    dtoInfos
-                        .FirstOrDefault(q => q.Name.EndsWith("DetailDto"))
-                        ?.PropertyInfos ?? [];
-
-                actionRunModel.ItemPropertyInfos =
-                    dtoInfos.FirstOrDefault(q => q.Name.EndsWith("ItemDto"))?.PropertyInfos
-                    ?? [];
-
-                actionRunModel.FilterPropertyInfos =
-                    dtoInfos
-                        .FirstOrDefault(q => q.Name.EndsWith("FilterDto"))
-                        ?.PropertyInfos ?? [];
-            }
             string resContent = genContext.GenTemplate(razorTemplate, actionRunModel);
             return resContent;
         }
@@ -253,8 +192,6 @@ public class CodeTools(
         }
         finally
         {
-            // 生成完成后简单的垃圾回收
-            OutputHelper.Info("🧹 Cleaning up after code generation...");
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -303,8 +240,6 @@ public class CodeTools(
         }
         finally
         {
-            // 生成完成后简单的垃圾回收
-            OutputHelper.Info("🧹 Cleaning up after code generation...");
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -365,8 +300,6 @@ public class CodeTools(
                 return $"Invalid client type. Valid types are: {validTypes}";
             }
 
-            OutputHelper.Info($"Generating {clientType} client from API: {apiDoc.Name}");
-
             if (outputPath.IsEmpty() && apiDoc.LocalPath.IsEmpty())
             {
                 return "❌ Please provide an output path or set a local path in the API document.";
@@ -388,7 +321,6 @@ public class CodeTools(
         }
         finally
         {
-            OutputHelper.Info("🧹 Cleaning up after code generation...");
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
