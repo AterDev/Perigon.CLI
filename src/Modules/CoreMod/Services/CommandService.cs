@@ -156,7 +156,6 @@ public class CommandService(
             }
         }
 
-        SolutionService.BuildSourceGeneration(solutionPath);
         if (projectContext.EntityPath.NotEmpty())
         {
             SolutionService.BuildProject(projectContext.EntityPath);

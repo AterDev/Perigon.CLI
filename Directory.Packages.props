@@ -17,7 +17,7 @@
     <PackageVersion Include="Spectre.Console.Cli" Version="0.53.1" />
     <PackageVersion Include="Spectre.Console.Testing" Version="0.53.1" />
     <!-- Ater infra / templates -->
-    <PackageVersion Include="Perigon.AspNetCore.SourceGeneration" Version="1.0.0" />
+    <PackageVersion Include="Perigon.AspNetCore.SourceGeneration" Version="1.1.1" />
     <!-- UI / Blazor -->
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.0" />
     <!-- Tooling / Roslyn / build helpers -->

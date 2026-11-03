@@ -13,4 +13,16 @@ public class TplContentTests
         Assert.Contains("AddSampleMod", content);
         Assert.DoesNotContain("UseSampleModServices", content);
     }
+
+    [Fact]
+    public void ServiceProjectFile_ShouldUseSourceGenerationPackage()
+    {
+        var content = TplContent.ServiceProjectFileTpl();
+
+        Assert.Contains(
+            "<PackageReference Include=\"Perigon.AspNetCore.SourceGeneration\" PrivateAssets=\"all\" />",
+            content
+        );
+        Assert.DoesNotContain("SourceGeneration.csproj", content);
+    }
 }

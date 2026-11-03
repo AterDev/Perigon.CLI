@@ -87,7 +87,7 @@ public static class ConstVal
 
     public const string CoreLibName = "Perigon.AspNetCore";
     public const string ExtensionLibName = "Perigon.AspNetCore.Toolkit";
-    public const string SourceGenerationLibName = "Perigon.AspNetCore.SourceGeneration";
+    public const string SourceGenerationPackageName = "Perigon.AspNetCore.SourceGeneration";
     public const string GlobalUsingsFile = "GlobalUsings.cs";
     public const string ModSuffix = "Mod";
 }

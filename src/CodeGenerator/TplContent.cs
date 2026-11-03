@@ -408,11 +408,7 @@ export class EnumTextPipeModule { }
                 <ImplicitUsings>enable</ImplicitUsings>
               </PropertyGroup>
               <ItemGroup>
-                <ProjectReference
-                  Include="..\..\Perigon\{ConstVal.SourceGenerationLibName}\{ConstVal.SourceGenerationLibName}.csproj"
-                  OutputItemType="Analyzer"
-                  ReferenceOutputAssembly="false"
-                />
+                <PackageReference Include="{ConstVal.SourceGenerationPackageName}" PrivateAssets="all" />
                 <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
               </ItemGroup>
               <ItemGroup>

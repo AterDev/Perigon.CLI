@@ -749,31 +749,6 @@ public class SolutionService(
     }
 
     /// <summary>
-    /// build source generation project
-    /// </summary>
-    /// <param name="solutionPath"></param>
-    public static void BuildSourceGeneration(string solutionPath)
-    {
-        var sourceGenPath = Path.Combine(
-            solutionPath,
-            PathConst.AterPath,
-            ConstVal.SourceGenerationLibName,
-            ConstVal.SourceGenerationLibName + ConstVal.CSharpProjectExtension
-        );
-        if (File.Exists(sourceGenPath))
-        {
-            if (ProcessHelper.RunCommand("dotnet", $"build {sourceGenPath}", out string error))
-            {
-                OutputHelper.Success("build source generation project!");
-            }
-            else
-            {
-                OutputHelper.Error("build source generation project failed: " + error);
-            }
-        }
-    }
-
-    /// <summary>
     /// 复制模块文件
     /// </summary>
     /// <param name="sourceDir"></param>`
