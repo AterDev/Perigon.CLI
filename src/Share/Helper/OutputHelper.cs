@@ -131,6 +131,8 @@ public class SubCommand
     public const string List = "list";
     public const string Mcp = "mcp";
     public const string Agent = "agent";
+    public const string Aot = "aot";
+    public const string JsonContext = "jsonContext";
     public const string Config = "config";
     public const string Init = "init";
 }

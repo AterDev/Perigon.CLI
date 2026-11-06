@@ -1,4 +1,5 @@
 using CommandLine.Commands;
+using Share.Helper;
 using Spectre.Console.Cli;
 using Xunit;
 
@@ -6,6 +7,16 @@ namespace CoreMod.Tests.Commands;
 
 public class EntityGenerateCommandTests
 {
+    [Fact]
+    public void AotJsonContextSettings_ShouldUseCurrentDirectoryWhenPathIsOmitted()
+    {
+        var settings = new AotJsonContextSettings();
+
+        Assert.Null(settings.Path);
+        Assert.Equal("aot", SubCommand.Aot);
+        Assert.Equal("jsonContext", SubCommand.JsonContext);
+    }
+
     [Theory]
     [InlineData(typeof(EntityGenerateSettings))]
     [InlineData(typeof(GenerateControllerSettings))]

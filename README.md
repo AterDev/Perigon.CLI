@@ -101,6 +101,8 @@ perigon agent mcp
 
 或者使用`perigon [command] --help` 查看具体命令帮助信息。
 
+在项目根目录先执行 `dotnet restore`，然后运行 `perigon aot jsonContext`，为 `src/Services` 下的服务生成或更新 Native AOT JSON 上下文。也可以使用 `--path <项目根目录>`；接口或模块模型变化后需重新运行。生成区以外的手写声明会保留，无法静态推断的类型需要手动添加。服务还需在 JSON 序列化选项中注册该 context；命令不会修改服务启动代码。
+
 打包模块时可以通过`-v`或`--version`指定写入安装包的版本号；省略时默认使用`1.0.0`并显示警告：
 
 ```pwsh

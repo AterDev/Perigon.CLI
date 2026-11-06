@@ -105,6 +105,8 @@ You can use `perigon --help` to view command help information.
 
 Or use `perigon [command] --help` to view specific command help information.
 
+Run `dotnet restore` in the project root, then run `perigon aot jsonContext` to generate or update Native AOT JSON contexts for services under `src/Services`. Use `--path <project-root>` to select another root. Rerun the command after endpoint or module model changes. Handwritten declarations outside the generated section are preserved; add types that cannot be inferred statically by hand. Register the context in the service's JSON serialization options; the command does not modify startup code.
+
 When packaging a module, use `-v` or `--version` to set the package version. If omitted, the command uses `1.0.0` and prints a warning:
 
 ```pwsh

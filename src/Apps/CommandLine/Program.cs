@@ -56,6 +56,7 @@ builder.Services.AddScoped<Localizer>();
 builder.Services.AddScoped<SolutionContext>();
 builder.Services.AddScoped<SolutionService>();
 builder.Services.AddScoped<CodeAnalysisService>();
+builder.Services.AddScoped<AotJsonContextService>();
 builder.Services.AddScoped<CodeGenService>();
 builder.Services.AddScoped<CommandService>();
 builder.Services.AddScoped<ModulePackageService>();
@@ -81,6 +82,7 @@ builder.Services.AddScoped<UpdateCommand>();
 builder.Services.AddScoped<ModuleListCommand>();
 builder.Services.AddScoped<AgentInitCommand>();
 builder.Services.AddScoped<AgentMcpCommand>();
+builder.Services.AddScoped<AotJsonContextCommand>();
 
 var host = builder.Build();
 
@@ -239,6 +241,18 @@ app.Configure(config =>
             agent
                 .AddCommand<AgentMcpCommand>(SubCommand.Mcp)
                 .WithDescription(localizer.Get(Localizer.AgentMcpDes));
+        }
+    );
+
+    ConfiguratorExtensions.AddBranch(
+        config,
+        SubCommand.Aot,
+        aot =>
+        {
+            aot.SetDescription("Native AOT tools");
+            aot.AddCommand<AotJsonContextCommand>(SubCommand.JsonContext)
+                .WithDescription("Generate ApiJsonSerializerContext for service projects")
+                .WithExample(["aot", "jsonContext", "--path", "."]);
         }
     );
 

@@ -5,6 +5,7 @@ Mapster.Core.dll
 Mapster.dll
 Microsoft.AspNetCore.Razor.Language.dll
 Microsoft.Build.Framework.dll
+Microsoft.Build.Locator.dll
 Microsoft.CodeAnalysis.CSharp.dll
 Microsoft.CodeAnalysis.CSharp.Workspaces.dll
 Microsoft.CodeAnalysis.dll

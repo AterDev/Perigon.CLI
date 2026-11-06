@@ -6,7 +6,7 @@
     <ToolCommandName>perigon</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <PackageId>Perigon.CLI</PackageId>
-    <Version>10.2.0</Version>
+    <Version>10.2.1</Version>
     <Description>
 			The AI workflow for .NET Web developers, help you generate code and build your project quickly.
 		</Description>
@@ -18,11 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AterDev/Perigon.CLI</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>1. Add and refine the perigon update command with an interactive two-pane selector for reviewing and applying confirmed template changes.
-2. Always install the latest Perigon.templates package with dotnet new install Perigon.templates before generating a comparison project; preserve project-only files, ignore non-semantic whitespace differences, and protect against concurrent edits.
-3. Add Agent initialization options, stdio MCP startup, and secure archive extraction while removing obsolete Studio generation and MCP configuration pages.
-4. Add -v/--version to module pack so module packages can carry an explicit version; omitted versions default to 1.0.0 with a warning.
-		</PackageReleaseNotes>
+    <PackageReleaseNotes>Add perigon aot jsonContext to generate and update Native AOT JSON serialization contexts for service projects.</PackageReleaseNotes>
     <PackageIcon>logo.png</PackageIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
