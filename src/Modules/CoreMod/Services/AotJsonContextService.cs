@@ -29,12 +29,6 @@ public sealed class AotJsonContextService
         "Map", "MapGet", "MapPost", "MapPut", "MapPatch", "MapDelete", "MapMethods", "MapFallback"
     };
 
-    private static readonly HashSet<string> TypedResultMethods = new(StringComparer.Ordinal)
-    {
-        "Json", "Ok", "Created", "Accepted", "CreatedAtRoute", "AcceptedAtRoute",
-        "BadRequest", "NotFound", "Conflict", "UnprocessableEntity"
-    };
-
     /// <summary>
     /// Generates or updates the JSON context for every C# service below <c>src/Services</c>.
     /// </summary>
@@ -97,9 +91,13 @@ public sealed class AotJsonContextService
             }
 
             DiscoverEndpointTypes(compilation, roots);
+            DiscoverJsonSerializerCalls(compilation, roots);
             await DiscoverModuleTypesAsync(project, workspace.CurrentSolution, roots, cancellationToken);
 
-            var outputPath = contextPath ?? Path.Combine(Path.GetDirectoryName(projectPath)!, ContextFileName);
+            var outputPath = contextPath ?? Path.Combine(
+                Path.GetDirectoryName(projectPath)!,
+                "Serialization",
+                ContextFileName);
             var original = contextPath is null ? null : contextDeclaration!.SyntaxTree.GetText(cancellationToken).ToString();
             if (contextPath is null && File.Exists(outputPath))
             {
@@ -298,6 +296,7 @@ public sealed class AotJsonContextService
             foreach (var declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
                 if (model.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol
+                    || symbol.Name != "ApiJsonSerializerContext"
                     || symbol.BaseType?.ToDisplayString() != "System.Text.Json.Serialization.JsonSerializerContext")
                 {
                     continue;
@@ -419,6 +418,89 @@ public sealed class AotJsonContextService
         }
     }
 
+    /// <summary>
+    /// Finds direct generic calls to System.Text.Json.JsonSerializer in the
+    /// service project. Endpoint discovery cannot see models that are only
+    /// serialized inside a manager or a worker (for example JSON columns), so
+    /// those calls must also contribute roots to the service context.
+    /// </summary>
+    private static void DiscoverJsonSerializerCalls(
+        Compilation compilation,
+        HashSet<string> roots,
+        bool onlyPublicTypes = false)
+    {
+        foreach (var tree in compilation.SyntaxTrees)
+        {
+            if (IsGeneratedTree(tree))
+            {
+                continue;
+            }
+
+            var model = compilation.GetSemanticModel(tree);
+            foreach (var invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (model.GetOperation(invocation) is not IInvocationOperation operation)
+                {
+                    continue;
+                }
+
+                var method = operation.TargetMethod;
+                if (method.ContainingType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                    != "global::System.Text.Json.JsonSerializer"
+                    || method.TypeArguments.Length == 0
+                    || method.Name is not ("Serialize" or "Deserialize"))
+                {
+                    continue;
+                }
+
+                // A call that already supplies JsonTypeInfo<T> or a
+                // JsonSerializerContext is explicitly AOT-bound. Its type is
+                // owned by that context (for example AppSerializerContext),
+                // so do not duplicate it in the service API context.
+                if (operation.Arguments.Any(argument => IsJsonMetadataArgument(argument.Value.Type)))
+                {
+                    continue;
+                }
+
+                foreach (var typeArgument in method.TypeArguments)
+                {
+                    if (onlyPublicTypes && !IsPubliclyAccessible(typeArgument))
+                    {
+                        continue;
+                    }
+
+                    AddRoot(typeArgument, roots);
+                }
+            }
+        }
+    }
+
+    private static bool IsJsonMetadataArgument(ITypeSymbol? type)
+    {
+        if (type is not INamedTypeSymbol named)
+        {
+            return false;
+        }
+
+        if (named.Name == "JsonTypeInfo"
+            && named.ContainingNamespace?.ToDisplayString()
+                == "System.Text.Json.Serialization.Metadata")
+        {
+            return true;
+        }
+
+        for (var current = named; current is not null; current = current.BaseType)
+        {
+            if (current.Name == "JsonSerializerContext"
+                && current.ContainingNamespace?.ToDisplayString() == "System.Text.Json.Serialization")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static IMethodSymbol? ResolveHandler(SemanticModel model, ExpressionSyntax expression)
     {
         var symbolInfo = model.GetSymbolInfo(expression);
@@ -442,10 +524,12 @@ public sealed class AotJsonContextService
         foreach (var parameter in handler.Parameters)
         {
             if (HasBindingAttribute(parameter, "FromServices")
+                || HasBindingAttribute(parameter, "FromKeyedServices")
                 || HasBindingAttribute(parameter, "FromRoute")
                 || HasBindingAttribute(parameter, "FromQuery")
                 || HasBindingAttribute(parameter, "FromHeader")
-                || HasBindingAttribute(parameter, "FromForm"))
+                || HasBindingAttribute(parameter, "FromForm")
+                || HasBindingAttribute(parameter, "AsParameters"))
             {
                 continue;
             }
@@ -462,29 +546,10 @@ public sealed class AotJsonContextService
             }
         }
 
+        // The handler signature is the HTTP contract. Do not inspect the
+        // method body for TypedResults: a body expression is an implementation
+        // detail and can disagree with the declared response type.
         AddRoot(handler.ReturnType, roots);
-        foreach (var reference in handler.DeclaringSyntaxReferences)
-        {
-            var syntax = reference.GetSyntax();
-            var model = compilation.GetSemanticModel(syntax.SyntaxTree);
-            foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
-            {
-                if (model.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method
-                    || !method.IsStatic
-                    || method.ContainingNamespace?.ToDisplayString() != "Microsoft.AspNetCore.Http"
-                    || method.ContainingType?.Name is not ("TypedResults" or "Results")
-                    || !TypedResultMethods.Contains(method.Name))
-                {
-                    continue;
-                }
-
-                foreach (var typeArgument in method.TypeArguments)
-                {
-                    AddRoot(typeArgument, roots);
-                }
-                AddRoot(method.ReturnType, roots);
-            }
-        }
     }
 
     private static async Task DiscoverModuleTypesAsync(
@@ -505,36 +570,7 @@ public sealed class AotJsonContextService
             var moduleCompilation = await moduleProject.GetCompilationAsync(cancellationToken)
                 ?? throw new InvalidOperationException($"Could not compile referenced module {moduleProject.FilePath}.");
             ThrowCompilationErrors(moduleProject.FilePath ?? moduleProject.Name, moduleCompilation);
-            var assembly = moduleCompilation.Assembly;
-            var extensions = GetNamespaceTypes(assembly.GlobalNamespace)
-                .FirstOrDefault(type => type.Name == "ModuleExtensions"
-                    && type.DeclaredAccessibility == Accessibility.Public
-                    && type.IsStatic
-                    && type.GetMembers().OfType<IMethodSymbol>().Any(method =>
-                        method.Name == "Add" + assembly.Name
-                        && method.IsStatic
-                        && method.DeclaredAccessibility == Accessibility.Public));
-            if (extensions is null)
-            {
-                continue;
-            }
-
-            var modelsNamespaceName = extensions.ContainingNamespace.IsGlobalNamespace
-                ? "Models"
-                : extensions.ContainingNamespace.ToDisplayString() + ".Models";
-            var modelsNamespace = FindNamespace(assembly.GlobalNamespace, modelsNamespaceName);
-            if (modelsNamespace is null)
-            {
-                continue;
-            }
-
-            foreach (var type in GetNamespaceTypes(modelsNamespace)
-                .Where(type => type.TypeKind == TypeKind.Class)
-                .Where(IsPubliclyAccessible)
-                .Where(type => !IsOpenGeneric(type)))
-            {
-                roots.Add(ToTypeName(type));
-            }
+            DiscoverJsonSerializerCalls(moduleCompilation, roots, onlyPublicTypes: true);
         }
     }
 
@@ -566,20 +602,75 @@ public sealed class AotJsonContextService
         }
 
         roots.Add(ToTypeName(type));
+
+        // Register nested generic arguments as independent roots too. This is
+        // required when an endpoint returns a custom generic DTO or a
+        // collection/dictionary containing a module DTO: the outer
+        // JsonSerializable declaration must not be the only place where the
+        // trimmer can discover the nested model.
+        if (type is IArrayTypeSymbol array)
+        {
+            AddRoot(array.ElementType, roots);
+        }
+        else if (type is INamedTypeSymbol { IsGenericType: true } genericType)
+        {
+            foreach (var argument in genericType.TypeArguments)
+            {
+                AddRoot(argument, roots);
+            }
+        }
     }
 
     private static bool IsLikelyBodyType(ITypeSymbol type)
     {
-        if (type is not INamedTypeSymbol named)
+        if (type is IArrayTypeSymbol)
         {
-            return type is IArrayTypeSymbol;
+            return true;
         }
 
-        var ns = named.ContainingNamespace?.ToDisplayString() ?? string.Empty;
+        if (type is not INamedTypeSymbol named)
+        {
+            return false;
+        }
+
+        if (named.IsGenericType
+            && named.Name is "List" or "IList" or "ICollection" or "IReadOnlyCollection"
+                or "IEnumerable" or "IReadOnlyList" or "Dictionary" or "IDictionary"
+                or "IReadOnlyDictionary")
+        {
+            return true;
+        }
+
+        // Inferred interface parameters generally come from DI. An endpoint
+        // can opt into JSON for an interface with [FromBody].
+        if (named.TypeKind == TypeKind.Interface)
+        {
+            return false;
+        }
+
         return named.Name.EndsWith("Dto", StringComparison.OrdinalIgnoreCase)
-            || ns.Contains(".Models", StringComparison.Ordinal)
+            || named.ContainingNamespace?.ToDisplayString().Contains(".Models", StringComparison.Ordinal) == true
             || named.GetAttributes().Any(attribute =>
-                attribute.AttributeClass?.Name is "ValidatableTypeAttribute" or "FromBodyAttribute");
+                attribute.AttributeClass?.Name is "ValidatableTypeAttribute" or "FromBodyAttribute")
+            || !IsSimpleBindingType(named);
+    }
+
+    private static bool IsSimpleBindingType(INamedTypeSymbol type)
+    {
+        if (type.TypeKind == TypeKind.Enum
+            || type.SpecialType != SpecialType.None)
+        {
+            return true;
+        }
+
+        var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        return typeName is "global::System.Guid"
+            or "global::System.DateTime"
+            or "global::System.DateTimeOffset"
+            or "global::System.DateOnly"
+            or "global::System.TimeOnly"
+            or "global::System.TimeSpan"
+            or "global::System.Uri";
     }
 
     private static bool IsInfrastructureType(ITypeSymbol type)
@@ -597,7 +688,8 @@ public sealed class AotJsonContextService
         var name = named.Name;
         var ns = named.ContainingNamespace?.ToDisplayString() ?? string.Empty;
         return name is "HttpContext" or "HttpRequest" or "HttpResponse" or "ClaimsPrincipal"
-            or "CancellationToken" or "IServiceProvider"
+            or "CancellationToken" or "IServiceProvider" or "IFormFile" or "IFormFileCollection"
+            or "Stream"
             || name.EndsWith("Manager", StringComparison.Ordinal)
             || name.EndsWith("Service", StringComparison.Ordinal)
             || ns.StartsWith("Microsoft.Extensions", StringComparison.Ordinal);
@@ -605,19 +697,6 @@ public sealed class AotJsonContextService
 
     private static bool HasBindingAttribute(IParameterSymbol parameter, string name) =>
         parameter.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == name + "Attribute");
-
-    private static bool IsEndpointType(INamedTypeSymbol type)
-    {
-        for (var current = type.BaseType; current is not null; current = current.BaseType)
-        {
-            if (current.Name == "RestEndpointBase")
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     private static bool IsAspNetEndpointMethod(IMethodSymbol method)
     {
@@ -635,8 +714,15 @@ public sealed class AotJsonContextService
             || path.Contains($"{Path.AltDirectorySeparatorChar}obj{Path.AltDirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase);
     }
 
+    // Async return wrappers are transport implementation details, not JSON roots.
+    // Generic wrappers are unwrapped by AddRoot; the non-generic forms must be
+    // discarded as well or the generator emits metadata for Task/ValueTask
+    // themselves. That metadata is both unnecessary and can pull exception
+    // reflection into Native AOT builds.
     private static bool IsTaskLike(INamedTypeSymbol type) =>
-        type.Name is "Task" or "ValueTask" && type.TypeArguments.Length == 1;
+        type.Name is "Task" or "ValueTask"
+        && type.ContainingNamespace?.ToDisplayString() == "System.Threading.Tasks"
+        && type.TypeArguments.Length <= 1;
 
     private static bool IsApiResult(INamedTypeSymbol type) =>
         type.Name == "ApiResult" && type.TypeArguments.Length == 1 && type.ContainingType?.Name == "RestEndpointBase";
@@ -673,40 +759,6 @@ public sealed class AotJsonContextService
         type.WithNullableAnnotation(NullableAnnotation.NotAnnotated)
             .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-    private static IEnumerable<INamedTypeSymbol> GetNamespaceTypes(INamespaceSymbol @namespace)
-    {
-        foreach (var member in @namespace.GetMembers())
-        {
-            if (member is INamespaceSymbol nested)
-            {
-                foreach (var type in GetNamespaceTypes(nested))
-                {
-                    yield return type;
-                }
-            }
-            else if (member is INamedTypeSymbol type)
-            {
-                yield return type;
-                foreach (var nestedType in GetNestedTypes(type))
-                {
-                    yield return nestedType;
-                }
-            }
-        }
-    }
-
-    private static IEnumerable<INamedTypeSymbol> GetNestedTypes(INamedTypeSymbol type)
-    {
-        foreach (var nested in type.GetTypeMembers())
-        {
-            yield return nested;
-            foreach (var descendant in GetNestedTypes(nested))
-            {
-                yield return descendant;
-            }
-        }
-    }
-
     private static bool IsPubliclyAccessible(INamedTypeSymbol type)
     {
         for (var current = type; current is not null; current = current.ContainingType)
@@ -720,20 +772,13 @@ public sealed class AotJsonContextService
         return true;
     }
 
-    private static INamespaceSymbol? FindNamespace(INamespaceSymbol root, string name)
+    private static bool IsPubliclyAccessible(ITypeSymbol type) => type switch
     {
-        var current = root;
-        foreach (var segment in name.Split('.'))
-        {
-            current = current.GetNamespaceMembers().FirstOrDefault(candidate => candidate.Name == segment);
-            if (current is null)
-            {
-                return null;
-            }
-        }
-
-        return current;
-    }
+        INamedTypeSymbol named when !IsPubliclyAccessible(named) => false,
+        INamedTypeSymbol named when named.IsGenericType => named.TypeArguments.All(IsPubliclyAccessible),
+        IArrayTypeSymbol array => IsPubliclyAccessible(array.ElementType),
+        _ => true,
+    };
 
     private static string UpdateContextFile(
         string path,

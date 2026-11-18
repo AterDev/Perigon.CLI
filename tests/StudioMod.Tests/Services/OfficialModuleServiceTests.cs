@@ -134,15 +134,17 @@ public class OfficialModuleServiceTests
         Assert.Same(expected, actual);
     }
 
-    [Fact]
-    public async Task DownloadOfficialModulePackageAsync_ShouldPersistZipFile()
+    [Theory]
+    [InlineData(false, "main")]
+    [InlineData(true, "aot")]
+    public async Task DownloadOfficialModulePackageAsync_ShouldPersistZipFile(bool isAot, string branch)
     {
         var cancellationToken = TestContext.Current.CancellationToken;
         var zipBytes = Encoding.UTF8.GetBytes("fake-zip-content");
         var service = CreateService(
             new StubHttpMessageHandler(request =>
             {
-                if (request.RequestUri?.AbsoluteUri == "https://raw.githubusercontent.com/AterDev/Perigon.Modules/main/modules.json")
+                if (request.RequestUri?.AbsoluteUri == $"https://raw.githubusercontent.com/AterDev/Perigon.Modules/{branch}/modules.json")
                 {
                     var metadataJson = """
                         [
@@ -165,7 +167,7 @@ public class OfficialModuleServiceTests
                     );
                 }
 
-                if (request.RequestUri?.AbsoluteUri.Contains("package_modules/SystemMod.zip") == true)
+                if (request.RequestUri?.AbsoluteUri == $"https://raw.githubusercontent.com/AterDev/Perigon.Modules/{branch}/package_modules/SystemMod.zip")
                 {
                     return Task.FromResult(
                         new HttpResponseMessage(HttpStatusCode.OK)
@@ -186,6 +188,7 @@ public class OfficialModuleServiceTests
             var packagePath = await service.DownloadOfficialModulePackageAsync(
                 "Perigon.SystemMod",
                 tempDir,
+                isAot,
                 cancellationToken
             );
 

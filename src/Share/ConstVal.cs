@@ -41,6 +41,7 @@ public static class ConstVal
     public const string ModelsDir = "Models";
     public const string ManagersDir = "Managers";
     public const string ControllersDir = "Controllers";
+    public const string EndpointsDir = "Endpoints";
     public const string SrcDir = "src";
     public const string TemplateDir = "templates";
     public const string ShareDlls = "ShareDlls.txt";

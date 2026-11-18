@@ -10,10 +10,10 @@ public class OfficialModuleService
     private const string OfficialPackagePrefix = "Perigon.";
     private const string GitHubApiUrl = "https://api.github.com";
     private static readonly TimeSpan OfficialModulesCacheDuration = TimeSpan.FromMinutes(1);
-    private const string OfficialModulesMetadataUrl =
-        "https://raw.githubusercontent.com/AterDev/Perigon.Modules/main/modules.json";
+    private const string OfficialModulesMetadataUrlFormat =
+        "https://raw.githubusercontent.com/AterDev/Perigon.Modules/{0}/modules.json";
     private const string OfficialModulesPackageUrlFormat =
-        "https://raw.githubusercontent.com/AterDev/Perigon.Modules/main/package_modules/{0}.zip";
+        "https://raw.githubusercontent.com/AterDev/Perigon.Modules/{0}/package_modules/{1}.zip";
 
     private static readonly HttpClient SharedHttpClient = CreateDefaultHttpClient();
 
@@ -21,8 +21,7 @@ public class OfficialModuleService
     private readonly Localizer _localizer;
     private readonly ILogger<OfficialModuleService> _logger;
     private readonly SemaphoreSlim _modulesCacheLock = new(1, 1);
-    private IReadOnlyList<PackageMetadata>? _cachedOfficialModules;
-    private DateTimeOffset _cachedOfficialModulesExpiresAt;
+    private readonly Dictionary<string, (IReadOnlyList<PackageMetadata> Modules, DateTimeOffset ExpiresAt)> _modulesCache = [];
 
     public OfficialModuleService(Localizer localizer, ILogger<OfficialModuleService> logger)
         : this(SharedHttpClient, localizer, logger) { }
@@ -75,28 +74,31 @@ public class OfficialModuleService
         }
     }
 
-    public async Task<IReadOnlyList<PackageMetadata>> GetOfficialModulesAsync(
+    public Task<IReadOnlyList<PackageMetadata>> GetOfficialModulesAsync(
         CancellationToken cancellationToken = default
     )
     {
-        if (_cachedOfficialModules is not null
-            && _cachedOfficialModulesExpiresAt > DateTimeOffset.UtcNow)
-        {
-            return _cachedOfficialModules;
-        }
+        return GetOfficialModulesAsync("main", cancellationToken);
+    }
 
+    private async Task<IReadOnlyList<PackageMetadata>> GetOfficialModulesAsync(
+        string branch,
+        CancellationToken cancellationToken
+    )
+    {
         try
         {
             await _modulesCacheLock.WaitAsync(cancellationToken);
             try
             {
-                if (_cachedOfficialModules is not null
-                    && _cachedOfficialModulesExpiresAt > DateTimeOffset.UtcNow)
+                if (_modulesCache.TryGetValue(branch, out var cached)
+                    && cached.ExpiresAt > DateTimeOffset.UtcNow)
                 {
-                    return _cachedOfficialModules;
+                    return cached.Modules;
                 }
 
-                using var request = new HttpRequestMessage(HttpMethod.Get, OfficialModulesMetadataUrl);
+                var metadataUrl = string.Format(OfficialModulesMetadataUrlFormat, branch);
+                using var request = new HttpRequestMessage(HttpMethod.Get, metadataUrl);
                 using var response = await _httpClient.SendAsync(request, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
@@ -107,14 +109,13 @@ public class OfficialModuleService
                     cancellationToken
                 );
 
-                _cachedOfficialModules = modules?
+                IReadOnlyList<PackageMetadata> officialModules = modules?
                     .OrderBy(m => m.ModuleName, StringComparer.OrdinalIgnoreCase)
                     .ToList()
                     ?? [];
-                _cachedOfficialModulesExpiresAt =
-                    DateTimeOffset.UtcNow.Add(OfficialModulesCacheDuration);
+                _modulesCache[branch] = (officialModules, DateTimeOffset.UtcNow.Add(OfficialModulesCacheDuration));
 
-                return _cachedOfficialModules;
+                return officialModules;
             }
             finally
             {
@@ -138,14 +139,25 @@ public class OfficialModuleService
         }
     }
 
-    public async Task<string> DownloadOfficialModulePackageAsync(
+    public Task<string> DownloadOfficialModulePackageAsync(
         string packageName,
         string targetDirectory,
         CancellationToken cancellationToken = default
     )
     {
+        return DownloadOfficialModulePackageAsync(packageName, targetDirectory, false, cancellationToken);
+    }
+
+    public async Task<string> DownloadOfficialModulePackageAsync(
+        string packageName,
+        string targetDirectory,
+        bool isAot,
+        CancellationToken cancellationToken
+    )
+    {
+        var branch = isAot ? "aot" : "main";
         var moduleName = NormalizeOfficialModuleName(packageName);
-        var modules = await GetOfficialModulesAsync(cancellationToken);
+        var modules = await GetOfficialModulesAsync(branch, cancellationToken);
         var module = modules.FirstOrDefault(m =>
             string.Equals(m.ModuleName, moduleName, StringComparison.OrdinalIgnoreCase)
         );
@@ -159,7 +171,7 @@ public class OfficialModuleService
 
         Directory.CreateDirectory(targetDirectory);
         var packagePath = Path.Combine(targetDirectory, $"{module.ModuleName}.zip");
-        var downloadUrl = string.Format(OfficialModulesPackageUrlFormat, module.ModuleName);
+        var downloadUrl = string.Format(OfficialModulesPackageUrlFormat, branch, module.ModuleName);
 
         try
         {

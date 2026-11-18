@@ -14,8 +14,10 @@ namespace CoreMod.Tests.Services;
 
 public class ModulePackageServiceTests
 {
-    [Fact]
-    public async Task PackageModuleAsync_ShouldCreatePackage_ForSimpleAttributes()
+    [Theory]
+    [InlineData(false, "Controllers")]
+    [InlineData(true, "Endpoints")]
+    public async Task PackageModuleAsync_ShouldCreatePackage_ForSimpleAttributes(bool isAot, string apiDirectory)
     {
         var result = await RunPackageAsync(
             """
@@ -35,9 +37,11 @@ public class ModulePackageServiceTests
                     return app;
                 }
             }
-            """
+            """,
+            isAot: isAot
         );
 
+        Assert.Contains($"{apiDirectory}/CMSMod/Article.cs", result.EntryNames);
         Assert.NotNull(result.Metadata);
         Assert.Equal("CMSMod", result.Metadata!.ModuleName);
         Assert.Equal("Perigon", result.Metadata.Author);
@@ -151,8 +155,10 @@ public class ModulePackageServiceTests
         Assert.Equal(expectedFrontend, result.Metadata!.Frontend);
     }
 
-    [Fact]
-    public async Task ExtractPackageAsync_ShouldRestoreFrontendUnderFrontendProjectModulesDirectory()
+    [Theory]
+    [InlineData(false, "Controllers")]
+    [InlineData(true, "Endpoints")]
+    public async Task ExtractPackageAsync_ShouldRestoreApiAndFrontend(bool isAot, string apiDirectory)
     {
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         var modulesPath = Path.Combine(root, PathConst.ModulesPath);
@@ -181,6 +187,7 @@ public class ModulePackageServiceTests
                     "metadata.json",
                     JsonSerializer.Serialize(new PackageMetadata { ModuleName = "CMSMod", Frontend = "Angular" })
                 );
+                await WriteArchiveEntryAsync(archive, $"{apiDirectory}/CMSMod/Article.cs", "api");
                 await WriteArchiveEntryAsync(archive, "Frontend/cms/cms.component.ts", "module");
                 await WriteArchiveEntryAsync(archive, "Frontend/share/shared.component.ts", "package");
                 await WriteArchiveEntryAsync(archive, "Frontend/share/new.component.ts", "new");
@@ -208,11 +215,12 @@ public class ModulePackageServiceTests
 
             var task = (Task<PackageMetadata?>)extractMethod!.Invoke(
                 service,
-                [packagePath, "AdminService", "frontend"]
+                [packagePath, "AdminService", "frontend", isAot]
             )!;
             var metadata = await task;
 
             Assert.NotNull(metadata);
+            Assert.True(File.Exists(Path.Combine(servicesPath, "AdminService", apiDirectory, "CMSMod", "Article.cs")));
             Assert.Equal("module", await File.ReadAllTextAsync(
                 Path.Combine(frontendPath, "cms.component.ts"),
                 TestContext.Current.CancellationToken
@@ -283,7 +291,7 @@ public class ModulePackageServiceTests
 
             var task = (Task<PackageMetadata?>)extractMethod!.Invoke(
                 service,
-                [packagePath, "AdminService", "frontend"]
+                [packagePath, "AdminService", "frontend", false]
             )!;
             var metadata = await task;
 
@@ -302,7 +310,8 @@ public class ModulePackageServiceTests
     private static async Task<PackageResult> RunPackageAsync(
         string moduleExtensionsContent,
         string? frontendPackageJson = null,
-        string? version = null
+        string? version = null,
+        bool isAot = false
     )
     {
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -319,6 +328,20 @@ public class ModulePackageServiceTests
             moduleExtensionsContent,
             TestContext.Current.CancellationToken
         );
+
+        if (isAot)
+        {
+            var configPath = Path.Combine(root, ".config");
+            Directory.CreateDirectory(configPath);
+            await File.WriteAllTextAsync(Path.Combine(configPath, "perigon.config.toml"), "isAOT = true", TestContext.Current.CancellationToken);
+        }
+
+        foreach (var apiDirectory in new[] { "Controllers", "Endpoints" })
+        {
+            var apiPath = Path.Combine(servicesPath, "AdminService", apiDirectory, "CMSMod");
+            Directory.CreateDirectory(apiPath);
+            await File.WriteAllTextAsync(Path.Combine(apiPath, "Article.cs"), "public class Article { }", TestContext.Current.CancellationToken);
+        }
 
         string? frontendPath = null;
         if (frontendPackageJson != null)

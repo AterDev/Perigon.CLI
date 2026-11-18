@@ -34,6 +34,10 @@ public class ModulePackageService(
     {
         try
         {
+            var apiDirectory = SolutionService.IsAOT(_projectContext.SolutionPath)
+                ? ConstVal.EndpointsDir
+                : ConstVal.ControllersDir;
+
             // Validate inputs
             if (!await ValidateModuleAsync(moduleName, serviceName))
             {
@@ -54,7 +58,7 @@ public class ModulePackageService(
             }
 
             // Analyze dependencies
-            if (!await ValidateDependenciesAsync(moduleName, serviceName))
+            if (!await ValidateDependenciesAsync(moduleName, serviceName, apiDirectory))
             {
                 return null;
             }
@@ -66,7 +70,7 @@ public class ModulePackageService(
                 return null;
             }
 
-            return await CreatePackageAsync(moduleName, serviceName, metadata, frontendPath);
+            return await CreatePackageAsync(moduleName, serviceName, metadata, frontendPath, apiDirectory);
         }
         catch (Exception ex)
         {
@@ -235,7 +239,7 @@ public class ModulePackageService(
     /// <summary>
     /// Validate module dependencies
     /// </summary>
-    private async Task<bool> ValidateDependenciesAsync(string moduleName, string serviceName)
+    private async Task<bool> ValidateDependenciesAsync(string moduleName, string serviceName, string apiDirectory)
     {
         var hasErrors = false;
 
@@ -263,18 +267,18 @@ public class ModulePackageService(
             hasErrors = true;
         }
 
-        // Validate Controller dependencies
-        var controllerPath = Path.Combine(
+        // Validate service API dependencies
+        var apiPath = Path.Combine(
             _projectContext.ServicesPath!,
             serviceName,
-            ConstVal.ControllersDir,
+            apiDirectory,
             moduleName
         );
-        if (Directory.Exists(controllerPath) &&
+        if (Directory.Exists(apiPath) &&
             !await ValidateDirectoryDependenciesAsync(
-                controllerPath,
+                apiPath,
                 moduleName,
-                "Controller",
+                apiDirectory == ConstVal.ControllersDir ? "Controller" : "Endpoint",
                 [moduleName, "CommonMod", "Share"]
             ))
         {
@@ -351,7 +355,8 @@ public class ModulePackageService(
         string moduleName,
         string serviceName,
         PackageMetadata metadata,
-        string? frontendPath
+        string? frontendPath,
+        string apiDirectory
     )
     {
         // Create package_modules directory
@@ -399,19 +404,19 @@ public class ModulePackageService(
             var modulePath = Path.Combine(_projectContext.ModulesPath!, moduleName);
             AddDirectoryToArchive(archive, modulePath, $"{ConstVal.ModulesDir}/{moduleName}");
 
-            // Add Controller files
-            var controllerPath = Path.Combine(
+            // Add service API files
+            var apiPath = Path.Combine(
                 _projectContext.ServicesPath!,
                 serviceName,
-                ConstVal.ControllersDir,
+                apiDirectory,
                 moduleName
             );
-            if (Directory.Exists(controllerPath))
+            if (Directory.Exists(apiPath))
             {
                 AddDirectoryToArchive(
                     archive,
-                    controllerPath,
-                    $"{ConstVal.ControllersDir}/{moduleName}"
+                    apiPath,
+                    $"{apiDirectory}/{moduleName}"
                 );
             }
 

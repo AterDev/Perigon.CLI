@@ -48,11 +48,12 @@ public sealed class AotJsonContextServiceTests : IDisposable
         Assert.Contains(contexts, text => text.Contains("AdminDto", StringComparison.Ordinal));
         Assert.Contains(contexts, text => text.Contains("List<", StringComparison.Ordinal)
             && text.Contains("UserDto", StringComparison.Ordinal));
-        Assert.All(contexts, text =>
-        {
-            Assert.Contains("using CommonMod.Models.UserDtos;", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("global::CommonMod.Models", text, StringComparison.Ordinal);
-        });
+        var userContext = Assert.Single(contexts, text => text.Contains("UserDto", StringComparison.Ordinal));
+        Assert.Contains("using CommonMod.Models.UserDtos;", userContext, StringComparison.Ordinal);
+        Assert.DoesNotContain("AdminDto", userContext, StringComparison.Ordinal);
+        var adminContext = Assert.Single(contexts, text => text.Contains("AdminDto", StringComparison.Ordinal));
+        Assert.DoesNotContain("UserDto", adminContext, StringComparison.Ordinal);
+        Assert.All(contexts, text => Assert.DoesNotContain("global::CommonMod.Models", text, StringComparison.Ordinal));
         Assert.All(contexts, text => Assert.Contains("Dictionary<string, string>", text, StringComparison.Ordinal));
         Assert.All(contexts, text => Assert.Contains("ProblemDetails", text, StringComparison.Ordinal));
         Assert.All(contexts, text =>
@@ -62,7 +63,53 @@ public sealed class AotJsonContextServiceTests : IDisposable
             Assert.Equal(1, CountOccurrences(text, "JsonSerializable(typeof(Dictionary<string, string>))"));
             Assert.Equal(1, CountOccurrences(text, "JsonSerializable(typeof(ProblemDetails))"));
         });
-        Assert.DoesNotContain(contexts, text => text.Contains("UnusedDto[]", StringComparison.Ordinal));
+        Assert.DoesNotContain(contexts, text => text.Contains("UnusedDto", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task GenerateAsync_ShouldIncludeJsonBodiesButExcludeQueryAndUploadBinding()
+    {
+        WriteProject("UserService", "UserEndpoints", "TypedResults.Ok(1)");
+        WriteModuleModels();
+        File.WriteAllText(
+            Path.Combine(_root, "src", "Services", "UserService", "Endpoints", "BindingEndpoints.cs"),
+            """
+            using Microsoft.AspNetCore.Builder;
+            using Microsoft.AspNetCore.Http;
+            using Microsoft.AspNetCore.Http.HttpResults;
+            using Microsoft.AspNetCore.Mvc;
+            using Microsoft.AspNetCore.Routing;
+
+            namespace UserService.Endpoints;
+
+            public static class BindingEndpoints
+            {
+                public static void MapEndpoints(IEndpointRouteBuilder endpoints)
+                {
+                    endpoints.MapPost("/json", Write);
+                    endpoints.MapPost("/file", Upload);
+                }
+
+                private static Ok<JsonResponse> Write(
+                    [AsParameters] QueryArgs query, [FromBody] Dictionary<string, JsonRequest> body) =>
+                    TypedResults.Ok(new JsonResponse());
+
+                private static NoContent Upload(IFormFile file) => TypedResults.NoContent();
+            }
+
+            public sealed record QueryArgs(int Page);
+            public sealed record JsonRequest(string Value);
+            public sealed record JsonResponse;
+            """);
+        await RestoreProjectsAsync();
+
+        var path = Assert.Single(await new AotJsonContextService().GenerateAsync(
+            _root, TestContext.Current.CancellationToken));
+        var content = File.ReadAllText(path);
+        Assert.Contains("Dictionary<string, JsonRequest>", content, StringComparison.Ordinal);
+        Assert.Contains("typeof(JsonResponse)", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("QueryArgs", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("IFormFile", content, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -91,13 +138,128 @@ public sealed class AotJsonContextServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task GenerateAsync_ShouldNotRegisterNonGenericAsyncWrappers()
+    {
+        WriteProject("UserService", "UserEndpoints", "Task.CompletedTask");
+        WriteProject("ValueTaskService", "ValueTaskEndpoints", "ValueTask.CompletedTask");
+        WriteModuleModels();
+        await RestoreProjectsAsync();
+
+        await new AotJsonContextService().GenerateAsync(_root, TestContext.Current.CancellationToken);
+
+        var contexts = Directory.GetFiles(
+                Path.Combine(_root, "src", "Services"),
+                "ApiJsonSerializerContext.cs",
+                SearchOption.AllDirectories)
+            .Select(File.ReadAllText)
+            .ToArray();
+        Assert.Equal(2, contexts.Length);
+        Assert.DoesNotContain(contexts, text => text.Contains("JsonSerializable(typeof(Task))", StringComparison.Ordinal));
+        Assert.DoesNotContain(contexts, text => text.Contains("JsonSerializable(typeof(ValueTask))", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task GenerateAsync_ShouldDiscoverDirectJsonSerializerCallsOutsideEndpoints()
+    {
+        WriteProject("UserService", "UserEndpoints", "TypedResults.Ok(1)");
+        WriteModuleModels(includeGenericModel: true);
+        File.WriteAllText(
+            Path.Combine(_root, "src", "Services", "UserService", "JsonCalls.cs"),
+            """
+            using System.Text.Json;
+            using CommonMod.Models;
+            using CommonMod.Special;
+            namespace UserService;
+            public static class JsonCalls
+            {
+                public static string Write(Envelope<PayloadDto> value) => JsonSerializer.Serialize(value);
+                public static Dictionary<string, PayloadDto>? Read(string value) =>
+                    JsonSerializer.Deserialize<Dictionary<string, PayloadDto>>(value);
+            }
+            """);
+        await RestoreProjectsAsync();
+
+        await new AotJsonContextService().GenerateAsync(
+            _root, TestContext.Current.CancellationToken);
+
+        var content = File.ReadAllText(
+            Path.Combine(_root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs"));
+        Assert.Contains("Envelope<PayloadDto>", content, StringComparison.Ordinal);
+        Assert.Contains("Dictionary<string, PayloadDto>", content, StringComparison.Ordinal);
+        Assert.Contains("JsonSerializable(typeof(PayloadDto))", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task GenerateAsync_ShouldIgnoreUnrelatedMethodsNamedSerialize()
+    {
+        WriteProject("UserService", "UserEndpoints", "TypedResults.Ok(1)");
+        WriteModuleModels();
+        File.WriteAllText(
+            Path.Combine(_root, "src", "Services", "UserService", "Unrelated.cs"),
+            """
+            namespace UserService;
+            public static class Unrelated
+            {
+                public static string Serialize<T>(T value) => value?.ToString() ?? string.Empty;
+            }
+            """);
+        await RestoreProjectsAsync();
+
+        await new AotJsonContextService().GenerateAsync(
+            _root, TestContext.Current.CancellationToken);
+
+        var content = File.ReadAllText(
+            Path.Combine(_root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs"));
+        Assert.DoesNotContain("Unrelated", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task GenerateAsync_ShouldRegisterNestedCustomGenericArguments()
+    {
+        WriteProject(
+            "UserService",
+            "UserEndpoints",
+            "TypedResults.Json(new CommonMod.Models.Envelope<CommonMod.Special.PayloadDto>())");
+        WriteModuleModels(includeGenericModel: true);
+        await RestoreProjectsAsync();
+
+        await new AotJsonContextService().GenerateAsync(_root, TestContext.Current.CancellationToken);
+
+        var content = File.ReadAllText(Path.Combine(
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs"));
+        Assert.Contains("Envelope<", content, StringComparison.Ordinal);
+        Assert.Contains("PayloadDto", content, StringComparison.Ordinal);
+        Assert.Contains("JsonSerializable(typeof(PayloadDto))", content, StringComparison.Ordinal);
+        await BuildProjectsAsync();
+    }
+
+    [Fact]
+    public async Task GenerateAsync_ShouldRegisterNestedDictionaryArguments()
+    {
+        WriteProject(
+            "UserService",
+            "UserEndpoints",
+            "TypedResults.Json(new Dictionary<string, CommonMod.Special.PayloadDto>())");
+        WriteModuleModels(includeGenericModel: true);
+        await RestoreProjectsAsync();
+
+        await new AotJsonContextService().GenerateAsync(_root, TestContext.Current.CancellationToken);
+
+        var content = File.ReadAllText(Path.Combine(
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs"));
+        Assert.Contains("Dictionary<", content, StringComparison.Ordinal);
+        Assert.Contains("JsonSerializable(typeof(PayloadDto))", content, StringComparison.Ordinal);
+        await BuildProjectsAsync();
+    }
+
+    [Fact]
     public async Task GenerateAsync_ShouldRejectAnExistingNonContextFileWithoutOverwritingIt()
     {
         WriteProject("UserService", "UserEndpoints",
             "TypedResults.Json(new List<CommonMod.Models.UserDtos.UserDto>())");
         WriteModuleModels();
         var contextPath = Path.Combine(
-            _root, "src", "Services", "UserService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs");
         const string original = "namespace UserService; public partial class ApiJsonSerializerContext { }";
         File.WriteAllText(contextPath, original);
         await RestoreProjectsAsync();
@@ -116,7 +278,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
             "TypedResults.Json(new List<CommonMod.Models.UserDtos.UserDto>())");
         WriteModuleModels();
         var contextPath = Path.Combine(
-            _root, "src", "Services", "UserService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs");
         File.WriteAllText(
             contextPath,
             """
@@ -161,7 +323,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
             _root, TestContext.Current.CancellationToken);
 
         var contextPath = Path.Combine(
-            _root, "src", "Services", "SalesService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "SalesService", "Serialization", "ApiJsonSerializerContext.cs");
         Assert.Contains(contextPath, generated);
         var context = File.ReadAllText(contextPath);
         Assert.Contains("namespace Company.Sales.Api;", context);
@@ -176,13 +338,14 @@ public sealed class AotJsonContextServiceTests : IDisposable
         WriteProject("UserService", "UserEndpoints",
             "TypedResults.Json(new List<CommonMod.Models.UserDtos.UserDto>())");
         WriteModuleModels(includeDuplicateUserDto: true);
+        WriteDuplicateDtoEndpoint();
         await RestoreProjectsAsync();
 
         await new AotJsonContextService().GenerateAsync(
             _root, TestContext.Current.CancellationToken);
 
         var contextPath = Path.Combine(
-            _root, "src", "Services", "UserService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs");
         var content = File.ReadAllText(contextPath);
 
         Assert.Contains("= CommonMod.Models.UserDtos.UserDto;", content, StringComparison.Ordinal);
@@ -200,9 +363,10 @@ public sealed class AotJsonContextServiceTests : IDisposable
         WriteProject("UserService", "UserEndpoints",
             "TypedResults.Json(new List<CommonMod.Models.UserDtos.UserDto>())");
         WriteModuleModels(includeDuplicateUserDto: true);
+        WriteDuplicateDtoEndpoint();
 
         var contextPath = Path.Combine(
-            _root, "src", "Services", "UserService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs");
         File.WriteAllText(
             contextPath,
             """
@@ -240,7 +404,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
             "namespace Other.Models; public sealed class UserDto { public string? Name { get; set; } }");
 
         var contextPath = Path.Combine(
-            _root, "src", "Services", "UserService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs");
         File.WriteAllText(
             contextPath,
             """
@@ -278,12 +442,28 @@ public sealed class AotJsonContextServiceTests : IDisposable
             _root, TestContext.Current.CancellationToken);
 
         var contextPath = Path.Combine(
-            _root, "src", "Services", "UserService", "ApiJsonSerializerContext.cs");
+            _root, "src", "Services", "UserService", "Serialization", "ApiJsonSerializerContext.cs");
         var content = File.ReadAllText(contextPath);
         Assert.Contains("Outer.Inner", content, StringComparison.Ordinal);
         Assert.DoesNotContain("global::CommonMod.Models", content, StringComparison.Ordinal);
 
         await BuildProjectsAsync();
+    }
+
+    private void WriteDuplicateDtoEndpoint()
+    {
+        File.WriteAllText(
+            Path.Combine(_root, "src", "Services", "UserService", "Endpoints", "OtherEndpoint.cs"),
+            """
+            using Microsoft.AspNetCore.Builder;
+            using Microsoft.AspNetCore.Routing;
+            namespace UserService.Endpoints;
+            public static class OtherEndpoint
+            {
+                public static void MapEndpoints(IEndpointRouteBuilder endpoints) =>
+                    endpoints.MapGet("/other", static () => new CommonMod.Models.AdminDtos.UserDto());
+            }
+            """);
     }
 
     private void WriteProject(
@@ -295,6 +475,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
     {
         var serviceRoot = Path.Combine(_root, "src", "Services", serviceName);
         Directory.CreateDirectory(Path.Combine(serviceRoot, "Endpoints"));
+        Directory.CreateDirectory(Path.Combine(serviceRoot, "Serialization"));
         var rootNamespaceElement = string.IsNullOrWhiteSpace(rootNamespace)
             ? string.Empty
             : $"<RootNamespace>{rootNamespace}</RootNamespace>";
@@ -329,7 +510,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
         if (includeContext)
         {
             File.WriteAllText(
-                Path.Combine(serviceRoot, "ApiJsonSerializerContext.cs"),
+                Path.Combine(serviceRoot, "Serialization", "ApiJsonSerializerContext.cs"),
                 $$"""
             using System.Text.Json.Serialization;
             using Microsoft.AspNetCore.Mvc;
@@ -341,9 +522,21 @@ public sealed class AotJsonContextServiceTests : IDisposable
         }
     }
 
-    private static string GetReturnType(string expression) => expression.StartsWith("Task.", StringComparison.Ordinal)
-        ? "Task<CommonMod.Models.AdminDtos.AdminDto>"
-        : "IResult";
+    private static string GetReturnType(string expression) => expression switch
+    {
+        "Task.CompletedTask" => "Task",
+        "ValueTask.CompletedTask" => "ValueTask",
+        _ when expression.StartsWith("Task.", StringComparison.Ordinal) => "Task<CommonMod.Models.AdminDtos.AdminDto>",
+        _ when expression.StartsWith("TypedResults.Json(new List<", StringComparison.Ordinal)
+            => "Microsoft.AspNetCore.Http.HttpResults.JsonHttpResult<List<CommonMod.Models.UserDtos.UserDto>>",
+        _ when expression.StartsWith("TypedResults.Json(new CommonMod.Models.Envelope<", StringComparison.Ordinal)
+            => "Microsoft.AspNetCore.Http.HttpResults.JsonHttpResult<CommonMod.Models.Envelope<CommonMod.Special.PayloadDto>>",
+        _ when expression.StartsWith("TypedResults.Json(new Dictionary<", StringComparison.Ordinal)
+            => "Microsoft.AspNetCore.Http.HttpResults.JsonHttpResult<Dictionary<string, CommonMod.Special.PayloadDto>>",
+        "TypedResults.Json(new CommonMod.Models.Outer.Inner())"
+            => "Microsoft.AspNetCore.Http.HttpResults.JsonHttpResult<CommonMod.Models.Outer.Inner>",
+        _ => "Microsoft.AspNetCore.Http.HttpResults.Ok<int>",
+    };
 
     private static int CountOccurrences(string text, string value) =>
         text.Split(value, StringSplitOptions.None).Length - 1;
@@ -405,7 +598,8 @@ public sealed class AotJsonContextServiceTests : IDisposable
 
     private void WriteModuleModels(
         bool includeDuplicateUserDto = false,
-        bool includeNestedModel = false)
+        bool includeNestedModel = false,
+        bool includeGenericModel = false)
     {
         var moduleRoot = Path.Combine(_root, "src", "Modules", "CommonMod");
         Directory.CreateDirectory(Path.Combine(moduleRoot, "Models", "UserDtos"));
@@ -433,6 +627,16 @@ public sealed class AotJsonContextServiceTests : IDisposable
             File.WriteAllText(
                 Path.Combine(moduleRoot, "Models", "Outer.cs"),
                 "namespace CommonMod.Models; public sealed class Outer { public sealed class Inner { public string? Name { get; set; } } }");
+        }
+        if (includeGenericModel)
+        {
+            File.WriteAllText(
+                Path.Combine(moduleRoot, "Models", "Envelope.cs"),
+                "namespace CommonMod.Models; public sealed class Envelope<T> { public T? Value { get; set; } }");
+            Directory.CreateDirectory(Path.Combine(moduleRoot, "Special"));
+            File.WriteAllText(
+                Path.Combine(moduleRoot, "Special", "PayloadDto.cs"),
+                "namespace CommonMod.Special; public sealed class PayloadDto { public string? Value { get; set; } }");
         }
         File.WriteAllText(
             Path.Combine(moduleRoot, "Models", "UnusedDto.cs"),

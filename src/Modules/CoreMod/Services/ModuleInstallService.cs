@@ -27,7 +27,7 @@ public class ModuleInstallService(
     /// Install a module package
     /// </summary>
     /// <param name="packagePath">Path to the package zip file</param>
-    /// <param name="serviceName">Service name to install controllers</param>
+    /// <param name="serviceName">Target service name</param>
     /// <returns>True if installation succeeded</returns>
     public Task<bool> InstallModuleAsync(
         string packagePath,
@@ -42,7 +42,7 @@ public class ModuleInstallService(
     /// Install a module package and optionally restore its frontend code.
     /// </summary>
     /// <param name="packagePath">Path to the module package</param>
-    /// <param name="serviceName">Service name to install controllers</param>
+    /// <param name="serviceName">Target service name</param>
     /// <param name="frontPath">Frontend project root; bundled modules are restored under its src/app/modules directory</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if installation succeeded</returns>
@@ -58,6 +58,8 @@ public class ModuleInstallService(
 
         try
         {
+            var isAot = _solutionService.IsAOT();
+
             // Validate service exists
             var servicePath = Path.Combine(_projectContext.ServicesPath!, serviceName);
             if (!Directory.Exists(servicePath))
@@ -79,6 +81,7 @@ public class ModuleInstallService(
                 resolvedPackagePath = await _officialModuleService.DownloadOfficialModulePackageAsync(
                     packagePath,
                     tempPackageDir,
+                    isAot,
                     cancellationToken
                 );
                 OutputHelper.Success(
@@ -94,7 +97,7 @@ public class ModuleInstallService(
             }
 
             // Extract and validate package
-            var metadata = await ExtractPackageAsync(resolvedPackagePath, serviceName, frontPath);
+            var metadata = await ExtractPackageAsync(resolvedPackagePath, serviceName, frontPath, isAot);
             if (metadata == null)
             {
                 OutputHelper.Error("metadata is null");
@@ -392,7 +395,7 @@ public class ModuleInstallService(
     /// <summary>
     /// Extract package and install files
     /// </summary>
-    private async Task<PackageMetadata?> ExtractPackageAsync(string packagePath, string serviceName, string? frontPath)
+    private async Task<PackageMetadata?> ExtractPackageAsync(string packagePath, string serviceName, string? frontPath, bool isAot)
     {
         // Create temp directory for extraction
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -470,6 +473,14 @@ public class ModuleInstallService(
                 }
             }
 
+            var apiDirectory = isAot ? ConstVal.EndpointsDir : ConstVal.ControllersDir;
+            var incompatibleApiDirectory = isAot ? ConstVal.ControllersDir : ConstVal.EndpointsDir;
+            if (Directory.Exists(Path.Combine(tempDir, incompatibleApiDirectory, metadata.ModuleName)))
+            {
+                OutputHelper.Error(_localizer.Get(Localizer.InvalidPackageStructure));
+                return null;
+            }
+
             // Install Entity files
             var entitySourceDir = Path.Combine(tempDir, ConstVal.EntityName, metadata.ModuleName);
             if (Directory.Exists(entitySourceDir))
@@ -492,17 +503,17 @@ public class ModuleInstallService(
                 CopyDirectory(moduleSourceDir, moduleTargetDir);
             }
 
-            // Install Controller files
-            var controllerSourceDir = Path.Combine(tempDir, ConstVal.ControllersDir, metadata.ModuleName);
-            if (Directory.Exists(controllerSourceDir))
+            // Install service API files
+            var apiSourceDir = Path.Combine(tempDir, apiDirectory, metadata.ModuleName);
+            if (Directory.Exists(apiSourceDir))
             {
-                var controllerTargetDir = Path.Combine(
+                var apiTargetDir = Path.Combine(
                     _projectContext.ServicesPath!,
                     serviceName,
-                    ConstVal.ControllersDir,
+                    apiDirectory,
                     metadata.ModuleName
                 );
-                CopyDirectory(controllerSourceDir, controllerTargetDir);
+                CopyDirectory(apiSourceDir, apiTargetDir);
             }
 
             if (!string.IsNullOrWhiteSpace(metadata.Frontend))
