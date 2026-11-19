@@ -1,5 +1,7 @@
 using Humanizer;
 using System.Diagnostics;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace CoreMod.Services;
 
@@ -273,50 +275,123 @@ public class SolutionService(
     /// </summary>
     /// <param name="projectPath"></param>
     /// <param name="isRemove">remove</param>
-    public void UpdateSolutionFile(string projectPath, bool isRemove = false)
+    public bool UpdateSolutionFile(string projectPath, bool isRemove = false)
     {
         FileInfo? slnFile = AssemblyHelper.GetSlnFile(
             new DirectoryInfo(_projectContext.SolutionPath!)
         );
-        if (slnFile != null)
+        if (slnFile == null)
         {
-            if (isRemove)
+            _logger.LogWarning("Solution file was not found below {SolutionPath}", _projectContext.SolutionPath);
+            return false;
+        }
+
+        if (!isRemove && !File.Exists(projectPath))
+        {
+            _logger.LogWarning("Project file was not found: {ProjectPath}", projectPath);
+            return false;
+        }
+
+        var containsProject = SolutionContainsProject(slnFile.FullName, projectPath);
+        if ((containsProject && !isRemove) || (!containsProject && isRemove))
+        {
+            _logger.LogDebug(
+                "Project {ProjectPath} is already {State} in solution {SolutionPath}",
+                projectPath,
+                isRemove ? "absent" : "present",
+                slnFile.FullName
+            );
+            return true;
+        }
+
+        var action = isRemove ? "remove" : "add";
+        var command = isRemove
+            ? $"sln {QuoteCommandArgument(slnFile.FullName)} remove {QuoteCommandArgument(projectPath)}"
+            : $"sln {QuoteCommandArgument(slnFile.FullName)} add --include-references false {QuoteCommandArgument(projectPath)}";
+        if (!ProcessHelper.RunCommand("dotnet", command, out string error))
+        {
+            // Older SDKs do not expose --include-references. Retry the legacy command only for that
+            // capability mismatch; all other errors must remain visible to the caller.
+            if (!isRemove && error.Contains("include-references", StringComparison.OrdinalIgnoreCase))
             {
-                // 从解决方案中移除
-                if (
-                    !ProcessHelper.RunCommand(
-                        "dotnet",
-                        $"sln {slnFile.FullName} remove {projectPath}",
-                        out string error
-                    )
-                )
+                var legacyCommand = $"sln {QuoteCommandArgument(slnFile.FullName)} add {QuoteCommandArgument(projectPath)}";
+                if (ProcessHelper.RunCommand("dotnet", legacyCommand, out error))
                 {
-                    _logger.LogInformation("remove project ➡️ solution failed:{error}", error);
-                }
-                else
-                {
-                    _logger.LogInformation("✅ remove project ➡️ solution!");
+                    _logger.LogInformation("Project {ProjectPath} added to solution {SolutionPath}", projectPath, slnFile.FullName);
+                    return true;
                 }
             }
-            else
+
+            _logger.LogWarning(
+                "Failed to {Action} project {ProjectPath} to solution {SolutionPath}: {Error}",
+                action,
+                projectPath,
+                slnFile.FullName,
+                error
+            );
+            return false;
+        }
+
+        _logger.LogInformation("Project {ProjectPath} {Action}ed solution {SolutionPath}", projectPath, action, slnFile.FullName);
+        return true;
+    }
+
+    private static bool SolutionContainsProject(string solutionPath, string projectPath)
+    {
+        var fullProjectPath = Path.GetFullPath(projectPath);
+
+        try
+        {
+            if (Path.GetExtension(solutionPath).Equals(ConstVal.SolutionXMLExtension, StringComparison.OrdinalIgnoreCase))
             {
-                // 添加到解决方案
-                if (
-                    !ProcessHelper.RunCommand(
-                        "dotnet",
-                        $"sln {slnFile.FullName} add {projectPath}",
-                        out string error
-                    )
-                )
+                var document = XDocument.Load(solutionPath);
+                return document
+                    .Descendants()
+                    .Where(element => element.Name.LocalName.Equals("Project", StringComparison.OrdinalIgnoreCase))
+                    .Select(element => element.Attribute("Path")?.Value)
+                    .Where(path => !string.IsNullOrWhiteSpace(path))
+                    .Select(path => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(solutionPath)!, path!)))
+                    .Any(path => PathsEqual(path, fullProjectPath));
+            }
+
+            foreach (var line in File.ReadLines(solutionPath))
+            {
+                var parts = line.Split('"');
+                if (parts.Length < 4 || !line.TrimStart().StartsWith("Project(", StringComparison.Ordinal))
                 {
-                    _logger.LogInformation("add project ➡️ solution failed:{error}", error);
+                    continue;
                 }
-                else
+
+                var solutionProjectPath = parts[3].Replace('\\', Path.DirectorySeparatorChar);
+                var candidatePath = Path.GetFullPath(
+                    Path.Combine(Path.GetDirectoryName(solutionPath)!, solutionProjectPath)
+                );
+                if (PathsEqual(candidatePath, fullProjectPath))
                 {
-                    _logger.LogInformation("✅ add project ➡️ solution!");
+                    return true;
                 }
             }
         }
+        catch (Exception)
+        {
+            // Let dotnet sln report malformed solution files when the direct check cannot parse them.
+        }
+
+        return false;
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            Path.GetFullPath(left).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+            Path.GetFullPath(right).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+            StringComparison.OrdinalIgnoreCase
+        );
+    }
+
+    private static string QuoteCommandArgument(string value)
+    {
+        return $"\"{value.Replace("\"", "\\\"")}\"";
     }
 
     /// <summary>
@@ -811,6 +886,17 @@ public class SolutionService(
 
     public static async Task<bool> AddProjectReferenceAsync(string projectPath, string referencePath)
     {
+        if (!File.Exists(projectPath))
+        {
+            OutputHelper.Error($"Project file not found: {projectPath}");
+            return false;
+        }
+
+        if (!File.Exists(referencePath))
+        {
+            OutputHelper.Error($"Referenced project file not found: {referencePath}");
+            return false;
+        }
 
         if (await HasProjectReferenceAsync(projectPath, referencePath))
         {
@@ -819,7 +905,7 @@ public class SolutionService(
         if (
             !ProcessHelper.RunCommand(
                 "dotnet",
-                $"add {projectPath} reference {referencePath}",
+                $"add {QuoteCommandArgument(projectPath)} reference {QuoteCommandArgument(referencePath)}",
                 out string error
             )
         )
@@ -845,10 +931,56 @@ public class SolutionService(
         {
             return false;
         }
-        var lines = await File.ReadAllLinesAsync(projectPath);
+        var projectContent = await File.ReadAllTextAsync(projectPath);
+        try
+        {
+            var document = XDocument.Parse(projectContent);
+            var projectDirectory = Path.GetDirectoryName(Path.GetFullPath(projectPath))!;
+            var requestedName = Path.GetFileNameWithoutExtension(referenceName.TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar
+            ));
+            var requestedPath = Path.IsPathRooted(referenceName)
+                || referenceName.Contains(Path.DirectorySeparatorChar)
+                || referenceName.Contains(Path.AltDirectorySeparatorChar)
+                ? Path.GetFullPath(referenceName)
+                : null;
 
-        var searchText = $"\\{referenceName}\\{referenceName}{ConstVal.CSharpProjectExtension}";
-        return lines.Any(line => line.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            foreach (var element in document.Descendants().Where(
+                         item => item.Name.LocalName.Equals("ProjectReference", StringComparison.OrdinalIgnoreCase)))
+            {
+                var include = element.Attribute("Include")?.Value;
+                if (string.IsNullOrWhiteSpace(include))
+                {
+                    continue;
+                }
+
+                if (requestedPath is not null)
+                {
+                    var includedPath = Path.GetFullPath(Path.Combine(projectDirectory, include));
+                    if (PathsEqual(includedPath, requestedPath))
+                    {
+                        return true;
+                    }
+                }
+
+                if (string.Equals(
+                        Path.GetFileNameWithoutExtension(include),
+                        requestedName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch (XmlException)
+        {
+            var normalizedReference = referenceName.Replace('\\', '/');
+            return projectContent.Contains(normalizedReference, StringComparison.OrdinalIgnoreCase)
+                || projectContent.Contains(Path.GetFileName(referenceName), StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     public static bool IsMultiTenant(string solutionPath)

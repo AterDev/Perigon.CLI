@@ -88,6 +88,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
                 {
                     endpoints.MapPost("/json", Write);
                     endpoints.MapPost("/file", Upload);
+                    endpoints.MapPost("/documented-file", Upload).Accepts<IFormFile>("multipart/form-data");
                 }
 
                 private static Ok<JsonResponse> Write(
@@ -97,7 +98,8 @@ public sealed class AotJsonContextServiceTests : IDisposable
                 private static NoContent Upload(IFormFile file) => TypedResults.NoContent();
             }
 
-            public sealed record QueryArgs(int Page);
+            public sealed record QueryArgs(int Page, SearchStatus? Status);
+            public enum SearchStatus { Ready }
             public sealed record JsonRequest(string Value);
             public sealed record JsonResponse;
             """);
@@ -109,7 +111,8 @@ public sealed class AotJsonContextServiceTests : IDisposable
         Assert.Contains("Dictionary<string, JsonRequest>", content, StringComparison.Ordinal);
         Assert.Contains("typeof(JsonResponse)", content, StringComparison.Ordinal);
         Assert.DoesNotContain("QueryArgs", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("IFormFile", content, StringComparison.Ordinal);
+        Assert.Contains("typeof(IFormFile)", content, StringComparison.Ordinal);
+        Assert.Contains("typeof(SearchStatus?)", content, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -213,6 +213,21 @@ public sealed class AotJsonContextService
             return true;
         }
 
+        if (diagnostic.Id == "CS0103"
+            && token == "GeneratedEnumOpenApiMetadata"
+            && Path.GetFileName(sourcePath).Equals("EnumSchemaTransformer.cs", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Some design-time targets retain the transitive analyzer that CoreCompile removes.
+        if (diagnostic.Id is "CS9035" or "CS9040"
+            && sourcePath.Contains("Perigon.PostgreSQL.SourceGeneration.EntityModelGenerator", StringComparison.Ordinal)
+            && Path.GetFileName(sourcePath) == "PerigonEntityModelRegistration.g.cs")
+        {
+            return true;
+        }
+
         if (diagnostic.Id != "CS0117" || diagnostic.Location.SourceTree is null)
         {
             return false;
@@ -381,7 +396,27 @@ public sealed class AotJsonContextService
             foreach (var invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
                 var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
-                if (memberAccess is null || !RouteMethods.Contains(memberAccess.Name.Identifier.Text))
+                if (memberAccess is null)
+                {
+                    continue;
+                }
+
+                if (memberAccess.Name.Identifier.Text == "Accepts" &&
+                    model.GetSymbolInfo(invocation).Symbol is IMethodSymbol accepts &&
+                    IsAspNetEndpointMethod(accepts))
+                {
+                    // Explicit multipart metadata needs the form type for OpenAPI schema generation.
+                    foreach (var type in accepts.TypeArguments)
+                    {
+                        if (type.ToDisplayString() is "Microsoft.AspNetCore.Http.IFormFile"
+                            or "Microsoft.AspNetCore.Http.IFormFileCollection")
+                        {
+                            AddRoot(type, roots);
+                        }
+                    }
+                }
+
+                if (!RouteMethods.Contains(memberAccess.Name.Identifier.Text))
                 {
                     continue;
                 }
@@ -412,7 +447,7 @@ public sealed class AotJsonContextService
                         throw new InvalidOperationException($"Unable to resolve endpoint handler: {argument.Expression}");
                     }
 
-                    AddHandlerTypes(handler, compilation, roots);
+                    AddHandlerTypes(handler, roots);
                 }
             }
         }
@@ -519,17 +554,34 @@ public sealed class AotJsonContextService
             : null;
     }
 
-    private static void AddHandlerTypes(IMethodSymbol handler, Compilation compilation, HashSet<string> roots)
+    private static void AddHandlerTypes(IMethodSymbol handler, HashSet<string> roots)
     {
         foreach (var parameter in handler.Parameters)
         {
+            if (HasBindingAttribute(parameter, "AsParameters") && parameter.Type is INamedTypeSymbol aggregate)
+            {
+                // OpenAPI looks up each flattened parameter's schema, including nullable enums.
+                for (var current = aggregate; current is not null; current = current.BaseType)
+                {
+                    foreach (var property in current.GetMembers().OfType<IPropertySymbol>())
+                    {
+                        if (!property.IsStatic && !property.IsIndexer
+                            && property.GetMethod?.DeclaredAccessibility == Accessibility.Public
+                            && !HasBindingAttribute(property, "FromServices")
+                            && !HasBindingAttribute(property, "FromKeyedServices")
+                            && IsOpenApiParameterType(property.Type))
+                        {
+                            AddRoot(property.Type, roots);
+                        }
+                    }
+                }
+
+                continue;
+            }
+
             if (HasBindingAttribute(parameter, "FromServices")
                 || HasBindingAttribute(parameter, "FromKeyedServices")
-                || HasBindingAttribute(parameter, "FromRoute")
-                || HasBindingAttribute(parameter, "FromQuery")
-                || HasBindingAttribute(parameter, "FromHeader")
-                || HasBindingAttribute(parameter, "FromForm")
-                || HasBindingAttribute(parameter, "AsParameters"))
+                || HasBindingAttribute(parameter, "FromForm"))
             {
                 continue;
             }
@@ -537,6 +589,19 @@ public sealed class AotJsonContextService
             if (HasBindingAttribute(parameter, "FromBody"))
             {
                 AddRoot(parameter.Type, roots);
+                continue;
+            }
+
+            if (IsOpenApiParameterType(parameter.Type))
+            {
+                AddRoot(parameter.Type, roots);
+                continue;
+            }
+
+            if (HasBindingAttribute(parameter, "FromRoute")
+                || HasBindingAttribute(parameter, "FromQuery")
+                || HasBindingAttribute(parameter, "FromHeader"))
+            {
                 continue;
             }
 
@@ -550,6 +615,21 @@ public sealed class AotJsonContextService
         // method body for TypedResults: a body expression is an implementation
         // detail and can disagree with the declared response type.
         AddRoot(handler.ReturnType, roots);
+    }
+
+    private static bool IsOpenApiParameterType(ITypeSymbol type)
+    {
+        if (type is IArrayTypeSymbol array)
+        {
+            type = array.ElementType;
+        }
+
+        if (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable)
+        {
+            type = nullable.TypeArguments[0];
+        }
+
+        return type is INamedTypeSymbol named && IsSimpleBindingType(named);
     }
 
     private static async Task DiscoverModuleTypesAsync(
@@ -695,7 +775,7 @@ public sealed class AotJsonContextService
             || ns.StartsWith("Microsoft.Extensions", StringComparison.Ordinal);
     }
 
-    private static bool HasBindingAttribute(IParameterSymbol parameter, string name) =>
+    private static bool HasBindingAttribute(ISymbol parameter, string name) =>
         parameter.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == name + "Attribute");
 
     private static bool IsAspNetEndpointMethod(IMethodSymbol method)

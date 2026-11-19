@@ -14,7 +14,8 @@ public class ModuleInstallService(
     Localizer localizer,
     ILogger<ModuleInstallService> logger,
     SolutionService solutionService,
-    OfficialModuleService officialModuleService
+    OfficialModuleService officialModuleService,
+    AotJsonContextService? aotJsonContextService = null
 )
 {
     private readonly SolutionContext _projectContext = projectContext;
@@ -22,6 +23,7 @@ public class ModuleInstallService(
     private readonly ILogger<ModuleInstallService> _logger = logger;
     private readonly SolutionService _solutionService = solutionService;
     private readonly OfficialModuleService _officialModuleService = officialModuleService;
+    private readonly AotJsonContextService? _aotJsonContextService = aotJsonContextService;
 
     /// <summary>
     /// Install a module package
@@ -105,7 +107,56 @@ public class ModuleInstallService(
             }
 
             // Post-install adjustments (solution, project refs, global usings, DbContext)
-            await PostInstallAdjustmentsAsync(metadata, serviceName);
+            if (!await PostInstallAdjustmentsAsync(metadata, serviceName))
+            {
+                OutputHelper.Error("Module files were installed, but project integration failed.");
+                return false;
+            }
+
+            if (isAot && _aotJsonContextService is not null)
+            {
+                try
+                {
+                    var serviceProjectPath = Directory
+                        .GetFiles(
+                            Path.Combine(_projectContext.ServicesPath!, serviceName),
+                            $"*{ConstVal.CSharpProjectExtension}",
+                            SearchOption.TopDirectoryOnly
+                        )
+                        .FirstOrDefault();
+                    if (serviceProjectPath is null)
+                    {
+                        OutputHelper.Error($"Service project file not found for AOT generation: {serviceName}");
+                        return false;
+                    }
+
+                    if (!ProcessHelper.RunCommand(
+                            "dotnet",
+                            $"build \"{serviceProjectPath}\"",
+                            out var buildOutput
+                        ))
+                    {
+                        _logger.LogError("Failed to build AOT service project {ServiceProjectPath}: {Output}", serviceProjectPath, buildOutput);
+                        OutputHelper.Error($"AOT service build failed: {buildOutput}");
+                        return false;
+                    }
+
+                    var generatedFiles = await _aotJsonContextService.GenerateAsync(
+                        _projectContext.SolutionPath!,
+                        cancellationToken
+                    );
+                    foreach (var generatedFile in generatedFiles)
+                    {
+                        OutputHelper.Success($"Generated {generatedFile}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to update AOT JSON contexts after installing {Module}", metadata.ModuleName);
+                    OutputHelper.Error($"AOT JSON context generation failed: {ex.Message}");
+                    return false;
+                }
+            }
 
             OutputHelper.Success(_localizer.Get(Localizer.PackageInstalled, metadata.ModuleName));
             return true;
@@ -128,7 +179,7 @@ public class ModuleInstallService(
     /// <summary>
     /// Handle solution/project/global usings updates after files are copied
     /// </summary>
-    private async Task PostInstallAdjustmentsAsync(PackageMetadata metadata, string serviceName)
+    private async Task<bool> PostInstallAdjustmentsAsync(PackageMetadata metadata, string serviceName)
     {
 
         // Compose module project path
@@ -141,11 +192,15 @@ public class ModuleInstallService(
         // add module project to solution
         try
         {
-            _solutionService.UpdateSolutionFile(moduleProjectPath);
+            if (!_solutionService.UpdateSolutionFile(moduleProjectPath))
+            {
+                return false;
+            }
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to update solution file for module {Module}", metadata.ModuleName);
+            return false;
         }
 
         // Add project reference from target service to module
@@ -154,93 +209,101 @@ public class ModuleInstallService(
             .GetFiles(servicePath, $"*{ConstVal.CSharpProjectExtension}", SearchOption.TopDirectoryOnly)
             .FirstOrDefault();
 
-        if (!string.IsNullOrEmpty(serviceProjectPath))
+        if (string.IsNullOrEmpty(serviceProjectPath))
         {
-            try
+            _logger.LogWarning("Service project file not found below {ServicePath}", servicePath);
+            return false;
+        }
+
+        try
+        {
+            // Ensure module project exists before adding reference
+            if (!File.Exists(moduleProjectPath))
             {
-                // Ensure module project exists before adding reference
-                if (File.Exists(moduleProjectPath))
-                {
-                    await SolutionService.AddProjectReferenceAsync(serviceProjectPath, moduleProjectPath);
-                }
-                else
-                {
-                    _logger.LogWarning("Module project file not found: {ModuleProjectPath}", moduleProjectPath);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to add project reference from {Service} to {Module}", serviceName, metadata.ModuleName);
-            }
-            // Update service GlobalUsings.cs
-            var globalUsingsPath = Path.Combine(servicePath, ConstVal.GlobalUsingsFile);
-            var existingLines = new List<string>();
-            if (File.Exists(globalUsingsPath))
-            {
-                existingLines = File.ReadAllLines(globalUsingsPath).ToList();
-            }
-            else
-            {
-                // Create parent directory if needed
-                var serviceDir = Path.GetDirectoryName(globalUsingsPath);
-                if (!string.IsNullOrEmpty(serviceDir) && !Directory.Exists(serviceDir))
-                {
-                    Directory.CreateDirectory(serviceDir);
-                }
+                _logger.LogWarning("Module project file not found: {ModuleProjectPath}", moduleProjectPath);
+                return false;
             }
 
-            // Prepare namespaces to add
-            var managerNs = $"global using {metadata.ModuleName}.{ConstVal.ManagersDir};";
-            var entityNs = $"global using {ConstVal.EntityName}.{metadata.ModuleName};";
-
-            // Models: examine actual Models subdirectories and files for the specific module
-            var modelsUsings = new List<string>();
-            var modelsDir = Path.Combine(_projectContext.ModulesPath!, metadata.ModuleName, ConstVal.ModelsDir);
-            if (Directory.Exists(modelsDir))
+            if (!await SolutionService.AddProjectReferenceAsync(serviceProjectPath, moduleProjectPath))
             {
-                // Add namespaces for immediate subdirectories under Models
-                var subdirs = Directory.GetDirectories(modelsDir, "*", SearchOption.TopDirectoryOnly)
-                    .Select(d => Path.GetFileName(d)!)
-                    .Where(n => !string.IsNullOrWhiteSpace(n))
-                    .ToList();
-
-                if (subdirs.Count > 0)
-                {
-                    foreach (var sub in subdirs)
-                    {
-                        modelsUsings.Add($"global using {metadata.ModuleName}.{ConstVal.ModelsDir}.{sub};");
-                    }
-                }
-
-                // Also add base Models namespace if there are .cs files directly under Models
-                var directModelFiles = Directory.GetFiles(modelsDir, "*.cs", SearchOption.TopDirectoryOnly);
-                if (directModelFiles.Length > 0 || subdirs.Count == 0)
-                {
-                    modelsUsings.Add($"global using {metadata.ModuleName}.{ConstVal.ModelsDir};");
-                }
+                return false;
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to add project reference from {Service} to {Module}", serviceName, metadata.ModuleName);
+            return false;
+        }
 
-            var toAdd = new List<string> { managerNs, entityNs };
-            toAdd.AddRange(modelsUsings);
-
-            var changed = false;
-            foreach (var ns in toAdd)
+        // Update service GlobalUsings.cs
+        var globalUsingsPath = Path.Combine(servicePath, ConstVal.GlobalUsingsFile);
+        var existingLines = new List<string>();
+        if (File.Exists(globalUsingsPath))
+        {
+            existingLines = File.ReadAllLines(globalUsingsPath).ToList();
+        }
+        else
+        {
+            // Create parent directory if needed
+            var serviceDir = Path.GetDirectoryName(globalUsingsPath);
+            if (!string.IsNullOrEmpty(serviceDir) && !Directory.Exists(serviceDir))
             {
-                if (!existingLines.Any(l => l.Trim().Equals(ns, StringComparison.OrdinalIgnoreCase)))
+                Directory.CreateDirectory(serviceDir);
+            }
+        }
+
+        // Prepare namespaces to add
+        var managerNs = $"global using {metadata.ModuleName}.{ConstVal.ManagersDir};";
+        var entityNs = $"global using {ConstVal.EntityName}.{metadata.ModuleName};";
+
+        // Models: examine actual Models subdirectories and files for the specific module
+        var modelsUsings = new List<string>();
+        var modelsDir = Path.Combine(_projectContext.ModulesPath!, metadata.ModuleName, ConstVal.ModelsDir);
+        if (Directory.Exists(modelsDir))
+        {
+            // Add namespaces for immediate subdirectories under Models
+            var subdirs = Directory.GetDirectories(modelsDir, "*", SearchOption.TopDirectoryOnly)
+                .Select(d => Path.GetFileName(d)!)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .ToList();
+
+            if (subdirs.Count > 0)
+            {
+                foreach (var sub in subdirs)
                 {
-                    existingLines.Add(ns);
-                    changed = true;
+                    modelsUsings.Add($"global using {metadata.ModuleName}.{ConstVal.ModelsDir}.{sub};");
                 }
             }
 
-            if (changed)
+            // Also add base Models namespace if there are .cs files directly under Models
+            var directModelFiles = Directory.GetFiles(modelsDir, "*.cs", SearchOption.TopDirectoryOnly);
+            if (directModelFiles.Length > 0 || subdirs.Count == 0)
             {
-                await File.WriteAllLinesAsync(globalUsingsPath, existingLines);
+                modelsUsings.Add($"global using {metadata.ModuleName}.{ConstVal.ModelsDir};");
             }
+        }
+
+        var toAdd = new List<string> { managerNs, entityNs };
+        toAdd.AddRange(modelsUsings);
+
+        var changed = false;
+        foreach (var ns in toAdd)
+        {
+            if (!existingLines.Any(l => l.Trim().Equals(ns, StringComparison.OrdinalIgnoreCase)))
+            {
+                existingLines.Add(ns);
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            await File.WriteAllLinesAsync(globalUsingsPath, existingLines);
         }
 
         // Ensure DefaultDbContext has DbSet for new entities
         await EnsureDbSetsForModuleEntitiesAsync(metadata);
+        return true;
     }
 
     /// <summary>

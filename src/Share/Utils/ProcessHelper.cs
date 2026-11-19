@@ -75,25 +75,23 @@ public static class ProcessHelper
                     process.Kill();
                 }
                 catch { }
-                error = "命令执行超时";
+                output = $"Command timed out: {command}";
                 return false;
             }
 
+            process.WaitForExit();
             output = outputBuilder.ToString();
             error = errorBuilder.ToString();
-            if (string.IsNullOrWhiteSpace(error))
-            {
-                return true;
-            }
-            else
+            if (!string.IsNullOrWhiteSpace(error))
             {
                 output += Environment.NewLine + "Error: " + error;
-                return false;
             }
+
+            return process.ExitCode == 0;
         }
         catch (Exception ex)
         {
-            error = $"Run command errors: {ex.Message}";
+            output = $"Run command errors: {ex.Message}";
             return false;
         }
     }
