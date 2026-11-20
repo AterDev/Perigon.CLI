@@ -955,6 +955,8 @@ public class SolutionService(
                     continue;
                 }
 
+                include = include.Replace('\\', Path.DirectorySeparatorChar);
+
                 if (requestedPath is not null)
                 {
                     var includedPath = Path.GetFullPath(Path.Combine(projectDirectory, include));

@@ -27,7 +27,7 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <!-- Codegen / helpers -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="3.3.1" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="3.5.4" />
     <PackageVersion Include="RazorEngineCore" Version="2026.1.1" />
     <!-- Model / protocol libs -->
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.8.0-preview.1" />
