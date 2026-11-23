@@ -1,33 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Templates\**\*"></EmbeddedResource>
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Remove="Templates\TplContent.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="TplContent.cs" />
+		<EmbeddedResource Include="Templates\**\*" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Humanizer.Core" />
 		<PackageReference Include="Microsoft.OpenApi" />
-		<PackageReference Include="RazorEngineCore" />
-		<!--<PackageReference Include="Microsoft.Build.Locator" />-->
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\Share\Share.csproj" />
-
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Generate\Helper\" />
 	</ItemGroup>
 </Project>

@@ -11,12 +11,6 @@ namespace Share.Utils;
 public class HashCrypto
 {
     private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
-    private static JsonSerializerOptions JsonSerializerOptions =>
-        new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            ReferenceHandler = ReferenceHandler.IgnoreCycles,
-        };
 
     /// <summary>
     /// SHA512 encrypt
@@ -244,45 +238,6 @@ public class HashCrypto
             plaintext = srDecrypt.ReadToEnd();
         }
         return plaintext;
-    }
-
-    /// <summary>
-    /// json对象加密
-    /// </summary>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public static string JsonEncrypt(object data)
-    {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(data, JsonSerializerOptions);
-
-        if (bytes != null)
-        {
-            bytes = bytes.Select(b => b == byte.MaxValue ? byte.MinValue : (byte)(b + 1)).ToArray();
-            Array.Reverse(bytes);
-            return Convert.ToBase64String(bytes);
-        }
-        return string.Empty;
-    }
-
-    /// <summary>
-    /// json对象解密
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static T? JsonDecrypt<T>(string value)
-        where T : class
-    {
-        var bytes = Convert.FromBase64String(value);
-        if (bytes != null)
-        {
-            Array.Reverse(bytes);
-            bytes = bytes.Select(b => b == byte.MinValue ? byte.MaxValue : (byte)(b - 1)).ToArray();
-            var jsonString = Encoding.UTF8.GetString(bytes);
-
-            return JsonSerializer.Deserialize<T>(jsonString, JsonSerializerOptions);
-        }
-        return null;
     }
 }
 

@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Xml.Linq;
 
 namespace Share.Helper;
@@ -219,16 +218,6 @@ public class AssemblyHelper
     }
 
     /// <summary>
-    /// 获取studio目录
-    /// </summary>
-    /// <returns></returns>
-    public static string GetStudioPath()
-    {
-        string appPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Combine(appPath, ConstVal.StudioDir, ConstVal.Version);
-    }
-
-    /// <summary>
     /// get csproject targetFramework
     /// </summary>
     /// <param name="projectPath"></param>
@@ -298,52 +287,6 @@ public class AssemblyHelper
     }
 
     /// <summary>
-    /// 获取 dotnet tool 路径
-    /// </summary>
-    /// <returns></returns>
-    public static string GetToolPath()
-    {
-        string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        // 版本号
-        string version = GetCurrentToolVersion();
-        return Path.Combine(
-            userPath,
-            ".dotnet/tools/.store",
-            ConstVal.PackageId,
-            version,
-            ConstVal.PackageId,
-            version,
-            "tools",
-            ConstVal.NetVersion,
-            "any"
-        );
-    }
-
-    /// <summary>
-    /// get solution type
-    /// </summary>
-    /// <param name="filePath"></param>
-    /// <returns></returns>
-    public static SolutionType GetSolutionType(string? filePath)
-    {
-        if (filePath.IsEmpty())
-            return SolutionType.Else;
-        string fileName = Path.GetFileName(filePath);
-        string fileExt = Path.GetExtension(filePath);
-        return (SolutionType)(
-            fileName == ConstVal.NodeProjectFile
-                ? SolutionType.Node
-                : fileExt switch
-                {
-                    ConstVal.SolutionExtension
-                    or ConstVal.CSharpProjectExtension
-                    or ConstVal.SolutionXMLExtension => (SolutionType?)SolutionType.DotNet,
-                    _ => (SolutionType?)SolutionType.Else,
-                }
-        );
-    }
-
-    /// <summary>
     /// 移除项目包
     /// </summary>
     /// <param name="projectPath"></param>
@@ -385,41 +328,4 @@ public class XmlCommentMember
 {
     public string FullName { get; set; } = string.Empty;
     public string? Summary { get; set; }
-}
-
-/// <summary>
-/// A custom AssemblyLoadContext to handle plugin-like assembly loading.
-/// </summary>
-public class PluginLoadContext : AssemblyLoadContext
-{
-    private readonly AssemblyDependencyResolver _resolver;
-
-    public PluginLoadContext(string pluginPath)
-        : base(isCollectible: true)
-    {
-        _resolver = new AssemblyDependencyResolver(pluginPath);
-    }
-
-    protected override Assembly? Load(AssemblyName assemblyName)
-    {
-        // Try to resolve the assembly path using the resolver
-        string? assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-        if (assemblyPath != null)
-        {
-            // Load the assembly from the resolved path
-            return LoadFromAssemblyPath(assemblyPath);
-        }
-        // Fallback to default loading mechanism
-        return null;
-    }
-
-    protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
-    {
-        string? libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
-        if (libraryPath != null)
-        {
-            return LoadUnmanagedDllFromPath(libraryPath);
-        }
-        return IntPtr.Zero;
-    }
 }

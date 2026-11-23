@@ -1,5 +1,4 @@
 using CoreMod.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Share;
 using Xunit;
@@ -77,11 +76,11 @@ public sealed class SolutionServiceTests : IDisposable
 
     private SolutionService CreateSolutionService()
     {
-        var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+        var context = new SolutionContext()
         {
             SolutionPath = _root
         };
-        return new SolutionService(context, NullLogger<SolutionService>.Instance, null!);
+        return new SolutionService(context, NullLogger<SolutionService>.Instance);
     }
 
     private static string CreateProjectFile(string? itemGroup = null)

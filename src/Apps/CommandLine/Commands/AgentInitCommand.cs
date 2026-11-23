@@ -1,23 +1,16 @@
 using Share;
 using Share.Helper;
-using System.IO;
 using System.IO.Compression;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace CommandLine.Commands;
 
-public class AgentInitCommand(Localizer localizer) : AsyncCommand
+/// <summary>
+/// Installs the non-MCP agent skills and loop-spec files shipped with the CLI.
+/// </summary>
+public sealed class AgentInitCommand(Localizer localizer)
 {
-    private const string PerigonMcpAction = "Perigon MCP";
     private const string PerigonSkillAction = "Perigon Skill";
     private const string LoopSpecAction = "Loop spec";
-    private const string McpDiscoverySetting = "chat.mcp.discovery.enabled";
-
-    private static readonly JsonSerializerOptions McpJsonSerializerOptions = new()
-    {
-        WriteIndented = true
-    };
 
     private static readonly ZipExtractionRule[] PerigonSkillEntries =
     [
@@ -36,7 +29,7 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
 
     private sealed record ZipExtractionRule(string RootPath, bool OverwriteFiles);
 
-    public override Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
+    public Task<int> ExecuteAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string currentDirectory = Directory.GetCurrentDirectory();
@@ -44,7 +37,7 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
         IReadOnlyList<string> selectedActions;
         if (Console.IsInputRedirected || Console.IsOutputRedirected)
         {
-            selectedActions = [PerigonMcpAction];
+            selectedActions = [PerigonSkillAction, LoopSpecAction];
         }
         else
         {
@@ -58,18 +51,12 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
 
         if (selectedActions.Count == 0)
         {
-            OutputHelper.Success("No agent setup actions were selected.");
+            OutputHelper.Info(localizer.Get(Localizer.AgentInitNoActions));
             return Task.FromResult(0);
         }
 
         try
         {
-            if (IsActionSelected(selectedActions, PerigonMcpAction))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                ApplyMcpConfig(currentDirectory);
-            }
-
             if (IsActionSelected(selectedActions, PerigonSkillAction))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -82,58 +69,18 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
                 ApplyLoopSpec(currentDirectory);
             }
 
+            OutputHelper.Success(localizer.Get(Localizer.AgentInitCompleted));
             return Task.FromResult(0);
         }
-        catch (JsonException ex)
+        catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
         {
-            OutputHelper.Error($"Failed to parse agent configuration: {ex.Message}");
+            OutputHelper.Error(localizer.Get(Localizer.AgentInitFailed, ex.Message));
             return Task.FromResult(-1);
         }
-        catch (InvalidOperationException ex)
-        {
-            OutputHelper.Error(ex.Message);
-            return Task.FromResult(-1);
-        }
-        catch (InvalidDataException ex)
-        {
-            OutputHelper.Error($"Invalid agent archive: {ex.Message}");
-            return Task.FromResult(-1);
-        }
-        catch (IOException ex)
-        {
-            OutputHelper.Error($"Failed to update agent setup: {ex.Message}");
-            return Task.FromResult(-1);
-        }
-    }
-
-    private static void ApplyMcpConfig(string currentDirectory)
-    {
-        string configFilePath = Path.Combine(currentDirectory, ".agents", "mcp.json");
-        string configDirectory = Path.GetDirectoryName(configFilePath) ?? currentDirectory;
-        Directory.CreateDirectory(configDirectory);
-
-        JsonObject root = LoadMcpConfigRoot(currentDirectory);
-        JsonObject serverContainer = GetOrCreateServerContainer(root);
-        serverContainer[ConstVal.CommandName] = CreateServerConfig();
-
-        File.WriteAllText(configFilePath, root.ToJsonString(McpJsonSerializerOptions));
-        EnsureVsCodeMcpDiscoveryEnabled(currentDirectory);
-        OutputHelper.Success($"MCP server config has been written to {configFilePath}");
-    }
-
-    internal static void ApplyPerigonSkill(string currentDirectory)
-    {
-        ExtractAgentEntries(currentDirectory, PerigonSkillEntries, "Perigon Skill");
-    }
-
-    internal static void ApplyLoopSpec(string currentDirectory)
-    {
-        ExtractAgentEntries(currentDirectory, LoopSpecEntries, "Loop spec");
     }
 
     private static string[] GetAgentSetupChoices(Localizer localizer) =>
     [
-        $"{PerigonMcpAction} - {localizer.Get(Localizer.AgentInitMcpChoiceDescription)}",
         $"{PerigonSkillAction} - {localizer.Get(Localizer.AgentInitSkillChoiceDescription)}",
         $"{LoopSpecAction} - {localizer.Get(Localizer.AgentInitLoopSpecChoiceDescription)}"
     ];
@@ -141,17 +88,21 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
     private static bool IsActionSelected(IEnumerable<string> selectedActions, string actionName) =>
         selectedActions.Any(action => action.StartsWith(actionName, StringComparison.OrdinalIgnoreCase));
 
+    internal static void ApplyPerigonSkill(string currentDirectory) =>
+        ExtractAgentEntries(currentDirectory, PerigonSkillEntries);
+
+    internal static void ApplyLoopSpec(string currentDirectory) =>
+        ExtractAgentEntries(currentDirectory, LoopSpecEntries);
+
     private static void ExtractAgentEntries(
         string currentDirectory,
-        IReadOnlyList<ZipExtractionRule> extractionRules,
-        string setupName
+        IReadOnlyList<ZipExtractionRule> extractionRules
     )
     {
         string? agentZipPath = FindAgentZipPath(currentDirectory);
         if (string.IsNullOrWhiteSpace(agentZipPath))
         {
-            OutputHelper.Success("未找到 agent.zip");
-            return;
+            throw new FileNotFoundException(null, "agent.zip");
         }
 
         using ZipArchive archive = ZipFile.OpenRead(agentZipPath);
@@ -171,8 +122,8 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
             }
 
             string destinationPath = GetSafeDestinationPath(currentDirectory, entryPath);
-            bool isDirectory = entry.FullName.EndsWith("/", StringComparison.Ordinal)
-                || entry.FullName.EndsWith("\\", StringComparison.Ordinal);
+            bool isDirectory = entry.FullName.EndsWith('/', StringComparison.Ordinal)
+                || entry.FullName.EndsWith('\\', StringComparison.Ordinal);
 
             if (isDirectory)
             {
@@ -189,57 +140,39 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
             Directory.CreateDirectory(destinationDirectory);
             entry.ExtractToFile(destinationPath, matchingRule.OverwriteFiles);
         }
-
-        OutputHelper.Success($"Extracted {setupName} from {agentZipPath} to {currentDirectory}");
     }
 
     private static string? FindAgentZipPath(string currentDirectory)
     {
-        HashSet<string> candidates = [];
-
-        foreach (string path in new[]
-        {
+        string[] localCandidates =
+        [
             Path.Combine(currentDirectory, "agent.zip"),
-            Path.Combine(currentDirectory, "src", "Apps", "CommandLine", "agent.zip"),
             Path.Combine(AppContext.BaseDirectory, "agent.zip")
-        })
+        ];
+        foreach (string path in localCandidates)
         {
-            candidates.Add(Path.GetFullPath(path));
+            if (File.Exists(path))
+            {
+                return path;
+            }
         }
 
         for (DirectoryInfo? directory = new(currentDirectory); directory is not null; directory = directory.Parent)
         {
-            candidates.Add(Path.GetFullPath(Path.Combine(directory.FullName, "agent.zip")));
-            candidates.Add(Path.GetFullPath(Path.Combine(directory.FullName, "src", "Apps", "CommandLine", "agent.zip")));
+            string projectArchive = Path.Combine(directory.FullName, "agent.zip");
+            if (File.Exists(projectArchive))
+            {
+                return projectArchive;
+            }
+
+            string sourceArchive = Path.Combine(directory.FullName, "src", "Apps", "CommandLine", "agent.zip");
+            if (File.Exists(sourceArchive))
+            {
+                return sourceArchive;
+            }
         }
 
-        return candidates.FirstOrDefault(File.Exists);
-    }
-
-    private static JsonObject LoadMcpConfigRoot(string currentDirectory)
-    {
-        string agentsConfigPath = Path.Combine(currentDirectory, ".agents", "mcp.json");
-        if (File.Exists(agentsConfigPath))
-        {
-            return LoadConfigRoot(agentsConfigPath);
-        }
-
-        string legacyConfigPath = Path.Combine(currentDirectory, ".vscode", "mcp.json");
-        return LoadConfigRoot(File.Exists(legacyConfigPath) ? legacyConfigPath : agentsConfigPath);
-    }
-
-    private static void EnsureVsCodeMcpDiscoveryEnabled(string currentDirectory)
-    {
-        string vscodeDirectory = Path.Combine(currentDirectory, ".vscode");
-        if (!Directory.Exists(vscodeDirectory))
-        {
-            return;
-        }
-
-        string settingsFilePath = Path.Combine(vscodeDirectory, "settings.json");
-        JsonObject settings = LoadConfigRoot(settingsFilePath);
-        settings[McpDiscoverySetting] = true;
-        File.WriteAllText(settingsFilePath, settings.ToJsonString(McpJsonSerializerOptions));
+        return null;
     }
 
     private static bool IsPathUnderRoot(string path, string rootPath) =>
@@ -253,8 +186,8 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
             return string.Empty;
         }
 
-        if (entryPath.StartsWith("/", StringComparison.Ordinal)
-            || entryPath.StartsWith("\\", StringComparison.Ordinal)
+        if (entryPath.StartsWith('/', StringComparison.Ordinal)
+            || entryPath.StartsWith('\\', StringComparison.Ordinal)
             || Path.IsPathRooted(entryPath))
         {
             throw new InvalidDataException($"The agent archive contains an unsafe path: {entryPath}");
@@ -263,7 +196,6 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
         string[] segments = entryPath
             .Replace('\\', '/')
             .Split('/', StringSplitOptions.RemoveEmptyEntries);
-
         if (segments.Any(segment => segment is "." or ".." || segment.Contains(':')))
         {
             throw new InvalidDataException($"The agent archive contains an unsafe path: {entryPath}");
@@ -292,57 +224,4 @@ public class AgentInitCommand(Localizer localizer) : AsyncCommand
 
         return destinationPath;
     }
-
-    internal static JsonObject LoadConfigRoot(string configFilePath)
-    {
-        if (!File.Exists(configFilePath))
-        {
-            return [];
-        }
-
-        string content = File.ReadAllText(configFilePath);
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return [];
-        }
-
-        JsonNode? node = JsonNode.Parse(
-            content,
-            documentOptions: new JsonDocumentOptions
-            {
-                CommentHandling = JsonCommentHandling.Skip,
-                AllowTrailingCommas = true,
-            }
-        );
-
-        return node as JsonObject
-            ?? throw new InvalidOperationException($"The root node of {configFilePath} must be a JSON object.");
-    }
-
-    internal static JsonObject GetOrCreateServerContainer(JsonObject root)
-    {
-        if (root["servers"] is JsonObject existingServerContainer)
-        {
-            return existingServerContainer;
-        }
-
-        foreach ((_, JsonNode? value) in root)
-        {
-            if (value is JsonObject childObject)
-            {
-                return childObject;
-            }
-        }
-
-        JsonObject serverContainer = [];
-        root["servers"] = serverContainer;
-        return serverContainer;
-    }
-
-    internal static JsonObject CreateServerConfig() =>
-        new()
-        {
-            ["command"] = ConstVal.CommandName,
-            ["args"] = new JsonArray(SubCommand.Agent, SubCommand.Mcp),
-        };
 }

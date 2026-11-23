@@ -14,14 +14,12 @@ public class CreateSolutionDtoTests
             Path = "./demo",
             IsLight = true,
             DBType = DBType.SQLServer,
-            Modules = ["Perigon.SystemMod"],
             OfficialModules = ["Perigon.SystemMod"],
         };
 
         dto.ApplyTemplateDefaults();
 
         Assert.Equal(DBType.PostgreSQL, dto.DBType);
-        Assert.Empty(dto.Modules);
         Assert.Empty(dto.OfficialModules);
     }
 

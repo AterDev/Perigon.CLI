@@ -244,10 +244,6 @@ public partial class EntityInfoManager(
             OutputHelper.Error($"❌ Code generation failed: {ex.Message}");
             throw;
         }
-        finally
-        {
-            // Cleanup not needed for MiniDb
-        }
     }
 
     private List<GenFileInfo> GenerateDtos(EntityInfo entityInfo, string modulePath, bool force)
@@ -257,8 +253,7 @@ public partial class EntityInfoManager(
 
     private List<GenFileInfo> GenerateManagers(EntityInfo entityInfo, string modulePath, bool force)
     {
-        var tplContent = TplContent.ManagerTpl();
-        return codeGenService.GenerateManager(entityInfo, modulePath, tplContent, force);
+        return codeGenService.GenerateManager(entityInfo, modulePath, force);
     }
 
     /// <summary>
@@ -278,7 +273,6 @@ public partial class EntityInfoManager(
             var controllers = await codeGenService.GenerateControllerAsync(
                 entityInfo,
                 servicePath,
-                TplContent.ControllerTpl(),
                 dto.Force
             );
             files.AddRange(controllers);

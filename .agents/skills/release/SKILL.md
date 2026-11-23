@@ -16,7 +16,6 @@ Use this skill when releasing `Perigon.CLI` or when the user asks to package and
 ## Release contents
 
 - Unless the user specifies a version, increment only the patch component of `<Version>` in `src/Apps/CommandLine/CommandLine.csproj`.
-- Keep `src/Apps/Dashboard/Dashboard.csproj` on the same version.
 - Update `<PackageReleaseNotes>` with only the changes being released.
 - Update the matching Chinese and English pages under `Perigon.docs/Content/docs/Perigon`, normally the command-line page and the version update notes. Keep their structure and meaning aligned.
 - Add or update reusable release guidance in this skill and `Contribution.md` when the workflow changes.
@@ -29,15 +28,13 @@ Run the focused tests for the changed feature, then the full test project:
 dotnet test tests/StudioMod.Tests/CoreMod.Tests.csproj --configuration Release --verbosity minimal
 ```
 
-The CI-equivalent package/studio build is:
+The CI-equivalent managed NuGet packaging command is:
 
 ```powershell
-pwsh ./scripts/PublishToLocal.ps1 -withStudio:$true
+pwsh ./scripts/PublishToLocal.ps1
 ```
 
-`PublishToLocal.ps1` reads the tracked `src/Apps/CommandLine/ShareDlls.txt` when packaging Studio and removes the listed duplicate DLLs. If project dependencies change, run `scripts/CheckSharedDlls.ps1` to refresh the list and commit the updated file.
-
-Run it only after tests pass; it creates local publish/package artifacts and may install the package locally.
+Use `pwsh ./scripts/PublishToLocal.ps1 -Install` to install the freshly built package as a global tool for the current user. The package ID and version come from the CLI project file.
 
 ## Branch handoff
 

@@ -103,9 +103,9 @@ public class OfficialModuleService
                 response.EnsureSuccessStatusCode();
 
                 await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-                var modules = await JsonSerializer.DeserializeAsync<List<PackageMetadata>>(
+                var modules = await JsonSerializer.DeserializeAsync(
                     stream,
-                    ConstVal.DefaultJsonSerializerOptions,
+                    PerigonJsonSerializerContext.ModuleMetadata.ListPackageMetadata,
                     cancellationToken
                 );
 

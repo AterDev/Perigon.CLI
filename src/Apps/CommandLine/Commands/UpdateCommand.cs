@@ -11,14 +11,11 @@ public sealed class UpdateCommand(
     TemplateUpdateService templateUpdateService,
     SolutionContext projectContext,
     Localizer localizer
-) : AsyncCommand
+)
 {
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
     {
-        if (!await CommandSolutionHelper.TrySetSolutionAsync(projectContext, localizer))
+        if (!CommandSolutionHelper.TrySetSolution(projectContext, localizer))
         {
             return 1;
         }

@@ -2,19 +2,13 @@ using CoreMod.Managers;
 using Share;
 using Share.Helper;
 using Share.Models;
-using System.ComponentModel;
 
 namespace CommandLine.Commands;
 
-public class EntityGenerateSettings : CommandSettings
+public class EntityGenerateSettings
 {
-    [CommandArgument(0, "<EntityPath>")]
-    [Description("Entity file path")]
     public required string EntityPath { get; set; }
 
-    [CommandOption("-f|--force")]
-    [DefaultValue(false)]
-    [Description("Overwrite generated files")]
     public bool Force { get; set; }
 }
 
@@ -38,8 +32,6 @@ public sealed class GenerateManagerCommand(
 
 public sealed class GenerateControllerSettings : EntityGenerateSettings
 {
-    [CommandArgument(1, "<ServicePath|ServiceName>")]
-    [Description("Target service path, csproj path, or service name")]
     public required string ServicePath { get; set; }
 }
 
@@ -115,7 +107,7 @@ public abstract class EntityGenerateCommandBase<TSettings>(
     EntityInfoManager entityInfoManager,
     SolutionContext projectContext,
     Localizer localizer
-) : AsyncCommand<TSettings>
+)
     where TSettings : EntityGenerateSettings
 {
     protected readonly Localizer _localizer = localizer;
@@ -125,13 +117,9 @@ public abstract class EntityGenerateCommandBase<TSettings>(
 
     protected abstract CommandType CommandType { get; }
 
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        TSettings settings,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(TSettings settings, CancellationToken cancellationToken)
     {
-        if (!await CommandSolutionHelper.TrySetSolutionAsync(_projectContext, _localizer))
+        if (!CommandSolutionHelper.TrySetSolution(_projectContext, _localizer))
         {
             return 1;
         }

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Share.Entity;
 using Share.Models;
 
 namespace CoreMod.Tests.Generate;
@@ -76,10 +75,7 @@ public class RestApiGenerateTests
             new ReadOnlyDictionary<string, DtoInfo>(new Dictionary<string, DtoInfo>())
         );
 
-        var content = generator.GetRestApiContent(
-            "namespace @Model.Namespace; public class @(Model.EntityName)Controller { @Model.AddCodes }",
-            "StoreService"
-        );
+        var content = generator.GetRestApiContent("StoreService");
 
         Assert.Contains("namespace StoreService", content);
         Assert.Contains("ProductController", content);

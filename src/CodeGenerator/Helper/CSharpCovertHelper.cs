@@ -19,8 +19,8 @@ public class CSharpCovertHelper
     {
         try
         {
-            object? obj = JsonSerializer.Deserialize<object>(json);
-            return obj != null;
+            using JsonDocument document = JsonDocument.Parse(json);
+            return document.RootElement.ValueKind is not (JsonValueKind.Undefined or JsonValueKind.Null);
         }
         catch (Exception)
         {

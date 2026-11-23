@@ -104,13 +104,11 @@ public class CodeGenService(
     /// </summary>
     /// <param name="entityInfo"></param>
     /// <param name="outputPath"></param>
-    /// <param name="tplContent">模板内容</param>
     /// <param name="isCover"></param>
     /// <returns></returns>
     public List<GenFileInfo> GenerateManager(
         EntityInfo entityInfo,
         string outputPath,
-        string tplContent,
         bool isCover = false
     )
     {
@@ -129,7 +127,7 @@ public class CodeGenService(
         };
 
         var isMultiTenant = SolutionService.IsMultiTenant(_projectContext.SolutionPath!);
-        var content = managerGen.GetManagerContent(tplContent, entityInfo.GetCommonNamespace(), isMultiTenant);
+        var content = managerGen.GetManagerContent(entityInfo.GetCommonNamespace(), isMultiTenant);
         var managerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Manager}.cs", content)
         {
             IsCover = isCover,
@@ -149,13 +147,11 @@ public class CodeGenService(
     /// </summary>
     /// <param name="entityInfo"></param>
     /// <param name="servicePath"></param>
-    /// <param name="tplContent"></param>
     /// <param name="isCover"></param>
     /// <returns></returns>
     public async Task<List<GenFileInfo>> GenerateControllerAsync(
         EntityInfo entityInfo,
         string servicePath,
-        string tplContent,
         bool isCover = false
     )
     {
@@ -177,7 +173,7 @@ public class CodeGenService(
             ProjectConfig,
             GetDtoCache(entityInfo)
         );
-        var content = apiGen.GetRestApiContent(tplContent, serviceName, hasSystemMod);
+        var content = apiGen.GetRestApiContent(serviceName, hasSystemMod);
         var controllerFile = new GenFileInfo($"{entityInfo.Name}{ConstVal.Controller}.cs", content)
         {
             IsCover = isCover,
@@ -467,26 +463,6 @@ public class CodeGenService(
 
         files.AddRange(models);
         return files;
-    }
-
-    /// <summary>
-    /// 生成模板内容
-    /// </summary>
-    /// <param name="tplContent"></param>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    public string GenTemplateFile(string tplContent, ActionRunModel model)
-    {
-        var genContext = new RazorGenContext();
-        try
-        {
-            return genContext.GenTemplate(tplContent, model);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "🧐 Razor generate Error:{content}", tplContent);
-            throw;
-        }
     }
 
     /// <summary>

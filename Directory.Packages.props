@@ -5,21 +5,17 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Core runtime / logging -->
-    <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Localization" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.3" />
     <!-- Console / CLI -->
-    <PackageVersion Include="Perigon.MiniDb" Version="0.1.2" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="Spectre.Console" Version="0.53.0" />
-    <PackageVersion Include="Spectre.Console.Cli" Version="0.53.1" />
-    <PackageVersion Include="Spectre.Console.Testing" Version="0.53.1" />
+    <PackageVersion Include="Spectre.Console" Version="0.57.2" />
+    <PackageVersion Include="System.CommandLine" Version="3.0.0" />
+    <PackageVersion Include="Spectre.Console.Testing" Version="0.57.2" />
     <!-- Ater infra / templates -->
     <PackageVersion Include="Perigon.AspNetCore.SourceGeneration" Version="1.1.1" />
-    <!-- UI / Blazor -->
-    <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.0" />
     <!-- Tooling / Roslyn / build helpers -->
     <PackageVersion Include="Microsoft.Build.Locator" Version="1.10.12" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" />
@@ -28,11 +24,6 @@
     <!-- Codegen / helpers -->
     <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
     <PackageVersion Include="Microsoft.OpenApi" Version="3.5.4" />
-    <PackageVersion Include="RazorEngineCore" Version="2026.1.1" />
-    <!-- Model / protocol libs -->
-    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.8.0-preview.1" />
-    <PackageVersion Include="Microsoft.JavaScript.NodeApi" Version="0.9.19" />
-    <PackageVersion Include="Microsoft.JavaScript.NodeApi.Generator" Version="0.9.19" />
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />

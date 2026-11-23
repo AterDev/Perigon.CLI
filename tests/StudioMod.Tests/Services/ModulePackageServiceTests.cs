@@ -1,5 +1,4 @@
 using CoreMod.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -193,7 +192,7 @@ public class ModulePackageServiceTests
                 await WriteArchiveEntryAsync(archive, "Frontend/share/new.component.ts", "new");
             }
 
-            var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+            var context = new SolutionContext()
             {
                 SolutionPath = root,
                 ModulesPath = modulesPath,
@@ -269,7 +268,7 @@ public class ModulePackageServiceTests
                 await WriteArchiveEntryAsync(archive, "Frontend/cms/cms.component.ts", "module");
             }
 
-            var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+            var context = new SolutionContext()
             {
                 SolutionPath = root,
                 ModulesPath = modulesPath,
@@ -373,8 +372,7 @@ public class ModulePackageServiceTests
             TestContext.Current.CancellationToken
         );
 
-        var serviceProvider = new ServiceCollection().BuildServiceProvider();
-        var solutionContext = new SolutionContext(serviceProvider)
+        var solutionContext = new SolutionContext()
         {
             SolutionPath = root,
             ModulesPath = modulesPath,

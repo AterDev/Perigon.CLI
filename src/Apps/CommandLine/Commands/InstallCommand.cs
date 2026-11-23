@@ -1,7 +1,6 @@
 using CoreMod.Services;
 using Share;
 using Share.Helper;
-using System.ComponentModel;
 
 namespace CommandLine.Commands;
 
@@ -13,28 +12,18 @@ public class InstallCommand(
     OfficialModuleService officialModuleService,
     SolutionContext projectContext,
     Localizer localizer
-) : AsyncCommand<InstallCommand.Settings>
+)
 {
-    public class Settings : CommandSettings
+    public class Settings
     {
-        [CommandArgument(0, "[PackagePath]")]
-        [Description("Path to the module package zip file, or official package name like Perigon.SystemMod")]
         public string? PackagePath { get; set; }
 
-        [CommandArgument(1, "[ServiceName]")]
-        [Description("Service name in Services directory")]
         public string? ServiceName { get; set; }
 
-        [CommandOption("--front-path <FRONT_PATH>")]
-        [Description("Frontend project root; the module is restored under its src/app/modules directory")]
         public string? FrontPath { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        Settings settings,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(Settings settings, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(settings.PackagePath) || string.IsNullOrWhiteSpace(settings.ServiceName))
         {
@@ -42,7 +31,7 @@ public class InstallCommand(
             return 1;
         }
 
-        if (!await CommandSolutionHelper.TrySetSolutionAsync(projectContext, localizer))
+        if (!CommandSolutionHelper.TrySetSolution(projectContext, localizer))
         {
             return 1;
         }

@@ -487,7 +487,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
             $$"""
             <Project Sdk="Microsoft.NET.Sdk.Web">
               <PropertyGroup>
-                <TargetFramework>net10.0</TargetFramework>
+                <TargetFramework>net11.0</TargetFramework>
                 <OutputType>Library</OutputType>
                 {{rootNamespaceElement}}
                 <ImplicitUsings>enable</ImplicitUsings>
@@ -609,7 +609,7 @@ public sealed class AotJsonContextServiceTests : IDisposable
         Directory.CreateDirectory(Path.Combine(moduleRoot, "Models", "AdminDtos"));
         File.WriteAllText(
             Path.Combine(moduleRoot, "CommonMod.csproj"),
-            "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup><FrameworkReference Include=\"Microsoft.AspNetCore.App\" /></ItemGroup></Project>");
+            "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net11.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup><FrameworkReference Include=\"Microsoft.AspNetCore.App\" /></ItemGroup></Project>");
         File.WriteAllText(
             Path.Combine(moduleRoot, "ModuleExtensions.cs"),
             "using Microsoft.Extensions.Hosting; namespace CommonMod; public static class ModuleExtensions { public static IHostApplicationBuilder AddCommonMod(this IHostApplicationBuilder builder) => builder; }");

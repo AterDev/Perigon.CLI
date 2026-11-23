@@ -24,13 +24,13 @@ public class ManagerGenerateTests
         };
 
         var generator = new ManagerGenerate(entityInfo, new List<string> { "UserId" });
-        var tplContent = "namespace @Model.Namespace; public class @(Model.EntityName)Manager {}";
 
         // Act
-        var content = generator.GetManagerContent(tplContent, "TestNamespace.Managers");
+        var content = generator.GetManagerContent("TestNamespace");
 
         // Assert
         Assert.Contains("TestEntityManager", content);
-        Assert.Contains("namespace TestNamespace.Managers", content);
+        Assert.Contains(".Where(q => q.UserId == _userContext.UserId)", content);
+        Assert.Contains("namespace TestNamespace.Managers;", content);
     }
 }

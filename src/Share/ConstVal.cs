@@ -7,9 +7,7 @@ namespace Share;
 public static class ConstVal
 {
     public const string CommandName = "perigon";
-    public const string Version = "10.1.0";
-    public const string NetVersion = "net10.0";
-    public const string PackageId = "perigon.cli";
+    public const string NetVersion = "net11.0";
     public const string TemplatePackageId = "Perigon.templates";
     public const string TemplateVersion = "1.0.0";
 
@@ -22,8 +20,6 @@ public static class ConstVal
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    public const string DbName = "perigon.mds";
-    public const string StudioFileName = "Dashboard.dll";
     public const string ModuleExtensionFile = "ModuleExtensions.cs";
 
     // assembly name
@@ -43,11 +39,8 @@ public static class ConstVal
     public const string ControllersDir = "Controllers";
     public const string EndpointsDir = "Endpoints";
     public const string SrcDir = "src";
-    public const string TemplateDir = "templates";
-    public const string ShareDlls = "ShareDlls.txt";
     public const string ServicesDir = "Services";
     public const string PerigonDir = "Perigon";
-    public const string StudioDir = "PerigonStudio";
     public const string AppHostDir = "AppHost";
     public const string FrontendDir = "Frontend";
 
@@ -76,8 +69,6 @@ public static class ConstVal
     // files
     public const string TemplateZip = "template.zip";
     public const string ModulesZip = "modules.zip";
-    public const string StudioZip = "studio.zip";
-    public const string SyncJson = "sync.json";
     public const string AppSettingJson = "appsettings.json";
     public const string AppSettingDevelopmentJson = "appsettings.Development.json";
 

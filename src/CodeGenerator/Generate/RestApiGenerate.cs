@@ -44,9 +44,8 @@ public class RestApiGenerate(
     /// <summary>
     /// 生成控制器
     /// </summary>
-    public string GetRestApiContent(string tplContent, string serviceName, bool isSystem = false)
+    public string GetRestApiContent(string serviceName, bool isSystem = false)
     {
-        var genContext = new RazorGenContext();
         var model = new ControllerViewModel
         {
             Namespace = serviceName,
@@ -57,7 +56,7 @@ public class RestApiGenerate(
             ShareNamespace = ShareNamespace,
             AddCodes = GenAddCodes(isSystem),
         };
-        return genContext.GenCode(tplContent, model);
+        return TplContent.ControllerTpl(model);
     }
 
 

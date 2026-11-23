@@ -53,22 +53,6 @@ public class DtoInfo
             """;
         return tpl;
     }
-
-    public ModelInfo ToEntityInfo(ModelInfo entityInfo)
-    {
-        var res = new ModelInfo()
-        {
-            Name = Name,
-            NamespaceName = EntityNamespace ?? "",
-            Md5Hash = HashCrypto.Md5Hash(EntityNamespace + Name),
-            FilePath = "dto",
-            ModuleName = entityInfo.ModuleName,
-            ProjectId = entityInfo.ProjectId,
-            Comment = Comment,
-            PropertyInfos = Properties.MapTo<List<ModelProperty>>(),
-        };
-        return res;
-    }
 }
 
 public enum DtoType

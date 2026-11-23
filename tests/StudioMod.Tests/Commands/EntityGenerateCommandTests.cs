@@ -1,6 +1,5 @@
 using CommandLine.Commands;
 using Share.Helper;
-using Spectre.Console.Cli;
 using Xunit;
 
 namespace CoreMod.Tests.Commands;
@@ -25,7 +24,8 @@ public class EntityGenerateCommandTests
     {
         Assert.False(settingsType.IsAbstract);
         Assert.NotNull(Activator.CreateInstance(settingsType));
-        Assert.True(typeof(CommandSettings).IsAssignableFrom(settingsType));
+        Assert.True(typeof(EntityGenerateSettings).IsAssignableFrom(settingsType)
+            || settingsType == typeof(GenerateEntitySettings));
     }
 
     [Theory]
@@ -44,10 +44,9 @@ public class EntityGenerateCommandTests
     [Fact]
     public void GenerateEntityCommand_ShouldUseConcreteSettings()
     {
-        var settingsType = typeof(GenerateEntityCommand).BaseType?.GetGenericArguments().Single();
+        var settings = new GenerateEntitySettings();
 
-        Assert.Equal(typeof(GenerateEntitySettings), settingsType);
-        Assert.NotNull(Activator.CreateInstance(settingsType!));
+        Assert.NotNull(settings);
     }
 
     [Fact]

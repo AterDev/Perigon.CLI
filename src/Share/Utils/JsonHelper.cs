@@ -102,7 +102,7 @@ public class JsonHelper
     /// <param name="keyPath">Dot-separated multi-level path.</param>
     /// <param name="newValue">The new value to set.</param>
     /// <exception cref="ArgumentNullException">Thrown if root is null.</exception>
-    public static void AddOrUpdateJsonNode(JsonNode root, string keyPath, object? newValue)
+    public static void AddOrUpdateJsonNode(JsonNode root, string keyPath, JsonNode? newValue)
     {
         ArgumentNullException.ThrowIfNull(root, nameof(root));
         var paths = keyPath.Split('.');
@@ -120,7 +120,7 @@ public class JsonHelper
                 current = newNode;
             }
         }
-        current[paths[^1]] = JsonValue.Create(newValue);
+        current[paths[^1]] = newValue;
     }
 
     /// <summary>

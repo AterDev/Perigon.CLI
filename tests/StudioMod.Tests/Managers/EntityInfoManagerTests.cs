@@ -1,7 +1,6 @@
 using CoreMod.Managers;
 using CoreMod.Services;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Share;
@@ -21,7 +20,7 @@ public class EntityInfoManagerTests : IDisposable
     public EntityInfoManagerTests()
     {
         _mockLogger = new Mock<ILogger<EntityInfoManager>>();
-        _projectContext = new SolutionContext(new ServiceCollection().BuildServiceProvider());
+        _projectContext = new SolutionContext();
 
         var mockCodeGenLogger = new Mock<ILogger<CodeGenService>>();
         var mockCache = new Mock<IMemoryCache>();

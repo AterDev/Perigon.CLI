@@ -1,5 +1,4 @@
 using CoreMod.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Share;
 using Xunit;
@@ -194,7 +193,7 @@ public sealed class TemplateUpdateServiceTests : IDisposable
             changes,
             Path.Combine(_root, "working")
         );
-        var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+        var context = new SolutionContext()
         {
             SolutionPath = projectRoot,
         };
@@ -277,7 +276,7 @@ public sealed class TemplateUpdateServiceTests : IDisposable
         await WriteAsync(projectRoot, "src/Perigon/Changed.cs", "old");
 
         var runner = new RecordingCommandRunner();
-        var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+        var context = new SolutionContext()
         {
             SolutionPath = projectRoot,
         };
@@ -316,7 +315,7 @@ public sealed class TemplateUpdateServiceTests : IDisposable
         await WriteAsync(projectRoot, "src/Perigon/Changed.cs", "old");
 
         var runner = new RecordingCommandRunner();
-        var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+        var context = new SolutionContext()
         {
             SolutionPath = projectRoot,
         };
@@ -346,7 +345,7 @@ public sealed class TemplateUpdateServiceTests : IDisposable
         Directory.CreateDirectory(projectRoot);
         Directory.CreateDirectory(templateRoot);
         var runner = new RecordingCommandRunner();
-        var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+        var context = new SolutionContext()
         {
             SolutionPath = projectRoot,
         };
@@ -373,7 +372,7 @@ public sealed class TemplateUpdateServiceTests : IDisposable
         var templateRoot = Path.Combine(_root, "template");
         Directory.CreateDirectory(projectRoot);
         Directory.CreateDirectory(templateRoot);
-        var context = new SolutionContext(new ServiceCollection().BuildServiceProvider())
+        var context = new SolutionContext()
         {
             SolutionPath = projectRoot,
         };

@@ -1,7 +1,5 @@
-global using Mapster;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.OpenApi;
-global using Perigon.MiniDb;
 global using Share.Entity;
 global using Share.Helper;
 global using Share.Models;
@@ -11,4 +9,3 @@ global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
 global using System.Text;
 global using PropertyInfo = Share.Models.PropertyInfo;
-global using Solution = Share.Entity.Solution;

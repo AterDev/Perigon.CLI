@@ -1,6 +1,6 @@
 ---
 name: cli
-description: "Use for .NET command-line tool development with Spectre.Console/Spectre.Console.Cli, Microsoft.Extensions.Hosting, dependency injection, localized help text, command settings, aliases, examples, terminal output, exit codes, and stdio-safe command paths."
+description: "Use for .NET command-line tool development with System.CommandLine and Spectre.Console, Microsoft.Extensions.Hosting, dependency injection, localized help text, command settings, aliases, examples, terminal output, exit codes, and stdio-safe command paths."
 ---
 
 # CLI Development
@@ -14,14 +14,13 @@ description: "Use for .NET command-line tool development with Spectre.Console/Sp
 
 ## Conventions
 
-- Inherit from `AsyncCommand<TSettings>` or `AsyncCommand`.
+- Bind typed arguments and options in the command action.
 - Put reusable behavior in CoreMod services, CodeGenerator, or Share instead of command classes.
-- Use `CommandSolutionHelper.TrySetSolutionAsync` when the command needs a current solution.
+- Use `CommandSolutionHelper.TrySetSolution` when the command needs a current solution.
 - Use `OutputHelper` or `AnsiConsole` consistently with nearby commands.
 - Escape dynamic Spectre markup with `Markup.Escape`.
 - Return `0` for success and `1` for expected validation or operation failures.
-- Register new commands in DI and `CommandApp.Configure`, including aliases, examples, and localized descriptions.
-- Preserve raw MCP/stdio command paths. Do not add logos, logs, or human-readable output that can break protocol clients.
+- Register command handlers in DI and attach commands to `RootCommand`, including aliases, examples, and localized descriptions.
 
 ## Localization And Tests
 

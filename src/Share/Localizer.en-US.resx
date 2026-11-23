@@ -270,14 +270,8 @@
   <data name="SolutionType" xml:space="preserve">
     <value>Solution Type</value>
   </data>
-  <data name="StudioDes" xml:space="preserve">
-    <value>start Perigon Studio</value>
-  </data>
   <data name="Tools" xml:space="preserve">
     <value>Tools</value>
-  </data>
-  <data name="UpdateStudioDes" xml:space="preserve">
-    <value>update studio</value>
   </data>
   <data name="Values" xml:space="preserve">
     <value>Values</value>
@@ -401,9 +395,6 @@
   </data>
   <data name="Template" xml:space="preserve">
     <value>Template</value>
-  </data>
-  <data name="MCP" xml:space="preserve">
-    <value>MCP</value>
   </data>
   <data name="Filter" xml:space="preserve">
     <value>Filter</value>
@@ -750,26 +741,29 @@
   <data name="Version" xml:space="preserve">
     <value>Version</value>
   </data>
-  <data name="McpDes" xml:space="preserve">
-    <value>Model Context Protocol tools</value>
-  </data>
-  <data name="McpInitDes" xml:space="preserve">
-    <value>Add perigon MCP/Skill/Loop spec support</value>
-  </data>
   <data name="AgentInitSelectActions" xml:space="preserve">
     <value>Select agent setup actions</value>
   </data>
-  <data name="AgentInitMcpChoiceDescription" xml:space="preserve">
-    <value>add mcp.json to .agents</value>
+  <data name="AgentDescription" xml:space="preserve">
+    <value>Manage project agent resources</value>
+  </data>
+  <data name="AgentInitDescription" xml:space="preserve">
+    <value>Install the Perigon Skill and Loop spec resources</value>
+  </data>
+  <data name="AgentInitNoActions" xml:space="preserve">
+    <value>No agent resources were selected.</value>
+  </data>
+  <data name="AgentInitCompleted" xml:space="preserve">
+    <value>Installed the selected agent resources.</value>
+  </data>
+  <data name="AgentInitFailed" xml:space="preserve">
+    <value>Could not install the agent resources. {0}</value>
   </data>
   <data name="AgentInitSkillChoiceDescription" xml:space="preserve">
     <value>add Perigon Skill</value>
   </data>
   <data name="AgentInitLoopSpecChoiceDescription" xml:space="preserve">
     <value>add skills and doc structure for Loop spec</value>
-  </data>
-  <data name="AgentMcpDes" xml:space="preserve">
-    <value>Start MCP server with stdio transport</value>
   </data>
   <data name="FeatureModules" xml:space="preserve">
     <value>Feature Modules</value>

@@ -44,9 +44,8 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
     /// Manager默认代码内容
     /// </summary>
     /// <returns></returns>
-    public string GetManagerContent(string tplContent, string nsp, bool isMultiTenant = false)
+    public string GetManagerContent(string nsp, bool isMultiTenant = false)
     {
-        var genContext = new RazorGenContext();
         var model = new ManagerViewModel
         {
             Namespace = nsp,
@@ -60,7 +59,7 @@ public class ManagerGenerate(EntityInfo entityInfo, ICollection<string> userIdKe
             AdditionMethods = GetUserRelateMethods(isMultiTenant),
         };
 
-        return genContext.GenManager(tplContent, model);
+        return TplContent.ManagerTpl(model);
     }
 
     private string GetAddMethodContent()

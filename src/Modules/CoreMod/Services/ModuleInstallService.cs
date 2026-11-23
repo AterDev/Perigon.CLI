@@ -508,7 +508,10 @@ public class ModuleInstallService(
             }
 
             var metadataJson = await File.ReadAllTextAsync(metadataPath);
-            var metadata = JsonSerializer.Deserialize<PackageMetadata>(metadataJson);
+            var metadata = JsonSerializer.Deserialize(
+                metadataJson,
+                PerigonJsonSerializerContext.Default.PackageMetadata
+            );
             if (metadata == null)
             {
                 OutputHelper.Error(_localizer.Get(Localizer.InvalidPackageStructure));

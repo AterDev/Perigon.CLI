@@ -1,27 +1,44 @@
-using System.ComponentModel;
 using CoreMod.Services;
-using CoreMod.McpTools;
 using Share.Helper;
 using Share.Services;
 using Spectre.Console;
-using Spectre.Console.Cli;
 
 namespace CommandLine.Commands;
 
 /// <summary>
-/// 输出实体模型生成规则。
+/// Settings for the entity-generation guidance command.
 /// </summary>
-public sealed class GenerateEntitySettings : CommandSettings;
+public sealed class GenerateEntitySettings;
 
-public sealed class GenerateEntityCommand : Command<GenerateEntitySettings>
+public sealed class GenerateEntityCommand
 {
-    public override int Execute(
-        CommandContext context,
-        GenerateEntitySettings settings,
-        CancellationToken cancellationToken
-    )
+    public int Execute(GenerateEntitySettings settings)
     {
-        AnsiConsole.WriteLine(Prompts.CreateEntity().Text);
+        AnsiConsole.WriteLine(
+            """
+            <rules>
+            实体模型需要创建在`src/Definition`目录下的`Entity`项目中；
+
+            如果指定了模块名称，则需要在`Entity`程序集下创建模块目录(如果没有)，命名为模块名称+Mod，如`UserMod`；
+
+            如果模块不存在(`src/Modules`下没有对应模块)，则先创建模块，再创建实体模型；
+
+            创建一个C#实体模型类，要遵循以下规范:
+            0 要遵循EF Core实体定义规范，包括关联关系的定义；
+            1 命名空间必须使用文件范围命名空间;
+            2 继承`EntityBase`类，它包含了Id/IsDelete/CreatedTime/UpdatedTime/TenantId等基础属性;
+            3 所有属性要添加 xml 注释，注释语言根据用户输入决定；
+            4 枚举类型属性要使用英文命名，且必须添加[Description]标签，内容为枚举字段名;
+            5 使用[Index]特性来定义数据库索引，根据实体属性含义来定义索引；
+            6 属性严格遵循可空类型的定义，必需的属性使用required关键词；
+            7 所有string类型，都要添加[MaxLength]标签，请根据字段含义自行设定；
+            8 如果是List类型，默认使用默认值`= []`;
+            9 将枚举类型定义跟实体类型定义放在同一个文件中，枚举类型放在实体类型的后面；
+            10 多对多的关系要添加中间表实体类，并定义导航属性外键，EF Core会自动创建外键，无需手动添加Index特性；
+            11 DbContext中的DbSet属性使用标准{get;set;}定义;如无明确说明，不要使用ToTable等额外配置。
+            </rules>
+            """
+        );
         return 0;
     }
 }
@@ -29,13 +46,9 @@ public sealed class GenerateEntityCommand : Command<GenerateEntitySettings>
 /// <summary>
 /// 生成请求
 /// </summary>
-public class RequestCommand(CommandService commandService) : AsyncCommand<RequestSettings>
+public class RequestCommand(CommandService commandService)
 {
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        RequestSettings settings,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(RequestSettings settings, CancellationToken cancellationToken)
     {
         if (Enum.TryParse<RequestType>(settings.Type, true, out RequestType type))
         {
@@ -66,29 +79,16 @@ public class RequestCommand(CommandService commandService) : AsyncCommand<Reques
     }
 }
 
-public sealed class RequestSettings : CommandSettings
+public sealed class RequestSettings
 {
-    [CommandArgument(0, "<path|url>")]
-    [Description("Local path or url, support json format")]
     public string Path { get; set; } = string.Empty;
 
-    [CommandArgument(1, "<outputPath>")]
-    [Description("The output path")]
     public required string OutputPath { get; set; }
 
-    [CommandOption("-t|--type")]
-    [DefaultValue("angular")]
-    [Description("Support types: csharp/angular/axios, default: angular.")]
     public string Type { get; set; } = "angular";
 
-    [CommandOption("-m|--only-model")]
-    [DefaultValue("false")]
-    [Description("Only generate model files")]
     public bool OnlyModel { get; set; }
 
-    [CommandOption("-c|--cover-base-service")]
-    [DefaultValue("false")]
-    [Description("Overwrite generated base.service.ts")]
     public bool CoverBaseService { get; set; }
 }
 

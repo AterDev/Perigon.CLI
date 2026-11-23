@@ -1,7 +1,6 @@
 using CoreMod.Services;
 using Share;
 using Share.Helper;
-using System.ComponentModel;
 
 namespace CommandLine.Commands;
 
@@ -12,22 +11,16 @@ public class AddModuleCommand(
     SolutionService solutionService,
     SolutionContext projectContext,
     Localizer localizer
-) : AsyncCommand<AddModuleCommand.Settings>
+)
 {
-    public class Settings : CommandSettings
+    public class Settings
     {
-        [CommandArgument(0, "<ModuleName>")]
-        [Description("Module name, `Mod` suffix is optional / 模块名称，可省略 `Mod` 后缀")]
         public required string ModuleName { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        Settings settings,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(Settings settings, CancellationToken cancellationToken)
     {
-        if (!await CommandSolutionHelper.TrySetSolutionAsync(projectContext, localizer))
+        if (!CommandSolutionHelper.TrySetSolution(projectContext, localizer))
         {
             return 1;
         }
@@ -59,22 +52,16 @@ public class AddServiceCommand(
     SolutionService solutionService,
     SolutionContext projectContext,
     Localizer localizer
-) : AsyncCommand<AddServiceCommand.Settings>
+)
 {
-    public class Settings : CommandSettings
+    public class Settings
     {
-        [CommandArgument(0, "<ServiceName>")]
-        [Description("Service name / 服务名称")]
         public required string ServiceName { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        Settings settings,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(Settings settings, CancellationToken cancellationToken)
     {
-        if (!await CommandSolutionHelper.TrySetSolutionAsync(projectContext, localizer))
+        if (!CommandSolutionHelper.TrySetSolution(projectContext, localizer))
         {
             return 1;
         }
@@ -99,7 +86,7 @@ public class AddServiceCommand(
 
 internal static class CommandSolutionHelper
 {
-    public static async Task<bool> TrySetSolutionAsync(
+    public static bool TrySetSolution(
         SolutionContext projectContext,
         Localizer localizer
     )
@@ -114,7 +101,7 @@ internal static class CommandSolutionHelper
             return false;
         }
 
-        await projectContext.SetSolutionAsync(solutionFile.DirectoryName);
+        projectContext.SetSolution(solutionFile.DirectoryName);
         return true;
     }
 }

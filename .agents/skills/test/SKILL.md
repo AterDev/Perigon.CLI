@@ -1,6 +1,6 @@
 ---
 name: test
-description: "Use for .NET test design and validation with xUnit v3, Moq, focused regression tests, command tests, service/manager tests, code generation tests, Roslyn helper tests, MiniDb isolation, HTTP stubs, temp directories, and deciding whether to run targeted tests or builds."
+description: "Use for .NET test design and validation with xUnit v3, Moq, focused regression tests, command tests, service/manager tests, code generation tests, Roslyn helper tests, HTTP stubs, temp directories, and deciding whether to run targeted tests or builds."
 ---
 
 # Test And Validation
@@ -9,7 +9,7 @@ description: "Use for .NET test design and validation with xUnit v3, Moq, focuse
 
 - CLI behavior: `tests/StudioMod.Tests/Commands`
 - Core services: `tests/StudioMod.Tests/Services`
-- Managers and MiniDb behavior: `tests/StudioMod.Tests/Managers`
+- Manager behavior: `tests/StudioMod.Tests/Managers`
 - Code generation and OpenAPI/request clients: `tests/StudioMod.Tests/Generate`
 - Roslyn, parsing, conversion, assembly, and utilities: `tests/StudioMod.Tests/Helper`
 - Shared model behavior: `tests/StudioMod.Tests/Models`
@@ -20,7 +20,6 @@ description: "Use for .NET test design and validation with xUnit v3, Moq, focuse
 - Use Moq when simple stubs are not enough.
 - Stub HTTP with local `HttpMessageHandler`; tests must not hit live endpoints.
 - Use unique temp directories for file-system tests and restore current directory in `finally`.
-- Isolate MiniDb paths and avoid shared persistent state.
 - Keep tests focused on observable behavior and regression risk.
 - For generated code, assert meaningful snippets or structural markers instead of large snapshots unless exact text is the contract.
 

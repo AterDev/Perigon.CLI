@@ -1,24 +1,16 @@
 using CoreMod.Services;
 using Share.Helper;
-using Spectre.Console.Cli;
-using System.ComponentModel;
 
 namespace CommandLine.Commands;
 
-public sealed class AotJsonContextSettings : CommandSettings
+public sealed class AotJsonContextSettings
 {
-    [CommandOption("--path <PATH>")]
-    [Description("Project root containing src/Services; defaults to the current directory.")]
     public string? Path { get; set; }
 }
 
 public sealed class AotJsonContextCommand(AotJsonContextService service)
-    : AsyncCommand<AotJsonContextSettings>
 {
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        AotJsonContextSettings settings,
-        CancellationToken cancellationToken)
+    public async Task<int> ExecuteAsync(AotJsonContextSettings settings, CancellationToken cancellationToken)
     {
         var root = System.IO.Path.GetFullPath(
             string.IsNullOrWhiteSpace(settings.Path)

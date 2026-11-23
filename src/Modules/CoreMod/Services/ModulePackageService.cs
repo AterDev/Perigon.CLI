@@ -387,7 +387,7 @@ public class ModulePackageService(
             {
                 var json = JsonSerializer.Serialize(
                     metadata,
-                    ConstVal.DefaultJsonSerializerOptions
+                    PerigonJsonSerializerContext.ModuleMetadata.PackageMetadata
                 );
                 await writer.WriteAsync(json);
             }

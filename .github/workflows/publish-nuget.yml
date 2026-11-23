@@ -1,4 +1,4 @@
-name: Publish Perigon.CLI to NuGet
+name: Publish Perigon.CLI
 
 on:
   push:
@@ -52,10 +52,10 @@ jobs:
           "package_version=$version" >> $env:GITHUB_OUTPUT
           "package_path=$packagePath" >> $env:GITHUB_OUTPUT
 
-      - name: Build and pack CLI with Studio
+      - name: Build and pack CLI
         shell: pwsh
         run: |
-          & './scripts/PublishToLocal.ps1' -withStudio:$true
+          & './scripts/PublishToLocal.ps1'
           if ($LASTEXITCODE -ne 0) {
               throw "PublishToLocal.ps1 failed with exit code $LASTEXITCODE."
           }
@@ -73,9 +73,17 @@ jobs:
 
           $archive = [System.IO.Compression.ZipFile]::OpenRead($packagePath)
           try {
-              $studioEntry = $archive.Entries | Where-Object { $_.FullName -match '(^|/)studio\.zip$' } | Select-Object -First 1
-              if ($null -eq $studioEntry) {
-                  throw 'The NuGet package does not contain studio.zip.'
+              if (-not ($archive.Entries | Where-Object { $_.FullName -match '^tools/.+/agent\.zip$' })) {
+                  throw 'The NuGet package does not contain the agent init resources.'
+              }
+              if ($null -eq $archive.GetEntry('tools/net11.0/any/DotnetToolSettings.xml')) {
+                  throw 'The package does not contain the portable .NET 11 tool manifest.'
+              }
+              if ($null -eq $archive.GetEntry('tools/net11.0/any/BuildHost-netcore/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll')) {
+                  throw 'The .NET SDK build host is missing from the tool package.'
+              }
+              if ($archive.Entries.FullName -match '/BuildHost-net472/|\.pdb$') {
+                  throw 'The package contains the legacy MSBuild host or debug symbols.'
               }
 
               $nuspecEntry = $archive.Entries | Where-Object { $_.FullName -like '*.nuspec' } | Select-Object -First 1

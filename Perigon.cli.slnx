@@ -1,14 +1,10 @@
 <Solution>
   <Folder Name="/scripts/" Id="6dec682d-5f0d-1973-951c-0b9630672490">
-    <File Path="scripts/CheckSharedDlls.ps1" />
-    <File Path="scripts/installTemplate.ps1" />
     <File Path="scripts/PublishToLocal.ps1" />
     <File Path="scripts/SetVersion.ps1" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
-    <File Path=".github/copilot-instructions.md" />
-    <File Path=".mcp.json" />
     <File Path="Directory.Packages.props" />
     <File Path="README.md" />
     <File Path="README_en.md" />
@@ -19,7 +15,6 @@
   </Folder>
   <Folder Name="/src/Apps/">
     <Project Path="src\Apps\CommandLine\CommandLine.csproj" />
-    <Project Path="src\Apps\Dashboard\Dashboard.csproj" />
   </Folder>
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/CoreMod/CoreMod.csproj" />

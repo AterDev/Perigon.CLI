@@ -2,7 +2,6 @@ using CodeGenerator;
 using CodeGenerator.Models;
 using CoreMod.Services;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Share;
 using Share.Models;
@@ -32,7 +31,7 @@ public class CodeGenServiceTests
             const string customContent = "// custom base service";
             await File.WriteAllTextAsync(baseServicePath, customContent, TestContext.Current.CancellationToken);
 
-            var projectContext = new SolutionContext(new ServiceCollection().BuildServiceProvider());
+            var projectContext = new SolutionContext();
             var cache = new CacheService(new MemoryCache(new MemoryCacheOptions()));
             var codeGenService = new CodeGenService(
                 NullLogger<CodeGenService>.Instance,
@@ -91,7 +90,7 @@ public class CodeGenServiceTests
                 TestContext.Current.CancellationToken
             );
 
-            var projectContext = new SolutionContext(new ServiceCollection().BuildServiceProvider());
+            var projectContext = new SolutionContext();
             var cache = new CacheService(new MemoryCache(new MemoryCacheOptions()));
             var codeGenService = new CodeGenService(
                 NullLogger<CodeGenService>.Instance,
@@ -108,8 +107,7 @@ public class CodeGenServiceTests
 
             var files = await codeGenService.GenerateControllerAsync(
                 entityInfo,
-                servicePath,
-                "namespace @Model.Namespace; public class @(Model.EntityName)Controller {}"
+                servicePath
             );
 
             Assert.NotNull(projectContext.SolutionConfig);

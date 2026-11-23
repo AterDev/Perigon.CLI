@@ -1,5 +1,3 @@
-using Humanizer;
-using System.Diagnostics;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -10,56 +8,11 @@ namespace CoreMod.Services;
 /// </summary>
 public class SolutionService(
     SolutionContext projectContext,
-    ILogger<SolutionService> logger,
-    DefaultDbContext context
+    ILogger<SolutionService> logger
 )
 {
     private readonly SolutionContext _projectContext = projectContext;
     private readonly ILogger<SolutionService> _logger = logger;
-
-    /// <summary>
-    /// 保存解决方案
-    /// </summary>
-    /// <param name="solutionPath"></param>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public async Task<int> SaveSolutionAsync(string solutionPath, string name)
-    {
-        var projectFilePath = Directory
-            .GetFiles(solutionPath, $"*{ConstVal.SolutionExtension}", SearchOption.TopDirectoryOnly)
-            .FirstOrDefault();
-        projectFilePath ??= Directory
-            .GetFiles(
-                solutionPath,
-                $"*{ConstVal.SolutionXMLExtension}",
-                SearchOption.TopDirectoryOnly
-            )
-            .FirstOrDefault();
-        projectFilePath ??= Directory
-            .GetFiles(
-                solutionPath,
-                $"*{ConstVal.CSharpProjectExtension}",
-                SearchOption.TopDirectoryOnly
-            )
-            .FirstOrDefault();
-        projectFilePath ??= Directory
-            .GetFiles(solutionPath, ConstVal.NodeProjectFile, SearchOption.TopDirectoryOnly)
-            .FirstOrDefault();
-
-        var solutionType = AssemblyHelper.GetSolutionType(projectFilePath);
-        var solutionName = Path.GetFileName(projectFilePath) ?? name;
-        var entity = new Solution()
-        {
-            DisplayName = name,
-            Path = solutionPath,
-            Name = solutionName,
-            SolutionType = solutionType,
-        };
-        entity.Config.SolutionPath = solutionPath;
-        context.Solutions.Add(entity);
-        await context.SaveChangesAsync();
-        return entity.Id;
-    }
 
     /// <summary>
     /// 判断当前解决方案是否启用 AOT
@@ -177,105 +130,10 @@ public class SolutionService(
     }
 
     /// <summary>
-    /// clean solution
-    /// </summary>
-    /// <param name="errorMsg"></param>
-    /// <returns></returns>
-    public bool CleanSolution(out string errorMsg)
-    {
-        errorMsg = string.Empty;
-        string?[] dirPaths =
-        [
-            _projectContext.ServicesPath,
-            _projectContext.EntityPath,
-            _projectContext.EntityFrameworkPath,
-            _projectContext.CommonModPath,
-            _projectContext.SharePath,
-            _projectContext.ModulesPath,
-        ];
-
-        string[] dirs = [];
-        foreach (var path in dirPaths.Where(p => p.NotEmpty()))
-        {
-            if (!Directory.Exists(path))
-            {
-                continue;
-            }
-            dirs = dirs.Union(Directory.GetDirectories(path, "bin", SearchOption.TopDirectoryOnly))
-                .Union(Directory.GetDirectories(path, "obj", SearchOption.TopDirectoryOnly))
-                .ToArray();
-        }
-        try
-        {
-            foreach (string dir in dirs)
-            {
-                Directory.Delete(dir, true);
-            }
-
-            Console.WriteLine($"⛏️ rebuild solution");
-            Process process = Process.Start("dotnet", $"build {_projectContext.SolutionPath}");
-            process.WaitForExit();
-            // if process has error message
-            if (process.ExitCode != 0)
-            {
-                errorMsg = "project build failed！";
-                return false;
-            }
-            return true;
-        }
-        catch (Exception ex)
-        {
-            errorMsg = "project clean failed, please try to close the occupied program and retry.";
-            Console.WriteLine($"❌ Clean solution occur error:{ex.Message}");
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// 项目配置保存
-    /// </summary>
-    /// <returns></returns>
-    public async Task<bool> SaveSyncDataLocalAsync()
-    {
-        var actions = context.GenActions.ToList();
-        var steps = context.GenSteps.ToList();
-        var relation = context.GenActionGenSteps.ToList();
-
-        var data = new SyncModel
-        {
-            TemplateSync = new TemplateSync
-            {
-                GenActions = actions,
-                GenSteps = steps,
-                GenActionGenSteps = relation,
-            },
-        };
-
-        try
-        {
-            var templatePath = Path.Combine(_projectContext.SolutionPath!, ConstVal.TemplateDir);
-            if (!Directory.Exists(templatePath))
-            {
-                Directory.CreateDirectory(templatePath);
-            }
-            var filePath = Path.Combine(templatePath, ConstVal.SyncJson);
-            var json = JsonSerializer.Serialize(data, ConstVal.DefaultJsonSerializerOptions);
-            await File.WriteAllTextAsync(filePath, json);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("同步数据到本地失败！{message}", ex.Message);
-            return false;
-        }
-    }
-
-    /// <summary>
     /// 使用 dotnet sln add
     /// </summary>
     /// <param name="projectPath"></param>
-    /// <param name="isRemove">remove</param>
-    public bool UpdateSolutionFile(string projectPath, bool isRemove = false)
+    public bool UpdateSolutionFile(string projectPath)
     {
         FileInfo? slnFile = AssemblyHelper.GetSlnFile(
             new DirectoryInfo(_projectContext.SolutionPath!)
@@ -286,33 +144,28 @@ public class SolutionService(
             return false;
         }
 
-        if (!isRemove && !File.Exists(projectPath))
+        if (!File.Exists(projectPath))
         {
             _logger.LogWarning("Project file was not found: {ProjectPath}", projectPath);
             return false;
         }
 
-        var containsProject = SolutionContainsProject(slnFile.FullName, projectPath);
-        if ((containsProject && !isRemove) || (!containsProject && isRemove))
+        if (SolutionContainsProject(slnFile.FullName, projectPath))
         {
             _logger.LogDebug(
-                "Project {ProjectPath} is already {State} in solution {SolutionPath}",
+                "Project {ProjectPath} is already present in solution {SolutionPath}",
                 projectPath,
-                isRemove ? "absent" : "present",
                 slnFile.FullName
             );
             return true;
         }
 
-        var action = isRemove ? "remove" : "add";
-        var command = isRemove
-            ? $"sln {QuoteCommandArgument(slnFile.FullName)} remove {QuoteCommandArgument(projectPath)}"
-            : $"sln {QuoteCommandArgument(slnFile.FullName)} add --include-references false {QuoteCommandArgument(projectPath)}";
+        var command = $"sln {QuoteCommandArgument(slnFile.FullName)} add --include-references false {QuoteCommandArgument(projectPath)}";
         if (!ProcessHelper.RunCommand("dotnet", command, out string error))
         {
             // Older SDKs do not expose --include-references. Retry the legacy command only for that
             // capability mismatch; all other errors must remain visible to the caller.
-            if (!isRemove && error.Contains("include-references", StringComparison.OrdinalIgnoreCase))
+            if (error.Contains("include-references", StringComparison.OrdinalIgnoreCase))
             {
                 var legacyCommand = $"sln {QuoteCommandArgument(slnFile.FullName)} add {QuoteCommandArgument(projectPath)}";
                 if (ProcessHelper.RunCommand("dotnet", legacyCommand, out error))
@@ -323,8 +176,7 @@ public class SolutionService(
             }
 
             _logger.LogWarning(
-                "Failed to {Action} project {ProjectPath} to solution {SolutionPath}: {Error}",
-                action,
+                "Failed to add project {ProjectPath} to solution {SolutionPath}: {Error}",
                 projectPath,
                 slnFile.FullName,
                 error
@@ -332,7 +184,7 @@ public class SolutionService(
             return false;
         }
 
-        _logger.LogInformation("Project {ProjectPath} {Action}ed solution {SolutionPath}", projectPath, action, slnFile.FullName);
+        _logger.LogInformation("Project {ProjectPath} added to solution {SolutionPath}", projectPath, slnFile.FullName);
         return true;
     }
 
@@ -415,7 +267,10 @@ public class SolutionService(
         else
         {
             Directory.CreateDirectory(serviceDir);
-            var csprojContent = TplContent.ServiceProjectFileTpl(ConstVal.NetVersion);
+            var targetFramework = existService is null
+                ? ConstVal.NetVersion
+                : AssemblyHelper.GetTargetFramework(existService.Path) ?? ConstVal.NetVersion;
+            var csprojContent = TplContent.ServiceProjectFileTpl(targetFramework);
             var csprojPath = Path.Combine(
                 serviceDir,
                 $"{serviceName}{ConstVal.CSharpProjectExtension}"
@@ -543,171 +398,6 @@ public class SolutionService(
     }
 
     /// <summary>
-    /// delete module
-    /// </summary>
-    /// <param name="moduleName"></param>
-    public void DeleteModule(string moduleName)
-    {
-        OutputHelper.Important($"🏃‍♂️‍➡️ Deleting module: {moduleName}");
-        // 1 获取并移除实体
-        var entityDir = Path.Combine(
-            _projectContext.SolutionPath!,
-            PathConst.EntityPath,
-            moduleName
-        );
-        List<string> entityNames = [];
-        if (Directory.Exists(entityDir))
-        {
-            // 获取所有文件名作为实体名
-            entityNames = Directory
-                .GetFiles(entityDir, "*.cs")
-                .Select(Path.GetFileNameWithoutExtension)
-                .ToList()!;
-            Directory.Delete(entityDir, true);
-            OutputHelper.Success($"[1] remove entity dir: {entityDir}!");
-        }
-        // 2 移除DbContext中的DbSet
-        if (entityNames.Count > 0)
-        {
-            var databasePath = _projectContext.EntityFrameworkPath!;
-            var dbContextDir = Path.Combine(databasePath, ConstVal.AppDbContextName);
-            if (Directory.Exists(dbContextDir))
-            {
-                var dbContextFiles = Directory.GetFiles(dbContextDir, "*.cs");
-                foreach (var dbContextFile in dbContextFiles)
-                {
-                    var dbContextFileName = Path.GetFileName(dbContextFile);
-                    if (!dbContextFile.EndsWith("DbContext.cs") || dbContextFile == ConstVal.ContextBase + ".cs")
-                    {
-                        continue;
-                    }
-                    var dbContextContent = File.ReadAllText(dbContextFile);
-                    CompilationHelper compilation = new(databasePath);
-                    compilation.LoadContent(dbContextContent);
-
-                    if (
-                        compilation.GetParentClassName() == ConstVal.ContextBase
-                        || compilation.GetParentClassName() == "DbContext"
-                    )
-                    {
-                        foreach (var entityName in entityNames)
-                        {
-                            var plural = entityName.Pluralize();
-                            if (compilation.PropertyExist(plural))
-                            {
-                                compilation.RemoveClassProperty(plural);
-                                OutputHelper.Success(
-                                    $"[2] remove DbSet<{entityName}> {plural} from {dbContextFileName}!"
-                                );
-                            }
-                            compilation.RemoveOnModelCreating(entityName);
-                        }
-
-
-                        dbContextContent = compilation.SyntaxRoot!.ToFullString();
-                        // 命名空间移除
-                        dbContextContent = dbContextContent.Replace($"using Entity.{moduleName};", "");
-                        OutputHelper.Success($"[2] remove namesapce from {dbContextFileName}!");
-                        File.WriteAllText(dbContextFile, dbContextContent);
-                    }
-                }
-            }
-        }
-
-
-        var moduleDir = Path.Combine(_projectContext.SolutionPath!, PathConst.ModulesPath);
-        var modulePath = Path.Combine(moduleDir, moduleName);
-        var moduleFilePath = Path.Combine(
-            modulePath,
-            $"{moduleName}{ConstVal.CSharpProjectExtension}"
-        );
-
-        // 3. 服务中的项目引用
-        if (entityNames.Count > 0 && Directory.Exists(_projectContext.ServicesPath!))
-        {
-            var serviceDirs = Directory.GetDirectories(_projectContext.ServicesPath!);
-            foreach (var serviceDir in serviceDirs)
-            {
-                var controllersDir = Path.Combine(serviceDir, ConstVal.ControllersDir);
-                if (Directory.Exists(controllersDir))
-                {
-                    foreach (var entityName in entityNames)
-                    {
-                        var controllerFile = Path.Combine(
-                            controllersDir,
-                            moduleName,
-                            $"{entityName}{ConstVal.Controller}.cs"
-                        );
-                        if (File.Exists(controllerFile))
-                        {
-                            File.Delete(controllerFile);
-                        }
-                    }
-                }
-                var globalUsingsFile = Path.Combine(
-                    serviceDir,
-                    ConstVal.GlobalUsingsFile
-                );
-                if (File.Exists(globalUsingsFile))
-                {
-                    var lines = File.ReadAllLines(globalUsingsFile).ToList();
-                    lines = lines.Where(line => !line.Contains($"{moduleName}")).ToList();
-                    File.WriteAllLines(globalUsingsFile, lines);
-                }
-                // 移除引用
-                var serviceProjectFile = Directory.GetFiles(
-                        serviceDir,
-                        $"*{ConstVal.CSharpProjectExtension}",
-                        SearchOption.TopDirectoryOnly
-                    ).FirstOrDefault();
-
-                if (serviceProjectFile != null)
-                {
-                    if (ProcessHelper.RunCommand(
-                        "dotnet",
-                        $"remove {serviceProjectFile} reference {moduleFilePath}",
-                        out string _
-                    ))
-                    {
-                        OutputHelper.Success($"[3] remove project reference ➡️ {serviceProjectFile}!");
-                    }
-                }
-            }
-        }
-        // 4. 从解决方案中移除
-        UpdateSolutionFile(moduleFilePath, true);
-        OutputHelper.Success($"[4] remove {moduleName} from solution");
-        // 5. 删除模块目录
-        if (Directory.Exists(modulePath))
-        {
-            Directory.Delete(modulePath, true);
-            OutputHelper.Success($"[5] delte module dir: {modulePath}!");
-        }
-    }
-
-    public string GenerateMigrations(string dbContextName, string migrationName)
-    {
-        var efPath = _projectContext.EntityFrameworkPath;
-        if (!Directory.Exists(efPath))
-        {
-            return $"EntityFramework path {efPath} not exist!";
-        }
-        var migrationDir = Path.Combine(_projectContext.ServicesPath ?? "", "MigrationService");
-        if (!Directory.Exists(migrationDir))
-        {
-            return $"MigrationService path {migrationDir} not exist!";
-        }
-        var commands = new string[]
-        {
-            $"cd {efPath}",
-            $"dotnet build",
-            $"dotnet ef migrations add --context {dbContextName} --project {efPath}",
-        };
-        var output = ProcessHelper.ExecuteCommands(commands);
-        return output;
-    }
-
-    /// <summary>
     /// 获取模块列表
     /// </summary>
     /// <param name="solutionPath"></param>
@@ -731,134 +421,6 @@ public class SolutionService(
     }
 
     /// <summary>
-    /// 添加默认模块
-    /// </summary>
-    public static void AddDefaultModule(string moduleName, string solutionPath)
-    {
-        string studioPath = AssemblyHelper.GetStudioPath();
-        string sourcePath = Path.Combine(studioPath, ConstVal.ModulesDir, moduleName);
-        if (!Directory.Exists(sourcePath))
-        {
-            OutputHelper.Warning($"{sourcePath} not exist!");
-            return;
-        }
-
-        string modulePath = Path.Combine(solutionPath, PathConst.ModulesPath, moduleName);
-        string entityPath = Path.Combine(solutionPath, PathConst.EntityPath, moduleName);
-        string databasePath = Path.Combine(solutionPath, PathConst.EntityFrameworkPath);
-
-        // copy entities
-        CopyModuleFiles(Path.Combine(sourcePath, ConstVal.EntityName), entityPath);
-
-        // copy module files
-        CopyModuleFiles(sourcePath, modulePath);
-
-        string dbContextFile = Path.Combine(databasePath, ConstVal.AppDbContextName, "DefaultDbContext.cs");
-        string dbContextContent = File.ReadAllText(dbContextFile);
-
-        CompilationHelper compilation = new(databasePath);
-        compilation.LoadContent(dbContextContent);
-
-        List<FileInfo> entityFiles = new DirectoryInfo(
-            Path.Combine(sourcePath, ConstVal.EntityName)
-        )
-            .GetFiles("*.cs", SearchOption.AllDirectories)
-            .ToList();
-
-        entityFiles.ForEach(file =>
-        {
-            string entityName = Path.GetFileNameWithoutExtension(file.Name);
-            var plural = entityName.Pluralize();
-            string propertyString = $@"public DbSet<{entityName}> {plural} {{ get; set; }}";
-
-            if (!compilation.PropertyExist(plural))
-            {
-                compilation.AddClassProperty(propertyString);
-            }
-        });
-
-        dbContextContent = compilation.SyntaxRoot!.ToFullString();
-        File.WriteAllText(dbContextFile, dbContextContent);
-        // update globalUsings.cs
-        string globalUsingsFile = Path.Combine(databasePath, "GlobalUsings.cs");
-        string globalUsingsContent = File.ReadAllText(globalUsingsFile);
-
-        string newLine = @$"global using Entity.{moduleName};";
-        if (!globalUsingsContent.Contains(newLine))
-        {
-            globalUsingsContent = globalUsingsContent.Replace(
-                "global using Entity;",
-                $"global using Entity;{Environment.NewLine}{newLine}"
-            );
-            File.WriteAllText(globalUsingsFile, globalUsingsContent);
-        }
-        var slnFile = AssemblyHelper.GetSlnFile(new DirectoryInfo(solutionPath));
-
-        var moduleProjectPath = Path.Combine(
-            modulePath,
-            $"{moduleName}{ConstVal.CSharpProjectExtension}"
-        );
-
-        if (slnFile == null || !File.Exists(moduleProjectPath))
-        {
-            OutputHelper.Warning(
-                $"slnFile {slnFile} or module project file {moduleProjectPath} not found!"
-            );
-            return;
-        }
-
-        if (
-            !ProcessHelper.RunCommand(
-                "dotnet",
-                $"sln {slnFile.FullName} add {moduleProjectPath}",
-                out string error
-            )
-        )
-        {
-            OutputHelper.Error("add project ➡️ solution failed:" + error);
-        }
-        else
-        {
-            OutputHelper.Success($"add project {moduleProjectPath} ➡️ solution!");
-        }
-    }
-
-    /// <summary>
-    /// 复制模块文件
-    /// </summary>
-    /// <param name="sourceDir"></param>`
-    /// <param name="destinationDir"></param>
-    private static void CopyModuleFiles(string sourceDir, string destinationDir)
-    {
-        DirectoryInfo dir = new(sourceDir);
-        if (!dir.Exists)
-        {
-            return;
-        }
-
-        DirectoryInfo[] dirs = dir.GetDirectories();
-        Directory.CreateDirectory(destinationDir);
-
-        // 获取源目录中的文件并复制到目标目录
-        foreach (System.IO.FileInfo file in dir.GetFiles())
-        {
-            string targetFilePath = Path.Combine(destinationDir, file.Name);
-            file.CopyTo(targetFilePath, true);
-        }
-
-        foreach (DirectoryInfo subDir in dirs)
-        {
-            // 过滤不必要的目录
-            if (subDir.Name is ConstVal.EntityName)
-            {
-                continue;
-            }
-            string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-            CopyModuleFiles(subDir.FullName, newDestinationDir);
-        }
-    }
-
-    /// <summary>
     /// 构建项目
     /// </summary>
     /// <param name="projectPath"></param>
@@ -869,7 +431,7 @@ public class SolutionService(
         if (
             !ProcessHelper.RunCommand(
                 "dotnet",
-                $"build {projectPath} {(restore ? "" : "--no-restore")}",
+                $"build {QuoteCommandArgument(projectPath)} {(restore ? "" : "--no-restore")}",
                 out string error
             )
         )

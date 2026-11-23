@@ -5,6 +5,20 @@ namespace CoreMod.Tests.Generate;
 
 public class TplContentTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void EnumPipeTpl_ShouldPreserveAngularDecorators(bool isNgModule)
+    {
+        var content = TplContent.EnumPipeTpl("case 'status': break;", isNgModule);
+
+        Assert.Contains("from '@angular/core'", content);
+        Assert.Contains("@Pipe(", content);
+        Assert.Contains("@Injectable(", content);
+        Assert.Contains("case 'status': break;", content);
+        Assert.Equal(isNgModule, content.Contains("@NgModule("));
+    }
+
     [Fact]
     public void ModuleExtension_ShouldNotGenerateUseModuleServicesMethod()
     {

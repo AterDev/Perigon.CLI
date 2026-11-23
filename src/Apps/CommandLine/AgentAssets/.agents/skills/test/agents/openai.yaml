@@ -1,0 +1,4 @@
+interface:
+  display_name: "Module Testing"
+  short_description: "Test modules with TUnit and Aspire hosting"
+  default_prompt: "Use $test to add or run focused tests for a Perigon module."

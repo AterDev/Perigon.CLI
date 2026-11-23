@@ -6,33 +6,6 @@ namespace Share.Utils;
 
 public static class Extensions
 {
-    extension<TSource>(TSource source)
-    {
-        /// <summary>
-        /// 将被合并对象中非空属性值，合并到源对象
-        /// </summary>
-        /// <param name="merge"></param>
-        /// <returns></returns>
-        public TSource Merge<TMerge>(TMerge merge)
-        {
-            return merge.Adapt(source);
-        }
-    }
-
-    extension(object source)
-    {
-        /// <summary>
-        /// convert to TDestination
-        /// </summary>
-        /// <typeparam name="TDestination"></typeparam>
-        /// <returns></returns>
-        public TDestination MapTo<TDestination>()
-            where TDestination : class
-        {
-            return source.Adapt<TDestination>();
-        }
-    }
-
     extension<TSource>(IQueryable<TSource> source)
     {
         /// <summary>

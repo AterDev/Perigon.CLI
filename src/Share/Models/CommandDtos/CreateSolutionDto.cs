@@ -19,7 +19,6 @@ public class CreateSolutionDto
         if (IsLight)
         {
             DBType = DBType.PostgreSQL;
-            Modules.Clear();
             OfficialModules.Clear();
         }
     }
@@ -97,11 +96,6 @@ public class CreateSolutionDto
 
     [MaxLength(60)]
     public string? DefaultPassword { get; set; }
-
-    /// <summary>
-    /// 选择的模块
-    /// </summary>
-    public List<string> Modules { get; set; } = [];
 
     /// <summary>
     /// 选择的官方模块包

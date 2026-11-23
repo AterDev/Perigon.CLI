@@ -5,30 +5,30 @@ namespace CodeGenerator;
 /// </summary>
 public class TplContent
 {
-    public static string ManagerTpl()
+    internal static string ManagerTpl(ManagerViewModel model)
     {
-        return """
-            using @(Model.ShareNamespace).Models.@(Model.EntityName)Dtos;
+        return $$"""
+            using {{model.ShareNamespace}}.Models.{{model.EntityName}}Dtos;
 
-            namespace @(Model.Namespace).Managers;
-            @Model.Comment
-            public class @(Model.EntityName)Manager(
+            namespace {{model.Namespace}}.Managers;
+            {{model.Comment}}
+            public class {{model.EntityName}}Manager(
                 TenantDbFactory dbContextFactory, 
-                ILogger<@(Model.EntityName)Manager> logger,
+                ILogger<{{model.EntityName}}Manager> logger,
                 IUserContext userContext
-            ) : ManagerBase<@(Model.DbContextName), @(Model.EntityName)>(dbContextFactory, userContext, logger)
+            ) : ManagerBase<{{model.DbContextName}}, {{model.EntityName}}>(dbContextFactory, userContext, logger)
             {
-            @(Model.FilterMethod)
+            {{model.FilterMethod}}
 
-            @(Model.AddMethod)
+            {{model.AddMethod}}
 
                 /// <summary>
-                /// edit @(Model.EntitySummary)
+                /// edit {{model.EntitySummary}}
                 /// </summary>
                 /// <param name="id"></param>
                 /// <param name="dto"></param>
                 /// <returns></returns>
-                public async Task<int> EditAsync(Guid id, @(Model.EntityName)UpdateDto dto)
+                public async Task<int> EditAsync(Guid id, {{model.EntityName}}UpdateDto dto)
                 {
                     if (await HasPermissionAsync(id))
                     {
@@ -39,21 +39,21 @@ public class TplContent
 
 
                 /// <summary>
-                /// Get @(Model.EntitySummary) detail
+                /// Get {{model.EntitySummary}} detail
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
-                public async Task<@(Model.EntityName)DetailDto?> GetAsync(Guid id)
+                public async Task<{{model.EntityName}}DetailDto?> GetAsync(Guid id)
                 {
                     if (await HasPermissionAsync(id))
                     {
-                        return await FindAsync<@(Model.EntityName)DetailDto>(q => q.Id == id);
+                        return await FindAsync<{{model.EntityName}}DetailDto>(q => q.Id == id);
                     }
                     throw new BusinessException(Localizer.NoPermission);
                 }
 
                 /// <summary>
-                /// Delete  @(Model.EntitySummary)
+                /// Delete  {{model.EntitySummary}}
                 /// </summary>
                 /// <param name="ids"></param>
                 /// <param name="softDelete"></param>
@@ -84,74 +84,74 @@ public class TplContent
                     }
                 }
 
-            @(Model.AdditionMethods)
+            {{model.AdditionMethods}}
             }
             """;
     }
 
-    public static string ControllerTpl()
+    internal static string ControllerTpl(ControllerViewModel model)
     {
         return $$"""
-            using @(Model.ShareNamespace).Models.@(Model.EntityName)Dtos;
-            namespace @(Model.Namespace).Controllers.@(Model.ModuleName);
+            using {{model.ShareNamespace}}.Models.{{model.EntityName}}Dtos;
+            namespace {{model.Namespace}}.Controllers.{{model.ModuleName}};
 
-            @Model.Comment
-            public class @(Model.EntityName)Controller(
+            {{model.Comment}}
+            public class {{model.EntityName}}Controller(
                 Localizer localizer,
                 IUserContext user,
-                ILogger<@(Model.EntityName)Controller> logger,
-                @(Model.EntityName)Manager manager
-                ) : RestControllerBase<@(Model.EntityName)Manager>(localizer, manager, user, logger)
+                ILogger<{{model.EntityName}}Controller> logger,
+                {{model.EntityName}}Manager manager
+                ) : RestControllerBase<{{model.EntityName}}Manager>(localizer, manager, user, logger)
             {
                 /// <summary>
-                /// list @Model.Summary with page ✍️
+                /// list {{model.Summary}} with page ✍️
                 /// </summary>
                 /// <param name="filter"></param>
                 /// <returns></returns>
                 [HttpPost("filter")]
-                public async Task<ActionResult<PageList<@(Model.EntityName)ItemDto>>> ListAsync(@(Model.EntityName)FilterDto filter)
+                public async Task<ActionResult<PageList<{{model.EntityName}}ItemDto>>> ListAsync({{model.EntityName}}FilterDto filter)
                 {
                     return await _manager.FilterAsync(filter);
                 }
 
                 /// <summary>
-                /// Add @Model.Summary ✍️
+                /// Add {{model.Summary}} ✍️
                 /// </summary>
                 /// <param name="dto"></param>
                 /// <returns></returns>
                 [HttpPost]
-                public async Task<ActionResult<@(Model.EntityName)>> AddAsync(@(Model.EntityName)AddDto dto)
+                public async Task<ActionResult<{{model.EntityName}}>> AddAsync({{model.EntityName}}AddDto dto)
                 {
-                    @(Model.AddCodes)
+                    {{model.AddCodes}}
                     var entity = await _manager.AddAsync(dto);
                     return CreatedAtRoute(null, new { id = entity.Id }, entity);
                 }
 
                 /// <summary>
-                /// Update @Model.Summary ✍️
+                /// Update {{model.Summary}} ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <param name="dto"></param>
                 /// <returns></returns>
                 [HttpPatch("{id}")]
-                public async Task<bool> UpdateAsync([FromRoute] Guid id, @(Model.EntityName)UpdateDto dto)
+                public async Task<bool> UpdateAsync([FromRoute] Guid id, {{model.EntityName}}UpdateDto dto)
                 {
                     return await _manager.EditAsync(id, dto) == 1;
                 }
 
                 /// <summary>
-                /// Get @Model.Summary Detail ✍️
+                /// Get {{model.Summary}} Detail ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
                 [HttpGet("{id}")]
-                public async Task<@(Model.EntityName)DetailDto?> DetailAsync([FromRoute] Guid id)
+                public async Task<{{model.EntityName}}DetailDto?> DetailAsync([FromRoute] Guid id)
                 {
                     return await _manager.GetAsync(id);
                 }
 
                 /// <summary>
-                /// Delete @Model.Summary ✍️
+                /// Delete {{model.Summary}} ✍️
                 /// </summary>
                 /// <param name="id"></param>
                 /// <returns></returns>
@@ -164,9 +164,9 @@ public class TplContent
             """;
     }
 
-    public static string EnumPipeTpl(bool IsNgModule = false)
+    public static string EnumPipeTpl(string content, bool isNgModule)
     {
-        string ngModule = IsNgModule
+        string ngModule = isNgModule
             ? """
 @NgModule({
   declarations: [EnumTextPipe], exports: [EnumTextPipe]
@@ -177,18 +177,18 @@ export class EnumTextPipeModule { }
         return $$"""
             // <auto-generate>
             import { {{(
-                IsNgModule ? "NgModule, " : ""
-            )}}Injectable, Pipe, PipeTransform } from '@@angular/core';
+                isNgModule ? "NgModule, " : ""
+            )}}Injectable, Pipe, PipeTransform } from '@angular/core';
 
-            @@Pipe({
+            @Pipe({
               name: 'enumText'
             })
-            @@Injectable({ providedIn: 'root' })
+            @Injectable({ providedIn: 'root' })
             export class EnumTextPipe implements PipeTransform {
               transform(value: unknown, type: string): string {
                 let result = '';
                 switch (type) {
-            @Model.Content
+            {{content}}
                   default:
                     break;
                 }

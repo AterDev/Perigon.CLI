@@ -43,7 +43,6 @@ public static class RequestClientHelper
 
     public static string GetEnumPipeContent(IDictionary<string, IOpenApiSchema> schemas, bool isNgModule = false)
     {
-        string tplContent = TplContent.EnumPipeTpl(isNgModule);
         var codeWriter = new CodeWriter();
 
         foreach (var item in schemas)
@@ -55,9 +54,7 @@ public static class RequestClientHelper
             }
         }
 
-        var genContext = new RazorGenContext();
-        var model = new CommonViewModel { Content = codeWriter.ToString() };
-        return genContext.GenCode(tplContent, model);
+        return TplContent.EnumPipeTpl(codeWriter.ToString(), isNgModule);
     }
 
     public static string ToEnumSwitchString(string enumType, IOpenApiSchema schema)

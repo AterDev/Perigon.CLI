@@ -7,9 +7,9 @@ namespace CommandLine.Commands;
 public class ModuleListCommand(
     OfficialModuleService officialModuleService,
     Localizer localizer
-) : AsyncCommand
+)
 {
-    public override Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
+    public Task<int> ExecuteAsync(CancellationToken cancellationToken)
     {
         return ModuleCommandHelper.ShowOfficialModulesAsync(
             officialModuleService,

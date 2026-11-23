@@ -4,7 +4,6 @@ using Share.Helper;
 using Share.Models;
 using Share.Models.CommandDtos;
 using Share.Services;
-using System.ComponentModel;
 using System.Net.Http;
 
 namespace CommandLine.Commands;
@@ -14,20 +13,13 @@ public class NewCommand(
     CommandService commandService,
     OfficialModuleService officialModuleService
 )
-    : AsyncCommand<NewCommand.Settings>
 {
-    public class Settings : CommandSettings
+    public class Settings
     {
-        [CommandArgument(0, "<name>")]
-        [Description("Solution Name")]
         public required string Name { get; set; }
     }
 
-    public override async Task<int> ExecuteAsync(
-        CommandContext context,
-        Settings settings,
-        CancellationToken cancellationToken
-    )
+    public async Task<int> ExecuteAsync(Settings settings, CancellationToken cancellationToken)
     {
         AnsiConsole.WriteLine();
         // 1. 选择项目模板类型

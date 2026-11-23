@@ -1,6 +1,6 @@
 ---
 name: codegen
-description: "Use for .NET code generation work with Roslyn, Microsoft.OpenApi, Razor templates, DTO/manager/controller generation, REST API generation, C# HttpClient generation, Angular/Axios TypeScript request clients, generated formatting, and deterministic output."
+description: "Use for .NET code generation work with Roslyn, Microsoft.OpenApi, built-in text templates, DTO/manager/controller generation, REST API generation, C# HttpClient generation, Angular/Axios TypeScript request clients, generated formatting, and deterministic output."
 ---
 
 # Code Generation

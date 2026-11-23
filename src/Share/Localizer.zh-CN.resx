@@ -279,14 +279,8 @@
   <data name="SolutionType" xml:space="preserve">
     <value>解决方案类型</value>
   </data>
-  <data name="StudioDes" xml:space="preserve">
-    <value>启动Perigon Studio</value>
-  </data>
   <data name="Tools" xml:space="preserve">
     <value>工具</value>
-  </data>
-  <data name="UpdateStudioDes" xml:space="preserve">
-    <value>更新studio</value>
   </data>
   <data name="Values" xml:space="preserve">
     <value>值</value>
@@ -410,9 +404,6 @@
   </data>
   <data name="Template" xml:space="preserve">
     <value>模板</value>
-  </data>
-  <data name="MCP" xml:space="preserve">
-    <value>MCP</value>
   </data>
   <data name="Filter" xml:space="preserve">
     <value>筛选</value>
@@ -750,26 +741,29 @@
   <data name="Version" xml:space="preserve">
     <value>版本</value>
   </data>
-  <data name="McpDes" xml:space="preserve">
-    <value>Model Context Protocol 工具</value>
-  </data>
-  <data name="McpInitDes" xml:space="preserve">
-    <value>添加 perigon mcp/skill/loop spec 支持</value>
-  </data>
   <data name="AgentInitSelectActions" xml:space="preserve">
     <value>选择 agent 初始化操作</value>
   </data>
-  <data name="AgentInitMcpChoiceDescription" xml:space="preserve">
-    <value>添加 mcp.json 到 .agents</value>
+  <data name="AgentDescription" xml:space="preserve">
+    <value>管理项目的 Agent 资源</value>
+  </data>
+  <data name="AgentInitDescription" xml:space="preserve">
+    <value>安装 Perigon Skill 和 Loop spec 资源</value>
+  </data>
+  <data name="AgentInitNoActions" xml:space="preserve">
+    <value>未选择 Agent 资源。</value>
+  </data>
+  <data name="AgentInitCompleted" xml:space="preserve">
+    <value>已安装所选的 Agent 资源。</value>
+  </data>
+  <data name="AgentInitFailed" xml:space="preserve">
+    <value>安装 Agent 资源失败。{0}</value>
   </data>
   <data name="AgentInitSkillChoiceDescription" xml:space="preserve">
     <value>添加 Perigon Skill</value>
   </data>
   <data name="AgentInitLoopSpecChoiceDescription" xml:space="preserve">
     <value>添加 Loop spec 所需的 skills 和 docs 结构</value>
-  </data>
-  <data name="AgentMcpDes" xml:space="preserve">
-    <value>通过 stdio 传输启动 MCP 服务</value>
   </data>
   <data name="FeatureModules" xml:space="preserve">
     <value>功能模块</value>

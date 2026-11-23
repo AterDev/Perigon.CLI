@@ -1,6 +1,3 @@
-using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Formatting;
-
 namespace CodeGenerator.Helper;
 
 /// <summary>
@@ -38,34 +35,6 @@ public class CSharpAnalysisHelper
             return baseType;
         }
         return default;
-    }
-
-    public static string FormatChanges(SyntaxNode node)
-    {
-        AdhocWorkspace workspace = new();
-        Microsoft.CodeAnalysis.Options.OptionSet options = workspace
-            .Options
-            // change these values to fit your environment / preferences
-            .WithChangedOption(FormattingOptions.UseTabs, LanguageNames.CSharp, value: true)
-            .WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, value: "\r\n");
-        return Formatter.Format(node, workspace, options).ToFullString();
-    }
-
-    /// <summary>
-    /// 内容节点编辑
-    /// </summary>
-    /// <typeparam name="TNode"></typeparam>
-    /// <param name="editor"></param>
-    /// <param name="node"></param>
-    /// <param name="replacementNode"></param>
-    public static void ReplaceNodeUsing<TNode>(
-        DocumentEditor editor,
-        TNode node,
-        Func<TNode, SyntaxNode> replacementNode
-    )
-        where TNode : SyntaxNode
-    {
-        editor.ReplaceNode(node, (n, _) => replacementNode((TNode)n));
     }
 
     /// <summary>
