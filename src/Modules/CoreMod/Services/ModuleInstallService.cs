@@ -582,6 +582,25 @@ public class ModuleInstallService(
                 CopyDirectory(apiSourceDir, apiTargetDir);
             }
 
+            // Install the host-side demand implementation scaffold. Demand files are
+            // intentionally additive so a module update never replaces an installer's
+            // completed implementation.
+            var demandSourceDir = Path.Combine(
+                tempDir,
+                ConstVal.ModuleDemandDir,
+                metadata.ModuleName
+            );
+            if (Directory.Exists(demandSourceDir))
+            {
+                var demandTargetDir = Path.Combine(
+                    _projectContext.ServicesPath!,
+                    serviceName,
+                    ConstVal.ModuleDemandDir,
+                    metadata.ModuleName
+                );
+                CopyDirectory(demandSourceDir, demandTargetDir, overwrite: false);
+            }
+
             if (!string.IsNullOrWhiteSpace(metadata.Frontend))
             {
                 var frontendSourceDir = Path.Combine(tempDir, ConstVal.FrontendDir);

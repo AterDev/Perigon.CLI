@@ -285,6 +285,18 @@ public class ModulePackageService(
             hasErrors = true;
         }
 
+        var demandPath = Path.Combine(_projectContext.ServicesPath!, serviceName, ConstVal.ModuleDemandDir, moduleName);
+        if (!await ValidateDirectoryDependenciesAsync(
+                demandPath,
+                moduleName,
+                ConstVal.ModuleDemandDir,
+                [moduleName, "Share"],
+                checkQualifiedReferences: true
+            ))
+        {
+            hasErrors = true;
+        }
+
         return !hasErrors;
     }
 
@@ -295,7 +307,8 @@ public class ModulePackageService(
         string directoryPath,
         string moduleName,
         string componentType,
-        List<string> allowedDependencies
+        List<string> allowedDependencies,
+        bool checkQualifiedReferences = false
     )
     {
         if (!Directory.Exists(directoryPath))
@@ -312,24 +325,32 @@ public class ModulePackageService(
             var tree = CSharpSyntaxTree.ParseText(content);
             var root = await tree.GetRootAsync();
 
-            // Check using directives
-            var invalidDependencies = root
-                .DescendantNodes()
+            var nodes = root.DescendantNodes();
+            var referencedNames = nodes
                 .OfType<UsingDirectiveSyntax>()
-                .Select(usingDirective => usingDirective.Name?.ToString())
-                .Where(namespaceName => namespaceName != null && namespaceName.Contains("."))
-                .Select(namespaceName =>
-                {
-                    var namespaceParts = namespaceName!.Split('.');
-                    return namespaceParts.Any(part => part.EndsWith("Mod"))
-                        ? namespaceParts.First(part => part.EndsWith("Mod"))
-                        : null;
-                })
+                .Select(directive => directive.Name)
+                .OfType<CSharpSyntaxNode>();
+            if (checkQualifiedReferences)
+            {
+                referencedNames = referencedNames
+                    .Concat(nodes.OfType<QualifiedNameSyntax>()
+                        .Where(name => !name.Ancestors().Any(ancestor => ancestor is BaseNamespaceDeclarationSyntax declaration
+                            && declaration.Name.Span.Contains(name.Span)))
+                        .Select(name => name.Left))
+                    .Concat(nodes.OfType<AliasQualifiedNameSyntax>().Select(name => name.Name))
+                    .Concat(nodes.OfType<MemberAccessExpressionSyntax>().Select(access => access.Expression));
+            }
+
+            var invalidDependencies = referencedNames
+                .SelectMany(name => name.DescendantTokens())
+                .Where(token => token.RawKind == (int)SyntaxKind.IdentifierToken)
+                .Select(token => token.ValueText)
                 .Where(referencedModule =>
-                    referencedModule != null &&
+                    referencedModule.EndsWith("Mod", StringComparison.Ordinal) &&
                     !allowedDependencies.Contains(referencedModule) &&
                     referencedModule != moduleName
                 )
+                .Distinct(StringComparer.Ordinal)
                 .Select(referencedModule => $"{referencedModule} in {Path.GetFileName(file)}");
 
             foreach (var dependency in invalidDependencies)
@@ -419,6 +440,9 @@ public class ModulePackageService(
                     $"{apiDirectory}/{moduleName}"
                 );
             }
+
+            var demandPath = Path.Combine(_projectContext.ServicesPath!, serviceName, ConstVal.ModuleDemandDir, moduleName);
+            AddDirectoryToArchive(archive, demandPath, $"{ConstVal.ModuleDemandDir}/{moduleName}");
 
             if (frontendPath != null)
             {

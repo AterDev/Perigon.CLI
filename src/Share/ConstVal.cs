@@ -38,6 +38,7 @@ public static class ConstVal
     public const string ManagersDir = "Managers";
     public const string ControllersDir = "Controllers";
     public const string EndpointsDir = "Endpoints";
+    public const string ModuleDemandDir = "ModuleDemand";
     public const string SrcDir = "src";
     public const string ServicesDir = "Services";
     public const string PerigonDir = "Perigon";

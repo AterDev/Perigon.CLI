@@ -52,6 +52,46 @@ public class ModulePackageServiceTests
     }
 
     [Fact]
+    public async Task PackageModuleAsync_ShouldIncludeDemandSkeleton()
+    {
+        var result = await RunPackageAsync(
+            """
+            namespace CMSMod;
+            [DisplayName("Perigon::CMSMod")]
+            public static class ModuleExtensions { }
+            """,
+            isAot: true,
+            demandContent: """
+                using CMSMod.Demands;
+                namespace ApiService.ModuleDemand.CMSMod;
+                internal sealed class CMSDemand : ICMSDemand { }
+                """
+        );
+
+        Assert.Contains("ModuleDemand/CMSMod/CMSDemand.cs", result.EntryNames);
+    }
+
+    [Theory]
+    [InlineData("using SystemMod;")]
+    [InlineData("using Users = global::SystemMod.Managers;")]
+    [InlineData("class CMSDemand(global::SystemMod.Managers.SysUserManager users) { }")]
+    public async Task PackageModuleAsync_ShouldRejectDemandWithCrossModuleReferences(string demandContent)
+    {
+        var result = await RunPackageAsync(
+            """
+            namespace CMSMod;
+            [DisplayName("Perigon::CMSMod")]
+            public static class ModuleExtensions { }
+            """,
+            isAot: true,
+            demandContent: demandContent,
+            expectFailure: true
+        );
+
+        Assert.Null(result.Metadata);
+    }
+
+    [Fact]
     public async Task PackageModuleAsync_ShouldUseExplicitVersion()
     {
         var result = await RunPackageAsync(
@@ -172,6 +212,18 @@ public class ModulePackageServiceTests
         try
         {
             Directory.CreateDirectory(Path.Combine(servicesPath, "AdminService"));
+            var demandTargetPath = Path.Combine(
+                servicesPath,
+                "AdminService",
+                ConstVal.ModuleDemandDir,
+                "CMSMod"
+            );
+            Directory.CreateDirectory(demandTargetPath);
+            await File.WriteAllTextAsync(
+                Path.Combine(demandTargetPath, "CMSDemand.cs"),
+                "custom implementation",
+                TestContext.Current.CancellationToken
+            );
             Directory.CreateDirectory(sharePath);
             await File.WriteAllTextAsync(
                 Path.Combine(sharePath, "shared.component.ts"),
@@ -187,6 +239,16 @@ public class ModulePackageServiceTests
                     JsonSerializer.Serialize(new PackageMetadata { ModuleName = "CMSMod", Frontend = "Angular" })
                 );
                 await WriteArchiveEntryAsync(archive, $"{apiDirectory}/CMSMod/Article.cs", "api");
+                await WriteArchiveEntryAsync(
+                    archive,
+                    $"{ConstVal.ModuleDemandDir}/CMSMod/CMSDemand.cs",
+                    "package scaffold"
+                );
+                await WriteArchiveEntryAsync(
+                    archive,
+                    $"{ConstVal.ModuleDemandDir}/CMSMod/NotificationDemand.cs",
+                    "new scaffold"
+                );
                 await WriteArchiveEntryAsync(archive, "Frontend/cms/cms.component.ts", "module");
                 await WriteArchiveEntryAsync(archive, "Frontend/share/shared.component.ts", "package");
                 await WriteArchiveEntryAsync(archive, "Frontend/share/new.component.ts", "new");
@@ -220,6 +282,20 @@ public class ModulePackageServiceTests
 
             Assert.NotNull(metadata);
             Assert.True(File.Exists(Path.Combine(servicesPath, "AdminService", apiDirectory, "CMSMod", "Article.cs")));
+            Assert.Equal(
+                "custom implementation",
+                await File.ReadAllTextAsync(
+                    Path.Combine(demandTargetPath, "CMSDemand.cs"),
+                    TestContext.Current.CancellationToken
+                )
+            );
+            Assert.Equal(
+                "new scaffold",
+                await File.ReadAllTextAsync(
+                    Path.Combine(demandTargetPath, "NotificationDemand.cs"),
+                    TestContext.Current.CancellationToken
+                )
+            );
             Assert.Equal("module", await File.ReadAllTextAsync(
                 Path.Combine(frontendPath, "cms.component.ts"),
                 TestContext.Current.CancellationToken
@@ -310,7 +386,9 @@ public class ModulePackageServiceTests
         string moduleExtensionsContent,
         string? frontendPackageJson = null,
         string? version = null,
-        bool isAot = false
+        bool isAot = false,
+        string? demandContent = null,
+        bool expectFailure = false
     )
     {
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -321,6 +399,17 @@ public class ModulePackageServiceTests
         Directory.CreateDirectory(Path.Combine(modulesPath, "CMSMod"));
         Directory.CreateDirectory(Path.Combine(entityPath, "CMSMod"));
         Directory.CreateDirectory(Path.Combine(servicesPath, "AdminService"));
+
+        if (demandContent is not null)
+        {
+            var demandPath = Path.Combine(servicesPath, "AdminService", ConstVal.ModuleDemandDir, "CMSMod");
+            Directory.CreateDirectory(demandPath);
+            await File.WriteAllTextAsync(
+                Path.Combine(demandPath, "CMSDemand.cs"),
+                demandContent,
+                TestContext.Current.CancellationToken
+            );
+        }
 
         await File.WriteAllTextAsync(
             Path.Combine(modulesPath, "CMSMod", ConstVal.ModuleExtensionFile),
@@ -394,6 +483,12 @@ public class ModulePackageServiceTests
                 frontendPath,
                 version
             );
+            if (expectFailure)
+            {
+                Assert.Null(packagePath);
+                return new PackageResult(null, []);
+            }
+
             Assert.NotNull(packagePath);
             Assert.True(File.Exists(packagePath));
 
